@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Collections;
 using TensorFlowLite;
 
 
-public class MNIST : MonoBehaviour
+public class MnistSample : MonoBehaviour
 {
     [SerializeField] string fileName = "mnist.tflite";
     [SerializeField] Text outputTextView = null;
@@ -18,6 +19,7 @@ public class MNIST : MonoBehaviour
     float[] inputs = new float[28 * 28];
     float[] outputs = new float[10];
     ComputeBuffer inputBuffer;
+
     System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
     void Start()
@@ -33,7 +35,6 @@ public class MNIST : MonoBehaviour
     void OnDestroy()
     {
         interpreter?.Dispose();
-
         inputBuffer?.Dispose();
     }
 
@@ -41,11 +42,11 @@ public class MNIST : MonoBehaviour
     {
         if (!isProcessing)
         {
-            ExcecuteAsync(texture);
+            Excecute(texture);
         }
     }
 
-    void ExcecuteAsync(RenderTexture texture)
+    void Excecute(RenderTexture texture)
     {
         isProcessing = true;
 
@@ -53,7 +54,6 @@ public class MNIST : MonoBehaviour
         compute.SetBuffer(0, "OutputTensor", inputBuffer);
         compute.Dispatch(0, 28 / 4, 28 / 4, 1);
         inputBuffer.GetData(inputs);
-
 
         float startTime = Time.realtimeSinceStartup;
         interpreter.SetInputTensorData(0, inputs);
