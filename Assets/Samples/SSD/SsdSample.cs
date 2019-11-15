@@ -16,7 +16,6 @@ public class SsdSample : MonoBehaviour
     [SerializeField] TextAsset labelMap = null;
 
     WebCamTexture webcamTexture;
-    public RenderTexture webcamTextureRGBA;
     SSD ssd;
 
     Text[] frames;
@@ -26,18 +25,15 @@ public class SsdSample : MonoBehaviour
     void Start()
     {
 
-        var path = Path.Combine(Application.streamingAssetsPath, fileName);
+        string path = Path.Combine(Application.streamingAssetsPath, fileName);
         ssd = new SSD(path, compute);
 
         // Init camera
-        var cameraName = WebCamTexture.devices.Last().name;
+        string cameraName = GetWebcamName();
         webcamTexture = new WebCamTexture(cameraName, 1280, 720);
         cameraView.texture = webcamTexture;
         webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
-
-        webcamTextureRGBA = new RenderTexture(300, 300, 0, RenderTextureFormat.ARGB32);
-
 
         // Init frames
         frames = new Text[10];
@@ -49,21 +45,22 @@ public class SsdSample : MonoBehaviour
 
         // Labels
         labels = labelMap.text.Split('\n');
+
+        if (Application.isMobilePlatform)
+        {
+            cameraView.uvRect = new Rect(1, 0, -1, 1);
+        }
     }
 
     void OnDestroy()
     {
         webcamTexture?.Stop();
-        webcamTextureRGBA?.Release();
-
         ssd?.Dispose();
     }
 
     void Update()
     {
-        // Resize it
-        Graphics.Blit(webcamTexture, webcamTextureRGBA);
-        ssd.Invoke(webcamTextureRGBA);
+        ssd.Invoke(webcamTexture);
 
         var results = ssd.GetResults();
 
@@ -100,6 +97,16 @@ public class SsdSample : MonoBehaviour
             return "?";
         }
         return labels[id];
+    }
+
+    static string GetWebcamName()
+    {
+        if (Application.isMobilePlatform)
+        {
+            return WebCamTexture.devices.Where(d => !d.isFrontFacing).Last().name;
+
+        }
+        return WebCamTexture.devices.Last().name;
     }
 
 }
