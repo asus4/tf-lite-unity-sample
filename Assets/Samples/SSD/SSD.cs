@@ -19,6 +19,8 @@ namespace TensorFlowLite
         Interpreter interpreter;
         ComputeShader compute;
         ComputeBuffer inputBuffer;
+        RenderTexture resizeTexture;
+        Material resizeMat;
 
         // https://www.tensorflow.org/lite/models/object_detection/overview
         uint[] inputInts = new uint[WIDTH * HEIGHT * CHANNELS];
@@ -38,19 +40,43 @@ namespace TensorFlowLite
             interpreter.AllocateTensors();
 
             inputBuffer = new ComputeBuffer(WIDTH * HEIGHT * CHANNELS, sizeof(uint)); // uint8
+
         }
 
         public void Dispose()
         {
             interpreter?.Dispose();
             inputBuffer?.Dispose();
+
+            resizeTexture?.Release();
         }
 
-        public void Invoke(Texture texture)
+        public void Invoke(Texture inputTex)
         {
-            Debug.Assert(texture.width == WIDTH);
-            Debug.Assert(texture.height == HEIGHT);
+            RenderTexture tex = ResizeTexture(inputTex);
 
+            // TextureToBytesGPU(tex, inputBytes);
+            TextureToBytesCPU(tex, inputBytes);
+
+            Invoke(inputBytes);
+        }
+
+        RenderTexture ResizeTexture(Texture texture)
+        {
+            if (resizeTexture == null)
+            {
+                resizeTexture = new RenderTexture(300, 300, 0, RenderTextureFormat.ARGB32);
+                resizeMat = new Material(Shader.Find("Hidden/YFlip"));
+
+                resizeMat.SetInt("_FlipX", Application.isMobilePlatform ? 1 : 0);
+                resizeMat.SetInt("_FlipY", 1);
+            }
+            Graphics.Blit(texture, resizeTexture, resizeMat, 0);
+            return resizeTexture;
+        }
+
+        void TextureToBytesGPU(RenderTexture texture, sbyte[] inputs)
+        {
             compute.SetTexture(0, "InputTexture", texture);
             compute.SetBuffer(0, "OutputTensor", inputBuffer);
             compute.Dispatch(0, WIDTH / 10, HEIGHT / 10, 1);
@@ -61,11 +87,36 @@ namespace TensorFlowLite
             inputBuffer.GetData(inputInts);
             for (int i = 0; i < inputInts.Length; i++)
             {
-                inputBytes[i] = (sbyte)inputInts[i];
+                inputs[i] = (sbyte)inputInts[i];
+            }
+        }
+
+        Texture2D fetchTexture;
+        void TextureToBytesCPU(RenderTexture texture, sbyte[] inputs)
+        {
+            if (fetchTexture == null)
+            {
+                fetchTexture = new Texture2D(WIDTH, HEIGHT, TextureFormat.RGB24, 0, false);
             }
 
-            Invoke(inputBytes);
+            var prevRT = RenderTexture.active;
+            RenderTexture.active = texture;
+
+            fetchTexture.ReadPixels(new Rect(0, 0, WIDTH, HEIGHT), 0, 0);
+            fetchTexture.Apply();
+
+            RenderTexture.active = prevRT;
+
+            // TODO invert Y
+            var pixels = fetchTexture.GetPixels32();
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                inputs[i * 3] = unchecked((sbyte)pixels[i].r);
+                inputs[i * 3 + 1] = unchecked((sbyte)pixels[i].g);
+                inputs[i * 3 + 2] = unchecked((sbyte)pixels[i].b);
+            }
         }
+
 
         void Invoke(sbyte[] inputs)
         {
