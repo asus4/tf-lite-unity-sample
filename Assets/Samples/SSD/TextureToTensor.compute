@@ -2,19 +2,17 @@
 #pragma kernel TextureToTensor
 
 Texture2D<float4> InputTexture;
-RWStructuredBuffer<uint3> OutputTensor;
+// RWStructuredBuffer<uint3> OutputTensor;
+RWStructuredBuffer<uint> OutputTensor;
+
 
 [numthreads(10,10,1)]
 void TextureToTensor (uint2 tid : SV_DispatchThreadID)
 {
     uint gid = (300 - tid.y) * 300 + tid.x;
-    // uint gid = tid.y * 300 + tid.x;
-    
-    // ARGB Format
     float4 c = InputTexture[tid];
-    OutputTensor[gid] = uint3(
-        uint(c.r * 255),
-        uint(c.g * 255),
-        uint(c.b * 255)
-    );
+
+    OutputTensor[gid * 3] =  uint(c.r * 255);
+    OutputTensor[gid * 3 + 1] =  uint(c.g * 255);
+    OutputTensor[gid * 3 + 2] =  uint(c.b * 255);
 }
