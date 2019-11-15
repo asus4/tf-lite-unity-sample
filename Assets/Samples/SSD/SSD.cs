@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using UnityEngine;
-using Unity.Mathematics;
 
 namespace TensorFlowLite
 {
@@ -22,7 +21,7 @@ namespace TensorFlowLite
         ComputeBuffer inputBuffer;
 
         // https://www.tensorflow.org/lite/models/object_detection/overview
-        uint3[] inputInts = new uint3[WIDTH * HEIGHT];
+        uint[] inputInts = new uint[WIDTH * HEIGHT * CHANNELS];
         sbyte[] inputBytes = new sbyte[WIDTH * HEIGHT * CHANNELS];
 
         float[] outputs0 = new float[10 * 4]; // [top, left, bottom, right] * 10
@@ -38,7 +37,7 @@ namespace TensorFlowLite
             interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
             interpreter.AllocateTensors();
 
-            inputBuffer = new ComputeBuffer(WIDTH * HEIGHT, sizeof(uint) * 3); // uint8
+            inputBuffer = new ComputeBuffer(WIDTH * HEIGHT * CHANNELS, sizeof(uint)); // uint8
         }
 
         public void Dispose()
@@ -62,10 +61,7 @@ namespace TensorFlowLite
             inputBuffer.GetData(inputInts);
             for (int i = 0; i < inputInts.Length; i++)
             {
-                uint3 c = inputInts[i];
-                inputBytes[i * 3] = (sbyte)c.x;
-                inputBytes[i * 3 + 1] = (sbyte)c.y;
-                inputBytes[i * 3 + 2] = (sbyte)c.z;
+                inputBytes[i] = (sbyte)inputInts[i];
             }
 
             Invoke(inputBytes);
