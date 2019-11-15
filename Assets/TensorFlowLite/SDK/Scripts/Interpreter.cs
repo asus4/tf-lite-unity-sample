@@ -14,6 +14,8 @@ limitations under the License.
 ==============================================================================*/
 using System;
 using System.Runtime.InteropServices;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 
 using TfLiteInterpreter = System.IntPtr;
 using TfLiteInterpreterOptions = System.IntPtr;
@@ -68,6 +70,14 @@ namespace TensorFlowLite
           tensor, tensorDataPtr, Buffer.ByteLength(inputTensorData)));
     }
 
+    public unsafe void SetInputTensorData<T>(int inputTensorIndex, NativeArray<T> inputTensorData) where T: struct
+    {
+      IntPtr tensorDataPtr = new IntPtr(NativeArrayUnsafeUtility.GetUnsafePtr(inputTensorData));
+      TfLiteTensor tensor = TfLiteInterpreterGetInputTensor(interpreter, inputTensorIndex);
+      ThrowIfError(TfLiteTensorCopyFromBuffer(
+          tensor, tensorDataPtr, inputTensorData.Length));
+    }
+
     public void ResizeInputTensor(int inputTensorIndex, int[] inputTensorShape) {
       ThrowIfError(TfLiteInterpreterResizeInputTensor(
           interpreter, inputTensorIndex, inputTensorShape, inputTensorShape.Length));
@@ -87,6 +97,14 @@ namespace TensorFlowLite
       TfLiteTensor tensor = TfLiteInterpreterGetOutputTensor(interpreter, outputTensorIndex);
       ThrowIfError(TfLiteTensorCopyToBuffer(
           tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData)));
+    }
+
+    public unsafe void GetOutputTensorData<T>(int outputTensorIndex, NativeArray<T> outputTensorData) where T: struct
+    {
+      IntPtr tensorDataPtr = new IntPtr(NativeArrayUnsafeUtility.GetUnsafePtr(outputTensorData));
+      TfLiteTensor tensor = TfLiteInterpreterGetOutputTensor(interpreter, outputTensorIndex);
+      ThrowIfError(TfLiteTensorCopyToBuffer(
+          tensor, tensorDataPtr, outputTensorData.Length));
     }
 
     private static void ThrowIfError(int resultCode) {
