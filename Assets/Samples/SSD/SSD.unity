@@ -402,7 +402,7 @@ MonoBehaviour:
   compute: {fileID: 7200000, guid: 86ffccd002da6436e8aedb8f268cdb7a, type: 3}
   framePrefab: {fileID: 5133934790876113832, guid: 717c89ea2a05f4537b007f12d6357590,
     type: 3}
-  scoreThreshold: 0.2
+  scoreThreshold: 0.5
   labelMap: {fileID: 4900000, guid: bae4ee124cc4849e589f4cd1aa62e7db, type: 3}
   labels: []
 --- !u!4 &1453601107

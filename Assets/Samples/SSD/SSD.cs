@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using UnityEngine;
+using Unity.Mathematics;
 
 namespace TensorFlowLite
 {
@@ -21,8 +22,10 @@ namespace TensorFlowLite
         ComputeBuffer inputBuffer;
 
         // https://www.tensorflow.org/lite/models/object_detection/overview
-        sbyte[] inputs = new sbyte[WIDTH * HEIGHT * CHANNELS];
-        float[] outputs0 = new float[10 * 4]; // RECTs
+        uint3[] inputInts = new uint3[WIDTH * HEIGHT];
+        sbyte[] inputBytes = new sbyte[WIDTH * HEIGHT * CHANNELS];
+
+        float[] outputs0 = new float[10 * 4]; // [top, left, bottom, right] * 10
         float[] outputs1 = new float[10]; // Classes
         float[] outputs2 = new float[10]; // Scores
         Result[] results = new Result[10];
@@ -35,8 +38,7 @@ namespace TensorFlowLite
             interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
             interpreter.AllocateTensors();
 
-            inputBuffer = new ComputeBuffer(WIDTH * HEIGHT * CHANNELS, sizeof(sbyte)); // uint8
-            inputs = new sbyte[WIDTH * HEIGHT * CHANNELS];
+            inputBuffer = new ComputeBuffer(WIDTH * HEIGHT, sizeof(uint) * 3); // uint8
         }
 
         public void Dispose()
@@ -47,41 +49,55 @@ namespace TensorFlowLite
 
         public void Invoke(Texture texture)
         {
+            Debug.Assert(texture.width == WIDTH);
+            Debug.Assert(texture.height == HEIGHT);
+
             compute.SetTexture(0, "InputTexture", texture);
             compute.SetBuffer(0, "OutputTensor", inputBuffer);
-            compute.Dispatch(0, 300 / 10, 300 / 10, 1);
+            compute.Dispatch(0, WIDTH / 10, HEIGHT / 10, 1);
 
-            inputBuffer.GetData(inputs);
+            // Note:
+            // ComputeShader doesn't support byte quantize
+            // Therefore receive as uint, then convert to sbyte
+            inputBuffer.GetData(inputInts);
+            for (int i = 0; i < inputInts.Length; i++)
+            {
+                uint3 c = inputInts[i];
+                inputBytes[i * 3] = (sbyte)c.x;
+                inputBytes[i * 3 + 1] = (sbyte)c.y;
+                inputBytes[i * 3 + 2] = (sbyte)c.z;
+            }
 
-            float startSec = Time.realtimeSinceStartup;
+            Invoke(inputBytes);
+        }
+
+        void Invoke(sbyte[] inputs)
+        {
             interpreter.SetInputTensorData(0, inputs);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
             interpreter.GetOutputTensorData(2, outputs2);
-
-            float durationMs = (int)((Time.realtimeSinceStartup - startSec) * 1000);
-            Debug.Log($"{durationMs} ms");
         }
 
         public Result[] GetResults()
         {
             for (int i = 0; i < 10; i++)
             {
-                float top = outputs0[i * 4];
+                // Invert Y to adapt Unity UI space
+                float top = 1f - outputs0[i * 4];
                 float left = outputs0[i * 4 + 1];
-                float bottom = outputs0[i * 4 + 2];
+                float bottom = 1f - outputs0[i * 4 + 2];
                 float right = outputs0[i * 4 + 3];
 
                 results[i] = new Result()
                 {
                     classID = (int)outputs1[i],
                     score = outputs2[i],
-                    rect = new Rect(left, top, right - left, bottom - top),
+                    rect = new Rect(left, top, right - left, top - bottom),
                 };
             }
             return results;
         }
     }
-
 }

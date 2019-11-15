@@ -2,16 +2,19 @@
 #pragma kernel TextureToTensor
 
 Texture2D<float4> InputTexture;
-SamplerState _LinearClamp;
-
-RWBuffer<uint3> OutputTensor;
+RWStructuredBuffer<uint3> OutputTensor;
 
 [numthreads(10,10,1)]
 void TextureToTensor (uint2 tid : SV_DispatchThreadID)
 {
     uint gid = (300 - tid.y) * 300 + tid.x;
-    float2 uv = float2(tid.x / 300.0, tid.y / 300.0);
-    float4 c = InputTexture.SampleLevel(_LinearClamp, uv, 0);
-    // BGRA -> RGB
-    OutputTensor[gid] = uint3(c.x * 255, c.y * 255, c.z * 255);
+    // uint gid = tid.y * 300 + tid.x;
+    
+    // ARGB Format
+    float4 c = InputTexture[tid];
+    OutputTensor[gid] = uint3(
+        uint(c.r * 255),
+        uint(c.g * 255),
+        uint(c.b * 255)
+    );
 }

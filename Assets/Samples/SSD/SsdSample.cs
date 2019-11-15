@@ -12,13 +12,15 @@ public class SsdSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField] ComputeShader compute = null;
     [SerializeField] Text framePrefab = null;
-    [SerializeField] float scoreThreshold = 0.5f;
+    [SerializeField, Range(0f, 1f)] float scoreThreshold = 0.5f;
     [SerializeField] TextAsset labelMap = null;
 
-    WebCamTexture webcamTexure;
+    WebCamTexture webcamTexture;
+    public RenderTexture webcamTextureRGBA;
     SSD ssd;
 
     Text[] frames;
+
     public string[] labels;
 
     void Start()
@@ -29,10 +31,13 @@ public class SsdSample : MonoBehaviour
 
         // Init camera
         var cameraName = WebCamTexture.devices.Last().name;
-        webcamTexure = new WebCamTexture(cameraName, 1280, 720);
-        cameraView.texture = webcamTexure;
-        webcamTexure.Play();
+        webcamTexture = new WebCamTexture(cameraName, 1280, 720);
+        cameraView.texture = webcamTexture;
+        webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
+
+        webcamTextureRGBA = new RenderTexture(300, 300, 0, RenderTextureFormat.ARGB32);
+
 
         // Init frames
         frames = new Text[10];
@@ -48,16 +53,21 @@ public class SsdSample : MonoBehaviour
 
     void OnDestroy()
     {
+        webcamTexture?.Stop();
+        webcamTextureRGBA?.Release();
+
         ssd?.Dispose();
     }
 
     void Update()
     {
-        ssd.Invoke(webcamTexure);
-
-        var size = ((RectTransform)cameraView.transform).rect.size;
+        // Resize it
+        Graphics.Blit(webcamTexture, webcamTextureRGBA);
+        ssd.Invoke(webcamTextureRGBA);
 
         var results = ssd.GetResults();
+
+        var size = ((RectTransform)cameraView.transform).rect.size;
         for (int i = 0; i < 10; i++)
         {
             SetFrame(frames[i], results[i], size);
@@ -77,9 +87,9 @@ public class SsdSample : MonoBehaviour
             frame.gameObject.SetActive(true);
         }
 
-        frame.text = $"{GetLabelName(result.classID)} : {result.score}";
+        frame.text = $"{GetLabelName(result.classID)} : {result.score: 0.00}";
         var rt = frame.transform as RectTransform;
-        rt.anchoredPosition = result.rect.position * size;
+        rt.anchoredPosition = result.rect.position * size - size * 0.5f;
         rt.sizeDelta = result.rect.size * size;
     }
 

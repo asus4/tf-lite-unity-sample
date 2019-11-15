@@ -3,6 +3,7 @@
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ext.nunit": "1.0.0",
     "com.unity.ide.vscode": "1.1.3",
+    "com.unity.mathematics": "1.1.0",
     "com.unity.package-manager-ui": "2.2.0",
     "com.unity.test-framework": "1.0.18",
     "com.unity.timeline": "1.1.0",
