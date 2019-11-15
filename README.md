@@ -9,3 +9,26 @@
 Tested on macOS/iOS  
 Unity 2910.2.8
 
+## How to build tensorflow lite for Unity
+
+### macOS
+
+```sh
+bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/experimental/c:libtensorflowlite_c.so
+```
+
+then rename libtensorflowlite_c.so to libtensorflowlite_c.bundle
+
+### iOS
+
+Download pre-build framework from CocoaPods
+
+```Podfile
+# Sample Podfile
+
+platform :ios, '10.0'
+
+target 'TfLiteSample' do
+    pod 'TensorFlowLiteObjC', '0.0.1-nightly'
+end
+```
