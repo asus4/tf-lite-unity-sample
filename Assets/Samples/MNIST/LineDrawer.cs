@@ -31,22 +31,6 @@ public class LineDrawer : MonoBehaviour, IDragHandler
 
     RenderTexture texture;
 
-    void Awake()
-    {
-        // iOS doesn't support R8
-        // log render texture support
-
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine("Check supported render texture foramt: ");
-        foreach (var format in (RenderTextureFormat[])Enum.GetValues(typeof(RenderTextureFormat)))
-        {
-            bool isSupport = SystemInfo.SupportsRenderTextureFormat(format);
-            sb.AppendLine($"{format} : {isSupport}");
-        }
-
-        Debug.Log(sb.ToString());
-    }
-
     void OnEnable()
     {
         imageView = GetComponent<RawImage>();
