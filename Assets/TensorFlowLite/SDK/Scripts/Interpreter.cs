@@ -35,7 +35,6 @@ namespace TensorFlowLite
         private const string TensorFlowLibraryGPU = "__Internal";
 #else
         private const string TensorFlowLibrary = "libtensorflowlite_c";
-        // private const string TensorFlowLibraryGPU = "hgoehgoe";
         private const string TensorFlowLibraryGPU = "tensorflow_lite_gpu_metal";
 #endif
 
@@ -48,17 +47,6 @@ namespace TensorFlowLite
 
         public Interpreter(byte[] modelData)
         {
-            // try
-            // {
-            //     TFLGpuDelegateDelete(new IntPtr());
-            //     UnityEngine.Debug.Log("GPU Delegate found");
-            // }
-            // catch (System.Exception ex)
-            // {
-            //     UnityEngine.Debug.LogError(ex);
-            // }
-
-
             GCHandle modelDataHandle = GCHandle.Alloc(modelData, GCHandleType.Pinned);
             IntPtr modelDataPtr = modelDataHandle.AddrOfPinnedObject();
             model = TfLiteModelCreate(modelDataPtr, modelData.Length);
@@ -68,11 +56,10 @@ namespace TensorFlowLite
             const int NUM_THREADS = 2;
             TfLiteInterpreterOptionsSetNumThreads(interpreterOptions, NUM_THREADS);
 
-            GpuDelegateCreate();
+            CreateGpuDelegate();
 
             interpreter = TfLiteInterpreterCreate(model, interpreterOptions);
             if (interpreter == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Interpreter");
-
         }
 
         public void Dispose()
@@ -103,7 +90,7 @@ namespace TensorFlowLite
             gpuDelegate = IntPtr.Zero;
         }
 
-        void GpuDelegateCreate()
+        void CreateGpuDelegate()
         {
             var glCompileOptions = new TfLiteGlCompileOptions();
             glCompileOptions.precision_loss_allowed = 0;

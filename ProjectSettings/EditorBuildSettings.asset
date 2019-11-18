@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Samples/SSD/SSD.unity
     guid: 97a93d56ec0ff46078e253cebe3c63ee
-  - enabled: 1
+  - enabled: 0
     path: Assets/Samples/MNIST/MNIST.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects: {}
