@@ -21,6 +21,7 @@ using TfLiteInterpreter = System.IntPtr;
 using TfLiteInterpreterOptions = System.IntPtr;
 using TfLiteModel = System.IntPtr;
 using TfLiteTensor = System.IntPtr;
+using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
@@ -31,8 +32,11 @@ namespace TensorFlowLite
     {
 #if UNITY_IPHONE
         private const string TensorFlowLibrary = "__Internal";
+        private const string TensorFlowLibraryGPU = "__Internal";
 #else
         private const string TensorFlowLibrary = "libtensorflowlite_c";
+        // private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_delegate_metal";
+        private const string TensorFlowLibraryGPU = "tensorflow_lite_gpu_metal";
 #endif
 
         private TfLiteModel model;
@@ -40,6 +44,17 @@ namespace TensorFlowLite
 
         public Interpreter(byte[] modelData)
         {
+            try
+            {
+                TFLGpuDelegateDelete(new IntPtr());
+                UnityEngine.Debug.Log("GPU Delegate found");
+            }
+            catch (System.Exception ex)
+            {
+                UnityEngine.Debug.LogError(ex);
+            }
+
+
             GCHandle modelDataHandle = GCHandle.Alloc(modelData, GCHandleType.Pinned);
             IntPtr modelDataPtr = modelDataHandle.AddrOfPinnedObject();
             model = TfLiteModelCreate(modelDataPtr, modelData.Length);
@@ -127,6 +142,42 @@ namespace TensorFlowLite
         }
 
         #region Externs
+        public enum TfLiteStatus { kTfLiteOk = 0, kTfLiteError = 1 };
+        public enum TfLiteType
+        {
+            kTfLiteNoType = 0, kTfLiteFloat32 = 1, kTfLiteInt32 = 2, kTfLiteUInt8 = 3, kTfLiteInt64 = 4,
+            kTfLiteString = 5, kTfLiteBool = 6, kTfLiteInt16 = 7, kTfLiteComplex64 = 8, kTfLiteInt8 = 9, kTfLiteFloat16 = 10,
+        };
+        public struct TfLiteQuantizationParams
+        {
+            public float scale;
+            public Int32 zero_point;
+        };
+
+        public enum TfLiteGlObjectType
+        {
+            TFLITE_GL_OBJECT_TYPE_FASTEST = 0,
+            TFLITE_GL_OBJECT_TYPE_TEXTURE = 1,
+            TFLITE_GL_OBJECT_TYPE_BUFFER = 2,
+        };
+        public struct TfLiteGlCompileOptions
+        {
+            public Int32 precision_loss_allowed;
+            public Int32 preferred_gl_object_type;
+            public Int32 dynamic_batch_enabled;
+            public Int32 inline_parameters;
+        };
+        public unsafe struct TfLiteGpuDelegateOptions
+        {
+            public IntPtr metadata;
+            public TfLiteGlCompileOptions compile_options;
+        };
+
+        public enum TfLiteDelegateFlags
+        {
+            kTfLiteDelegateFlagsNone = 0,
+            kTfLiteDelegateFlagsAllowDynamicTensors = 1
+        };
 
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe TfLiteInterpreter TfLiteModelCreate(IntPtr model_data, int model_size);
@@ -186,6 +237,11 @@ namespace TensorFlowLite
             IntPtr output_data,
             int output_data_size);
 
+        [DllImport(TensorFlowLibraryGPU)]
+        private static extern unsafe TfLiteDelegate TFLGpuDelegateCreate(TfLiteGpuDelegateOptions delegateOptions);
+
+        [DllImport(TensorFlowLibraryGPU)]
+        private static extern unsafe void TFLGpuDelegateDelete(TfLiteDelegate delegate_);
         #endregion
     }
 }

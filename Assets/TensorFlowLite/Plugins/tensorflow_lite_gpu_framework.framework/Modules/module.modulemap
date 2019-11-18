@@ -3,5 +3,4 @@ framework module tensorflow_lite_gpu_framework {
   export *
   module * { export * }
   link framework "Metal"
-  link framework "UIKit"
 }
