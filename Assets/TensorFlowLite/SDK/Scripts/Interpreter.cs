@@ -36,11 +36,15 @@ namespace TensorFlowLite
 #else
         private const string TensorFlowLibrary = "libtensorflowlite_c";
         // private const string TensorFlowLibraryGPU = "hgoehgoe";
-        private const string TensorFlowLibraryGPU = "tensorflow_lite_gpu_metal";        
+        private const string TensorFlowLibraryGPU = "tensorflow_lite_gpu_metal";
 #endif
 
         private TfLiteModel model;
         private TfLiteInterpreter interpreter;
+        private TfLiteInterpreterOptions interpreterOptions;
+
+        private TfLiteDelegate gpuDelegate;
+
 
         public Interpreter(byte[] modelData)
         {
@@ -59,21 +63,64 @@ namespace TensorFlowLite
             IntPtr modelDataPtr = modelDataHandle.AddrOfPinnedObject();
             model = TfLiteModelCreate(modelDataPtr, modelData.Length);
             if (model == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Model");
-            interpreter = TfLiteInterpreterCreate(model, /*options=*/IntPtr.Zero);
-            if (interpreter == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Interpreter");
-        }
 
-        ~Interpreter()
-        {
-            Dispose();
+            interpreterOptions = TfLiteInterpreterOptionsCreate();
+            const int NUM_THREADS = 2;
+            TfLiteInterpreterOptionsSetNumThreads(interpreterOptions, NUM_THREADS);
+
+            GpuDelegateCreate();
+
+            interpreter = TfLiteInterpreterCreate(model, interpreterOptions);
+            if (interpreter == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Interpreter");
+
         }
 
         public void Dispose()
         {
-            if (interpreter != IntPtr.Zero) TfLiteInterpreterDelete(interpreter);
+            if (interpreter != IntPtr.Zero)
+            {
+                TfLiteInterpreterDelete(interpreter);
+            }
             interpreter = IntPtr.Zero;
-            if (model != IntPtr.Zero) TfLiteModelDelete(model);
+
+            if (model != IntPtr.Zero)
+            {
+                TfLiteModelDelete(model);
+            }
             model = IntPtr.Zero;
+
+            if (interpreterOptions != IntPtr.Zero)
+            {
+                TfLiteInterpreterOptionsDelete(interpreterOptions);
+            }
+            interpreterOptions = IntPtr.Zero;
+
+            if (gpuDelegate != IntPtr.Zero)
+            {
+                TFLGpuDelegateDelete(gpuDelegate);
+                UnityEngine.Debug.Log("hoghogehoge");
+            }
+            gpuDelegate = IntPtr.Zero;
+        }
+
+        void GpuDelegateCreate()
+        {
+            var glCompileOptions = new TfLiteGlCompileOptions();
+            glCompileOptions.precision_loss_allowed = 0;
+            glCompileOptions.preferred_gl_object_type = (Int32)TfLiteGlObjectType.TFLITE_GL_OBJECT_TYPE_FASTEST;
+            glCompileOptions.dynamic_batch_enabled = 0;
+            glCompileOptions.inline_parameters = 1;
+
+            var gpuDelegateOptions = new TfLiteGpuDelegateOptions();
+            gpuDelegateOptions.metadata = IntPtr.Zero;
+            gpuDelegateOptions.compile_options = glCompileOptions;
+
+            gpuDelegate = TFLGpuDelegateCreate(gpuDelegateOptions);
+            if (gpuDelegate == IntPtr.Zero)
+            {
+                throw new Exception("TensorFlowLite GPU create failed.");
+            }
+            TfLiteInterpreterOptionsAddDelegate(interpreterOptions, gpuDelegate);
         }
 
         public void Invoke()
@@ -236,6 +283,20 @@ namespace TensorFlowLite
             TfLiteTensor tensor,
             IntPtr output_data,
             int output_data_size);
+
+
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe TfLiteInterpreterOptions TfLiteInterpreterOptionsCreate();
+
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe void TfLiteInterpreterOptionsAddDelegate(TfLiteInterpreterOptions options, TfLiteDelegate delegate_);
+
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe void TfLiteInterpreterOptionsDelete(TfLiteInterpreterOptions options);
+
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe void TfLiteInterpreterOptionsSetNumThreads(TfLiteInterpreterOptions options, Int32 numThreads);
+
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe TfLiteDelegate TFLGpuDelegateCreate(TfLiteGpuDelegateOptions delegateOptions);
