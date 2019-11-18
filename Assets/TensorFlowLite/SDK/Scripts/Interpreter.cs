@@ -30,13 +30,13 @@ namespace TensorFlowLite
     /// </summary>
     public class Interpreter : IDisposable
     {
-#if UNITY_IPHONE
+#if UNITY_IPHONE && !UNITY_EDITOR
         private const string TensorFlowLibrary = "__Internal";
         private const string TensorFlowLibraryGPU = "__Internal";
 #else
         private const string TensorFlowLibrary = "libtensorflowlite_c";
-        // private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_delegate_metal";
-        private const string TensorFlowLibraryGPU = "tensorflow_lite_gpu_metal";
+        // private const string TensorFlowLibraryGPU = "hgoehgoe";
+        private const string TensorFlowLibraryGPU = "tensorflow_lite_gpu_metal";        
 #endif
 
         private TfLiteModel model;
@@ -44,15 +44,15 @@ namespace TensorFlowLite
 
         public Interpreter(byte[] modelData)
         {
-            try
-            {
-                TFLGpuDelegateDelete(new IntPtr());
-                UnityEngine.Debug.Log("GPU Delegate found");
-            }
-            catch (System.Exception ex)
-            {
-                UnityEngine.Debug.LogError(ex);
-            }
+            // try
+            // {
+            //     TFLGpuDelegateDelete(new IntPtr());
+            //     UnityEngine.Debug.Log("GPU Delegate found");
+            // }
+            // catch (System.Exception ex)
+            // {
+            //     UnityEngine.Debug.LogError(ex);
+            // }
 
 
             GCHandle modelDataHandle = GCHandle.Alloc(modelData, GCHandleType.Pinned);
