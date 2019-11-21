@@ -1,0 +1,6 @@
+framework module tensorflow_lite_gpu_framework {
+  umbrella header "tensorflow_lite_gpu_framework.h"
+  export *
+  module * { export * }
+  link framework "Metal"
+}

@@ -1,5 +1,6 @@
 fileFormatVersion: 2
-guid: 5c1a5918ec031436a897db25e6600e94
+guid: 365898ab197bb4e38a039d1b9883ca83
+folderAsset: yes
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -23,7 +24,7 @@ PluginImporter:
         Exclude WebGL: 1
         Exclude Win: 1
         Exclude Win64: 1
-        Exclude iOS: 0
+        Exclude iOS: 1
         Exclude tvOS: 1
   - first:
       Android: Android
@@ -41,9 +42,9 @@ PluginImporter:
     second:
       enabled: 1
       settings:
-        CPU: AnyCPU
+        CPU: x86_64
         DefaultValueInitialized: true
-        OS: AnyOS
+        OS: OSX
   - first:
       Facebook: Win
     second:
@@ -83,7 +84,7 @@ PluginImporter:
   - first:
       iPhone: iOS
     second:
-      enabled: 1
+      enabled: 0
       settings:
         AddToEmbeddedBinaries: false
         CPU: AnyCPU

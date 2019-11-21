@@ -35,7 +35,7 @@ namespace TensorFlowLite
         {
             this.compute = compute;
 
-            interpreter = new Interpreter(File.ReadAllBytes(modelPath));
+            interpreter = new Interpreter(File.ReadAllBytes(modelPath), 2);
             interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
             interpreter.AllocateTensors();
 
