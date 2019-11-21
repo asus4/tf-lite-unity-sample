@@ -10,7 +10,6 @@ public class SsdSample : MonoBehaviour
 {
     [SerializeField] string fileName = "coco_ssd_mobilenet_quant.tflite";
     [SerializeField] RawImage cameraView = null;
-    [SerializeField] ComputeShader compute = null;
     [SerializeField] Text framePrefab = null;
     [SerializeField, Range(0f, 1f)] float scoreThreshold = 0.5f;
     [SerializeField] TextAsset labelMap = null;
@@ -26,7 +25,7 @@ public class SsdSample : MonoBehaviour
     {
 
         string path = Path.Combine(Application.streamingAssetsPath, fileName);
-        ssd = new SSD(path, compute);
+        ssd = new SSD(path);
 
         // Init camera
         string cameraName = GetWebcamName();

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
-using Unity.Collections;
 using TensorFlowLite;
 
 
@@ -62,7 +61,7 @@ public class MnistSample : MonoBehaviour
         float duration = Time.realtimeSinceStartup - startTime;
 
         sb.Clear();
-        sb.AppendLine($"Process time: {duration: 0.00000}");
+        sb.AppendLine($"Process time: {duration: 0.00000} sec");
         sb.AppendLine("---");
         for (int i = 0; i < outputs.Length; i++)
         {

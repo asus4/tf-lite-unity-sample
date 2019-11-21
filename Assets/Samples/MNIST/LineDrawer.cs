@@ -82,7 +82,6 @@ public class LineDrawer : MonoBehaviour, IDragHandler
 
         DrawLine(p0, p1);
 
-
         OnDraw.Invoke(texture);
     }
 
