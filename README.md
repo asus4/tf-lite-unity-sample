@@ -32,3 +32,12 @@ target 'TfLiteSample' do
     pod 'TensorFlowLiteObjC', '0.0.1-nightly'
 end
 ```
+
+## License
+
+Samples folder `Assets/Samples/*` is licensed under MIT
+
+Other licenses
+
+- [TensorFlow](https://github.com/tensorflow/tensorflow/blob/master/LICENSE)
+- [*.tflite Models](https://www.tensorflow.org/lite/models)
