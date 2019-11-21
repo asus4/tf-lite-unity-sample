@@ -48,6 +48,7 @@ namespace TensorFlowLite
             if (resizeTexture != null)
             {
                 Object.Destroy(resizeTexture);
+                Object.Destroy(resizeMat);
             }
             if (fetchTexture != null)
             {
@@ -58,18 +59,20 @@ namespace TensorFlowLite
         public void Invoke(Texture inputTex)
         {
             RenderTexture tex = ResizeTexture(inputTex);
+            TextureToTensor(tex, inputs);
 
-            // TextureToBytesGPU(tex, inputBytes);
-            TextureToBytes(tex, inputs);
-
-            Invoke(inputs);
+            interpreter.SetInputTensorData(0, inputs);
+            interpreter.Invoke();
+            interpreter.GetOutputTensorData(0, outputs0);
+            interpreter.GetOutputTensorData(1, outputs1);
+            interpreter.GetOutputTensorData(2, outputs2);
         }
 
         RenderTexture ResizeTexture(Texture texture)
         {
             if (resizeTexture == null)
             {
-                resizeTexture = new RenderTexture(300, 300, 0, RenderTextureFormat.ARGB32);
+                resizeTexture = new RenderTexture(WIDTH, HEIGHT, 0, RenderTextureFormat.ARGB32);
                 resizeMat = new Material(Shader.Find("Hidden/YFlip"));
 
                 resizeMat.SetInt("_FlipX", Application.isMobilePlatform ? 1 : 0);
@@ -79,7 +82,7 @@ namespace TensorFlowLite
             return resizeTexture;
         }
 
-        void TextureToBytes(RenderTexture texture, sbyte[] inputs)
+        void TextureToTensor(RenderTexture texture, sbyte[] inputs)
         {
             if (fetchTexture == null)
             {
@@ -101,15 +104,6 @@ namespace TensorFlowLite
                 inputs[i * 3 + 1] = unchecked((sbyte)pixels[i].g);
                 inputs[i * 3 + 2] = unchecked((sbyte)pixels[i].b);
             }
-        }
-
-        void Invoke(sbyte[] inputs)
-        {
-            interpreter.SetInputTensorData(0, inputs);
-            interpreter.Invoke();
-            interpreter.GetOutputTensorData(0, outputs0);
-            interpreter.GetOutputTensorData(1, outputs1);
-            interpreter.GetOutputTensorData(2, outputs2);
         }
 
         public Result[] GetResults()
