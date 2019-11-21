@@ -25,7 +25,7 @@ public class MnistSample : MonoBehaviour
     void Start()
     {
         var path = Path.Combine(Application.streamingAssetsPath, fileName);
-        interpreter = new Interpreter(File.ReadAllBytes(path));
+        interpreter = new Interpreter(File.ReadAllBytes(path), 1);
         interpreter.ResizeInputTensor(0, new int[] { 1, 28, 28, 1 });
         interpreter.AllocateTensors();
 
