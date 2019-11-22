@@ -75,7 +75,7 @@ namespace TensorFlowLite
         Texture2D fetchTexture;
         Result[] results = new Result[17];
 
-        float[] inputs = new float[WIDTH * HEIGHT * CHANNELS];
+        float[,,] inputs = new float[WIDTH, HEIGHT, CHANNELS];
         float[] outputs0 = new float[9 * 9 * 17]; // heatmap
         float[] outputs1 = new float[9 * 9 * 34]; // offset
         float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
@@ -197,7 +197,7 @@ namespace TensorFlowLite
             return results;
         }
 
-        void TextureToTensor(RenderTexture texture, float[] inputs)
+        void TextureToTensor(RenderTexture texture, float[,,] inputs)
         {
             if (fetchTexture == null)
             {
@@ -216,9 +216,11 @@ namespace TensorFlowLite
             var pixels = fetchTexture.GetPixels32();
             for (int i = 0; i < pixels.Length; i++)
             {
-                inputs[i * 3] = (unchecked((sbyte)pixels[i].r) - offset) / offset;
-                inputs[i * 3 + 1] = (unchecked((sbyte)pixels[i].g) - offset) / offset;
-                inputs[i * 3 + 2] = (unchecked((sbyte)pixels[i].b) - offset) / offset;
+                int y = i / WIDTH;
+                int x = i % WIDTH;
+                inputs[y, x, 0] = (unchecked((sbyte)pixels[i].r) - offset) / offset;
+                inputs[y, x, 1] = (unchecked((sbyte)pixels[i].g) - offset) / offset;
+                inputs[y, x, 2] = (unchecked((sbyte)pixels[i].b) - offset) / offset;
             }
         }
 
@@ -231,20 +233,15 @@ namespace TensorFlowLite
 
                 resizeMat.SetInt("_FlipX", 0);
                 resizeMat.SetInt("_FlipY", 1);
-
-
             }
-            
+
             Graphics.Blit(texture, resizeTexture, resizeMat, 0);
             return resizeTexture;
         }
-
 
         static float Sigmoid(float x)
         {
             return (1.0f / (1.0f + Mathf.Exp(-x)));
         }
-
-
     }
 }
