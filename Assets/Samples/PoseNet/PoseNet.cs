@@ -222,22 +222,18 @@ namespace TensorFlowLite
             }
         }
 
-
-        public Vector4 uvResize;
-
         RenderTexture ResizeTexture(Texture texture)
         {
             if (resizeTexture == null)
             {
                 resizeTexture = new RenderTexture(WIDTH, HEIGHT, 0, RenderTextureFormat.ARGB32);
-                resizeMat = new Material(Shader.Find("Hidden/YFlip"));
+                resizeMat = new Material(Shader.Find("Hidden/TFLite/Flip"));
 
                 resizeMat.SetInt("_FlipX", 0);
                 resizeMat.SetInt("_FlipY", 1);
 
 
             }
-            resizeMat.SetVector("_UvResize", uvResize);
             
             Graphics.Blit(texture, resizeTexture, resizeMat, 0);
             return resizeTexture;
