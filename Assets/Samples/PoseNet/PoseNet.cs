@@ -82,7 +82,6 @@ namespace TensorFlowLite
 
         public float[,,] heatmap => outputs0;
         public float[,,] offsets => outputs1;
-        public Vector3[] posisions;
 
         public PoseNet(string modelPath)
         {
@@ -137,51 +136,23 @@ namespace TensorFlowLite
             float[,,] scores = outputs0;
             float[,,] offsets = outputs1;
 
-            // x, y, score
-            int ROWS = scores.GetLength(0); //y
-            int COLS = scores.GetLength(1); //x
-            int PARTS = scores.GetLength(2);
-
             ApplySigmoid(scores);
+            var argmax = ArgMax2D(scores);
 
-            // argmax2d
-            // Reset Keypoints
-            Vector3[] posisions = new Vector3[PARTS];
-            for (int i = 0; i < posisions.Length; i++)
-            {
-                posisions[i] = new Vector3(-1, -1, float.MinValue);
-            }
-
-            for (int y = 0; y < ROWS; y++)
-            {
-                for (int x = 0; x < COLS; x++)
-                {
-                    for (int part = 0; part < PARTS; part++)
-                    {
-                        float confidence = scores[y, x, part];
-                        if (confidence > posisions[part].z)
-                        {
-                            posisions[part] = new Vector3(x, y, confidence);
-                        }
-                    }
-                }
-            }
-            this.posisions = posisions;
-
-            const int STRIDE = 9 - 1;
+            // Add offsets
+            const float STRIDE = 9 - 1;
             for (int part = 0; part < results.Length; part++)
             {
-                int y = (int)posisions[part].y;
-                int x = (int)posisions[part].x;
-                float offsetX = offsets[y, x, part * 2];
-                float offsetY = offsets[y, x, part * 2 + 1];
-                results[part] = new Result()
-                {
-                    part = (Part)part,
-                    x = ((float)x / STRIDE * WIDTH + offsetX) / WIDTH,
-                    y = ((float)y / STRIDE * HEIGHT + offsetY) / HEIGHT,
-                    confidence = (int)posisions[part].z,
-                };
+                ArgMaxResult arg = argmax[part];
+                Result res = results[part];
+
+                float offsetX = offsets[arg.y, arg.x, part * 2];
+                float offsetY = offsets[arg.y, arg.x, part * 2 + 1];
+                res.x = ((float)arg.x / STRIDE * WIDTH + offsetX) / WIDTH;
+                res.y = ((float)arg.y / STRIDE * HEIGHT + offsetY) / HEIGHT;
+                res.confidence = arg.score;
+
+                results[part] = res;
             }
 
             return results;
@@ -208,6 +179,47 @@ namespace TensorFlowLite
                     }
                 }
             }
+        }
+
+        struct ArgMaxResult
+        {
+            public int x;
+            public int y;
+            public float score;
+        }
+
+        static ArgMaxResult[] ArgMax2D(float[,,] scores)
+        {
+            int ROWS = scores.GetLength(0); //y
+            int COLS = scores.GetLength(1); //x
+            int PARTS = scores.GetLength(2);
+
+            var results = new ArgMaxResult[PARTS];
+            for (int i = 0; i < PARTS; i++)
+            {
+                results[i].score = float.MinValue;
+            }
+
+            for (int y = 0; y < ROWS; y++)
+            {
+                for (int x = 0; x < COLS; x++)
+                {
+                    for (int part = 0; part < PARTS; part++)
+                    {
+                        float current = scores[y, x, part];
+                        if (current > results[part].score)
+                        {
+                            results[part] = new ArgMaxResult()
+                            {
+                                x = x,
+                                y = y,
+                                score = current,
+                            };
+                        }
+                    }
+                }
+            }
+            return results;
         }
 
 
