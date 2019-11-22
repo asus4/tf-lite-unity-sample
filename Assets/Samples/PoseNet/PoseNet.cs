@@ -70,9 +70,7 @@ namespace TensorFlowLite
 
 
         Interpreter interpreter;
-        RenderTexture resizeTexture;
-        Material resizeMat;
-        Texture2D fetchTexture;
+        TextureToTensor tex2tensor;
         Result[] results = new Result[17];
 
         float[,,] inputs = new float[WIDTH, HEIGHT, CHANNELS];
@@ -84,8 +82,6 @@ namespace TensorFlowLite
         public float[] heatmap => outputs0;
         public float[] offsets => outputs1;
         public Vector3[] posisions;
-        public Material ResizeMat => resizeMat;
-        public Texture2D InputTexture => fetchTexture;
 
         public PoseNet(string modelPath)
         {
@@ -110,23 +106,20 @@ namespace TensorFlowLite
             {
                 Debug.Log(interpreter.GetOutputTensorInfo(i));
             }
+
+            tex2tensor = new TextureToTensor();
         }
 
         public void Dispose()
         {
             interpreter?.Dispose();
-
-            if (resizeTexture != null)
-            {
-                Object.Destroy(resizeTexture);
-                Object.Destroy(resizeMat);
-            }
+            tex2tensor?.Dispose();
         }
 
         public void Invoke(Texture inputTex)
         {
-            RenderTexture tex = ResizeTexture(inputTex);
-            TextureToTensor(tex, inputs);
+            RenderTexture tex = tex2tensor.Resize(inputTex, WIDTH, HEIGHT);
+            tex2tensor.ToTensor(tex, inputs);
 
             interpreter.SetInputTensorData(0, inputs);
             interpreter.Invoke();
@@ -195,48 +188,6 @@ namespace TensorFlowLite
             }
 
             return results;
-        }
-
-        void TextureToTensor(RenderTexture texture, float[,,] inputs)
-        {
-            if (fetchTexture == null)
-            {
-                fetchTexture = new Texture2D(WIDTH, HEIGHT, TextureFormat.RGB24, 0, false);
-            }
-
-            var prevRT = RenderTexture.active;
-            RenderTexture.active = texture;
-
-            fetchTexture.ReadPixels(new Rect(0, 0, WIDTH, HEIGHT), 0, 0);
-            fetchTexture.Apply();
-
-            RenderTexture.active = prevRT;
-
-            const float offset = 128f;
-            var pixels = fetchTexture.GetPixels32();
-            for (int i = 0; i < pixels.Length; i++)
-            {
-                int y = i / WIDTH;
-                int x = i % WIDTH;
-                inputs[y, x, 0] = (unchecked((sbyte)pixels[i].r) - offset) / offset;
-                inputs[y, x, 1] = (unchecked((sbyte)pixels[i].g) - offset) / offset;
-                inputs[y, x, 2] = (unchecked((sbyte)pixels[i].b) - offset) / offset;
-            }
-        }
-
-        RenderTexture ResizeTexture(Texture texture)
-        {
-            if (resizeTexture == null)
-            {
-                resizeTexture = new RenderTexture(WIDTH, HEIGHT, 0, RenderTextureFormat.ARGB32);
-                resizeMat = new Material(Shader.Find("Hidden/TFLite/Flip"));
-
-                resizeMat.SetInt("_FlipX", 0);
-                resizeMat.SetInt("_FlipY", 1);
-            }
-
-            Graphics.Blit(texture, resizeTexture, resizeMat, 0);
-            return resizeTexture;
         }
 
         static float Sigmoid(float x)
