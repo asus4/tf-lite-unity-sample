@@ -16,7 +16,7 @@ public class MnistSample : MonoBehaviour
     Interpreter interpreter;
 
     bool isProcessing = false;
-    float[] inputs = new float[28 * 28];
+    float[,] inputs = new float[28, 28];
     float[] outputs = new float[10];
     ComputeBuffer inputBuffer;
 
