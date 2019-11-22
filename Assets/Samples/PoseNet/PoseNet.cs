@@ -84,10 +84,19 @@ namespace TensorFlowLite
         public float[] heatmap => outputs0;
         public float[] offsets => outputs1;
         public Vector3[] posisions;
+        public Material ResizeMat => resizeMat;
+        public Texture2D InputTexture => fetchTexture;
 
         public PoseNet(string modelPath)
         {
-            interpreter = new Interpreter(File.ReadAllBytes(modelPath), 2);
+            GpuDelegate gpu = null;
+            gpu = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
+            {
+                allow_precision_loss = false,
+                waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
+            });
+
+            interpreter = new Interpreter(File.ReadAllBytes(modelPath), 2, gpu);
             interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
             interpreter.AllocateTensors();
 
@@ -205,20 +214,16 @@ namespace TensorFlowLite
 
             const float offset = 128f;
             var pixels = fetchTexture.GetPixels32();
-            // for (int i = 0; i < pixels.Length; i++)
-            // {
-            //     inputs[i * 3] = (unchecked((sbyte)pixels[i].r) - offset) / offset;
-            //     inputs[i * 3 + 1] = (unchecked((sbyte)pixels[i].g) - offset) / offset;
-            //     inputs[i * 3 + 2] = (unchecked((sbyte)pixels[i].b) - offset) / offset;
-            // }
             for (int i = 0; i < pixels.Length; i++)
             {
-                inputs[i * 3] = (unchecked((sbyte)pixels[i].r));
-                inputs[i * 3 + 1] = (unchecked((sbyte)pixels[i].g));
-                inputs[i * 3 + 2] = (unchecked((sbyte)pixels[i].b));
+                inputs[i * 3] = (unchecked((sbyte)pixels[i].r) - offset) / offset;
+                inputs[i * 3 + 1] = (unchecked((sbyte)pixels[i].g) - offset) / offset;
+                inputs[i * 3 + 2] = (unchecked((sbyte)pixels[i].b) - offset) / offset;
             }
         }
 
+
+        public Vector4 uvResize;
 
         RenderTexture ResizeTexture(Texture texture)
         {
@@ -229,7 +234,11 @@ namespace TensorFlowLite
 
                 resizeMat.SetInt("_FlipX", 0);
                 resizeMat.SetInt("_FlipY", 1);
+
+
             }
+            resizeMat.SetVector("_UvResize", uvResize);
+            
             Graphics.Blit(texture, resizeTexture, resizeMat, 0);
             return resizeTexture;
         }

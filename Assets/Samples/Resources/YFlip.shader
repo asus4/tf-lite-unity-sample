@@ -12,6 +12,7 @@
         Pass
         {
             CGPROGRAM
+
             #pragma vertex vert
             #pragma fragment frag
 
@@ -51,10 +52,14 @@
             }
 
             sampler2D _MainTex;
+            float4 _UvResize;
 
             fixed4 frag (v2f i) : SV_Target
             {
-                return tex2D(_MainTex, i.uv);
+                float2 uv = i.uv;
+                uv *= _UvResize.xy;
+                uv += _UvResize.zw; 
+                return tex2D(_MainTex, uv);
             }
             ENDCG
         }
