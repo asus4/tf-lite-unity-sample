@@ -17,9 +17,7 @@ namespace TensorFlowLite
         const int CHANNELS = 3; // RGB
 
         Interpreter interpreter;
-        RenderTexture resizeTexture;
-        Material resizeMat;
-        Texture2D fetchTexture;
+        TextureToTensor tex2tensor;
 
 
         // https://www.tensorflow.org/lite/models/object_detection/overview
@@ -36,73 +34,25 @@ namespace TensorFlowLite
             interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
             interpreter.AllocateTensors();
 
+            tex2tensor = new TextureToTensor();
         }
 
         public void Dispose()
         {
             interpreter?.Dispose();
-
-            if (resizeTexture != null)
-            {
-                Object.Destroy(resizeTexture);
-                Object.Destroy(resizeMat);
-            }
-            if (fetchTexture != null)
-            {
-                Object.Destroy(fetchTexture);
-            }
+            tex2tensor?.Dispose();
         }
 
         public void Invoke(Texture inputTex)
         {
-            RenderTexture tex = ResizeTexture(inputTex);
-            TextureToTensor(tex, inputs);
+            RenderTexture tex = tex2tensor.Resize(inputTex, WIDTH, HEIGHT);
+            tex2tensor.ToTensor(tex, inputs);
 
             interpreter.SetInputTensorData(0, inputs);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
             interpreter.GetOutputTensorData(2, outputs2);
-        }
-
-        RenderTexture ResizeTexture(Texture texture)
-        {
-            if (resizeTexture == null)
-            {
-                resizeTexture = new RenderTexture(WIDTH, HEIGHT, 0, RenderTextureFormat.ARGB32);
-                resizeMat = new Material(Shader.Find("Hidden/TFLite/Flip"));
-
-                resizeMat.SetInt("_FlipX", Application.isMobilePlatform ? 1 : 0);
-                resizeMat.SetInt("_FlipY", 1);
-            }
-            Graphics.Blit(texture, resizeTexture, resizeMat, 0);
-            return resizeTexture;
-        }
-
-        void TextureToTensor(RenderTexture texture, sbyte[,,] inputs)
-        {
-            if (fetchTexture == null)
-            {
-                fetchTexture = new Texture2D(WIDTH, HEIGHT, TextureFormat.RGB24, 0, false);
-            }
-
-            var prevRT = RenderTexture.active;
-            RenderTexture.active = texture;
-
-            fetchTexture.ReadPixels(new Rect(0, 0, WIDTH, HEIGHT), 0, 0);
-            fetchTexture.Apply();
-
-            RenderTexture.active = prevRT;
-
-            var pixels = fetchTexture.GetPixels32();
-            for (int i = 0; i < pixels.Length; i++)
-            {
-                int y = i / WIDTH;
-                int x = i % WIDTH;
-                inputs[y, x, 0] = unchecked((sbyte)pixels[i].r);
-                inputs[y, x, 1] = unchecked((sbyte)pixels[i].g);
-                inputs[y, x, 2] = unchecked((sbyte)pixels[i].b);
-            }
         }
 
         public Result[] GetResults()
