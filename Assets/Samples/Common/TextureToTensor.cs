@@ -98,7 +98,6 @@ namespace TensorFlowLite
             {
                 tex.Release();
                 Object.Destroy(tex);
-
             }
         }
 

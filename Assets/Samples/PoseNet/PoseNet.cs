@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using UnityEngine;
+using Unity.Mathematics;
 
 namespace TensorFlowLite
 {
@@ -74,13 +75,13 @@ namespace TensorFlowLite
         Result[] results = new Result[17];
 
         float[,,] inputs = new float[WIDTH, HEIGHT, CHANNELS];
-        float[] outputs0 = new float[9 * 9 * 17]; // heatmap
-        float[] outputs1 = new float[9 * 9 * 34]; // offset
-        float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
-        float[] outputs3 = new float[9 * 9 * 32]; // displacement bwd
+        float[,,] outputs0 = new float[9, 9, 17]; // heatmap
+        float[,,] outputs1 = new float[9, 9, 34]; // offset
+        // float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
+        // float[] outputs3 = new float[9 * 9 * 32]; // displacement bwd
 
-        public float[] heatmap => outputs0;
-        public float[] offsets => outputs1;
+        public float[,,] heatmap => outputs0;
+        public float[,,] offsets => outputs1;
         public Vector3[] posisions;
 
         public PoseNet(string modelPath)
@@ -125,27 +126,25 @@ namespace TensorFlowLite
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
-            interpreter.GetOutputTensorData(2, outputs2);
-            interpreter.GetOutputTensorData(3, outputs3);
+            // not using
+            // interpreter.GetOutputTensorData(2, outputs2);
+            // interpreter.GetOutputTensorData(3, outputs3);
         }
 
         public Result[] GetResults()
         {
-            // simgoid to get score
-            // output0 -> scores;
-            for (int i = 0; i < outputs0.Length; i++)
-            {
-                outputs0[i] = Sigmoid(outputs0[i]);
-            }
-            float[] scores = outputs0;
-            float[] offsets = outputs1;
+            // Name alias
+            float[,,] scores = outputs0;
+            float[,,] offsets = outputs1;
+
+            // x, y, score
+            int ROWS = scores.GetLength(0); //y
+            int COLS = scores.GetLength(1); //x
+            int PARTS = scores.GetLength(2);
+
+            ApplySigmoid(scores);
 
             // argmax2d
-            // x, y, score
-            const int PARTS = 17;
-            const int ROWS = 9; //y
-            const int COLS = 9; //x
-
             // Reset Keypoints
             Vector3[] posisions = new Vector3[PARTS];
             for (int i = 0; i < posisions.Length; i++)
@@ -159,10 +158,10 @@ namespace TensorFlowLite
                 {
                     for (int part = 0; part < PARTS; part++)
                     {
-                        float score = scores[(y * COLS + x) * PARTS + part];
-                        if (score > posisions[part].z)
+                        float confidence = scores[y, x, part];
+                        if (confidence > posisions[part].z)
                         {
-                            posisions[part] = new Vector3(x, y, score);
+                            posisions[part] = new Vector3(x, y, confidence);
                         }
                     }
                 }
@@ -172,12 +171,10 @@ namespace TensorFlowLite
             const int STRIDE = 9 - 1;
             for (int part = 0; part < results.Length; part++)
             {
-                int x = (int)posisions[part].x;
                 int y = (int)posisions[part].y;
-                int idx = (y * COLS + x) * PARTS + part;
-                float offsetX = offsets[idx * 2];
-                float offsetY = offsets[idx * 2 + 1];
-
+                int x = (int)posisions[part].x;
+                float offsetX = offsets[y, x, part * 2];
+                float offsetY = offsets[y, x, part * 2 + 1];
                 results[part] = new Result()
                 {
                     part = (Part)part,
@@ -194,5 +191,25 @@ namespace TensorFlowLite
         {
             return (1.0f / (1.0f + Mathf.Exp(-x)));
         }
+
+        static void ApplySigmoid(float[,,] arr)
+        {
+            int rows = arr.GetLength(0); // y
+            int cols = arr.GetLength(1); // x
+            int parts = arr.GetLength(2);
+            // simgoid to get score
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < cols; x++)
+                {
+                    for (int part = 0; part < parts; part++)
+                    {
+                        arr[y, x, part] = Sigmoid(arr[y, x, part]);
+                    }
+                }
+            }
+        }
+
+
     }
 }
