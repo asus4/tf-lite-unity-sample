@@ -74,7 +74,7 @@ namespace TensorFlowLite
 #if UNITY_IPHONE && !UNITY_EDITOR
     private const string TensorFlowLibraryGPU = "__Internal";
 #else
-        private const string TensorFlowLibraryGPU = "tensorflow_lite_gpu_metal";
+        private const string TensorFlowLibraryGPU = "tensorflow_lite_gpu_dylib";
 #endif
 
         [DllImport(TensorFlowLibraryGPU)]

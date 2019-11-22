@@ -17,16 +17,15 @@ namespace TensorFlowLite
         const int CHANNELS = 3; // RGB
 
         Interpreter interpreter;
-        ComputeBuffer inputBuffer;
         RenderTexture resizeTexture;
         Material resizeMat;
         Texture2D fetchTexture;
 
 
         // https://www.tensorflow.org/lite/models/object_detection/overview
-        sbyte[] inputs = new sbyte[WIDTH * HEIGHT * CHANNELS];
+        sbyte[,,] inputs = new sbyte[HEIGHT, WIDTH, CHANNELS];
 
-        float[] outputs0 = new float[10 * 4]; // [top, left, bottom, right] * 10
+        float[,] outputs0 = new float[10, 4]; // [top, left, bottom, right] * 10
         float[] outputs1 = new float[10]; // Classes
         float[] outputs2 = new float[10]; // Scores
         Result[] results = new Result[10];
@@ -37,17 +36,16 @@ namespace TensorFlowLite
             interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
             interpreter.AllocateTensors();
 
-            inputBuffer = new ComputeBuffer(WIDTH * HEIGHT * CHANNELS, sizeof(uint)); // uint8
         }
 
         public void Dispose()
         {
             interpreter?.Dispose();
-            inputBuffer?.Dispose();
 
             if (resizeTexture != null)
             {
                 Object.Destroy(resizeTexture);
+                Object.Destroy(resizeMat);
             }
             if (fetchTexture != null)
             {
@@ -58,18 +56,20 @@ namespace TensorFlowLite
         public void Invoke(Texture inputTex)
         {
             RenderTexture tex = ResizeTexture(inputTex);
+            TextureToTensor(tex, inputs);
 
-            // TextureToBytesGPU(tex, inputBytes);
-            TextureToBytes(tex, inputs);
-
-            Invoke(inputs);
+            interpreter.SetInputTensorData(0, inputs);
+            interpreter.Invoke();
+            interpreter.GetOutputTensorData(0, outputs0);
+            interpreter.GetOutputTensorData(1, outputs1);
+            interpreter.GetOutputTensorData(2, outputs2);
         }
 
         RenderTexture ResizeTexture(Texture texture)
         {
             if (resizeTexture == null)
             {
-                resizeTexture = new RenderTexture(300, 300, 0, RenderTextureFormat.ARGB32);
+                resizeTexture = new RenderTexture(WIDTH, HEIGHT, 0, RenderTextureFormat.ARGB32);
                 resizeMat = new Material(Shader.Find("Hidden/YFlip"));
 
                 resizeMat.SetInt("_FlipX", Application.isMobilePlatform ? 1 : 0);
@@ -79,7 +79,7 @@ namespace TensorFlowLite
             return resizeTexture;
         }
 
-        void TextureToBytes(RenderTexture texture, sbyte[] inputs)
+        void TextureToTensor(RenderTexture texture, sbyte[,,] inputs)
         {
             if (fetchTexture == null)
             {
@@ -97,19 +97,12 @@ namespace TensorFlowLite
             var pixels = fetchTexture.GetPixels32();
             for (int i = 0; i < pixels.Length; i++)
             {
-                inputs[i * 3] = unchecked((sbyte)pixels[i].r);
-                inputs[i * 3 + 1] = unchecked((sbyte)pixels[i].g);
-                inputs[i * 3 + 2] = unchecked((sbyte)pixels[i].b);
+                int y = i / WIDTH;
+                int x = i % WIDTH;
+                inputs[y, x, 0] = unchecked((sbyte)pixels[i].r);
+                inputs[y, x, 1] = unchecked((sbyte)pixels[i].g);
+                inputs[y, x, 2] = unchecked((sbyte)pixels[i].b);
             }
-        }
-
-        void Invoke(sbyte[] inputs)
-        {
-            interpreter.SetInputTensorData(0, inputs);
-            interpreter.Invoke();
-            interpreter.GetOutputTensorData(0, outputs0);
-            interpreter.GetOutputTensorData(1, outputs1);
-            interpreter.GetOutputTensorData(2, outputs2);
         }
 
         public Result[] GetResults()
@@ -117,10 +110,10 @@ namespace TensorFlowLite
             for (int i = 0; i < 10; i++)
             {
                 // Invert Y to adapt Unity UI space
-                float top = 1f - outputs0[i * 4];
-                float left = outputs0[i * 4 + 1];
-                float bottom = 1f - outputs0[i * 4 + 2];
-                float right = outputs0[i * 4 + 3];
+                float top = 1f - outputs0[i, 0];
+                float left = outputs0[i, 1];
+                float bottom = 1f - outputs0[i, 2];
+                float right = outputs0[i, 3];
 
                 results[i] = new Result()
                 {
