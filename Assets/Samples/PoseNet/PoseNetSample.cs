@@ -15,7 +15,6 @@ public class PoseNetSample : MonoBehaviour
     WebCamTexture webcamTexture;
     PoseNet poseNet;
 
-    public Vector3[] positions;
     public PoseNet.Result[] results;
 
     void Start()
@@ -41,7 +40,6 @@ public class PoseNetSample : MonoBehaviour
     {
         poseNet.Invoke(webcamTexture);
         results = poseNet.GetResults();
-        positions = poseNet.posisions;
     }
 
     static string GetWebcamName()
