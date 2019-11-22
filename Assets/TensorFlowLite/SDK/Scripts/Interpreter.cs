@@ -49,7 +49,7 @@ namespace TensorFlowLite
 
             if (gpuDelegate != null)
             {
-                UnityEngine.Debug.Log("make gpu");
+                this.gpuDelegate = gpuDelegate;
                 TfLiteInterpreterOptionsAddDelegate(options, gpuDelegate.Delegate);
             }
 
