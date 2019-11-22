@@ -19,6 +19,10 @@ public class PoseNetSample : MonoBehaviour
     public float[] offsets;
     public Vector3[] positions;
     public PoseNet.Result[] results;
+    public Material resizeMat;
+
+    public Vector2 uvSacale = Vector2.one;
+    public Vector2 uvTranslate = Vector2.zero;
 
     void Start()
     {
@@ -28,7 +32,6 @@ public class PoseNetSample : MonoBehaviour
         // Init camera
         string cameraName = GetWebcamName();
         webcamTexture = new WebCamTexture(cameraName, 1280, 720);
-        cameraView.texture = webcamTexture;
         webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
     }
@@ -41,11 +44,17 @@ public class PoseNetSample : MonoBehaviour
 
     void Update()
     {
+        poseNet.uvResize = new Vector4(uvSacale.x, uvSacale.y, uvTranslate.x, uvTranslate.y);
+
         poseNet.Invoke(webcamTexture);
         results = poseNet.GetResults();
         heatmap = poseNet.heatmap;
         offsets = poseNet.offsets;
         positions = poseNet.posisions;
+        resizeMat = poseNet.ResizeMat;
+
+        cameraView.texture = poseNet.InputTexture;
+
     }
 
     static string GetWebcamName()
