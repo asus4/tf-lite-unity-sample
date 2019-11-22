@@ -11,11 +11,12 @@ public class MnistSample : MonoBehaviour
     [SerializeField] string fileName = "mnist.tflite";
     [SerializeField] Text outputTextView = null;
     [SerializeField] ComputeShader compute = null;
+    [SerializeField] bool useGPUDelegate = false;
 
     Interpreter interpreter;
 
     bool isProcessing = false;
-    float[] inputs = new float[28 * 28];
+    float[,] inputs = new float[28, 28];
     float[] outputs = new float[10];
     ComputeBuffer inputBuffer;
 
@@ -23,8 +24,17 @@ public class MnistSample : MonoBehaviour
 
     void Start()
     {
+        GpuDelegate gpuDelegate = null;
+        if (useGPUDelegate)
+        {
+            gpuDelegate = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
+            {
+                allow_precision_loss = false,
+                waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
+            });
+        }
         var path = Path.Combine(Application.streamingAssetsPath, fileName);
-        interpreter = new Interpreter(File.ReadAllBytes(path), 1);
+        interpreter = new Interpreter(File.ReadAllBytes(path), 1, gpuDelegate);
         interpreter.ResizeInputTensor(0, new int[] { 1, 28, 28, 1 });
         interpreter.AllocateTensors();
 
