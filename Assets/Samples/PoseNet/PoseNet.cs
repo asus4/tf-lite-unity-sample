@@ -13,7 +13,7 @@ namespace TensorFlowLite
     /// </summary>
     public class PoseNet : System.IDisposable
     {
-        public enum BodyPart
+        public enum Part
         {
             NOSE,
             LEFT_EYE,
@@ -34,10 +34,31 @@ namespace TensorFlowLite
             RIGHT_ANKLE
         }
 
+        public static readonly Part[,] Connections = new Part[,] {
+            // HEAD
+            { Part.LEFT_EAR, Part.LEFT_EYE },
+            { Part.LEFT_EYE, Part.NOSE },
+            { Part.NOSE, Part.RIGHT_EYE },
+            { Part.RIGHT_EYE, Part.RIGHT_EAR },
+            // BODY
+            { Part.LEFT_HIP, Part.LEFT_SHOULDER },
+            { Part.LEFT_ELBOW, Part.LEFT_SHOULDER },
+            { Part.LEFT_ELBOW, Part.LEFT_WRIST },
+            { Part.LEFT_HIP, Part.LEFT_KNEE },
+            { Part.LEFT_KNEE, Part.LEFT_ANKLE },
+            { Part.RIGHT_HIP, Part.RIGHT_SHOULDER },
+            { Part.RIGHT_ELBOW, Part.RIGHT_SHOULDER },
+            { Part.RIGHT_ELBOW, Part.RIGHT_WRIST },
+            { Part.RIGHT_HIP, Part.RIGHT_KNEE },
+            { Part.RIGHT_KNEE, Part.RIGHT_ANKLE },
+            { Part.LEFT_SHOULDER, Part.RIGHT_SHOULDER },
+            { Part.LEFT_HIP, Part.RIGHT_HIP }
+        };
+
         [System.Serializable]
         public struct Result
         {
-            public BodyPart part;
+            public Part part;
             public float confidence;
             public float x;
             public float y;
@@ -62,6 +83,7 @@ namespace TensorFlowLite
 
         public float[] heatmap => outputs0;
         public float[] offsets => outputs1;
+        public Vector3[] posisions;
 
         public PoseNet(string modelPath)
         {
@@ -118,12 +140,12 @@ namespace TensorFlowLite
 
             // argmax2d
             // x, y, score
-            const int KEYPOINTS = 17;
+            const int PARTS = 17;
             const int ROWS = 9; //y
             const int COLS = 9; //x
 
             // Reset Keypoints
-            Vector3[] posisions = new Vector3[KEYPOINTS];
+            Vector3[] posisions = new Vector3[PARTS];
             for (int i = 0; i < posisions.Length; i++)
             {
                 posisions[i] = new Vector3(-1, -1, float.MinValue);
@@ -133,30 +155,33 @@ namespace TensorFlowLite
             {
                 for (int x = 0; x < COLS; x++)
                 {
-                    for (int key = 0; key < KEYPOINTS; key++)
+                    for (int part = 0; part < PARTS; part++)
                     {
-                        int index = y * COLS + x;
-                        float score = scores[index * KEYPOINTS + key];
-                        if (posisions[key].z > score)
+                        float score = scores[(y * COLS + x) * PARTS + part];
+                        if (score > posisions[part].z)
                         {
-                            posisions[key] = new Vector3(x, y, score);
+                            posisions[part] = new Vector3(x, y, score);
                         }
                     }
                 }
             }
+            this.posisions = posisions;
 
             const int STRIDE = 9 - 1;
-            for (int i = 0; i < results.Length; i++)
+            for (int part = 0; part < results.Length; part++)
             {
-                int x = (int)posisions[i].x;
-                int y = (int)posisions[i].y;
+                int x = (int)posisions[part].x;
+                int y = (int)posisions[part].y;
+                int idx = (y * COLS + x) * PARTS + part;
+                float offsetX = offsets[idx * 2];
+                float offsetY = offsets[idx * 2 + 1];
 
-                results[i] = new Result()
+                results[part] = new Result()
                 {
-                    part = (BodyPart)i,
-                    x = x / STRIDE * WIDTH,
-                    y = y / STRIDE * HEIGHT,
-                    confidence = (int)posisions[i].z,
+                    part = (Part)part,
+                    x = ((float)x / STRIDE * WIDTH + offsetX) / WIDTH,
+                    y = ((float)y / STRIDE * HEIGHT + offsetY) / HEIGHT,
+                    confidence = (int)posisions[part].z,
                 };
             }
 
@@ -180,11 +205,17 @@ namespace TensorFlowLite
 
             const float offset = 128f;
             var pixels = fetchTexture.GetPixels32();
+            // for (int i = 0; i < pixels.Length; i++)
+            // {
+            //     inputs[i * 3] = (unchecked((sbyte)pixels[i].r) - offset) / offset;
+            //     inputs[i * 3 + 1] = (unchecked((sbyte)pixels[i].g) - offset) / offset;
+            //     inputs[i * 3 + 2] = (unchecked((sbyte)pixels[i].b) - offset) / offset;
+            // }
             for (int i = 0; i < pixels.Length; i++)
             {
-                inputs[i * 3] = ((float)pixels[i].r - offset) / offset;
-                inputs[i * 3 + 1] = ((float)pixels[i].g - offset) / offset;
-                inputs[i * 3 + 2] = ((float)pixels[i].b - offset) / offset;
+                inputs[i * 3] = (unchecked((sbyte)pixels[i].r));
+                inputs[i * 3 + 1] = (unchecked((sbyte)pixels[i].g));
+                inputs[i * 3 + 2] = (unchecked((sbyte)pixels[i].b));
             }
         }
 
