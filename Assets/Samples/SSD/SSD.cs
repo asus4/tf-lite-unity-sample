@@ -17,7 +17,6 @@ namespace TensorFlowLite
         const int CHANNELS = 3; // RGB
 
         Interpreter interpreter;
-        ComputeBuffer inputBuffer;
         RenderTexture resizeTexture;
         Material resizeMat;
         Texture2D fetchTexture;
@@ -37,13 +36,11 @@ namespace TensorFlowLite
             interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
             interpreter.AllocateTensors();
 
-            inputBuffer = new ComputeBuffer(WIDTH * HEIGHT * CHANNELS, sizeof(uint)); // uint8
         }
 
         public void Dispose()
         {
             interpreter?.Dispose();
-            inputBuffer?.Dispose();
 
             if (resizeTexture != null)
             {
