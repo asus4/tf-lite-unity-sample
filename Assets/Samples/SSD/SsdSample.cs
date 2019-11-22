@@ -39,7 +39,7 @@ public class SsdSample : MonoBehaviour
         var parent = cameraView.transform;
         for (int i = 0; i < frames.Length; i++)
         {
-            frames[i] = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, parent) as Text;
+            frames[i] = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, parent);
         }
 
         // Labels

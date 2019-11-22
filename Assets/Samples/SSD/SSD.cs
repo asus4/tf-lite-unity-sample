@@ -70,7 +70,7 @@ namespace TensorFlowLite
             if (resizeTexture == null)
             {
                 resizeTexture = new RenderTexture(WIDTH, HEIGHT, 0, RenderTextureFormat.ARGB32);
-                resizeMat = new Material(Shader.Find("Hidden/YFlip"));
+                resizeMat = new Material(Shader.Find("Hidden/TFLite/Flip"));
 
                 resizeMat.SetInt("_FlipX", Application.isMobilePlatform ? 1 : 0);
                 resizeMat.SetInt("_FlipY", 1);
