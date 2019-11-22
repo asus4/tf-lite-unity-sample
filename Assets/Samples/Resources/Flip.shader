@@ -1,4 +1,4 @@
-﻿Shader "Hidden/YFlip"
+﻿Shader "Hidden/TFLite/Flip"
 {
     Properties
     {
@@ -55,7 +55,8 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-                return tex2D(_MainTex, i.uv);
+                float2 uv = i.uv;
+                return tex2D(_MainTex, uv);
             }
             ENDCG
         }

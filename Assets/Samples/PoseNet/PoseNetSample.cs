@@ -21,9 +21,6 @@ public class PoseNetSample : MonoBehaviour
     public PoseNet.Result[] results;
     public Material resizeMat;
 
-    public Vector2 uvSacale = Vector2.one;
-    public Vector2 uvTranslate = Vector2.zero;
-
     void Start()
     {
         string path = Path.Combine(Application.streamingAssetsPath, fileName);
@@ -44,8 +41,6 @@ public class PoseNetSample : MonoBehaviour
 
     void Update()
     {
-        poseNet.uvResize = new Vector4(uvSacale.x, uvSacale.y, uvTranslate.x, uvTranslate.y);
-
         poseNet.Invoke(webcamTexture);
         results = poseNet.GetResults();
         heatmap = poseNet.heatmap;
