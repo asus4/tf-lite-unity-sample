@@ -27,7 +27,6 @@ public class PoseNetSample : MonoBehaviour
         webcamTexture = new WebCamTexture(cameraName, 1280, 720);
         webcamTexture.Play();
         cameraView.texture = webcamTexture;
-        Debug.Log($"Starting camera: {cameraName}");
     }
 
     void OnDestroy()
@@ -64,6 +63,8 @@ public class PoseNetSample : MonoBehaviour
         float h = Screen.height;
 
         Gizmos.color = Color.green;
+        
+        // Spheres
         foreach (var result in results)
         {
             if (result.confidence >= threshold)
@@ -73,6 +74,7 @@ public class PoseNetSample : MonoBehaviour
             }
         }
 
+        // Lines
         var connections = PoseNet.Connections;
         int len = connections.GetLength(0);
         for (int i = 0; i < len; i++)
