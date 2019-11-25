@@ -35,7 +35,8 @@ namespace TensorFlowLite
             RIGHT_ANKLE
         }
 
-        public static readonly Part[,] Connections = new Part[,] {
+        public static readonly Part[,] Connections = new Part[,]
+        {
             // HEAD
             { Part.LEFT_EAR, Part.LEFT_EYE },
             { Part.LEFT_EYE, Part.NOSE },
@@ -79,9 +80,6 @@ namespace TensorFlowLite
         float[,,] outputs1 = new float[9, 9, 34]; // offset
         // float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
         // float[] outputs3 = new float[9 * 9 * 32]; // displacement bwd
-
-        public float[,,] heatmap => outputs0;
-        public float[,,] offsets => outputs1;
 
         public PoseNet(string modelPath)
         {
@@ -194,12 +192,14 @@ namespace TensorFlowLite
             int COLS = scores.GetLength(1); //x
             int PARTS = scores.GetLength(2);
 
+            // Init with minimum float
             var results = new ArgMaxResult[PARTS];
             for (int i = 0; i < PARTS; i++)
             {
                 results[i].score = float.MinValue;
             }
 
+            // ArgMax
             for (int y = 0; y < ROWS; y++)
             {
                 for (int x = 0; x < COLS; x++)

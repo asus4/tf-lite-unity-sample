@@ -24,7 +24,9 @@ namespace TensorFlowLite
 
         public RenderTexture Resize(Texture texture, int width, int height)
         {
-            if (resizeTexture == null || !IsSameSize(resizeTexture, texture))
+            if (resizeTexture == null
+            || resizeTexture.width != width
+            || resizeTexture.height != height)
             {
                 TryDispose(resizeTexture);
                 resizeTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
@@ -96,6 +98,7 @@ namespace TensorFlowLite
         {
             if (tex != null)
             {
+                // Debug.Log($"RenderTex Dispose: {tex.width} x {tex.height}");
                 tex.Release();
                 Object.Destroy(tex);
             }
@@ -105,8 +108,8 @@ namespace TensorFlowLite
         {
             if (tex != null)
             {
+                // Debug.Log($"Texture2D Dispose: {tex.width} x {tex.height}");
                 Object.Destroy(tex);
-
             }
         }
 
