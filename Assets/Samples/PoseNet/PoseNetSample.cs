@@ -24,7 +24,7 @@ public class PoseNetSample : MonoBehaviour
 
         // Init camera
         string cameraName = GetWebcamName();
-        webcamTexture = new WebCamTexture(cameraName, 1280, 720);
+        webcamTexture = new WebCamTexture(cameraName, 640, 480, 30);
         webcamTexture.Play();
         cameraView.texture = webcamTexture;
     }
@@ -39,6 +39,10 @@ public class PoseNetSample : MonoBehaviour
     {
         poseNet.Invoke(webcamTexture);
         results = poseNet.GetResults();
+
+        //
+        Vector4 texST = TextureToTensor.GetUVRect((float)webcamTexture.width / webcamTexture.height, 1, TextureToTensor.AspectMode.Fill);
+        cameraView.uvRect = new Rect(texST.z, texST.w, texST.x, texST.y);
     }
 
     static string GetWebcamName()
@@ -52,6 +56,8 @@ public class PoseNetSample : MonoBehaviour
     }
 
 
+
+    Vector3[] corners = new Vector3[4];
     void OnDrawGizmos()
     {
         if (results.Length == 0)
@@ -59,17 +65,19 @@ public class PoseNetSample : MonoBehaviour
             return;
         }
 
-        float w = Screen.width;
-        float h = Screen.height;
+        var rect = cameraView.GetComponent<RectTransform>();
+        rect.GetWorldCorners(corners);
+        Vector3 min = corners[0];
+        Vector3 max = corners[2];
 
         Gizmos.color = Color.green;
-        
+
         // Spheres
         foreach (var result in results)
         {
             if (result.confidence >= threshold)
             {
-                var p = new Vector3(result.x * w, result.y * h, 0);
+                var p = Leap3(min, max, new Vector3(result.x, 1f - result.y, 0));
                 Gizmos.DrawWireSphere(p, 20);
             }
         }
@@ -84,10 +92,27 @@ public class PoseNetSample : MonoBehaviour
 
             if (a.confidence >= threshold && b.confidence >= threshold)
             {
-                Gizmos.DrawLine(new Vector3(a.x * w, a.y * h, 0),
-                                new Vector3(b.x * w, b.y * h, 0));
+                Gizmos.DrawLine(
+                    Leap3(min, max, new Vector3(a.x, 1f - a.y, 0)),
+                    Leap3(min, max, new Vector3(b.x, 1f - b.y, 0)));
             }
         }
+    }
+
+    /// <summary>
+    /// 3 Dimentional Leap
+    /// </summary>
+    /// <param name="a"></param>
+    /// <param name="b"></param>
+    /// <param name="t"></param>
+    /// <returns></returns>
+    static Vector3 Leap3(in Vector3 a, in Vector3 b, in Vector3 t)
+    {
+        return new Vector3(
+            Mathf.Lerp(a.x, b.x, t.x),
+            Mathf.Lerp(a.y, b.y, t.y),
+            Mathf.Lerp(a.z, b.z, t.z)
+        );
     }
 
 }

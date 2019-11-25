@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace TensorFlowLite
 {
@@ -9,9 +7,31 @@ namespace TensorFlowLite
     /// </summary>
     public class TextureToTensor : System.IDisposable
     {
+        public enum AspectMode
+        {
+            None,
+            Fit,
+            Fill,
+        }
+
+        public struct ResizeOptions
+        {
+            public int width;
+            public int height;
+            public bool flipX;
+            public bool flipY;
+            public AspectMode aspectMode;
+        }
+
         RenderTexture resizeTexture;
         Material resizeMat;
         Texture2D fetchTexture;
+
+        public Texture2D texture => fetchTexture;
+
+        static readonly int _FlipX = Shader.PropertyToID("_FlipX");
+        static readonly int _FlipY = Shader.PropertyToID("_FlipY");
+        static readonly int _UVRect = Shader.PropertyToID("_UVRect");
 
         public TextureToTensor() { }
 
@@ -22,21 +42,27 @@ namespace TensorFlowLite
             TryDispose(fetchTexture);
         }
 
-        public RenderTexture Resize(Texture texture, int width, int height)
+        public RenderTexture Resize(Texture texture, ResizeOptions options)
         {
             if (resizeTexture == null
-            || resizeTexture.width != width
-            || resizeTexture.height != height)
+                        || resizeTexture.width != options.width
+                        || resizeTexture.height != options.height)
             {
                 TryDispose(resizeTexture);
-                resizeTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
+                resizeTexture = new RenderTexture(options.width, options.height, 0, RenderTextureFormat.ARGB32);
             }
             if (resizeMat == null)
             {
-                resizeMat = new Material(Shader.Find("Hidden/TFLite/Flip"));
-                resizeMat.SetInt("_FlipX", Application.isMobilePlatform ? 1 : 0);
-                resizeMat.SetInt("_FlipY", 1);
+                resizeMat = new Material(Shader.Find("Hidden/TFLite/Resize"));
             }
+
+            // Set options
+            resizeMat.SetInt(_FlipX, options.flipX ? 1 : 0);
+            resizeMat.SetInt(_FlipY, options.flipY ? 1 : 0);
+            resizeMat.SetVector(_UVRect, GetUVRect(
+                (float)texture.width / (float)texture.height, // src
+                (float)options.width / (float)options.height, // dst
+                options.aspectMode));
 
             Graphics.Blit(texture, resizeTexture, resizeMat, 0);
             return resizeTexture;
@@ -89,6 +115,38 @@ namespace TensorFlowLite
             return fetchTexture.GetPixels32();
         }
 
+        public static Vector4 GetUVRect(float srcAspect, float dstAspect, AspectMode mode)
+        {
+            switch (mode)
+            {
+                case AspectMode.None:
+                    return new Vector4(1, 1, 0, 0);
+                case AspectMode.Fit:
+                    if (srcAspect > dstAspect)
+                    {
+                        float s = srcAspect / dstAspect;
+                        return new Vector4(1, s, 0, (1 - s) / 2);
+                    }
+                    else
+                    {
+                        float s = dstAspect / srcAspect;
+                        return new Vector4(s, 1, (1 - s) / 2, 0);
+                    }
+                case AspectMode.Fill:
+                    if (srcAspect > dstAspect)
+                    {
+                        float s = dstAspect / srcAspect;
+                        return new Vector4(s, 1, (1 - s) / 2, 0);
+                    }
+                    else
+                    {
+                        float s = srcAspect / dstAspect;
+                        return new Vector4(1, s, 0, (1 - s) / 2);
+                    }
+            }
+            throw new System.Exception("Unknown aspect mode");
+        }
+
         static bool IsSameSize(Texture a, Texture b)
         {
             return a.width == b.width && a.height == b.height;
@@ -98,7 +156,6 @@ namespace TensorFlowLite
         {
             if (tex != null)
             {
-                // Debug.Log($"RenderTex Dispose: {tex.width} x {tex.height}");
                 tex.Release();
                 Object.Destroy(tex);
             }
@@ -108,7 +165,6 @@ namespace TensorFlowLite
         {
             if (tex != null)
             {
-                // Debug.Log($"Texture2D Dispose: {tex.width} x {tex.height}");
                 Object.Destroy(tex);
             }
         }

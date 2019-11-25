@@ -1,4 +1,4 @@
-﻿Shader "Hidden/TFLite/Flip"
+﻿Shader "Hidden/TFLite/Resize"
 {
     Properties
     {
@@ -52,10 +52,12 @@
             }
 
             sampler2D _MainTex;
+            float4 _UVRect; // the same as _MainTex_ST;
 
             fixed4 frag (v2f i) : SV_Target
             {
                 float2 uv = i.uv;
+                uv = uv * _UVRect.xy + _UVRect.zw;
                 return tex2D(_MainTex, uv);
             }
             ENDCG
