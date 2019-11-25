@@ -27,6 +27,14 @@ namespace TensorFlowLite
         float[] outputs1 = new float[10]; // Classes
         float[] outputs2 = new float[10]; // Scores
         Result[] results = new Result[10];
+        static readonly TextureToTensor.ResizeOptions resizeOptions = new TextureToTensor.ResizeOptions()
+        {
+            aspectMode = TextureToTensor.AspectMode.Fill,
+            flipX = Application.isMobilePlatform,
+            flipY = true,
+            width = WIDTH,
+            height = HEIGHT,
+        };
 
         public SSD(string modelPath)
         {
@@ -45,7 +53,7 @@ namespace TensorFlowLite
 
         public void Invoke(Texture inputTex)
         {
-            RenderTexture tex = tex2tensor.Resize(inputTex, WIDTH, HEIGHT);
+            RenderTexture tex = tex2tensor.Resize(inputTex, resizeOptions);
             tex2tensor.ToTensor(tex, inputs);
 
             interpreter.SetInputTensorData(0, inputs);

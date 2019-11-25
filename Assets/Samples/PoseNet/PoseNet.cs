@@ -78,8 +78,17 @@ namespace TensorFlowLite
         float[,,] inputs = new float[WIDTH, HEIGHT, CHANNELS];
         float[,,] outputs0 = new float[9, 9, 17]; // heatmap
         float[,,] outputs1 = new float[9, 9, 34]; // offset
-        // float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
-        // float[] outputs3 = new float[9 * 9 * 32]; // displacement bwd
+                                                  // float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
+                                                  // float[] outputs3 = new float[9 * 9 * 32]; // displacement bwd
+
+        static readonly TextureToTensor.ResizeOptions resizeOptions = new TextureToTensor.ResizeOptions()
+        {
+            aspectMode = TextureToTensor.AspectMode.Fill,
+            flipX = Application.isMobilePlatform,
+            flipY = true,
+            width = WIDTH,
+            height = HEIGHT,
+        };
 
         public PoseNet(string modelPath)
         {
@@ -114,9 +123,11 @@ namespace TensorFlowLite
             tex2tensor?.Dispose();
         }
 
+        public Texture2D inputTex => tex2tensor.texture;
+
         public void Invoke(Texture inputTex)
         {
-            RenderTexture tex = tex2tensor.Resize(inputTex, WIDTH, HEIGHT);
+            RenderTexture tex = tex2tensor.Resize(inputTex, resizeOptions);
             tex2tensor.ToTensor(tex, inputs);
 
             interpreter.SetInputTensorData(0, inputs);
