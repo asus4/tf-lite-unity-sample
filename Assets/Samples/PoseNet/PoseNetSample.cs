@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
+using Gizmos = Popcron.Gizmos;
 
 public class PoseNetSample : MonoBehaviour
 {
@@ -43,6 +44,8 @@ public class PoseNetSample : MonoBehaviour
         //
         Vector4 texST = TextureToTensor.GetUVRect((float)webcamTexture.width / webcamTexture.height, 1, TextureToTensor.AspectMode.Fill);
         cameraView.uvRect = new Rect(texST.z, texST.w, texST.x, texST.y);
+
+        UpdateGizmo();
     }
 
     static string GetWebcamName()
@@ -58,7 +61,7 @@ public class PoseNetSample : MonoBehaviour
 
 
     Vector3[] corners = new Vector3[4];
-    void OnDrawGizmos()
+    void UpdateGizmo()
     {
         if (results.Length == 0)
         {
@@ -70,7 +73,7 @@ public class PoseNetSample : MonoBehaviour
         Vector3 min = corners[0];
         Vector3 max = corners[2];
 
-        Gizmos.color = Color.green;
+        Color color = Color.green;
 
         // Spheres
         foreach (var result in results)
@@ -78,7 +81,7 @@ public class PoseNetSample : MonoBehaviour
             if (result.confidence >= threshold)
             {
                 var p = Leap3(min, max, new Vector3(result.x, 1f - result.y, 0));
-                Gizmos.DrawWireSphere(p, 20);
+                Gizmos.Sphere(p, 1, color);
             }
         }
 
@@ -92,9 +95,10 @@ public class PoseNetSample : MonoBehaviour
 
             if (a.confidence >= threshold && b.confidence >= threshold)
             {
-                Gizmos.DrawLine(
+                Gizmos.Line(
                     Leap3(min, max, new Vector3(a.x, 1f - a.y, 0)),
-                    Leap3(min, max, new Vector3(b.x, 1f - b.y, 0)));
+                    Leap3(min, max, new Vector3(b.x, 1f - b.y, 0)),
+                    color);
             }
         }
     }

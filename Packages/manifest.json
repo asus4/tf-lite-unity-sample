@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.popcron.gizmos": "https://github.com/popcron/gizmos.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ext.nunit": "1.0.0",
     "com.unity.ide.vscode": "1.1.3",
@@ -39,5 +40,11 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
+  },
+  "lock": {
+    "com.popcron.gizmos": {
+      "hash": "037a05e9375f1c501bc65dc8998a1c7bc3a11c6e",
+      "revision": "HEAD"
+    }
   }
 }
