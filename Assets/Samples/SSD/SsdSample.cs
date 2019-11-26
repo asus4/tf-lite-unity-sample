@@ -45,10 +45,7 @@ public class SsdSample : MonoBehaviour
         // Labels
         labels = labelMap.text.Split('\n');
 
-        if (Application.isMobilePlatform)
-        {
-            cameraView.uvRect = new Rect(1, 0, -1, 1);
-        }
+      
     }
 
     void OnDestroy()
@@ -68,6 +65,15 @@ public class SsdSample : MonoBehaviour
         {
             SetFrame(frames[i], results[i], size);
         }
+
+        // set uv
+        Vector4 texST = TextureToTensor.GetUVRect((float)webcamTexture.width / webcamTexture.height, 1, TextureToTensor.AspectMode.Fill);
+        var rect = new Rect(texST.z, texST.w, texST.x, texST.y);
+        if (Application.isMobilePlatform)
+        {
+            rect.width *= -1;
+        }
+        cameraView.uvRect = rect;
     }
 
     void SetFrame(Text frame, SSD.Result result, Vector2 size)
@@ -103,7 +109,6 @@ public class SsdSample : MonoBehaviour
         if (Application.isMobilePlatform)
         {
             return WebCamTexture.devices.Where(d => !d.isFrontFacing).Last().name;
-
         }
         return WebCamTexture.devices.Last().name;
     }

@@ -44,9 +44,15 @@ public class PoseNetSample : MonoBehaviour
     {
         poseNet.Invoke(webcamTexture);
         results = poseNet.GetResults();
-
+        
+        // set uv
         Vector4 texST = TextureToTensor.GetUVRect((float)webcamTexture.width / webcamTexture.height, 1, TextureToTensor.AspectMode.Fill);
-        cameraView.uvRect = new Rect(texST.z, texST.w, texST.x, texST.y);
+        var rect = new Rect(texST.z, texST.w, texST.x, texST.y);
+        if (Application.isMobilePlatform)
+        {
+            rect.width *= -1;
+        }
+        cameraView.uvRect = rect;
     }
 
     static string GetWebcamName()
@@ -54,7 +60,6 @@ public class PoseNetSample : MonoBehaviour
         if (Application.isMobilePlatform)
         {
             return WebCamTexture.devices.Where(d => !d.isFrontFacing).Last().name;
-
         }
         return WebCamTexture.devices.Last().name;
     }

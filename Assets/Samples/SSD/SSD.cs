@@ -30,7 +30,7 @@ namespace TensorFlowLite
         static readonly TextureToTensor.ResizeOptions resizeOptions = new TextureToTensor.ResizeOptions()
         {
             aspectMode = TextureToTensor.AspectMode.Fill,
-            flipX = Application.isMobilePlatform,
+            flipX = false,
             flipY = true,
             width = WIDTH,
             height = HEIGHT,
