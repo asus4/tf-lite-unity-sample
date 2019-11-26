@@ -349,7 +349,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fileName: posenet_mobilenet_v1_100_257x257_multi_kpt_stripped.tflite
   cameraView: {fileID: 237587965}
-  threshold: 0.104
+  threshold: 0.5
   results: []
 --- !u!1 &1791890453
 GameObject:
