@@ -38,8 +38,7 @@ public class DeepLabSample : MonoBehaviour
     void Update()
     {
         deepLab.Invoke(webcamTexture);
-        outputView.texture = deepLab.GetResultTexture2D();
-        // outputView.texture = deepLab.GetResultTexture();
+        outputView.texture = deepLab.GetResultTexture();
 
         cameraView.uvRect = TextureToTensor.GetUVRect(
             (float)webcamTexture.width / (float)webcamTexture.height,
