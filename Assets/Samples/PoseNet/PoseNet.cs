@@ -1,9 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using UnityEngine;
-using Unity.Mathematics;
 
 namespace TensorFlowLite
 {
@@ -160,6 +158,7 @@ namespace TensorFlowLite
                 res.x = ((float)arg.x / STRIDE * WIDTH + offsetX) / WIDTH;
                 res.y = ((float)arg.y / STRIDE * HEIGHT + offsetY) / HEIGHT;
                 res.confidence = arg.score;
+                res.part = (Part)part;
 
                 results[part] = res;
             }
