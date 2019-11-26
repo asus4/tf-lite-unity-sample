@@ -38,7 +38,11 @@ public class DeepLabSample : MonoBehaviour
     void Update()
     {
         deepLab.Invoke(webcamTexture);
-        outputView.texture = deepLab.GetResultTexture();
+
+        // ...Compute Shader Hungs up on iOS
+        // outputView.texture = deepLab.GetResultTexture();
+        outputView.texture = deepLab.GetResultTexture2D();
+
 
         cameraView.uvRect = TextureToTensor.GetUVRect(
             (float)webcamTexture.width / (float)webcamTexture.height,
