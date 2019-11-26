@@ -68,9 +68,7 @@ namespace TensorFlowLite
 
         public DeepLab(string modelPath, ComputeShader compute)
         {
-
-            GpuDelegate gpu = null;
-            gpu = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
+            GpuDelegate gpu = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
             {
                 allow_precision_loss = false,
                 waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
