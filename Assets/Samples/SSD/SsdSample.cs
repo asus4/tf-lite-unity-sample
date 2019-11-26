@@ -28,7 +28,7 @@ public class SsdSample : MonoBehaviour
         ssd = new SSD(path);
 
         // Init camera
-        string cameraName = GetWebcamName();
+        string cameraName = WebCamUtil.FindName();
         webcamTexture = new WebCamTexture(cameraName, 1280, 720);
         cameraView.texture = webcamTexture;
         webcamTexture.Play();
@@ -45,7 +45,7 @@ public class SsdSample : MonoBehaviour
         // Labels
         labels = labelMap.text.Split('\n');
 
-      
+
     }
 
     void OnDestroy()
@@ -67,13 +67,10 @@ public class SsdSample : MonoBehaviour
         }
 
         // set uv
-        Vector4 texST = TextureToTensor.GetUVRect((float)webcamTexture.width / webcamTexture.height, 1, TextureToTensor.AspectMode.Fill);
-        var rect = new Rect(texST.z, texST.w, texST.x, texST.y);
-        if (Application.isMobilePlatform)
-        {
-            rect.width *= -1;
-        }
-        cameraView.uvRect = rect;
+        cameraView.uvRect = TextureToTensor.GetUVRect(
+            (float)webcamTexture.width / webcamTexture.height,
+            1,
+            TextureToTensor.AspectMode.Fill);
     }
 
     void SetFrame(Text frame, SSD.Result result, Vector2 size)
@@ -102,15 +99,6 @@ public class SsdSample : MonoBehaviour
             return "?";
         }
         return labels[id];
-    }
-
-    static string GetWebcamName()
-    {
-        if (Application.isMobilePlatform)
-        {
-            return WebCamTexture.devices.Where(d => !d.isFrontFacing).Last().name;
-        }
-        return WebCamTexture.devices.Last().name;
     }
 
 }
