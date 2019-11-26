@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
@@ -10,6 +9,7 @@ public class DeepLabSample : MonoBehaviour
 {
     [SerializeField] string fileName = "deeplabv3_257_mv_gpu.tflite";
     [SerializeField] RawImage cameraView = null;
+    [SerializeField] RawImage outputView = null;
 
     WebCamTexture webcamTexture;
     DeepLab deepLab;
@@ -37,7 +37,7 @@ public class DeepLabSample : MonoBehaviour
     void Update()
     {
         deepLab.Invoke(webcamTexture);
-
+        outputView.texture = deepLab.GetResultTexture();
 
         cameraView.uvRect = TextureToTensor.GetUVRect(
             (float)webcamTexture.width / webcamTexture.height,
