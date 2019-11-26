@@ -1,9 +1,7 @@
 ﻿
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using Unity.Mathematics;
 
 namespace TensorFlowLite
 {
@@ -58,7 +56,6 @@ namespace TensorFlowLite
         Color32[] labelPixels = new Color32[WIDTH * HEIGHT];
         Texture2D labelTex2D;
 
-        Stopwatch stopWatch = new Stopwatch();
 
         static readonly TextureToTensor.ResizeOptions resizeOptions = new TextureToTensor.ResizeOptions()
         {
@@ -121,7 +118,6 @@ namespace TensorFlowLite
 
         public RenderTexture GetResultTexture()
         {
-            stopWatch.Restart();
 
             labelBuffer.SetData(outputs0);
             compute.SetBuffer(0, "LabelBuffer", labelBuffer);
@@ -130,14 +126,11 @@ namespace TensorFlowLite
 
             compute.Dispatch(0, 256 / 8, 256 / 8, 1);
 
-            stopWatch.Stop();
-            UnityEngine.Debug.LogFormat("{0:0.00}", stopWatch.ElapsedTicks * TICKS_TO_MILLISEC);
             return labelTex;
         }
 
         public Texture2D GetResultTexture2D()
         {
-            stopWatch.Restart();
 
             int rows = outputs0.GetLength(0); // y
             int cols = outputs0.GetLength(1); // x
@@ -155,8 +148,6 @@ namespace TensorFlowLite
             labelTex2D.SetPixels32(labelPixels);
             labelTex2D.Apply();
 
-            stopWatch.Stop();
-            UnityEngine.Debug.LogFormat("{0:0.00}", stopWatch.ElapsedTicks * TICKS_TO_MILLISEC);
             return labelTex2D;
         }
 
