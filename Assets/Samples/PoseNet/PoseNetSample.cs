@@ -25,7 +25,7 @@ public class PoseNetSample : MonoBehaviour
         poseNet = new PoseNet(path);
 
         // Init camera
-        string cameraName = GetWebcamName();
+        string cameraName = WebCamUtil.FindName();
         webcamTexture = new WebCamTexture(cameraName, 640, 480, 30);
         webcamTexture.Play();
         cameraView.texture = webcamTexture;
@@ -46,22 +46,10 @@ public class PoseNetSample : MonoBehaviour
         results = poseNet.GetResults();
         
         // set uv
-        Vector4 texST = TextureToTensor.GetUVRect((float)webcamTexture.width / webcamTexture.height, 1, TextureToTensor.AspectMode.Fill);
-        var rect = new Rect(texST.z, texST.w, texST.x, texST.y);
-        if (Application.isMobilePlatform)
-        {
-            rect.width *= -1;
-        }
-        cameraView.uvRect = rect;
-    }
-
-    static string GetWebcamName()
-    {
-        if (Application.isMobilePlatform)
-        {
-            return WebCamTexture.devices.Where(d => !d.isFrontFacing).Last().name;
-        }
-        return WebCamTexture.devices.Last().name;
+        cameraView.uvRect = TextureToTensor.GetUVRect(
+            (float)webcamTexture.width / webcamTexture.height,
+            1,
+            TextureToTensor.AspectMode.Fill);
     }
 
     void OnGLDraw()

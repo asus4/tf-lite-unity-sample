@@ -59,7 +59,7 @@ namespace TensorFlowLite
             // Set options
             resizeMat.SetInt(_FlipX, options.flipX ? 1 : 0);
             resizeMat.SetInt(_FlipY, options.flipY ? 1 : 0);
-            resizeMat.SetVector(_UVRect, GetUVRect(
+            resizeMat.SetVector(_UVRect, GetTextureST(
                 (float)texture.width / (float)texture.height, // src
                 (float)options.width / (float)options.height, // dst
                 options.aspectMode));
@@ -115,7 +115,7 @@ namespace TensorFlowLite
             return fetchTexture.GetPixels32();
         }
 
-        public static Vector4 GetUVRect(float srcAspect, float dstAspect, AspectMode mode)
+        public static Vector4 GetTextureST(float srcAspect, float dstAspect, AspectMode mode)
         {
             switch (mode)
             {
@@ -145,6 +145,17 @@ namespace TensorFlowLite
                     }
             }
             throw new System.Exception("Unknown aspect mode");
+        }
+
+        public static Rect GetUVRect(float srcAspect, float dstAspect, AspectMode mode)
+        {
+            Vector4 texST = GetTextureST(srcAspect, dstAspect, mode);
+            Rect rect = new Rect(texST.z, texST.w, texST.x, texST.y);
+            if (Application.isMobilePlatform)
+            {
+                rect.width *= -1;
+            }
+            return rect;
         }
 
         static bool IsSameSize(Texture a, Texture b)
