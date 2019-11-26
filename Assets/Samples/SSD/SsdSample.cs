@@ -29,7 +29,7 @@ public class SsdSample : MonoBehaviour
 
         // Init camera
         string cameraName = WebCamUtil.FindName();
-        webcamTexture = new WebCamTexture(cameraName, 1280, 720);
+        webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
         cameraView.texture = webcamTexture;
         webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
