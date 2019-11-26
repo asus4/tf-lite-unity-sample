@@ -76,13 +76,14 @@ namespace TensorFlowLite
         float[,,] inputs = new float[WIDTH, HEIGHT, CHANNELS];
         float[,,] outputs0 = new float[9, 9, 17]; // heatmap
         float[,,] outputs1 = new float[9, 9, 34]; // offset
-                                                  // float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
-                                                  // float[] outputs3 = new float[9 * 9 * 32]; // displacement bwd
+
+        // float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
+        // float[] outputs3 = new float[9 * 9 * 32]; // displacement bwd
 
         static readonly TextureToTensor.ResizeOptions resizeOptions = new TextureToTensor.ResizeOptions()
         {
             aspectMode = TextureToTensor.AspectMode.Fill,
-            flipX = Application.isMobilePlatform,
+            flipX = false,
             flipY = true,
             width = WIDTH,
             height = HEIGHT,
