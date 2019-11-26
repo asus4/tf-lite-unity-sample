@@ -53,6 +53,9 @@ namespace TensorFlowLite
         ComputeBuffer colorTableBuffer;
         RenderTexture labelTex;
 
+        Color32[] labelPixels = new Color32[WIDTH * HEIGHT];
+        Texture2D labelTex2D;
+
         static readonly TextureToTensor.ResizeOptions resizeOptions = new TextureToTensor.ResizeOptions()
         {
             aspectMode = TextureToTensor.AspectMode.Fill,
@@ -79,6 +82,7 @@ namespace TensorFlowLite
             interpreter.AllocateTensors();
 
             tex2tensor = new TextureToTensor();
+            labelTex2D = new Texture2D(WIDTH, HEIGHT, TextureFormat.RGBA32, 0, false);
 
             // Init compute sahder resources
             this.compute = compute;
@@ -101,6 +105,10 @@ namespace TensorFlowLite
             {
                 labelTex.Release();
                 Object.Destroy(labelTex);
+            }
+            if (labelTex2D != null)
+            {
+                Object.Destroy(labelTex2D);
             }
             labelBuffer?.Release();
             colorTableBuffer?.Release();
@@ -126,6 +134,44 @@ namespace TensorFlowLite
             compute.Dispatch(0, 256 / 8, 256 / 8, 1);
 
             return labelTex;
+        }
+
+        public Texture2D GetResultTexture2D()
+        {
+
+            int rows = outputs0.GetLength(0); // y
+            int cols = outputs0.GetLength(1); // x
+            int labels = outputs0.GetLength(2);
+
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < cols; x++)
+                {
+                    int argmax = ArgMaxZ(outputs0, y, x, labels);
+                    labelPixels[y * cols + x] = COLOR_TABLE[argmax];
+                }
+            }
+
+            labelTex2D.SetPixels32(labelPixels);
+            labelTex2D.Apply();
+
+            return labelTex2D;
+        }
+
+        public static int ArgMaxZ(float[,,] arr, int x, int y, int numZ)
+        {
+            // Argmax
+            int maxIndex = -1;
+            float maxScore = float.MinValue;
+            for (int z = 0; z < numZ; z++)
+            {
+                if (arr[x, y, z] > maxScore)
+                {
+                    maxScore = arr[x, y, z];
+                    maxIndex = z;
+                }
+            }
+            return maxIndex;
         }
 
         public static Color32 ToColor(uint c)
