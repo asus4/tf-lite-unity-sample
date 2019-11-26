@@ -199,7 +199,7 @@ namespace TensorFlowLite
         #region Externs
 
 #if UNITY_IPHONE && !UNITY_EDITOR
-    private const string TensorFlowLibrary = "__Internal";
+        private const string TensorFlowLibrary = "__Internal";
 #else
         private const string TensorFlowLibrary = "tensorflowlite_c";
 #endif
