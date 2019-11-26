@@ -5,15 +5,18 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Samples/PoseNet/PoseNet.unity
-    guid: 338da8008aa764c05a72b5db18dc0d5c
-  - enabled: 0
-    path: Assets/Samples/SSD/SSD.unity
-    guid: 97a93d56ec0ff46078e253cebe3c63ee
-  - enabled: 0
+  - enabled: 1
+    path: Assets/Samples/Index.unity
+    guid: 9396535c99fb944afbc60c89799f316e
+  - enabled: 1
     path: Assets/Samples/MNIST/MNIST.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Samples/SSD/SSD.unity
+    guid: 97a93d56ec0ff46078e253cebe3c63ee
+  - enabled: 1
+    path: Assets/Samples/PoseNet/PoseNet.unity
+    guid: 338da8008aa764c05a72b5db18dc0d5c
   - enabled: 1
     path: Assets/Samples/DeepLab/DeepLab.unity
     guid: 83d7df9250b9b412fb5713f372009893
