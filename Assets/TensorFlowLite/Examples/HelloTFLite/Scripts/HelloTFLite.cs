@@ -44,7 +44,7 @@ public class HelloTFLite : MonoBehaviour {
   }
 
   void Start () {
-    interpreter = new Interpreter(model.bytes, 1);
+    interpreter = new Interpreter(model.bytes);
     Debug.LogFormat(
         "InputCount: {0}, OutputCount: {1}",
         interpreter.GetInputTensorCount(),
