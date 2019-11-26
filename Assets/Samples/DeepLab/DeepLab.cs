@@ -1,6 +1,9 @@
-﻿using System.Diagnostics;
+﻿
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using UnityEngine;
+using Unity.Mathematics;
 
 namespace TensorFlowLite
 {
@@ -36,6 +39,8 @@ namespace TensorFlowLite
         const int WIDTH = 257;
         const int HEIGHT = 257;
         const int CHANNELS = 3; // RGB
+        const double TICKS_TO_MILLISEC = 1.0 / System.TimeSpan.TicksPerMillisecond;
+
 
         Interpreter interpreter;
         TextureToTensor tex2tensor;
@@ -45,8 +50,13 @@ namespace TensorFlowLite
 
         float[,,] outputs0 = new float[HEIGHT, WIDTH, 21];
 
+        ComputeShader compute;
+        ComputeBuffer labelBuffer;
+        ComputeBuffer colorTableBuffer;
+        RenderTexture labelTex;
+
         Color32[] labelPixels = new Color32[WIDTH * HEIGHT];
-        Texture2D labelTex;
+        Texture2D labelTex2D;
 
         Stopwatch stopWatch = new Stopwatch();
 
@@ -59,26 +69,44 @@ namespace TensorFlowLite
             height = HEIGHT,
         };
 
-        public DeepLab(string modelPath)
+        public DeepLab(string modelPath, ComputeShader compute)
         {
+
             interpreter = new Interpreter(File.ReadAllBytes(modelPath), 2);
             interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
             interpreter.AllocateTensors();
 
             tex2tensor = new TextureToTensor();
-            labelTex = new Texture2D(WIDTH, HEIGHT, TextureFormat.ARGB32, 0, false);
+            labelTex2D = new Texture2D(WIDTH, HEIGHT, TextureFormat.RGBA32, 0, false);
 
-            UnityEngine.Debug.LogFormat("tables :{0}", COLOR_TABLE.Length);
+            // Init compute sahder resources
+            this.compute = compute;
+            labelTex = new RenderTexture(WIDTH, HEIGHT, 0, RenderTextureFormat.ARGB32);
+            labelTex.enableRandomWrite = true;
+            labelTex.Create();
+            labelBuffer = new ComputeBuffer(HEIGHT * WIDTH, sizeof(float) * 21);
+            colorTableBuffer = new ComputeBuffer(21, sizeof(float) * 4);
+
+            // Init RGBA color table
+            var table = COLOR_TABLE.Select(c => c.ToRGBA()).ToList();
+            colorTableBuffer.SetData(table);
         }
 
         public void Dispose()
         {
             interpreter?.Dispose();
             tex2tensor?.Dispose();
+            if (labelTex2D != null)
+            {
+                Object.Destroy(labelTex2D);
+            }
             if (labelTex != null)
             {
+                labelTex.Release();
                 Object.Destroy(labelTex);
             }
+            labelBuffer?.Release();
+            colorTableBuffer?.Release();
         }
 
         public void Invoke(Texture inputTex)
@@ -91,7 +119,23 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(0, outputs0);
         }
 
-        public Texture2D GetResultTexture()
+        public RenderTexture GetResultTexture()
+        {
+            stopWatch.Restart();
+
+            labelBuffer.SetData(outputs0);
+            compute.SetBuffer(0, "LabelBuffer", labelBuffer);
+            compute.SetBuffer(0, "ColorTable", colorTableBuffer);
+            compute.SetTexture(0, "Result", labelTex);
+
+            compute.Dispatch(0, 256 / 8, 256 / 8, 1);
+
+            stopWatch.Stop();
+            UnityEngine.Debug.LogFormat("{0:0.00}", stopWatch.ElapsedTicks * TICKS_TO_MILLISEC);
+            return labelTex;
+        }
+
+        public Texture2D GetResultTexture2D()
         {
             stopWatch.Restart();
 
@@ -108,13 +152,12 @@ namespace TensorFlowLite
                 }
             }
 
-            labelTex.SetPixels32(labelPixels);
-            labelTex.Apply();
+            labelTex2D.SetPixels32(labelPixels);
+            labelTex2D.Apply();
 
             stopWatch.Stop();
-
-            UnityEngine.Debug.LogFormat("{0:0.0000}", stopWatch.ElapsedMilliseconds);
-            return labelTex;
+            UnityEngine.Debug.LogFormat("{0:0.00}", stopWatch.ElapsedTicks * TICKS_TO_MILLISEC);
+            return labelTex2D;
         }
 
         public static int ArgMaxZ(float[,,] arr, int x, int y, int numZ)
@@ -133,17 +176,15 @@ namespace TensorFlowLite
             return maxIndex;
         }
 
-        public static Color32 ToColor(uint aCol)
+        public static Color32 ToColor(uint c)
         {
             return new Color32()
             {
-                b = (byte)((aCol) & 0xFF),
-                g = (byte)((aCol >> 8) & 0xFF),
-                r = (byte)((aCol >> 16) & 0xFF),
-                a = (byte)((aCol >> 24) & 0xFF),
+                b = (byte)((c) & 0xFF),
+                g = (byte)((c >> 8) & 0xFF),
+                r = (byte)((c >> 16) & 0xFF),
+                a = (byte)((c >> 24) & 0xFF),
             };
         }
-
-
     }
 }
