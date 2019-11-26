@@ -91,12 +91,16 @@ namespace TensorFlowLite
 
         public PoseNet(string modelPath)
         {
-            GpuDelegate gpu = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
+            var options = new Interpreter.Options()
             {
-                allow_precision_loss = false,
-                waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
-            });
-            interpreter = new Interpreter(File.ReadAllBytes(modelPath), 2, gpu);
+                threads = 2,
+                gpuDelegate = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
+                {
+                    allow_precision_loss = false,
+                    waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
+                })
+            };
+            interpreter = new Interpreter(File.ReadAllBytes(modelPath), options);
             interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
             interpreter.AllocateTensors();
 
