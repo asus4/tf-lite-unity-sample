@@ -40,7 +40,7 @@ public class DeepLabSample : MonoBehaviour
         outputView.texture = deepLab.GetResultTexture();
 
         cameraView.uvRect = TextureToTensor.GetUVRect(
-            (float)webcamTexture.width / webcamTexture.height,
+            (float)webcamTexture.width / (float)webcamTexture.height,
             1,
             TextureToTensor.AspectMode.Fill);
     }

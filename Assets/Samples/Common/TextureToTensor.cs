@@ -115,7 +115,7 @@ namespace TensorFlowLite
             return fetchTexture.GetPixels32();
         }
 
-        public static Vector4 GetTextureST(float srcAspect, float dstAspect, AspectMode mode)
+        static Vector4 GetTextureST(float srcAspect, float dstAspect, AspectMode mode)
         {
             switch (mode)
             {
@@ -150,12 +150,7 @@ namespace TensorFlowLite
         public static Rect GetUVRect(float srcAspect, float dstAspect, AspectMode mode)
         {
             Vector4 texST = GetTextureST(srcAspect, dstAspect, mode);
-            Rect rect = new Rect(texST.z, texST.w, texST.x, texST.y);
-            if (Application.isMobilePlatform)
-            {
-                rect.width *= -1;
-            }
-            return rect;
+            return new Rect(texST.z, texST.w, texST.x, texST.y);
         }
 
         static bool IsSameSize(Texture a, Texture b)

@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Samples/PoseNet/PoseNet.unity
     guid: 338da8008aa764c05a72b5db18dc0d5c
   - enabled: 0
@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Samples/MNIST/MNIST.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Samples/DeepLab/DeepLab.unity
+    guid: 83d7df9250b9b412fb5713f372009893
   m_configObjects: {}
