@@ -1,14 +1,38 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#pragma kernel LabelToTex
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
+struct Label
+{
+    float scores[21];
+};
+
+StructuredBuffer<Label> LabelBuffer;
+StructuredBuffer<float4> ColorTable;
 RWTexture2D<float4> Result;
 
-[numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+inline int ArgMax(in Label label)
 {
-    // TODO: insert actual code here!
+    int maxIndex = -1;
+    float maxScore = -1.0;
 
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+    for (int i = 0; i < 21; ++i)
+    {
+        if (label.scores[i] > maxScore)
+        {
+            maxScore = label.scores[i];
+            maxIndex = i;
+        }
+    }
+    return maxIndex; 
+}
+
+[numthreads(8,8,1)]
+void LabelToTex (uint2 tid : SV_DispatchThreadID)
+{
+    uint gid = (257 - tid.y) * 257 + tid.x;
+    Label label = LabelBuffer[gid];
+    int maxScore = ArgMax(label);
+    float4 c = ColorTable[maxScore];
+    c.a = 1.0;
+    Result[tid] = c;
 }

@@ -10,6 +10,7 @@ public class DeepLabSample : MonoBehaviour
     [SerializeField] string fileName = "deeplabv3_257_mv_gpu.tflite";
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage outputView = null;
+    [SerializeField] ComputeShader compute = null;
 
     WebCamTexture webcamTexture;
     DeepLab deepLab;
@@ -18,7 +19,7 @@ public class DeepLabSample : MonoBehaviour
     void Start()
     {
         string path = Path.Combine(Application.streamingAssetsPath, fileName);
-        deepLab = new DeepLab(path);
+        deepLab = new DeepLab(path, compute);
 
         // Init camera
         string cameraName = WebCamUtil.FindName();
@@ -37,7 +38,8 @@ public class DeepLabSample : MonoBehaviour
     void Update()
     {
         deepLab.Invoke(webcamTexture);
-        outputView.texture = deepLab.GetResultTexture();
+        outputView.texture = deepLab.GetResultTexture2D();
+        // outputView.texture = deepLab.GetResultTexture();
 
         cameraView.uvRect = TextureToTensor.GetUVRect(
             (float)webcamTexture.width / (float)webcamTexture.height,
