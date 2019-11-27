@@ -148,15 +148,6 @@ namespace TensorFlowLite
                 tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData)));
         }
 
-        public void GetTensorData(int tensorIndex, Array tensorData)
-        {
-            GCHandle tensorDataHandle = GCHandle.Alloc(tensorData, GCHandleType.Pinned);
-            IntPtr tensorDataPtr = tensorDataHandle.AddrOfPinnedObject();
-            TfLiteTensor tensor = TfLiteInterpreterGetTensor(interpreter, tensorIndex);
-            ThrowIfError(TfLiteTensorCopyToBuffer(
-                tensor, tensorDataPtr, Buffer.ByteLength(tensorData)));
-        }
-
         public TensorInfo GetInputTensorInfo(int index)
         {
             TfLiteTensor tensor = TfLiteInterpreterGetInputTensor(interpreter, index);
@@ -168,13 +159,6 @@ namespace TensorFlowLite
             TfLiteTensor tensor = TfLiteInterpreterGetOutputTensor(interpreter, index);
             return GetTensorInfo(tensor);
         }
-
-        public TensorInfo GetTensorInfo(int index)
-        {
-            TfLiteTensor tensor = TfLiteInterpreterGetTensor(interpreter, index);
-            return GetTensorInfo(tensor);
-        }
-
 
         /// <summary>
         /// Returns a string describing version information of the TensorFlow Lite library.
@@ -312,11 +296,6 @@ namespace TensorFlowLite
         private static extern unsafe TfLiteTensor TfLiteInterpreterGetOutputTensor(
             TfLiteInterpreter interpreter,
             int output_index);
-
-        [DllImport(TensorFlowLibrary)]
-        private static extern unsafe TfLiteTensor TfLiteInterpreterGetTensor(
-            TfLiteInterpreter interpreter,
-            int tensor_index);
 
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe DataType TfLiteTensorType(TfLiteTensor tensor);
