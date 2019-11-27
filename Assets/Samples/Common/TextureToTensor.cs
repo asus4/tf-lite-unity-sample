@@ -70,6 +70,7 @@ namespace TensorFlowLite
 
         public void ToTensor(RenderTexture texture, sbyte[,,] inputs)
         {
+            // TODO: optimize this
             var pixels = FetchPixels(texture);
             int width = texture.width;
 
@@ -85,6 +86,7 @@ namespace TensorFlowLite
 
         public void ToTensor(RenderTexture texture, float[,,] inputs)
         {
+            // TODO: optimize this
             var pixels = FetchPixels(texture);
             int width = texture.width;
             const float offset = 128f;
