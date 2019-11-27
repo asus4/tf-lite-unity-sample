@@ -51,7 +51,6 @@ namespace TensorFlowLite
 
         public DeepLab(string modelPath, ComputeShader compute) : base(modelPath)
         {
-            interpreter.AllocateTensors();
 
             var odim0 = interpreter.GetOutputTensorInfo(0).dimensions;
 
@@ -73,6 +72,7 @@ namespace TensorFlowLite
             // Init RGBA color table
             var table = COLOR_TABLE.Select(c => c.ToRGBA()).ToList();
             colorTableBuffer.SetData(table);
+
         }
 
         public override void Dispose()

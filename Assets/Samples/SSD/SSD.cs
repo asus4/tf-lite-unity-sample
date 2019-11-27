@@ -20,9 +20,8 @@ namespace TensorFlowLite
         float[] outputs2 = new float[10]; // Scores
         Result[] results = new Result[10];
 
-        public SSD(string modelPath):base(modelPath)
+        public SSD(string modelPath) : base(modelPath)
         {
-            interpreter.AllocateTensors();
         }
 
 
