@@ -41,6 +41,7 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
+            interpreter.LogIOInfo();
             ToTensor(inputTex, inputs);
 
             interpreter.SetInputTensorData(0, inputs);
@@ -54,8 +55,6 @@ namespace TensorFlowLite
             // Find min max;
             float3 min, max;
             FindMinMax(output0, out min, out max);
-
-            Debug.Log($"min: {min} max: {max}");
 
             outputBuffer.SetData(output0);
             compute.SetBuffer(0, "InputTensor", outputBuffer);

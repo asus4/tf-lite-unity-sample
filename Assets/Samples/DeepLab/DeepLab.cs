@@ -153,13 +153,7 @@ namespace TensorFlowLite
 
         public static Color32 ToColor(uint c)
         {
-            return new Color32()
-            {
-                r = (byte)((c) & 0xFF),
-                g = (byte)((c >> 8) & 0xFF),
-                b = (byte)((c >> 16) & 0xFF),
-                a = (byte)((c >> 24) & 0xFF),
-            };
+            return Color32Extension.FromHex(c);
         }
     }
 }

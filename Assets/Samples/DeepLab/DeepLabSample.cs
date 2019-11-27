@@ -11,6 +11,7 @@ public class DeepLabSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage outputView = null;
     [SerializeField] ComputeShader compute = null;
+    [SerializeField] Texture2D inputTex;
 
     WebCamTexture webcamTexture;
     DeepLab deepLab;
@@ -37,17 +38,23 @@ public class DeepLabSample : MonoBehaviour
 
     void Update()
     {
-        deepLab.Invoke(webcamTexture);
+        if (inputTex != null)
+        {
+            Invoke(inputTex);
+        }
+        else
+        {
+            Invoke(webcamTexture);
+        }
+    }
 
-        // ...Compute Shader Hungs up on iOS
-        // outputView.texture = deepLab.GetResultTexture();
+    void Invoke(Texture texture)
+    {
+        deepLab.Invoke(texture);
+        cameraView.texture = texture;
         outputView.texture = deepLab.GetResultTexture2D();
-
-
-        cameraView.uvRect = TextureToTensor.GetUVRect(
-            (float)webcamTexture.width / (float)webcamTexture.height,
-            1,
-            TextureToTensor.AspectMode.Fill);
+        float aspect = (float)texture.width / (float)texture.height;
+        cameraView.uvRect = TextureToTensor.GetUVRect(aspect, 1, TextureToTensor.AspectMode.Fill);
     }
 
 }
