@@ -11,7 +11,6 @@ public class DeepLabSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage outputView = null;
     [SerializeField] ComputeShader compute = null;
-    [SerializeField] Texture2D inputTex;
 
     WebCamTexture webcamTexture;
     DeepLab deepLab;
@@ -38,20 +37,12 @@ public class DeepLabSample : MonoBehaviour
 
     void Update()
     {
-        if (inputTex != null)
-        {
-            Invoke(inputTex);
-        }
-        else
-        {
-            Invoke(webcamTexture);
-        }
+        Execute(webcamTexture);
     }
 
-    void Invoke(Texture texture)
+    void Execute(Texture texture)
     {
         deepLab.Invoke(texture);
-        cameraView.texture = texture;
         outputView.texture = deepLab.GetResultTexture2D();
         float aspect = (float)texture.width / (float)texture.height;
         cameraView.uvRect = TextureToTensor.GetUVRect(aspect, 1, TextureToTensor.AspectMode.Fill);

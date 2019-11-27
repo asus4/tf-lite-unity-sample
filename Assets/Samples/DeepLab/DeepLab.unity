@@ -401,7 +401,7 @@ MonoBehaviour:
   cameraView: {fileID: 2074584278}
   outputView: {fileID: 1931683985}
   compute: {fileID: 7200000, guid: 28738c161f6164ecd877b935ec023169, type: 3}
-  inputTex: {fileID: 2800000, guid: d63fac9e1dc894153b68d3e7a67ede35, type: 3}
+  inputTex: {fileID: 0}
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0
@@ -466,7 +466,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.56078434}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.7764706}
   m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
