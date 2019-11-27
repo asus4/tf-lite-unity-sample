@@ -16,16 +16,21 @@ namespace TensorFlowLite
         protected TextureToTensor.ResizeOptions resizeOptions;
 
 
-        public BaseImagePredictor(string modelPath)
+        public BaseImagePredictor(string modelPath, bool useGPU = true)
         {
-            var options = new Interpreter.Options()
+            GpuDelegate gpu = null;
+            if (useGPU)
             {
-                threads = 2,
-                gpuDelegate = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
+                gpu = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
                 {
                     allow_precision_loss = false,
                     waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
-                })
+                });
+            }
+            var options = new Interpreter.Options()
+            {
+                threads = 2,
+                gpuDelegate = gpu,
             };
             interpreter = new Interpreter(File.ReadAllBytes(modelPath), options);
             interpreter.LogIOInfo();

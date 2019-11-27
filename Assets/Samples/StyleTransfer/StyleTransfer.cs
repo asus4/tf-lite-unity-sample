@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 namespace TensorFlowLite
@@ -10,7 +9,7 @@ namespace TensorFlowLite
 
         float[] styleBottleneck;
 
-        public StyleTransfer(string modelPath, float[] styleBottleneck) : base(modelPath)
+        public StyleTransfer(string modelPath, float[] styleBottleneck) : base(modelPath, false)
         {
             this.styleBottleneck = styleBottleneck;
         }
@@ -21,6 +20,7 @@ namespace TensorFlowLite
 
             interpreter.SetInputTensorData(0, inputs);
             interpreter.SetInputTensorData(1, styleBottleneck);
+            interpreter.Invoke();
 
         }
 

@@ -26,7 +26,8 @@ public class StyleTransferSample : MonoBehaviour
             styleBottleneck = predict.GetStyleBottleneck();
         }
 
-        
+        string transferModelPath = Path.Combine(Application.streamingAssetsPath, transferFileName);
+        styleTransfer = new StyleTransfer(transferModelPath, styleBottleneck);
 
         // Init camera
         string cameraName = WebCamUtil.FindName();
