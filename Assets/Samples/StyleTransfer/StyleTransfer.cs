@@ -5,18 +5,24 @@ using UnityEngine;
 
 namespace TensorFlowLite
 {
-    public class StyleTransfer : System.IDisposable
+    public class StyleTransfer : BaseImagePredictor<float>
     {
-        Interpreter interpreter;
 
-        public StyleTransfer(string modelPath)
+        float[] styleBottleneck;
+
+        public StyleTransfer(string modelPath, float[] styleBottleneck) : base(modelPath)
         {
-            interpreter = new Interpreter(File.ReadAllBytes(modelPath));
+            this.styleBottleneck = styleBottleneck;
         }
 
-        public void Dispose()
+        public override void Invoke(Texture inputTex)
         {
-            interpreter?.Dispose();
+            ToTensor(inputTex, inputs);
+
+            interpreter.SetInputTensorData(0, inputs);
+            interpreter.SetInputTensorData(1, styleBottleneck);
+
         }
+
     }
 }

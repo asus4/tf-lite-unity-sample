@@ -28,16 +28,8 @@ namespace TensorFlowLite
                 })
             };
             interpreter = new Interpreter(File.ReadAllBytes(modelPath), options);
-
             interpreter.LogIOInfo();
-
-            var idim0 = interpreter.GetInputTensorInfo(0).dimensions;
-            height = idim0[1];
-            width = idim0[2];
-            channels = idim0[3];
-            inputs = new T[height, width, channels];
-
-            interpreter.ResizeInputTensor(0, idim0);
+            InitInputs();
 
             tex2tensor = new TextureToTensor();
             resizeOptions = new TextureToTensor.ResizeOptions()
@@ -56,6 +48,7 @@ namespace TensorFlowLite
             tex2tensor?.Dispose();
         }
 
+
         public abstract void Invoke(Texture inputTex);
 
         protected void ToTensor(Texture inputTex, float[,,] inputs)
@@ -68,6 +61,23 @@ namespace TensorFlowLite
         {
             RenderTexture tex = tex2tensor.Resize(inputTex, resizeOptions);
             tex2tensor.ToTensor(tex, inputs);
+        }
+
+        private void InitInputs()
+        {
+            var idim0 = interpreter.GetInputTensorInfo(0).dimensions;
+            height = idim0[1];
+            width = idim0[2];
+            channels = idim0[3];
+            inputs = new T[height, width, channels];
+
+            int inputCount = interpreter.GetInputTensorCount();
+            for (int i = 0; i < inputCount; i++)
+            {
+                int[] dim = interpreter.GetInputTensorInfo(i).dimensions;
+                interpreter.ResizeInputTensor(i, dim);
+            }
+            interpreter.AllocateTensors();
         }
     }
 }
