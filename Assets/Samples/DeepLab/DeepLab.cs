@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace TensorFlowLite
 {
-    public class DeepLab : System.IDisposable
+    public class DeepLab : BaseImagePredictor<float>
     {
         // Port from
         // https://github.com/tensorflow/examples/blob/master/lite/examples/image_segmentation/ios/ImageSegmentation/ImageSegmentator.swift
@@ -34,62 +34,40 @@ namespace TensorFlowLite
             ToColor(0xFF00_A1C2), // Vivid Blue
         };
 
-        const int WIDTH = 257;
-        const int HEIGHT = 257;
-        const int CHANNELS = 3; // RGB
-        const double TICKS_TO_MILLISEC = 1.0 / System.TimeSpan.TicksPerMillisecond;
 
-
-        Interpreter interpreter;
-        TextureToTensor tex2tensor;
 
         // https://www.tensorflow.org/lite/models/segmentation/overview
-        float[,,] inputs = new float[HEIGHT, WIDTH, CHANNELS];
 
-        float[,,] outputs0 = new float[HEIGHT, WIDTH, 21];
+        float[,,] outputs0; // height, width, 21
 
         ComputeShader compute;
         ComputeBuffer labelBuffer;
         ComputeBuffer colorTableBuffer;
         RenderTexture labelTex;
 
-        Color32[] labelPixels = new Color32[WIDTH * HEIGHT];
+        Color32[] labelPixels;
         Texture2D labelTex2D;
 
-        static readonly TextureToTensor.ResizeOptions resizeOptions = new TextureToTensor.ResizeOptions()
-        {
-            aspectMode = TextureToTensor.AspectMode.Fill,
-            flipX = false,
-            flipY = true,
-            width = WIDTH,
-            height = HEIGHT,
-        };
 
-        public DeepLab(string modelPath, ComputeShader compute)
+        public DeepLab(string modelPath, ComputeShader compute) : base(modelPath)
         {
-            var options = new Interpreter.Options()
-            {
-                threads = 2,
-                gpuDelegate = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
-                {
-                    allow_precision_loss = false,
-                    waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
-                })
-            };
-
-            interpreter = new Interpreter(File.ReadAllBytes(modelPath), options);
-            interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
             interpreter.AllocateTensors();
 
-            tex2tensor = new TextureToTensor();
-            labelTex2D = new Texture2D(WIDTH, HEIGHT, TextureFormat.RGBA32, 0, false);
+            var odim0 = interpreter.GetOutputTensorInfo(0).dimensions;
+
+            Debug.Assert(odim0[1] == height);
+            Debug.Assert(odim0[2] == width);
+
+            outputs0 = new float[odim0[1], odim0[2], odim0[3]];
+            labelPixels = new Color32[width * height];
+            labelTex2D = new Texture2D(width, height, TextureFormat.RGBA32, 0, false);
 
             // Init compute sahder resources
             this.compute = compute;
-            labelTex = new RenderTexture(WIDTH, HEIGHT, 0, RenderTextureFormat.ARGB32);
+            labelTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             labelTex.enableRandomWrite = true;
             labelTex.Create();
-            labelBuffer = new ComputeBuffer(HEIGHT * WIDTH, sizeof(float) * 21);
+            labelBuffer = new ComputeBuffer(height * width, sizeof(float) * 21);
             colorTableBuffer = new ComputeBuffer(21, sizeof(float) * 4);
 
             // Init RGBA color table
@@ -97,10 +75,10 @@ namespace TensorFlowLite
             colorTableBuffer.SetData(table);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            interpreter?.Dispose();
-            tex2tensor?.Dispose();
+            base.Dispose();
+
             if (labelTex != null)
             {
                 labelTex.Release();
@@ -114,10 +92,9 @@ namespace TensorFlowLite
             colorTableBuffer?.Release();
         }
 
-        public void Invoke(Texture inputTex)
+        public override void Invoke(Texture inputTex)
         {
-            RenderTexture tex = tex2tensor.Resize(inputTex, resizeOptions);
-            tex2tensor.ToTensor(tex, inputs);
+            ToTensor(inputTex, inputs);
 
             interpreter.SetInputTensorData(0, inputs);
             interpreter.Invoke();

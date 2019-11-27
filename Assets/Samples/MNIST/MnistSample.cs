@@ -51,11 +51,11 @@ public class MnistSample : MonoBehaviour
     {
         if (!isProcessing)
         {
-            Excecute(texture);
+            Invoke(texture);
         }
     }
 
-    void Excecute(RenderTexture texture)
+    void Invoke(RenderTexture texture)
     {
         isProcessing = true;
 
