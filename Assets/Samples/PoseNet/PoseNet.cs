@@ -64,30 +64,24 @@ namespace TensorFlowLite
             public float y;
         }
 
-        const int WIDTH = 257;
-        const int HEIGHT = 257;
-        const int CHANNELS = 3; // RGB
-
 
         Interpreter interpreter;
         TextureToTensor tex2tensor;
         Result[] results = new Result[17];
 
-        float[,,] inputs = new float[WIDTH, HEIGHT, CHANNELS];
-        float[,,] outputs0 = new float[9, 9, 17]; // heatmap
-        float[,,] outputs1 = new float[9, 9, 34]; // offset
+
+        int width;
+        int height;
+        int channels; // RGB
+
+        float[,,] inputs;
+        float[,,] outputs0; // heatmap
+        float[,,] outputs1; // offset
 
         // float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
         // float[] outputs3 = new float[9 * 9 * 32]; // displacement bwd
 
-        static readonly TextureToTensor.ResizeOptions resizeOptions = new TextureToTensor.ResizeOptions()
-        {
-            aspectMode = TextureToTensor.AspectMode.Fill,
-            flipX = false,
-            flipY = true,
-            width = WIDTH,
-            height = HEIGHT,
-        };
+        TextureToTensor.ResizeOptions resizeOptions;
 
         public PoseNet(string modelPath)
         {
@@ -101,22 +95,34 @@ namespace TensorFlowLite
                 })
             };
             interpreter = new Interpreter(File.ReadAllBytes(modelPath), options);
-            interpreter.ResizeInputTensor(0, new int[] { 1, HEIGHT, WIDTH, CHANNELS });
+            interpreter.LogIOInfo();
+
+            var idim0 = interpreter.GetInputTensorInfo(0).dimensions;
+            var odim0 = interpreter.GetOutputTensorInfo(0).dimensions;
+            var odim1 = interpreter.GetOutputTensorInfo(1).dimensions;
+
+            height = idim0[1];
+            width = idim0[2];
+            channels = idim0[3];
+
+            inputs = new float[height, width, channels];
+            outputs0 = new float[odim0[1], odim0[2], odim0[3]];
+            outputs1 = new float[odim1[1], odim1[2], odim1[3]];
+
+            interpreter.ResizeInputTensor(0, idim0);
             interpreter.AllocateTensors();
 
-            int inputs = interpreter.GetInputTensorCount();
-            int outputs = interpreter.GetOutputTensorCount();
-            for (int i = 0; i < inputs; i++)
-            {
-                Debug.Log(interpreter.GetInputTensorInfo(i));
-            }
-            for (int i = 0; i < outputs; i++)
-            {
-                Debug.Log(interpreter.GetOutputTensorInfo(i));
-            }
-
             tex2tensor = new TextureToTensor();
+            resizeOptions = new TextureToTensor.ResizeOptions()
+            {
+                aspectMode = TextureToTensor.AspectMode.Fill,
+                flipX = false,
+                flipY = true,
+                width = width,
+                height = height,
+            };
         }
+
 
         public void Dispose()
         {
@@ -145,12 +151,12 @@ namespace TensorFlowLite
             // Name alias
             float[,,] scores = outputs0;
             float[,,] offsets = outputs1;
+            float stride = scores.GetLength(0) - 1;
 
             ApplySigmoid(scores);
             var argmax = ArgMax2D(scores);
 
             // Add offsets
-            const float STRIDE = 9 - 1;
             for (int part = 0; part < results.Length; part++)
             {
                 ArgMaxResult arg = argmax[part];
@@ -158,8 +164,8 @@ namespace TensorFlowLite
 
                 float offsetX = offsets[arg.y, arg.x, part * 2];
                 float offsetY = offsets[arg.y, arg.x, part * 2 + 1];
-                res.x = ((float)arg.x / STRIDE * WIDTH + offsetX) / WIDTH;
-                res.y = ((float)arg.y / STRIDE * HEIGHT + offsetY) / HEIGHT;
+                res.x = ((float)arg.x / stride * width + offsetX) / width;
+                res.y = ((float)arg.y / stride * height + offsetY) / height;
                 res.confidence = arg.score;
                 res.part = (Part)part;
 
@@ -201,23 +207,23 @@ namespace TensorFlowLite
 
         static ArgMaxResult[] ArgMax2D(float[,,] scores)
         {
-            int ROWS = scores.GetLength(0); //y
-            int COLS = scores.GetLength(1); //x
-            int PARTS = scores.GetLength(2);
+            int rows = scores.GetLength(0); //y
+            int cols = scores.GetLength(1); //x
+            int parts = scores.GetLength(2);
 
             // Init with minimum float
-            var results = new ArgMaxResult[PARTS];
-            for (int i = 0; i < PARTS; i++)
+            var results = new ArgMaxResult[parts];
+            for (int i = 0; i < parts; i++)
             {
                 results[i].score = float.MinValue;
             }
 
             // ArgMax
-            for (int y = 0; y < ROWS; y++)
+            for (int y = 0; y < rows; y++)
             {
-                for (int x = 0; x < COLS; x++)
+                for (int x = 0; x < cols; x++)
                 {
-                    for (int part = 0; part < PARTS; part++)
+                    for (int part = 0; part < parts; part++)
                     {
                         float current = scores[y, x, part];
                         if (current > results[part].score)
