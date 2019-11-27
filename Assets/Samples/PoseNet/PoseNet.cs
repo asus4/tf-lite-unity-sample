@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 namespace TensorFlowLite
@@ -10,7 +9,7 @@ namespace TensorFlowLite
     /// Pose Estimation Example
     /// https://www.tensorflow.org/lite/models/pose_estimation/overview
     /// </summary>
-    public class PoseNet : System.IDisposable
+    public class PoseNet : BaseImagePredictor<float>
     {
         public enum Part
         {
@@ -65,77 +64,29 @@ namespace TensorFlowLite
         }
 
 
-        Interpreter interpreter;
-        TextureToTensor tex2tensor;
         Result[] results = new Result[17];
 
-
-        int width;
-        int height;
-        int channels; // RGB
-
-        float[,,] inputs;
         float[,,] outputs0; // heatmap
         float[,,] outputs1; // offset
 
         // float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
         // float[] outputs3 = new float[9 * 9 * 32]; // displacement bwd
 
-        TextureToTensor.ResizeOptions resizeOptions;
-
-        public PoseNet(string modelPath)
+        public PoseNet(string modelPath):base(modelPath)
         {
-            var options = new Interpreter.Options()
-            {
-                threads = 2,
-                gpuDelegate = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
-                {
-                    allow_precision_loss = false,
-                    waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
-                })
-            };
-            interpreter = new Interpreter(File.ReadAllBytes(modelPath), options);
-            interpreter.LogIOInfo();
-
-            var idim0 = interpreter.GetInputTensorInfo(0).dimensions;
             var odim0 = interpreter.GetOutputTensorInfo(0).dimensions;
-            var odim1 = interpreter.GetOutputTensorInfo(1).dimensions;
-
-            height = idim0[1];
-            width = idim0[2];
-            channels = idim0[3];
-
-            inputs = new float[height, width, channels];
+            var odim1 = interpreter.GetOutputTensorInfo(1).dimensions;          
             outputs0 = new float[odim0[1], odim0[2], odim0[3]];
             outputs1 = new float[odim1[1], odim1[2], odim1[3]];
 
-            interpreter.ResizeInputTensor(0, idim0);
             interpreter.AllocateTensors();
-
-            tex2tensor = new TextureToTensor();
-            resizeOptions = new TextureToTensor.ResizeOptions()
-            {
-                aspectMode = TextureToTensor.AspectMode.Fill,
-                flipX = false,
-                flipY = true,
-                width = width,
-                height = height,
-            };
-        }
-
-
-        public void Dispose()
-        {
-            interpreter?.Dispose();
-            tex2tensor?.Dispose();
         }
 
         public Texture2D inputTex => tex2tensor.texture;
 
-        public void Invoke(Texture inputTex)
+        public override void Invoke(Texture inputTex)
         {
-            RenderTexture tex = tex2tensor.Resize(inputTex, resizeOptions);
-            tex2tensor.ToTensor(tex, inputs);
+            ToTensor(inputTex, inputs);
 
             interpreter.SetInputTensorData(0, inputs);
             interpreter.Invoke();
