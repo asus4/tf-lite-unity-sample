@@ -84,7 +84,7 @@ namespace TensorFlowLite
             }
         }
 
-        public void ToTensor01(RenderTexture texture, float[,,] inputs)
+        public void ToTensor(RenderTexture texture, float[,,] inputs)
         {
             var pixels = FetchPixels(texture);
             int width = texture.width;
@@ -99,19 +99,18 @@ namespace TensorFlowLite
             }
         }
 
-        public void ToTensor(RenderTexture texture, float[,,] inputs)
+        public void ToTensor(RenderTexture texture, float[,,] inputs, float offset, float scale)
         {
             // TODO: optimize this
             var pixels = FetchPixels(texture);
             int width = texture.width;
-            const float offset = 128f;
             for (int i = 0; i < pixels.Length; i++)
             {
                 int y = i / width;
                 int x = i % width;
-                inputs[y, x, 0] = (unchecked((sbyte)pixels[i].r) - offset) / offset;
-                inputs[y, x, 1] = (unchecked((sbyte)pixels[i].g) - offset) / offset;
-                inputs[y, x, 2] = (unchecked((sbyte)pixels[i].b) - offset) / offset;
+                inputs[y, x, 0] = (pixels[i].r - offset) * scale;
+                inputs[y, x, 1] = (pixels[i].g - offset) * scale;
+                inputs[y, x, 2] = (pixels[i].b - offset) * scale;
             }
         }
 

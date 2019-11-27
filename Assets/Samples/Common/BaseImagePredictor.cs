@@ -59,7 +59,13 @@ namespace TensorFlowLite
         protected void ToTensor(Texture inputTex, float[,,] inputs)
         {
             RenderTexture tex = tex2tensor.Resize(inputTex, resizeOptions);
-            tex2tensor.ToTensor01(tex, inputs);
+            tex2tensor.ToTensor(tex, inputs);
+        }
+
+        protected void ToTensor(Texture inputTex, float[,,] inputs, float offset, float scale)
+        {
+            RenderTexture tex = tex2tensor.Resize(inputTex, resizeOptions);
+            tex2tensor.ToTensor(tex, inputs, offset, scale);
         }
 
         protected void ToTensor(Texture inputTex, sbyte[,,] inputs)
