@@ -78,9 +78,9 @@ namespace TensorFlowLite
             {
                 int y = i / width;
                 int x = i % width;
-                inputs[y, x, 0] = unchecked((sbyte)pixels[i].r);
-                inputs[y, x, 1] = unchecked((sbyte)pixels[i].g);
-                inputs[y, x, 2] = unchecked((sbyte)pixels[i].b);
+                inputs[y, x, 0] = ((sbyte)pixels[i].r);
+                inputs[y, x, 1] = ((sbyte)pixels[i].g);
+                inputs[y, x, 2] = ((sbyte)pixels[i].b);
             }
         }
 
