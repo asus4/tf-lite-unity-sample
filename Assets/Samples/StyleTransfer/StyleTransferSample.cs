@@ -11,6 +11,7 @@ public class StyleTransferSample : MonoBehaviour
     [SerializeField] string transferFileName = "style_transfer_quantized_dynamic.tflite";
     [SerializeField] Texture2D styleImage = null;
     [SerializeField] RawImage preview = null;
+    [SerializeField] ComputeShader compute = null;
 
     WebCamTexture webcamTexture;
     StyleTransfer styleTransfer;
@@ -27,7 +28,7 @@ public class StyleTransferSample : MonoBehaviour
         }
 
         string transferModelPath = Path.Combine(Application.streamingAssetsPath, transferFileName);
-        styleTransfer = new StyleTransfer(transferModelPath, styleBottleneck);
+        styleTransfer = new StyleTransfer(transferModelPath, styleBottleneck, compute);
 
         // Init camera
         string cameraName = WebCamUtil.FindName();
@@ -44,10 +45,13 @@ public class StyleTransferSample : MonoBehaviour
 
     void Update()
     {
+        styleTransfer.Invoke(webcamTexture);
+        
+        preview.texture = styleTransfer.GetResultTexture();
 
-        preview.uvRect = TextureToTensor.GetUVRect(
-            (float)webcamTexture.width / (float)webcamTexture.height,
-            1,
-            TextureToTensor.AspectMode.Fill);
+        // preview.uvRect = TextureToTensor.GetUVRect(
+        //     (float)webcamTexture.width / (float)webcamTexture.height,
+        //     1,
+        //     TextureToTensor.AspectMode.Fill);
     }
 }

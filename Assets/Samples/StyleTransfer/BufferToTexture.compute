@@ -1,0 +1,27 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel TensorToTexture
+
+StructuredBuffer<float3> InputTensor;
+RWTexture2D<float4> OutputTexture;
+float4 minValue;
+float4 maxValue;
+
+inline float inverseLerp(float inputMin, float inputMax, float value) {
+    return (value - inputMin) / (inputMax - inputMin);
+}
+
+inline float3 inverseLerp(float3 inputMin, float3 inputMax, float3 value) {
+	return float3(
+        inverseLerp(inputMin.x, inputMax.x, value.x),
+        inverseLerp(inputMin.y, inputMax.y, value.y),
+        inverseLerp(inputMin.z, inputMax.z, value.z)
+    );
+}
+
+[numthreads(8,8,1)]
+void TensorToTexture (uint2 tid : SV_DispatchThreadID)
+{
+    uint gid = (384 - tid.y) * 384 + tid.x;
+    float3 c = (InputTensor[gid] + 0.5);
+    OutputTexture[tid] = float4(c.x, c.y, c.z, 1.0);
+}

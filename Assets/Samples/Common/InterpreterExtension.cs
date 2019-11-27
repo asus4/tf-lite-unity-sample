@@ -10,11 +10,11 @@ namespace TensorFlowLite
             int outputCount = interpreter.GetOutputTensorCount();
             for (int i = 0; i < inputCount; i++)
             {
-                Debug.Log(interpreter.GetInputTensorInfo(i));
+                Debug.LogFormat("intput {0}: {1}", i, interpreter.GetInputTensorInfo(i));
             }
             for (int i = 0; i < outputCount; i++)
             {
-                Debug.Log(interpreter.GetOutputTensorInfo(i));
+                Debug.LogFormat("output {0}: {1}", i, interpreter.GetOutputTensorInfo(i));
             }
         }
     }
