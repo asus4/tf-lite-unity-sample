@@ -84,6 +84,21 @@ namespace TensorFlowLite
             }
         }
 
+        public void ToTensor01(RenderTexture texture, float[,,] inputs)
+        {
+            var pixels = FetchPixels(texture);
+            int width = texture.width;
+            const float scale = 255f;
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                int y = i / width;
+                int x = i % width;
+                inputs[y, x, 0] = (float)(pixels[i].r) / scale;
+                inputs[y, x, 1] = (float)(pixels[i].g) / scale;
+                inputs[y, x, 2] = (float)(pixels[i].b) / scale;
+            }
+        }
+
         public void ToTensor(RenderTexture texture, float[,,] inputs)
         {
             // TODO: optimize this

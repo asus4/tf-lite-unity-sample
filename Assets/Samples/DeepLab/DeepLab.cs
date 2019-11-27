@@ -1,5 +1,4 @@
 ﻿
-using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -49,9 +48,8 @@ namespace TensorFlowLite
         Texture2D labelTex2D;
 
 
-        public DeepLab(string modelPath, ComputeShader compute) : base(modelPath)
+        public DeepLab(string modelPath, ComputeShader compute) : base(modelPath, true)
         {
-
             var odim0 = interpreter.GetOutputTensorInfo(0).dimensions;
 
             Debug.Assert(odim0[1] == height);
