@@ -26,13 +26,8 @@ public class MnistSample : MonoBehaviour
         var options = new Interpreter.Options()
         {
             threads = 2,
-            gpuDelegate = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
-            {
-                allow_precision_loss = false,
-                waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
-            })
+            gpuDelegate = null,
         };
-
         var path = Path.Combine(Application.streamingAssetsPath, fileName);
         interpreter = new Interpreter(File.ReadAllBytes(path), options);
         interpreter.ResizeInputTensor(0, new int[] { 1, 28, 28, 1 });

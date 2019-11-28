@@ -43,6 +43,8 @@ namespace TensorFlowLite
         public abstract void Dispose();
     }
 
+#if UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+
     public class MetalDelegate : GpuDelegate
     {
         public enum TFLGpuDelegateWaitType
@@ -75,7 +77,7 @@ namespace TensorFlowLite
     private const string TensorFlowLibraryGPU = "__Internal";
 #else
         private const string TensorFlowLibraryGPU = "tensorflow_lite_gpu_dylib";
-#endif
+#endif // UNITY_IOS && !UNITY_EDITOR
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe TfLiteDelegate TFLGpuDelegateCreate(TFLGpuDelegateOptions delegateOptions);
@@ -85,5 +87,8 @@ namespace TensorFlowLite
 
         #endregion
     }
+
+#endif // UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+
 
 }
