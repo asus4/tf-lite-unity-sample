@@ -34,7 +34,7 @@ namespace TensorFlowLite
                 threads = 2,
                 gpuDelegate = gpu,
             };
-            interpreter = new Interpreter(File.ReadAllBytes(modelPath), options);
+            interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
             interpreter.LogIOInfo();
             InitInputs();
 
