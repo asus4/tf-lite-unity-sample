@@ -81,8 +81,6 @@ namespace TensorFlowLite
 
         }
 
-        public Texture2D inputTex => tex2tensor.texture;
-
         public override void Invoke(Texture inputTex)
         {
             const float OFFSET = 128f;

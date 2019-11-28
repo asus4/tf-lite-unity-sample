@@ -66,10 +66,12 @@ public class SsdSample : MonoBehaviour
         }
 
         // set uv
-        cameraView.uvRect = TextureToTensor.GetUVRect(
-            (float)webcamTexture.width / webcamTexture.height,
-            1,
-            TextureToTensor.AspectMode.Fill);
+        // cameraView.texture = ssd.inputTex;
+        cameraView.material = ssd.transformMat;
+        // cameraView.uvRect = TextureToTensor.GetUVRect(
+        //     (float)webcamTexture.width / webcamTexture.height,
+        //     1,
+        //     TextureToTensor.AspectMode.Fill);
     }
 
     void SetFrame(Text frame, SSD.Result result, Vector2 size)
@@ -85,7 +87,7 @@ public class SsdSample : MonoBehaviour
             frame.gameObject.SetActive(true);
         }
 
-        frame.text = $"{GetLabelName(result.classID)} : {(int)(result.score*100)}%";
+        frame.text = $"{GetLabelName(result.classID)} : {(int)(result.score * 100)}%";
         var rt = frame.transform as RectTransform;
         rt.anchoredPosition = result.rect.position * size - size * 0.5f;
         rt.sizeDelta = result.rect.size * size;

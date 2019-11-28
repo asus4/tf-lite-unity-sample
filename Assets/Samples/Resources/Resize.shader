@@ -6,8 +6,9 @@
     }
     SubShader
     {
-        // No culling or depth
-        Cull Off ZWrite Off ZTest Always
+        Cull Off
+        ZWrite Off
+        ZTest Always
 
         Pass
         {
@@ -18,8 +19,8 @@
 
             #include "UnityCG.cginc"
 
-            int _FlipY;
-            int _FlipX;
+            uniform float4x4 _VertTransform;
+            uniform float4 _UVRect; // the same as _MainTex_ST;
 
             struct appdata
             {
@@ -36,29 +37,16 @@
             v2f vert (appdata v)
             {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
-                
-                if (_FlipX > 0)
-                {
-                    o.uv.x = 1.0 - o.uv.x;
-                }
-                if (_FlipY > 0)
-                {
-                    o.uv.y = 1.0 - o.uv.y;
-                }
-
+                o.vertex = UnityObjectToClipPos(mul(_VertTransform, v.vertex));
+                o.uv = v.uv * _UVRect.xy + _UVRect.zw;
                 return o;
             }
 
             sampler2D _MainTex;
-            float4 _UVRect; // the same as _MainTex_ST;
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float2 uv = i.uv;
-                uv = uv * _UVRect.xy + _UVRect.zw;
-                return tex2D(_MainTex, uv);
+                return tex2D(_MainTex, i.uv);
             }
             ENDCG
         }

@@ -18,19 +18,20 @@ namespace TensorFlowLite
         {
             public int width;
             public int height;
+            public float rotationDegree;
             public bool flipX;
             public bool flipY;
             public AspectMode aspectMode;
         }
 
         RenderTexture resizeTexture;
-        Material resizeMat;
+        Material transfromMat;
         Texture2D fetchTexture;
 
         public Texture2D texture => fetchTexture;
+        public Material material => transfromMat;
 
-        static readonly int _FlipX = Shader.PropertyToID("_FlipX");
-        static readonly int _FlipY = Shader.PropertyToID("_FlipY");
+        static readonly int _VertTransform = Shader.PropertyToID("_VertTransform");
         static readonly int _UVRect = Shader.PropertyToID("_UVRect");
 
         public TextureToTensor() { }
@@ -38,33 +39,43 @@ namespace TensorFlowLite
         public void Dispose()
         {
             TryDispose(resizeTexture);
-            TryDispose(resizeMat);
+            TryDispose(transfromMat);
             TryDispose(fetchTexture);
         }
 
         public RenderTexture Resize(Texture texture, ResizeOptions options)
         {
             if (resizeTexture == null
-                        || resizeTexture.width != options.width
-                        || resizeTexture.height != options.height)
+            || resizeTexture.width != options.width
+            || resizeTexture.height != options.height)
             {
                 TryDispose(resizeTexture);
                 resizeTexture = new RenderTexture(options.width, options.height, 0, RenderTextureFormat.ARGB32);
             }
-            if (resizeMat == null)
+            if (transfromMat == null)
             {
-                resizeMat = new Material(Shader.Find("Hidden/TFLite/Resize"));
+                transfromMat = new Material(Shader.Find("Hidden/TFLite/Resize"));
             }
 
             // Set options
-            resizeMat.SetInt(_FlipX, options.flipX ? 1 : 0);
-            resizeMat.SetInt(_FlipY, options.flipY ? 1 : 0);
-            resizeMat.SetVector(_UVRect, GetTextureST(
+            float rotation = options.rotationDegree;
+            if (texture is WebCamTexture)
+            {
+                var webcamTex = (WebCamTexture)texture;
+                rotation += webcamTex.videoRotationAngle;
+                if (webcamTex.videoVerticallyMirrored)
+                {
+                    options.flipX = !options.flipX;
+                }
+            }
+            Matrix4x4 trs = GetVertTransform(rotation, options.flipX, options.flipY);
+            transfromMat.SetMatrix(_VertTransform, trs);
+            transfromMat.SetVector(_UVRect, GetTextureST(
                 (float)texture.width / (float)texture.height, // src
                 (float)options.width / (float)options.height, // dst
                 options.aspectMode));
 
-            Graphics.Blit(texture, resizeTexture, resizeMat, 0);
+            Graphics.Blit(texture, resizeTexture, transfromMat, 0);
             return resizeTexture;
         }
 
@@ -197,6 +208,22 @@ namespace TensorFlowLite
             {
                 Object.Destroy(mat);
             }
+        }
+
+        static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
+        static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
+        static Matrix4x4 GetVertTransform(float rotation, bool invertX, bool invertY)
+        {
+            Vector3 scale = new Vector3(
+                invertX ? -1 : 1,
+                invertY ? -1 : 1,
+                1);
+            Matrix4x4 trs = Matrix4x4.TRS(
+                Vector3.zero,
+                Quaternion.Euler(0, 0, rotation),
+                scale
+            );
+            return PUSH_MATRIX * trs * POP_MATRIX;
         }
     }
 }
