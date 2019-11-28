@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
@@ -28,8 +27,7 @@ public class MnistSample : MonoBehaviour
             threads = 2,
             gpuDelegate = null,
         };
-        var path = Path.Combine(Application.streamingAssetsPath, fileName);
-        interpreter = new Interpreter(File.ReadAllBytes(path), options);
+        interpreter = new Interpreter(FileUtil.LoadFile(fileName), options);
         interpreter.ResizeInputTensor(0, new int[] { 1, 28, 28, 1 });
         interpreter.AllocateTensors();
 

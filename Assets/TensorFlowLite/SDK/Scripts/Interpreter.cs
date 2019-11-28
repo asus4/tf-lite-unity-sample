@@ -201,7 +201,7 @@ namespace TensorFlowLite
 #if UNITY_IOS && !UNITY_EDITOR
         private const string TensorFlowLibrary = "__Internal";
 #else
-        private const string TensorFlowLibrary = "tensorflowlite_c";
+        private const string TensorFlowLibrary = "libtensorflowlite_c";
 #endif
 
         public enum DataType
