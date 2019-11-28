@@ -71,7 +71,7 @@ namespace TensorFlowLite
 
         #region Externs
 
-#if UNITY_IPHONE && !UNITY_EDITOR
+#if UNITY_IOS && !UNITY_EDITOR
     private const string TensorFlowLibraryGPU = "__Internal";
 #else
         private const string TensorFlowLibraryGPU = "tensorflow_lite_gpu_dylib";
