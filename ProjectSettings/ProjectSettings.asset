@@ -424,7 +424,7 @@ PlayerSettings:
   enableCrashReportAPI: 0
   cameraUsageDescription: Using in TF Lite
   locationUsageDescription: 
-  microphoneUsageDescription: 
+  microphoneUsageDescription: Using in TF Lite
   switchNetLibKey: 
   switchSocketMemoryPoolSize: 6144
   switchSocketAllocatorPoolSize: 128
