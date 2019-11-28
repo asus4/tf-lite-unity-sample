@@ -14,7 +14,12 @@ Unity 2910.2.8
 ### macOS
 
 ```sh
+# Core Lib
 bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/experimental/c:libtensorflowlite_c.so
+
+# Use this branch to build metal GPU delegate dynamic library
+# https://github.com/asus4/tensorflow/tree/tflite-macos-metal-delegate
+bazel 'build' -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always --cxxopt=-std=c++14 --apple_platform_type=macos '//tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib'
 ```
 
 then rename libtensorflowlite_c.so to libtensorflowlite_c.bundle
