@@ -21,11 +21,13 @@ namespace TensorFlowLite
             GpuDelegate gpu = null;
             if (useGPU)
             {
+#if UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
                 gpu = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
                 {
                     allow_precision_loss = false,
                     waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
                 });
+#endif
             }
             var options = new Interpreter.Options()
             {
