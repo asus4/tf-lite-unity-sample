@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 namespace TensorFlowLite
@@ -15,6 +14,8 @@ namespace TensorFlowLite
         protected TextureToTensor tex2tensor;
         protected TextureToTensor.ResizeOptions resizeOptions;
 
+        public Texture2D inputTex => tex2tensor.texture;
+        public Material transformMat => tex2tensor.material;
 
         public BaseImagePredictor(string modelPath, bool useGPU = true)
         {
@@ -42,6 +43,7 @@ namespace TensorFlowLite
             resizeOptions = new TextureToTensor.ResizeOptions()
             {
                 aspectMode = TextureToTensor.AspectMode.Fill,
+                rotationDegree = 0,
                 flipX = false,
                 flipY = true,
                 width = width,

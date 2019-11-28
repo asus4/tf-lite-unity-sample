@@ -44,8 +44,11 @@ public class DeepLabSample : MonoBehaviour
     {
         deepLab.Invoke(texture);
         outputView.texture = deepLab.GetResultTexture2D();
-        float aspect = (float)texture.width / (float)texture.height;
-        cameraView.uvRect = TextureToTensor.GetUVRect(aspect, 1, TextureToTensor.AspectMode.Fill);
+
+        cameraView.material = deepLab.transformMat;
+
+        // float aspect = (float)texture.width / (float)texture.height;
+        // cameraView.uvRect = TextureToTensor.GetUVRect(aspect, 1, TextureToTensor.AspectMode.Fill);
     }
 
 }

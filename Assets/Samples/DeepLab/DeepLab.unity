@@ -401,7 +401,6 @@ MonoBehaviour:
   cameraView: {fileID: 2074584278}
   outputView: {fileID: 1931683985}
   compute: {fileID: 7200000, guid: 28738c161f6164ecd877b935ec023169, type: 3}
-  inputTex: {fileID: 0}
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0
@@ -475,7 +474,7 @@ MonoBehaviour:
   m_UVRect:
     serializedVersion: 2
     x: 0
-    y: 0
+    y: 1
     width: 1
     height: -1
 --- !u!222 &1931683986
@@ -547,9 +546,9 @@ MonoBehaviour:
   m_UVRect:
     serializedVersion: 2
     x: 0
-    y: 0
+    y: 1
     width: 1
-    height: 1
+    height: -1
 --- !u!222 &2074584279
 CanvasRenderer:
   m_ObjectHideFlags: 0
