@@ -34,7 +34,7 @@ namespace TensorFlowLite
             /// The number of CPU threads to use for the interpreter.
             /// </summary>
             public int threads;
-            public GpuDelegate gpuDelegate;
+            public IGpuDelegate gpuDelegate;
 
             public bool Equals(Options other)
             {
@@ -63,7 +63,7 @@ namespace TensorFlowLite
         private TfLiteModel model = IntPtr.Zero;
         private TfLiteInterpreter interpreter = IntPtr.Zero;
         private TfLiteInterpreterOptions options = IntPtr.Zero;
-        private GpuDelegate gpuDelegate = null;
+        private IGpuDelegate gpuDelegate = null;
 
         public Interpreter(byte[] modelData) : this(modelData, default(Options)) { }
 

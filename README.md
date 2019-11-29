@@ -49,10 +49,10 @@ If you do not have the Android SDK and NDK, intall Android Studio, SDK and NDK.
 ./configure
 
 # Build experimental
-bazel build -c opt --cxxopt=--std=c++11 --config=android_arm //tensorflow/lite/experimental/c:libtensorflowlite_c.so
+bazel build -c opt --cxxopt=--std=c++11 --config=android_arm64 //tensorflow/lite/experimental/c:libtensorflowlite_c.so
 
 # Build GPU delegate
-bazel build -c opt --cxxopt=--std=c++11 --config=android_arm64 //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so
+bazel build -c opt --config android_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so
 ```
 
 ## License
