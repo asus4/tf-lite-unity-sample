@@ -11,6 +11,8 @@ Unity 2910.2.8
 
 ## How to build tensorflow lite for Unity
 
+Pre-build library is included. see following instructions if you want build your own lib.
+
 ### macOS
 
 ```sh
@@ -28,7 +30,7 @@ then rename libtensorflowlite_c.so to libtensorflowlite_c.bundle
 
 Download pre-build framework from CocoaPods
 
-```Podfile
+```ruby
 # Sample Podfile
 
 platform :ios, '10.0'
@@ -36,6 +38,21 @@ platform :ios, '10.0'
 target 'TfLiteSample' do
     pod 'TensorFlowLiteObjC', '0.0.1-nightly'
 end
+```
+
+### Android
+
+If you do not have the Android SDK and NDK, intall Android Studio, SDK and NDK.
+
+```sh
+# Configure the Android SDK path by running configure script at repository root
+./configure
+
+# Build experimental
+bazel build -c opt --cxxopt=--std=c++11 --config=android_arm //tensorflow/lite/experimental/c:libtensorflowlite_c.so
+
+# Build GPU delegate
+bazel build -c opt --cxxopt=--std=c++11 --config=android_arm64 //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so
 ```
 
 ## License
