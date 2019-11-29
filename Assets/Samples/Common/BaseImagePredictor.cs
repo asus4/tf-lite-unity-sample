@@ -19,21 +19,10 @@ namespace TensorFlowLite
 
         public BaseImagePredictor(string modelPath, bool useGPU = true)
         {
-            IGpuDelegate gpu = null;
-            if (useGPU)
-            {
-#if UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-                gpu = new MetalDelegate(new MetalDelegate.Options()
-                {
-                    allow_precision_loss = false,
-                    waitType = MetalDelegate.WaitType.Passive,
-                });
-#endif
-            }
             var options = new Interpreter.Options()
             {
                 threads = 2,
-                gpuDelegate = gpu,
+                gpuDelegate = useGPU ? CreateGpuDelegate() : null,
             };
             interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
             interpreter.LogIOInfo();
@@ -94,5 +83,23 @@ namespace TensorFlowLite
             }
             interpreter.AllocateTensors();
         }
+
+#pragma warning disable CS0162 // Unreachable code detected 
+        static IGpuDelegate CreateGpuDelegate()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            return new GpuDelegate();
+#elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+            return new MetalDelegate(new MetalDelegate.Options()
+            {
+                allowPrecisionLoss = false,
+                waitType = MetalDelegate.WaitType.Passive,
+            });
+#endif
+            UnityEngine.Debug.LogWarning("GPU Delegate is not supported on this platform");
+            return null;
+        }
     }
+#pragma warning restore CS0162 // Unreachable code detected 
+
 }

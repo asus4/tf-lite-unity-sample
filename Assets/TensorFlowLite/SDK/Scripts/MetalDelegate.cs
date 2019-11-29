@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-using System;
 using System.Runtime.InteropServices;
 
 using TfLiteDelegate = System.IntPtr;
@@ -38,7 +37,7 @@ namespace TensorFlowLite
         [StructLayout(LayoutKind.Sequential)]
         public struct Options
         {
-            public bool allow_precision_loss;
+            public bool allowPrecisionLoss;
             public WaitType waitType;
         }
 
@@ -52,7 +51,7 @@ namespace TensorFlowLite
         public void Dispose()
         {
             TFLGpuDelegateDelete(Delegate);
-            Delegate = IntPtr.Zero;
+            Delegate = TfLiteDelegate.Zero;
         }
 
         #region Externs
