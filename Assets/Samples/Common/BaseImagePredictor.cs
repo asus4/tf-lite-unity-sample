@@ -19,14 +19,14 @@ namespace TensorFlowLite
 
         public BaseImagePredictor(string modelPath, bool useGPU = true)
         {
-            GpuDelegate gpu = null;
+            IGpuDelegate gpu = null;
             if (useGPU)
             {
 #if UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-                gpu = new MetalDelegate(new MetalDelegate.TFLGpuDelegateOptions()
+                gpu = new MetalDelegate(new MetalDelegate.Options()
                 {
                     allow_precision_loss = false,
-                    waitType = MetalDelegate.TFLGpuDelegateWaitType.Passive,
+                    waitType = MetalDelegate.WaitType.Passive,
                 });
 #endif
             }
