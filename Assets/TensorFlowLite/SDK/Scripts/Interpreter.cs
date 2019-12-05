@@ -47,7 +47,7 @@ namespace TensorFlowLite
         {
             public string name { get; internal set; }
             public DataType type { get; internal set; }
-            public int[] dimensions { get; internal set; }
+            public int[] shape { get; internal set; }
             public QuantizationParams quantizationParams { get; internal set; }
 
             public override string ToString()
@@ -55,7 +55,7 @@ namespace TensorFlowLite
                 return string.Format("name: {0}, type: {1}, dimensions: {2}, quantizationParams: {3}",
                   name,
                   type,
-                  "[" + string.Join(",", dimensions) + "]",
+                  "[" + string.Join(",", shape) + "]",
                   "{" + quantizationParams + "}");
             }
         }
@@ -186,7 +186,7 @@ namespace TensorFlowLite
             {
                 name = GetTensorName(tensor),
                 type = TfLiteTensorType(tensor),
-                dimensions = dimensions,
+                shape = dimensions,
                 quantizationParams = TfLiteTensorQuantizationParams(tensor),
             };
         }

@@ -74,8 +74,8 @@ namespace TensorFlowLite
 
         public PoseNet(string modelPath) : base(modelPath)
         {
-            var odim0 = interpreter.GetOutputTensorInfo(0).dimensions;
-            var odim1 = interpreter.GetOutputTensorInfo(1).dimensions;
+            var odim0 = interpreter.GetOutputTensorInfo(0).shape;
+            var odim1 = interpreter.GetOutputTensorInfo(1).shape;
             outputs0 = new float[odim0[1], odim0[2], odim0[3]];
             outputs1 = new float[odim1[1], odim1[2], odim1[3]];
 

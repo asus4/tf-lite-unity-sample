@@ -50,7 +50,7 @@ namespace TensorFlowLite
 
         public DeepLab(string modelPath, ComputeShader compute) : base(modelPath, true)
         {
-            var odim0 = interpreter.GetOutputTensorInfo(0).dimensions;
+            var odim0 = interpreter.GetOutputTensorInfo(0).shape;
 
             Debug.Assert(odim0[1] == height);
             Debug.Assert(odim0[2] == width);
