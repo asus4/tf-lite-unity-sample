@@ -11,7 +11,7 @@ namespace TensorFlowLite
         public StylePredict(string modelPath) : base(modelPath)
         {
 
-            var outDim0 = interpreter.GetOutputTensorInfo(0).dimensions;
+            var outDim0 = interpreter.GetOutputTensorInfo(0).shape;
             output0 = new float[outDim0[3]]; // shold be 100
 
         }

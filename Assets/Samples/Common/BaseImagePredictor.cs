@@ -69,7 +69,7 @@ namespace TensorFlowLite
 
         private void InitInputs()
         {
-            var idim0 = interpreter.GetInputTensorInfo(0).dimensions;
+            var idim0 = interpreter.GetInputTensorInfo(0).shape;
             height = idim0[1];
             width = idim0[2];
             channels = idim0[3];
@@ -78,7 +78,7 @@ namespace TensorFlowLite
             int inputCount = interpreter.GetInputTensorCount();
             for (int i = 0; i < inputCount; i++)
             {
-                int[] dim = interpreter.GetInputTensorInfo(i).dimensions;
+                int[] dim = interpreter.GetInputTensorInfo(i).shape;
                 interpreter.ResizeInputTensor(i, dim);
             }
             interpreter.AllocateTensors();
