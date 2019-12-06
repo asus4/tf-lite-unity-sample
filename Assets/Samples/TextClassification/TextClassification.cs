@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace TensorFlowLite
 {
@@ -15,9 +14,9 @@ namespace TensorFlowLite
 
         enum Marker
         {
-            PAD = 0,//      used for padding
-            START = 1,// mark for the start of a sentence
-            UNKNOWN = 2,//  mark for unknown words (OOV)
+            PAD = 0, // used for padding
+            START = 1, // mark for the start of a sentence
+            UNKNOWN = 2, //  mark for unknown words (OOV)
         }
 
         Interpreter interpreter;
@@ -78,7 +77,6 @@ namespace TensorFlowLite
             int index = 0;
             inputs[index] = (float)Marker.START;
 
-            // Fill 
             foreach (var word in words)
             {
                 index++;
@@ -104,32 +102,17 @@ namespace TensorFlowLite
             {
                 inputs[index] = (float)Marker.PAD;
             }
-
-            var sb = new System.Text.StringBuilder();
-            for (int i = 0; i < inputs.Length; i++)
-            {
-                sb.Append((int)inputs[i]);
-                sb.Append(' ');
-            }
-            UnityEngine.Debug.Log(sb);
         }
 
         static Dictionary<string, int> BuildVocabulary(string vocabularyText)
         {
-
-            var sb = new System.Text.StringBuilder();
-
             string[] lines = vocabularyText.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
             var dict = new Dictionary<string, int>();
             foreach (string line in lines)
             {
                 string[] words = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 dict.Add(words[0], int.Parse(words[1]));
-
-                sb.Append($"[{words[0]},{words[1]}]  ");
             }
-
-            UnityEngine.Debug.Log(sb);
             return dict;
         }
 
