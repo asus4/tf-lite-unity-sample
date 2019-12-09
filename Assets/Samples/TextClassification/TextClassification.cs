@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace TensorFlowLite
 {
 
-    public class TextClassification : System.IDisposable
+    public class TextClassification : IDisposable
     {
         public struct Result
         {
@@ -69,6 +69,7 @@ namespace TensorFlowLite
 
         void TextToInput(string text, float[] inputs)
         {
+            // Normalize text
             text = text.ToLower();
             char[] separator = { ',', '.', '!', '?', ' ', '\n' };
             string[] words = text.Split(separator, StringSplitOptions.RemoveEmptyEntries);
