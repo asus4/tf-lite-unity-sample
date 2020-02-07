@@ -88,7 +88,7 @@ namespace TensorFlowLite
                 int val;
                 if (vocabulary.TryGetValue(word, out val))
                 {
-                    UnityEngine.Debug.Log($"{word} : {val}");
+                    // UnityEngine.Debug.Log($"{word} : {val}");
                     inputs[index] = (float)val;
                 }
                 else

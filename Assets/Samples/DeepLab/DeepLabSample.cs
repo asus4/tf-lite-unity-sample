@@ -37,18 +37,14 @@ public class DeepLabSample : MonoBehaviour
 
     void Update()
     {
-        Execute(webcamTexture);
-    }
+        var resizeOptions = deepLab.ResizeOptions;
+        resizeOptions.rotationDegree = webcamTexture.videoRotationAngle;
+        deepLab.ResizeOptions = resizeOptions;
 
-    void Execute(Texture texture)
-    {
-        deepLab.Invoke(texture);
+        deepLab.Invoke(webcamTexture);
         outputView.texture = deepLab.GetResultTexture2D();
 
         cameraView.material = deepLab.transformMat;
-
-        // float aspect = (float)texture.width / (float)texture.height;
-        // cameraView.uvRect = TextureToTensor.GetUVRect(aspect, 1, TextureToTensor.AspectMode.Fill);
     }
 
 }

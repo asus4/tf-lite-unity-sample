@@ -17,6 +17,12 @@ namespace TensorFlowLite
         public Texture2D inputTex => tex2tensor.texture;
         public Material transformMat => tex2tensor.material;
 
+        public TextureToTensor.ResizeOptions ResizeOptions
+        {
+            get => resizeOptions;
+            set => resizeOptions = value;
+        }
+
         public BaseImagePredictor(string modelPath, bool useGPU = true)
         {
             var options = new Interpreter.Options()
