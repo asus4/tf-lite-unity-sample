@@ -55,6 +55,10 @@ public class SsdSample : MonoBehaviour
 
     void Update()
     {
+        var resizeOptions = ssd.ResizeOptions;
+        resizeOptions.rotationDegree = webcamTexture.videoRotationAngle;
+        ssd.ResizeOptions = resizeOptions;
+
         ssd.Invoke(webcamTexture);
 
         var results = ssd.GetResults();
@@ -65,13 +69,7 @@ public class SsdSample : MonoBehaviour
             SetFrame(frames[i], results[i], size);
         }
 
-        // set uv
-        // cameraView.texture = ssd.inputTex;
         cameraView.material = ssd.transformMat;
-        // cameraView.uvRect = TextureToTensor.GetUVRect(
-        //     (float)webcamTexture.width / webcamTexture.height,
-        //     1,
-        //     TextureToTensor.AspectMode.Fill);
     }
 
     void SetFrame(Text frame, SSD.Result result, Vector2 size)
