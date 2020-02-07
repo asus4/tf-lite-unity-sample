@@ -11,7 +11,7 @@ Unity 2910.2.8
 
 ## How to build tensorflow lite for Unity
 
-Pre-build library is included. see following instructions if you want build your own lib.
+Pre-build library is included. see following instructions if you want to build your own lib.
 
 ### macOS
 
