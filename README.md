@@ -40,6 +40,11 @@ target 'TfLiteSample' do
 end
 ```
 
+```sh
+# and build Metal GPU delegete with bitcode option enabled
+bazel build -c opt --cpu ios_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --copt=-fembed-bitcode --linkopt -s --strip always --cxxopt=-std=c++14 //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_framework --apple_platform_type=ios
+```
+
 ### Android
 
 If you do not have the Android SDK and NDK, intall Android Studio, SDK and NDK.
