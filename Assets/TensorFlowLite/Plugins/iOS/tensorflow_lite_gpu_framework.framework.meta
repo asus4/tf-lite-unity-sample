@@ -7,7 +7,7 @@ PluginImporter:
   iconMap: {}
   executionOrder: {}
   defineConstraints: []
-  isPreloaded: 0
+  isPreloaded: 1
   isOverridable: 0
   isExplicitlyReferenced: 0
   validateReferences: 1
@@ -20,6 +20,7 @@ PluginImporter:
         Exclude Android: 1
         Exclude Editor: 1
         Exclude Linux64: 1
+        Exclude Lumin: 1
         Exclude OSXUniversal: 1
         Exclude WebGL: 1
         Exclude Win: 1
@@ -87,7 +88,7 @@ PluginImporter:
       enabled: 1
       settings:
         AddToEmbeddedBinaries: false
-        CPU: AnyCPU
+        CPU: ARM64
         CompileFlags: 
         FrameworkDependencies: 
   - first:
