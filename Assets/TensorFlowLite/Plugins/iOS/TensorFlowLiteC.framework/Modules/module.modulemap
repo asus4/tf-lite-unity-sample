@@ -3,5 +3,4 @@ framework module TensorFlowLiteC {
   export *
   module * { export * }
   link framework "Metal"
-  link framework "UIKit"
 }
