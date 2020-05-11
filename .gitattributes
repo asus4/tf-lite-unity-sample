@@ -1,0 +1,2 @@
+Assets/TensorFlowLite/Plugins/iOS/TensorFlowLiteC.framework/TensorFlowLiteC filter=lfs diff=lfs merge=lfs -text
+Assets/TensorFlowLite/Plugins/iOS/tensorflow_lite_gpu_framework.framework/tensorflow_lite_gpu_framework filter=lfs diff=lfs merge=lfs -text
