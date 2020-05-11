@@ -8,7 +8,7 @@
     {
         Cull Off
         ZWrite Off
-        ZTest Always
+        ZTest LEqual
 
         Pass
         {
