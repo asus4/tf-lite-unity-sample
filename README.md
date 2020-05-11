@@ -8,6 +8,7 @@
 
 Tested on macOS/iOS  
 Unity 2019.3.3f1
+TensorFlow 2.2.0
 
 ## How to build tensorflow lite for Unity
 
@@ -17,7 +18,7 @@ Pre-build library is included. see following instructions if you want to build y
 
 ```sh
 # Core Lib
-bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/experimental/c:libtensorflowlite_c.so
+bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/c:tensorflowlite_c
 
 # Use this branch to build metal GPU delegate dynamic library
 # https://github.com/asus4/tensorflow/tree/tflite-macos-metal-delegate
