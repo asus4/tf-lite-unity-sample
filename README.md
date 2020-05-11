@@ -7,7 +7,7 @@
 ![ssd gif](https://imgur.com/8m2oqwo.gif)
 
 Tested on macOS/iOS  
-Unity 2019.2.11f1
+Unity 2019.3.3f1
 
 ## How to build tensorflow lite for Unity
 
