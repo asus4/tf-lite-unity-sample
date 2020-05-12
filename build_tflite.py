@@ -41,12 +41,15 @@ def build_android():
     copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_delegate.so', 'Android')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Build TensorFlow libraries for Unity')
-    parser.add_argument('--tfpath',default='../tensorflow')
-    parser.add_argument('-macos', action="store_true", default=False)
-    parser.add_argument('-ios', action="store_true", default=False)
-    parser.add_argument('-android', action="store_true", default=False)
-
+    parser = argparse.ArgumentParser(description = 'Update TensorFlow Lite libraries for Unity')
+    parser.add_argument('--tfpath', default = '../tensorflow', type = str,
+                        help = 'The path of the TensorFlow repository')
+    parser.add_argument('-macos', action = "store_true", default = False,
+                        help = 'Build macOS')
+    parser.add_argument('-ios', action = "store_true", default = False,
+                        help = 'Build iOS')
+    parser.add_argument('-android', action = "store_true", default = False,
+                        help = 'Build Android')
 
     args = parser.parse_args()
     TENSORFLOW_PATH = os.path.abspath(args.tfpath) 

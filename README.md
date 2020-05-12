@@ -6,60 +6,22 @@
 
 ![ssd gif](https://imgur.com/8m2oqwo.gif)
 
-Tested on macOS/iOS  
-Unity 2019.3.3f1
-TensorFlow 2.2.0
+Tested on macOS / iOS / Android / Ubuntu / Windows  
+Unity 2019.3.3f1  
+TensorFlow 2.2.0  
 
 ## How to build tensorflow lite for Unity
 
-Pre-build library is included. see following instructions if you want to build your own lib.
+The pre-built libraries are included. if you want to use the latest TFLite,
 
-### macOS
+1. Clone tensorflow library
+2. Run `./configure` in tensorflow and
+3. Run `./build_tflite.py` (Python3) to build for each platform
 
-```sh
-# Core Lib
-bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/c:tensorflowlite_c
-
-# Use this branch to build metal GPU delegate dynamic library
-# https://github.com/asus4/tensorflow/tree/tflite-macos-metal-delegate
-bazel 'build' -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always --cxxopt=-std=c++14 --apple_platform_type=macos '//tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib'
-```
-
-then rename libtensorflowlite_c.so to libtensorflowlite_c.bundle
-
-### iOS
-
-Download pre-build framework from CocoaPods
-
-```ruby
-# Sample Podfile
-
-platform :ios, '10.0'
-
-target 'TfLiteSample' do
-    pod 'TensorFlowLiteObjC', '0.0.1-nightly'
-end
-```
-
-```sh
-# and build Metal GPU delegete with bitcode option enabled
-bazel build -c opt --cpu ios_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --copt=-fembed-bitcode --linkopt -s --strip always --cxxopt=-std=c++14 //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_framework --apple_platform_type=ios
-```
-
-### Android
-
-If you do not have the Android SDK and NDK, intall Android Studio, SDK and NDK.
-
-```sh
-# Configure the Android SDK path by running configure script at repository root
-./configure
-
-# Build experimental
-bazel build -c opt --cxxopt=--std=c++11 --config=android_arm64 //tensorflow/lite/experimental/c:libtensorflowlite_c.so
-
-# Build GPU delegate
-bazel build -c opt --config android_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so
-```
+  ```sh
+  # Update iOS, Andoid and macOS
+  ./build_tflte.py --tfpath ../tensorflow -ios -android -macos
+  ```
 
 ## License
 
