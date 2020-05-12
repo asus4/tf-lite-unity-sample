@@ -112,8 +112,8 @@ namespace TensorFlowLite
                 ArgMaxResult arg = argmax[part];
                 Result res = results[part];
 
-                float offsetX = offsets[arg.y, arg.x, part * 2];
-                float offsetY = offsets[arg.y, arg.x, part * 2 + 1];
+                float offsetX = offsets[arg.y, arg.x, part + results.Length];
+                float offsetY = offsets[arg.y, arg.x, part];
                 res.x = ((float)arg.x / stride * width + offsetX) / width;
                 res.y = ((float)arg.y / stride * height + offsetY) / height;
                 res.confidence = arg.score;
