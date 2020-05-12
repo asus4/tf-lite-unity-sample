@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-
 import argparse
 import os
+import platform
 import shlex
 import subprocess
 
@@ -54,11 +54,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
     TENSORFLOW_PATH = os.path.abspath(args.tfpath) 
 
+    platform_name = platform.system()
+
     if args.macos:
+        assert platform_name is 'Darwin', f'macOS not suppoted on the platfrom: {platform_name}'
         print('Build macOS')
         build_mac()
     
     if args.ios:
+        assert platform_name is 'Darwin', f'iOS not suppoted on the platfrom: {platform_name}'
         # Need to set iOS build option in ./configure
         print('Build iOS')
         build_ios()
