@@ -26,6 +26,11 @@ def build_mac():
     run_cmd('bazel build -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always --cxxopt=-std=c++14 --apple_platform_type=macos //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
     copy('bazel-bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib', 'macOS/libtensorflowlite_metal_delegate.dylib')
 
+def build_windows():
+    run_cmd('bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/c:tensorflowlite_c')
+    copy('bazel-bin/tensorflow/lite/c/tensorflowlite_c.dll', 'Windows/libtensorflowlite_c.dll')
+
+
 def build_ios():
     run_cmd('bazel build --config=ios_fat -c opt //tensorflow/lite/experimental/ios:TensorFlowLiteC_framework')
     unzip('bazel-bin/tensorflow/lite/experimental/ios/TensorFlowLiteC_framework.zip', 'iOS')
@@ -46,6 +51,8 @@ if __name__ == '__main__':
                         help = 'The path of the TensorFlow repository')
     parser.add_argument('-macos', action = "store_true", default = False,
                         help = 'Build macOS')
+    parser.add_argument('-windows', action = "store_true", default = False,
+                        help = 'Build Windows')
     parser.add_argument('-ios', action = "store_true", default = False,
                         help = 'Build iOS')
     parser.add_argument('-android', action = "store_true", default = False,
@@ -57,12 +64,17 @@ if __name__ == '__main__':
     platform_name = platform.system()
 
     if args.macos:
-        assert platform_name is 'Darwin', f'macOS not suppoted on the platfrom: {platform_name}'
+        assert platform_name is 'Darwin', f'-macos not suppoted on the platfrom: {platform_name}'
         print('Build macOS')
         build_mac()
     
+    if args.windows:
+        assert platform_name is 'Windows', f'-windows not suppoted on the platfrom: {platform_name}'
+        print('Build Windows')
+        build_windows()
+    
     if args.ios:
-        assert platform_name is 'Darwin', f'iOS not suppoted on the platfrom: {platform_name}'
+        assert platform_name is 'Darwin', f'-ios not suppoted on the platfrom: {platform_name}'
         # Need to set iOS build option in ./configure
         print('Build iOS')
         build_ios()
