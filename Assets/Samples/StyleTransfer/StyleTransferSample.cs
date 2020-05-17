@@ -7,8 +7,10 @@ using TensorFlowLite;
 
 public class StyleTransferSample : MonoBehaviour
 {
-    [SerializeField] string predictionFileName = "style_predict_quantized_256.tflite";
-    [SerializeField] string transferFileName = "style_transfer_quantized_dynamic.tflite";
+    [SerializeField, FilePopup("*.tflite")]
+    string predictionFileName = "style_predict_quantized_256.tflite";
+    [SerializeField, FilePopup("*.tflite")]
+    string transferFileName = "style_transfer_quantized_dynamic.tflite";
     [SerializeField] Texture2D styleImage = null;
     [SerializeField] RawImage preview = null;
     [SerializeField] ComputeShader compute = null;
