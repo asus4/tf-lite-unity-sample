@@ -23,4 +23,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Samples/TextClassification/TextClassification.unity
     guid: 60a19500630374f2da35947df5148c5e
+  - enabled: 1
+    path: Assets/Samples/StyleTransfer/StyleTransfer.unity
+    guid: 494656ebdd6dc43b4843586753a539bb
   m_configObjects: {}

@@ -23,5 +23,7 @@ void TensorToTexture (uint2 tid : SV_DispatchThreadID)
 {
     uint gid = (384 - tid.y) * 384 + tid.x;
     float3 c = (InputTensor[gid] + 0.5);
+    // c = inverseLerp(minValue.xyz, maxValue.xyz, c);
+    c *= 0.5;
     OutputTexture[tid] = float4(c.x, c.y, c.z, 1.0);
 }
