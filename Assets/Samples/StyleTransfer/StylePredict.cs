@@ -13,7 +13,6 @@ namespace TensorFlowLite
 
             var outDim0 = interpreter.GetOutputTensorInfo(0).shape;
             output0 = new float[outDim0[3]]; // shold be 100
-
         }
 
         public override void Invoke(Texture inputTex)

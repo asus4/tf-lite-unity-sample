@@ -96,6 +96,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -149,8 +150,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 262c1ed8d0e1f470d88322d87b875ad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  predictionFileName: style_predict_quantized_256.tflite
-  transferFileName: style_transfer_quantized_dynamic.tflite
+  predictionFileName: style_predict_f16_256.tflite
+  transferFileName: style_transfer_f16_384.tflite
   styleImage: {fileID: 2800000, guid: d7e019ffa2e874ad1a0dc74537c050c3, type: 3}
   preview: {fileID: 237587965}
   compute: {fileID: 7200000, guid: 6669dfdc28e8f49c6b2054873e132a87, type: 3}
