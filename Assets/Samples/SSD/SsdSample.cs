@@ -93,7 +93,7 @@ public class SsdSample : MonoBehaviour
 
     string GetLabelName(int id)
     {
-        if (id <= 0 || id >= labels.Length)
+        if (id < 0 || id >= labels.Length - 1)
         {
             return "?";
         }
