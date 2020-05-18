@@ -7,7 +7,7 @@ using TensorFlowLite;
 
 public class MnistSample : MonoBehaviour
 {
-    [SerializeField] string fileName = "mnist.tflite";
+    [SerializeField, FilePopup("*.tflite")] string fileName = "mnist.tflite";
     [SerializeField] Text outputTextView = null;
     [SerializeField] ComputeShader compute = null;
 
