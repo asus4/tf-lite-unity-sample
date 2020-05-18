@@ -9,11 +9,10 @@ RWTexture2D<float4> OutputTexture;
 [numthreads(8,8,1)]
 void TensorToTexture (uint2 tid : SV_DispatchThreadID)
 {
-    uint gid = (384 - tid.y) * 384 + tid.x;
-    float3 c = (InputTensor[gid] + 0.5);
-    c = GammaToLinearSpace(c);
-    // I don't know what this magic number is, set it in comparison to the original source.
-    // https://colab.research.google.com/github/tensorflow/tensorflow/blob/master/tensorflow/lite/g3doc/models/style_transfer/overview.ipynb
-    c *= 0.5;
+    float w, h;
+    OutputTexture.GetDimensions(w, h);
+
+    uint gid = (w - tid.y) * w + tid.x;
+    float3 c = InputTensor[gid];
     OutputTexture[tid] = float4(c.x, c.y, c.z, 1.0);
 }

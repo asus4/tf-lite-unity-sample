@@ -12,8 +12,7 @@ public class StyleTransferSample : MonoBehaviour
     [SerializeField] Texture2D styleImage = null;
     [SerializeField] RawImage preview = null;
     [SerializeField] ComputeShader compute = null;
-
-    // [SerializeField] Texture2D testImage = null;
+    // [SerializeField] Texture2D sampleTexture;
 
     WebCamTexture webcamTexture;
     StyleTransfer styleTransfer;
@@ -37,8 +36,6 @@ public class StyleTransferSample : MonoBehaviour
         webcamTexture = new WebCamTexture(cameraName, 640, 480, 30);
         webcamTexture.Play();
         preview.texture = webcamTexture;
-
-        // preview.texture = testImage;
     }
 
     void OnDestroy()
@@ -48,6 +45,7 @@ public class StyleTransferSample : MonoBehaviour
 
     void Update()
     {
+        // styleTransfer.Invoke(sampleTexture);
         styleTransfer.Invoke(webcamTexture);
 
         preview.texture = styleTransfer.GetResultTexture();
