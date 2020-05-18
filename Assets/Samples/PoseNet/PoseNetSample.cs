@@ -8,7 +8,7 @@ using TensorFlowLite;
 
 public class PoseNetSample : MonoBehaviour
 {
-    [SerializeField] string fileName = "posenet_mobilenet_v1_100_257x257_multi_kpt_stripped.tflite";
+    [SerializeField, FilePopup("*.tflite")] string fileName = "posenet_mobilenet_v1_100_257x257_multi_kpt_stripped.tflite";
     [SerializeField] RawImage cameraView = null;
     [SerializeField] GLDrawer glDrawer = null;
     [SerializeField, Range(0f, 1f)] float threshold = 0.5f;

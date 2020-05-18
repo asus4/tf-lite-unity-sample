@@ -6,7 +6,7 @@ using TensorFlowLite;
 
 public class SmartReplySample : MonoBehaviour
 {
-    [SerializeField] string fileName = "deeplabv3_257_mv_gpu.tflite";
+    [SerializeField, FilePopup("*.tflite")] string fileName = "deeplabv3_257_mv_gpu.tflite";
 
     SmartReply smartReply;
 
@@ -14,6 +14,8 @@ public class SmartReplySample : MonoBehaviour
     {
         string path = Path.Combine(Application.streamingAssetsPath, fileName);
         smartReply = new SmartReply(path);
+
+        // TODO UI
     }
 
     void OnDestroy()

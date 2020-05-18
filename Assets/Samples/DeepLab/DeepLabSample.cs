@@ -7,7 +7,7 @@ using TensorFlowLite;
 
 public class DeepLabSample : MonoBehaviour
 {
-    [SerializeField] string fileName = "deeplabv3_257_mv_gpu.tflite";
+    [SerializeField, FilePopup("*.tflite")] string fileName = "deeplabv3_257_mv_gpu.tflite";
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage outputView = null;
     [SerializeField] ComputeShader compute = null;

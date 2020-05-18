@@ -7,7 +7,7 @@ using TensorFlowLite;
 
 public class TextClassificationSample : MonoBehaviour
 {
-    [SerializeField] string fileName = "deeplabv3_257_mv_gpu.tflite";
+    [SerializeField, FilePopup("*.tflite")] string fileName = "deeplabv3_257_mv_gpu.tflite";
     [SerializeField] TextAsset vocabularyText = null;
     [SerializeField] InputField textInput = null;
     [SerializeField] Text resultLabel = null;

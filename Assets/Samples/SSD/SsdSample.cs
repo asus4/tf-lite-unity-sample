@@ -7,7 +7,7 @@ using TensorFlowLite;
 
 public class SsdSample : MonoBehaviour
 {
-    [SerializeField] string fileName = "coco_ssd_mobilenet_quant.tflite";
+    [SerializeField, FilePopup("*.tflite")] string fileName = "coco_ssd_mobilenet_quant.tflite";
     [SerializeField] RawImage cameraView = null;
     [SerializeField] Text framePrefab = null;
     [SerializeField, Range(0f, 1f)] float scoreThreshold = 0.5f;
