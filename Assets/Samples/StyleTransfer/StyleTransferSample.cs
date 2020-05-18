@@ -7,17 +7,17 @@ using TensorFlowLite;
 
 public class StyleTransferSample : MonoBehaviour
 {
-    [SerializeField, FilePopup("*.tflite")]
-    string predictionFileName = "style_predict_quantized_256.tflite";
-    [SerializeField, FilePopup("*.tflite")]
-    string transferFileName = "style_transfer_quantized_dynamic.tflite";
+    [SerializeField, FilePopup("*.tflite")] string predictionFileName = "style_predict_quantized_256.tflite";
+    [SerializeField, FilePopup("*.tflite")] string transferFileName = "style_transfer_quantized_dynamic.tflite";
     [SerializeField] Texture2D styleImage = null;
     [SerializeField] RawImage preview = null;
     [SerializeField] ComputeShader compute = null;
 
+    // [SerializeField] Texture2D testImage = null;
+
     WebCamTexture webcamTexture;
     StyleTransfer styleTransfer;
-    public float[] styleBottleneck;
+    float[] styleBottleneck;
 
     void Start()
     {
@@ -38,6 +38,7 @@ public class StyleTransferSample : MonoBehaviour
         webcamTexture.Play();
         preview.texture = webcamTexture;
 
+        // preview.texture = testImage;
     }
 
     void OnDestroy()
@@ -48,7 +49,7 @@ public class StyleTransferSample : MonoBehaviour
     void Update()
     {
         styleTransfer.Invoke(webcamTexture);
-        
+
         preview.texture = styleTransfer.GetResultTexture();
 
         // preview.uvRect = TextureToTensor.GetUVRect(
