@@ -36,7 +36,7 @@ namespace TensorFlowLite
         static readonly int _VertTransform = Shader.PropertyToID("_VertTransform");
         static readonly int _UVRect = Shader.PropertyToID("_UVRect");
         static readonly int InputTexture = Shader.PropertyToID("InputTexture");
-        static readonly int OutputTensor = Shader.PropertyToID("OutputTensor");
+        static readonly int OutputFloatTensor = Shader.PropertyToID("OutputFloatTensor");
         static readonly int TextureWidth = Shader.PropertyToID("TextureWidth");
         static readonly int TextureHeight = Shader.PropertyToID("TextureHeight");
 
@@ -92,7 +92,6 @@ namespace TensorFlowLite
 
         public void ToTensor(RenderTexture texture, sbyte[,,] inputs)
         {
-            // TODO: optimize this
             var pixels = FetchPixels(texture);
             int width = texture.width;
 
@@ -159,10 +158,10 @@ namespace TensorFlowLite
                 TryDispose(tensorBuffer);
                 tensorBuffer = new ComputeBuffer(width * height, sizeof(float) * 3);
             }
-            int kernel = compute.FindKernel("TextureToTensor");
+            int kernel = compute.FindKernel("TextureToFloatTensor");
 
             compute.SetTexture(kernel, InputTexture, texture);
-            compute.SetBuffer(kernel, OutputTensor, tensorBuffer);
+            compute.SetBuffer(kernel, OutputFloatTensor, tensorBuffer);
             compute.SetInt(TextureWidth, width);
             compute.SetInt(TextureHeight, height);
 
