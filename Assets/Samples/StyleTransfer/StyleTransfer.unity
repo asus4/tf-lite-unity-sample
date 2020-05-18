@@ -152,10 +152,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   predictionFileName: style_predict_f16_256.tflite
   transferFileName: style_transfer_f16_384.tflite
-  styleImage: {fileID: 2800000, guid: d7e019ffa2e874ad1a0dc74537c050c3, type: 3}
+  styleImage: {fileID: 2800000, guid: ac6955f2a060740ff98396d29c92c547, type: 3}
   preview: {fileID: 237587965}
   compute: {fileID: 7200000, guid: 6669dfdc28e8f49c6b2054873e132a87, type: 3}
-  styleBottleneck: []
 --- !u!4 &86521803
 Transform:
   m_ObjectHideFlags: 0
