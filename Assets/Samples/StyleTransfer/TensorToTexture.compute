@@ -1,8 +1,6 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel TensorToTexture
 
-#include "UnityCG.cginc"
-
 StructuredBuffer<float3> InputTensor;
 RWTexture2D<float4> OutputTexture;
 
@@ -12,7 +10,7 @@ void TensorToTexture (uint2 tid : SV_DispatchThreadID)
     float w, h;
     OutputTexture.GetDimensions(w, h);
 
-    uint gid = (w - tid.y) * w + tid.x;
+    uint gid = (h - tid.y) * w + tid.x;
     float3 c = InputTensor[gid];
     OutputTexture[tid] = float4(c.x, c.y, c.z, 1.0);
 }

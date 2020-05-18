@@ -45,6 +45,10 @@ public class StyleTransferSample : MonoBehaviour
 
     void Update()
     {
+        var resizeOptions = styleTransfer.ResizeOptions;
+        resizeOptions.rotationDegree = webcamTexture.videoRotationAngle;
+        styleTransfer.ResizeOptions = resizeOptions;
+
         // styleTransfer.Invoke(sampleTexture);
         styleTransfer.Invoke(webcamTexture);
 
