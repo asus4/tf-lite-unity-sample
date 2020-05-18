@@ -27,20 +27,31 @@ namespace TensorFlowLite
         RenderTexture resizeTexture;
         Material transfromMat;
         Texture2D fetchTexture;
+        ComputeShader compute;
+        ComputeBuffer tensorBuffer;
 
         public Texture2D texture => fetchTexture;
         public Material material => transfromMat;
 
         static readonly int _VertTransform = Shader.PropertyToID("_VertTransform");
         static readonly int _UVRect = Shader.PropertyToID("_UVRect");
+        static readonly int InputTexture = Shader.PropertyToID("InputTexture");
+        static readonly int OutputTensor = Shader.PropertyToID("OutputTensor");
+        static readonly int TextureWidth = Shader.PropertyToID("TextureWidth");
+        static readonly int TextureHeight = Shader.PropertyToID("TextureHeight");
 
-        public TextureToTensor() { }
+
+        public TextureToTensor()
+        {
+            compute = Resources.Load<ComputeShader>("TextureToTensor");
+        }
 
         public void Dispose()
         {
             TryDispose(resizeTexture);
             TryDispose(transfromMat);
             TryDispose(fetchTexture);
+            TryDispose(tensorBuffer);
         }
 
         public RenderTexture Resize(Texture texture, ResizeOptions options)
@@ -97,18 +108,16 @@ namespace TensorFlowLite
 
         public void ToTensor(RenderTexture texture, float[,,] inputs)
         {
-            var pixels = FetchPixels(texture);
-            int width = texture.width;
-            const float scale = 255f;
-            for (int i = 0; i < pixels.Length; i++)
+            if (texture.width % 8 != 0 || texture.height % 8 != 0)
             {
-                int y = i / width;
-                int x = i % width;
-                inputs[y, x, 0] = (float)(pixels[i].r) / scale;
-                inputs[y, x, 1] = (float)(pixels[i].g) / scale;
-                inputs[y, x, 2] = (float)(pixels[i].b) / scale;
+                ToTensorCPU(texture, inputs);
+            }
+            else
+            {
+                ToTensorGPU(texture, inputs);
             }
         }
+
 
         public void ToTensor(RenderTexture texture, float[,,] inputs, float offset, float scale)
         {
@@ -123,6 +132,43 @@ namespace TensorFlowLite
                 inputs[y, x, 1] = (pixels[i].g - offset) * scale;
                 inputs[y, x, 2] = (pixels[i].b - offset) * scale;
             }
+        }
+
+        void ToTensorCPU(RenderTexture texture, float[,,] inputs)
+        {
+            var pixels = FetchPixels(texture);
+            int width = texture.width;
+            const float scale = 255f;
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                int y = i / width;
+                int x = i % width;
+                inputs[y, x, 0] = (float)(pixels[i].r) / scale;
+                inputs[y, x, 1] = (float)(pixels[i].g) / scale;
+                inputs[y, x, 2] = (float)(pixels[i].b) / scale;
+            }
+        }
+
+        void ToTensorGPU(RenderTexture texture, float[,,] inputs)
+        {
+            int width = texture.width;
+            int height = texture.height;
+
+            if (tensorBuffer == null || tensorBuffer.count != width * height)
+            {
+                TryDispose(tensorBuffer);
+                tensorBuffer = new ComputeBuffer(width * height, sizeof(float) * 3);
+            }
+            int kernel = compute.FindKernel("TextureToTensor");
+
+            compute.SetTexture(kernel, InputTexture, texture);
+            compute.SetBuffer(kernel, OutputTensor, tensorBuffer);
+            compute.SetInt(TextureWidth, width);
+            compute.SetInt(TextureHeight, height);
+
+            compute.Dispatch(kernel, width / 8, height / 8, 1);
+
+            tensorBuffer.GetData(inputs);
         }
 
         Color32[] FetchPixels(RenderTexture texture)
@@ -204,9 +250,17 @@ namespace TensorFlowLite
 
         static void TryDispose(Material mat)
         {
-            if (mat == null)
+            if (mat != null)
             {
                 Object.Destroy(mat);
+            }
+        }
+
+        static void TryDispose(ComputeBuffer buf)
+        {
+            if (buf != null)
+            {
+                buf.Dispose();
             }
         }
 
