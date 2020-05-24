@@ -191,9 +191,10 @@ namespace TensorFlowLite
             };
         }
 
-        private static void ThrowIfError(int resultCode)
+        private static void ThrowIfError(Status status)
         {
-            if (resultCode != 0) throw new Exception("TensorFlowLite operation failed.");
+            if (status == Status.Error) throw new Exception("TensorFlowLite operation failed.");
+            if (status == Status.DelegateError) throw new Exception("TensorFlowLite delegage operation failed.");
         }
 
         #region Externs
@@ -203,6 +204,14 @@ namespace TensorFlowLite
 #else
         private const string TensorFlowLibrary = "libtensorflowlite_c";
 #endif
+
+        // Mirror of TfLiteStatus
+        public enum Status
+        {
+            Ok = 0,
+            Error = 1,
+            DelegateError = 2
+        }
 
         public enum DataType
         {
@@ -237,7 +246,7 @@ namespace TensorFlowLite
         private static extern unsafe TfLiteInterpreter TfLiteModelCreate(IntPtr model_data, int model_size);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern unsafe TfLiteInterpreter TfLiteModelDelete(TfLiteModel model);
+        private static extern unsafe void TfLiteModelDelete(TfLiteModel model);
 
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe TfLiteInterpreterOptions TfLiteInterpreterOptionsCreate();
@@ -275,18 +284,18 @@ namespace TensorFlowLite
             int input_index);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern unsafe int TfLiteInterpreterResizeInputTensor(
+        private static extern unsafe Status TfLiteInterpreterResizeInputTensor(
             TfLiteInterpreter interpreter,
             int input_index,
             int[] input_dims,
             int input_dims_size);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern unsafe int TfLiteInterpreterAllocateTensors(
+        private static extern unsafe Status TfLiteInterpreterAllocateTensors(
             TfLiteInterpreter interpreter);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern unsafe int TfLiteInterpreterInvoke(TfLiteInterpreter interpreter);
+        private static extern unsafe Status TfLiteInterpreterInvoke(TfLiteInterpreter interpreter);
 
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe int TfLiteInterpreterGetOutputTensorCount(
@@ -316,13 +325,13 @@ namespace TensorFlowLite
         private static extern unsafe QuantizationParams TfLiteTensorQuantizationParams(TfLiteTensor tensor);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern unsafe int TfLiteTensorCopyFromBuffer(
+        private static extern unsafe Status TfLiteTensorCopyFromBuffer(
             TfLiteTensor tensor,
             IntPtr input_data,
             int input_data_size);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern unsafe int TfLiteTensorCopyToBuffer(
+        private static extern unsafe Status TfLiteTensorCopyToBuffer(
             TfLiteTensor tensor,
             IntPtr output_data,
             int output_data_size);
