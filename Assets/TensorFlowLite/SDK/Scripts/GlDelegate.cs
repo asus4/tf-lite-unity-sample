@@ -34,11 +34,11 @@ namespace TensorFlowLite
         int inferencePriority3;
     };
 
-    public class GpuDelegate : IGpuDelegate
+    public class GlDelegate : IGpuDelegate
     {
         public TfLiteDelegate Delegate { get; private set; }
 
-        public GpuDelegate()
+        public GlDelegate()
         {
             Options options = TfLiteGpuDelegateOptionsV2Default();
             Delegate = TfLiteGpuDelegateV2Create(options);
