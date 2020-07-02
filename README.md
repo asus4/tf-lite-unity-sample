@@ -2,9 +2,12 @@
 
 Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples) to Unity. and some utilities for Unity.
 
-Tested on macOS / iOS / Android / Ubuntu / Windows  
-Unity 2019.3.3f1  
-TensorFlow 2.2.0  
+Tested on 
+- macOS / iOS / Android / Ubuntu / Windows  
+- Unity 2019.3.3f1  
+- TensorFlow 2.2.0  
+
+Please install [Git-LFS](https://git-lfs.github.com/) to build for iOS 
 
 ## How to build tensorflow lite for Unity
 
