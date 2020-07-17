@@ -1,0 +1,17 @@
+{
+  "name": "com.github.asus4.tflite",
+  "displayName": "TensorFlow Lite",
+  "author": "Koki Ibukuro",
+  "dependencies": {
+    "com.unity.mathematics": "1.1.0"
+  },
+  "description": "TensorFlow Lite Plugin for Unity",
+  "keywords": [
+    "unity"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "unity": "2019.3",
+  "unityRelease": "0f1",
+  "version": "0.1.0",
+  "type": "library"
+}
