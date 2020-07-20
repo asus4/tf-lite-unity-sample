@@ -6,7 +6,7 @@ import platform
 import shlex
 import subprocess
 
-PLUGIN_PATH=f'{os.getcwd()}/Assets/TensorFlowLite/Plugins'
+PLUGIN_PATH=f'{os.getcwd()}/Packages/com.github.asus4.tflite/Plugins'
 TENSORFLOW_PATH=''
 
 def run_cmd(cmd):
