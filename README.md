@@ -11,12 +11,17 @@ Tested on
 
 Please install [Git-LFS](https://git-lfs.github.com/) to build for iOS 
 
-## How to build tensorflow lite for Unity
+## Install TensorFlow Lite for Unity
+
+1. Clone or Download this repository with examples
+2. Or core library is available on [OpenUPM](https://openupm.com/packages/com.github.asus4.tflite/)
+
+## Update TensorFlow Lite 
 
 Pre-built libraries are included. If you want to use the latest TFLite,
 
-1. Clone tensorflow library
-2. Run `./configure` in tensorflow and
+1. Clone [TensorFlow library](https://github.com/tensorflow/tensorflow/)
+2. Run `./configure` in the TensorFlow library
 3. Run `./build_tflite.py` (Python3) to build for each platform
 
   ```sh
@@ -37,6 +42,7 @@ __DeepLab Semantic Segmentation__
 
 __Style Transfer__  
 ![styletransfter](https://i.imgur.com/SOLMjZi.gif)
+
 
 ## License
 
