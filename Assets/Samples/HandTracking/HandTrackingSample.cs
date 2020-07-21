@@ -15,6 +15,8 @@ public class HandTrackingSample : MonoBehaviour
     WebCamTexture webcamTexture;
     PalmDetect palmDetect;
 
+    Image[] frames;
+
     void Start()
     {
         string path = Path.Combine(Application.streamingAssetsPath, palmModelFile);
@@ -25,6 +27,14 @@ public class HandTrackingSample : MonoBehaviour
         cameraView.texture = webcamTexture;
         webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
+
+        // Init frames
+        frames = new Image[PalmDetect.MAX_PALM_NUM];
+        var parent = cameraView.transform;
+        for (int i = 0; i < frames.Length; i++)
+        {
+            frames[i] = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, parent);
+        }
     }
     void OnDestroy()
     {
@@ -42,10 +52,26 @@ public class HandTrackingSample : MonoBehaviour
 
         cameraView.material = palmDetect.transformMat;
 
-        var palms = palmDetect.GetResults(0.7f);
-        Debug.Log(palms.Count);
+        var palms = palmDetect.GetResults(0.7f, 0.3f);
+        var size = ((RectTransform)cameraView.transform).rect.size;
+        for (int i = 0; i < palms.Count; i++)
+        {
+            frames[i].gameObject.SetActive(true);
+            SetFrame(frames[i], palms[i], size);
+        }
+        for (int i = palms.Count; i < frames.Length; i++)
+        {
+            frames[i].gameObject.SetActive(false);
+        }
     }
 
-
+    void SetFrame(Graphic frame, PalmDetect.Palm palm, Vector2 size)
+    {
+        var rt = frame.transform as RectTransform;
+        var p = palm.rect.position;
+        p.y = 1.0f - p.y; // invert Y
+        rt.anchoredPosition = p * size - size * 0.5f;
+        rt.sizeDelta = palm.rect.size * size;
+    }
 
 }
