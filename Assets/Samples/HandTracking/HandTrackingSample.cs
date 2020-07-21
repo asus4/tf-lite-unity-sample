@@ -72,6 +72,15 @@ public class HandTrackingSample : MonoBehaviour
         p.y = 1.0f - p.y; // invert Y
         rt.anchoredPosition = p * size - size * 0.5f;
         rt.sizeDelta = palm.rect.size * size;
+
+        var kpOffset = -rt.anchoredPosition + new Vector2(-rt.sizeDelta.x, rt.sizeDelta.y) * 0.5f;
+        for (int i = 0; i < 7; i++)
+        {
+            var child = (RectTransform)rt.GetChild(i);
+            var kp = palm.keypoints[i];
+            kp.y = 1.0f - kp.y; // invert Y
+            child.anchoredPosition = (kp * size - size * 0.5f) + kpOffset;
+        }
     }
 
 }
