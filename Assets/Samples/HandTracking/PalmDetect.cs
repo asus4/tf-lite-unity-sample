@@ -20,6 +20,7 @@ namespace TensorFlowLite
         {
             public float score;
             public Rect rect;
+            public Vector2[] keypoints;
         }
 
         public const int MAX_PALM_NUM = 4;
@@ -80,10 +81,23 @@ namespace TensorFlowLite
                 w /= (float)width;
                 h /= (float)height;
 
+                var keypoints = new Vector2[7];
+                for (int j = 0; j < 7; j++)
+                {
+                    float lx = output1[i, 4 + (2 * j) + 0];
+                    float ly = output1[i, 4 + (2 * j) + 1];
+                    lx += anchor.x * width;
+                    ly += anchor.y * height;
+                    lx /= (float)width;
+                    ly /= (float)height;
+                    keypoints[j] = new Vector2(lx, ly);
+                }
+
                 results.Add(new Palm()
                 {
                     score = score,
                     rect = new Rect(cx - w * 0.5f, cy - h * 0.5f, w, h),
+                    keypoints = keypoints,
                 });
 
             }
