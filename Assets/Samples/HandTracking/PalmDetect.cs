@@ -35,7 +35,7 @@ namespace TensorFlowLite
         private List<Palm> results = new List<Palm>();
         private Anchor[] anchors;
 
-        public float[,,] Input0 => inputs;
+        public float[,,] Input0 => input0;
 
         public PalmDetect(string modelPath, string anchorCSV) : base(modelPath, true)
         {
@@ -46,9 +46,9 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
-            ToTensor(inputTex, inputs);
+            ToTensor(inputTex, input0);
 
-            interpreter.SetInputTensorData(0, inputs);
+            interpreter.SetInputTensorData(0, input0);
             interpreter.Invoke();
 
             interpreter.GetOutputTensorData(0, output0);

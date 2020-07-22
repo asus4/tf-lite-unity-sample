@@ -85,9 +85,9 @@ namespace TensorFlowLite
         {
             const float OFFSET = 128f;
             const float SCALE = 1f / 128f;
-            ToTensor(inputTex, inputs, OFFSET, SCALE);
+            ToTensor(inputTex, input0, OFFSET, SCALE);
 
-            interpreter.SetInputTensorData(0, inputs);
+            interpreter.SetInputTensorData(0, input0);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);

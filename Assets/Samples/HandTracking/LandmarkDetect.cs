@@ -25,15 +25,19 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
-            throw new System.NotImplementedException("Nothing here. Use Invoke(float[,,] input)");
-        }
+            //
+            ToTensor(inputTex, input0);
 
-        public void Invoke(float[,,] input0)
-        {
+            //
             interpreter.SetInputTensorData(0, input0);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
+        }
+
+        public void Invoke(float[,,] input0)
+        {
+
         }
 
         public Result GetResult()

@@ -25,12 +25,22 @@ namespace TensorFlowLite
         }
 
         RenderTexture resizeTexture;
-        Material transformMat;
+        Material _blitMaterial;
 
         static readonly int _VertTransform = Shader.PropertyToID("_VertTransform");
         static readonly int _UVRect = Shader.PropertyToID("_UVRect");
 
-        public Material material => transformMat;
+        public Material material
+        {
+            get
+            {
+                if (_blitMaterial == null)
+                {
+                    _blitMaterial = new Material(Shader.Find("Hidden/TFLite/Resize"));
+                }
+                return _blitMaterial;
+            }
+        }
 
         public TextureResizer()
         {
@@ -40,47 +50,46 @@ namespace TensorFlowLite
         public void Dispose()
         {
             DisposeUtil.TryDispose(resizeTexture);
-            DisposeUtil.TryDispose(transformMat);
+            DisposeUtil.TryDispose(_blitMaterial);
+        }
+
+        public ResizeOptions ModifyOptionForWebcam(ResizeOptions options, WebCamTexture texture)
+        {
+            options.rotationDegree += texture.videoRotationAngle;
+            if (texture.videoVerticallyMirrored)
+            {
+                options.flipX = !options.flipX;
+            }
+            return options;
         }
 
         public RenderTexture Resize(Texture texture, ResizeOptions options)
         {
-            if (resizeTexture == null
-            || resizeTexture.width != options.width
-            || resizeTexture.height != options.height)
-            {
-                DisposeUtil.TryDispose(resizeTexture);
-                resizeTexture = new RenderTexture(options.width, options.height, 0, RenderTextureFormat.ARGB32);
-            }
-            if (transformMat == null)
-            {
-                transformMat = new Material(Shader.Find("Hidden/TFLite/Resize"));
-            }
-
             // Set options
-            float rotation = options.rotationDegree;
             if (texture is WebCamTexture)
             {
-                var webcamTex = (WebCamTexture)texture;
-                rotation += webcamTex.videoRotationAngle;
-                if (webcamTex.videoVerticallyMirrored)
-                {
-                    options.flipX = !options.flipX;
-                }
+                options = ModifyOptionForWebcam(options, (WebCamTexture)texture);
             }
-            Matrix4x4 trs = GetVertTransform(rotation, options.flipX, options.flipY);
+            Matrix4x4 trs = GetVertTransform(options.rotationDegree, options.flipX, options.flipY);
             Vector4 uvRect = GetTextureST(
                 (float)texture.width / (float)texture.height, // src
                 (float)options.width / (float)options.height, // dst
                 options.aspectMode);
-            return Transform(texture, ref trs, ref uvRect);
+            material.SetMatrix(_VertTransform, trs);
+            material.SetVector(_UVRect, uvRect);
+            return Blit(texture, material, options.width, options.height);
         }
 
-        public RenderTexture Transform(Texture texture, ref Matrix4x4 trs, ref Vector4 uvRect)
+        public RenderTexture Blit(Texture texture, Material mat, int width, int height)
         {
-            transformMat.SetMatrix(_VertTransform, trs);
-            transformMat.SetVector(_UVRect, uvRect);
-            Graphics.Blit(texture, resizeTexture, transformMat, 0);
+            if (resizeTexture == null
+                || resizeTexture.width != width
+                || resizeTexture.height != height)
+            {
+                DisposeUtil.TryDispose(resizeTexture);
+                resizeTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
+            }
+            Graphics.Blit(texture, resizeTexture, mat, 0);
             return resizeTexture;
         }
 
@@ -114,12 +123,6 @@ namespace TensorFlowLite
                     }
             }
             throw new System.Exception("Unknown aspect mode");
-        }
-
-        public static Rect GetUVRect(float srcAspect, float dstAspect, AspectMode mode)
-        {
-            Vector4 texST = GetTextureST(srcAspect, dstAspect, mode);
-            return new Rect(texST.z, texST.w, texST.x, texST.y);
         }
 
         private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
