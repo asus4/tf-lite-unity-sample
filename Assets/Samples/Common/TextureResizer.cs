@@ -42,6 +42,18 @@ namespace TensorFlowLite
             }
         }
 
+        public Vector4 UVRect
+        {
+            get => material.GetVector(_UVRect);
+            set => material.SetVector(_UVRect, value);
+        }
+
+        public Matrix4x4 VertexTransfrom
+        {
+            get => material.GetMatrix(_VertTransform);
+            set => material.SetMatrix(_VertTransform, value);
+        }
+
         public TextureResizer()
         {
 
@@ -70,17 +82,13 @@ namespace TensorFlowLite
             {
                 options = ModifyOptionForWebcam(options, (WebCamTexture)texture);
             }
-            Matrix4x4 trs = GetVertTransform(options.rotationDegree, options.flipX, options.flipY);
-            Vector4 uvRect = GetTextureST(
-                (float)texture.width / (float)texture.height, // src
-                (float)options.width / (float)options.height, // dst
-                options.aspectMode);
-            material.SetMatrix(_VertTransform, trs);
-            material.SetVector(_UVRect, uvRect);
-            return Blit(texture, material, options.width, options.height);
+
+            VertexTransfrom = GetVertTransform(options.rotationDegree, options.flipX, options.flipY);
+            UVRect = GetTextureST(texture, options);
+            return ApplyResize(texture, options.width, options.height);
         }
 
-        public RenderTexture Blit(Texture texture, Material mat, int width, int height)
+        public RenderTexture ApplyResize(Texture texture, int width, int height)
         {
             if (resizeTexture == null
                 || resizeTexture.width != width
@@ -89,11 +97,11 @@ namespace TensorFlowLite
                 DisposeUtil.TryDispose(resizeTexture);
                 resizeTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             }
-            Graphics.Blit(texture, resizeTexture, mat, 0);
+            Graphics.Blit(texture, resizeTexture, material, 0);
             return resizeTexture;
         }
 
-        private static Vector4 GetTextureST(float srcAspect, float dstAspect, AspectMode mode)
+        public static Vector4 GetTextureST(float srcAspect, float dstAspect, AspectMode mode)
         {
             switch (mode)
             {
@@ -125,9 +133,17 @@ namespace TensorFlowLite
             throw new System.Exception("Unknown aspect mode");
         }
 
+        public static Vector4 GetTextureST(Texture sourceTex, ResizeOptions options)
+        {
+            return GetTextureST(
+                (float)sourceTex.width / (float)sourceTex.height, // src
+                (float)options.width / (float)options.height, // dst
+                options.aspectMode);
+        }
+
         private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
         private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
-        private static Matrix4x4 GetVertTransform(float rotation, bool invertX, bool invertY)
+        public static Matrix4x4 GetVertTransform(float rotation, bool invertX, bool invertY)
         {
             Vector3 scale = new Vector3(
                 invertX ? -1 : 1,

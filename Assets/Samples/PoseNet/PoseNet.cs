@@ -125,11 +125,6 @@ namespace TensorFlowLite
             return results;
         }
 
-        static float Sigmoid(float x)
-        {
-            return (1.0f / (1.0f + Mathf.Exp(-x)));
-        }
-
         static void ApplySigmoid(float[,,] arr)
         {
             int rows = arr.GetLength(0); // y
@@ -142,7 +137,7 @@ namespace TensorFlowLite
                 {
                     for (int part = 0; part < parts; part++)
                     {
-                        arr[y, x, part] = Sigmoid(arr[y, x, part]);
+                        arr[y, x, part] = MathTF.Sigmoid(arr[y, x, part]);
                     }
                 }
             }

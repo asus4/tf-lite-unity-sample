@@ -13,6 +13,7 @@ public class HandTrackingSample : MonoBehaviour
 
     [SerializeField] RawImage cameraView = null;
     [SerializeField] Image framePrefab = null;
+    [SerializeField] RawImage debugPalmView = null;
 
     WebCamTexture webcamTexture;
     PalmDetect palmDetect;
@@ -27,6 +28,8 @@ public class HandTrackingSample : MonoBehaviour
 
         string landmarkPath = Path.Combine(Application.streamingAssetsPath, landmarkModelFile);
         landmarkDetect = new LandmarkDetect(landmarkPath);
+        Debug.Log($"landmark dimension: {landmarkDetect.Dim}");
+
 
         string cameraName = WebCamUtil.FindName();
         webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
@@ -56,17 +59,22 @@ public class HandTrackingSample : MonoBehaviour
         palmDetect.ResizeOptions = resizeOptions;
 
         palmDetect.Invoke(webcamTexture);
+        cameraView.material = palmDetect.transformMat;
 
         var palms = palmDetect.GetResults(0.7f, 0.3f);
         UpdateFrame(palms);
 
-        cameraView.material = palmDetect.transformMat;
 
         if (palms.Count <= 0)
         {
             return;
         }
-        landmarkDetect.Invoke(palmDetect.Input0);
+
+        // Calc only first palm
+        landmarkDetect.Invoke(webcamTexture, palms[0]);
+        debugPalmView.texture = landmarkDetect.inputTex;
+
+        joints = landmarkDetect.GetResult().joints;
     }
 
     void UpdateFrame(List<PalmDetect.Palm> palms)
@@ -83,6 +91,8 @@ public class HandTrackingSample : MonoBehaviour
         }
     }
 
+
+
     void SetFrame(Graphic frame, PalmDetect.Palm palm, Vector2 size)
     {
         var rt = frame.transform as RectTransform;
@@ -98,6 +108,34 @@ public class HandTrackingSample : MonoBehaviour
             var kp = palm.keypoints[i];
             kp.y = 1.0f - kp.y; // invert Y
             child.anchoredPosition = (kp * size - size * 0.5f) + kpOffset;
+        }
+    }
+
+    public Vector3[] joints;
+    Vector3[] corners = new Vector3[4];
+
+    void OnDrawGizmos()
+    {
+        if (joints == null)
+        {
+            return;
+        }
+
+        // var rt = debugPalmView.transform as RectTransform;
+        var rt = cameraView.transform as RectTransform;
+        rt.GetWorldCorners(corners);
+        Vector3 min = corners[0];
+        Vector3 max = corners[2];
+        float zScale = max.x - min.x;
+
+        Gizmos.color = Color.cyan;
+        var size = Vector3.one * 20f;
+        foreach (var p0 in joints)
+        {
+            var p1 = p0;
+            p1 = MathTF.Leap3(min, max, p1);
+            p1.z = p0.z * zScale;
+            Gizmos.DrawCube(p1, size);
         }
     }
 

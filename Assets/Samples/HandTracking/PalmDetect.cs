@@ -46,7 +46,11 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
+            // const float OFFSET = 128f;
+            // const float SCALE = 1f / 128f;
+            // ToTensor(inputTex, input0, OFFSET, SCALE);
             ToTensor(inputTex, input0);
+
 
             interpreter.SetInputTensorData(0, input0);
             interpreter.Invoke();
@@ -61,7 +65,7 @@ namespace TensorFlowLite
 
             for (int i = 0; i < anchors.Length; i++)
             {
-                float score = Sigmoid(output0[i]);
+                float score = MathTF.Sigmoid(output0[i]);
                 if (score < scoreThreshold)
                 {
                     continue;
@@ -104,11 +108,6 @@ namespace TensorFlowLite
             }
 
             return NonMaxSuppression(results, iouThreshold);
-        }
-
-        private static float Sigmoid(float x)
-        {
-            return (1.0f / (1.0f + Mathf.Exp(-x)));
         }
 
         private static Anchor[] ParseAnchors(string csv)
