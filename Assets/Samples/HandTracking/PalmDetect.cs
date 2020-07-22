@@ -24,7 +24,6 @@ namespace TensorFlowLite
         }
 
         public const int MAX_PALM_NUM = 4;
-        public const int HAND_JOINT_NUM = 21;
 
         // classificators / scores
         private float[] output0 = new float[2944];
@@ -35,6 +34,8 @@ namespace TensorFlowLite
         private float[,] output1 = new float[2944, 18];
         private List<Palm> results = new List<Palm>();
         private Anchor[] anchors;
+
+        public float[,,] Input0 => inputs;
 
         public PalmDetect(string modelPath, string anchorCSV) : base(modelPath, true)
         {
@@ -130,7 +131,7 @@ namespace TensorFlowLite
             return anchors;
         }
 
-        private static List<Palm> NonMaxSuppression(List<Palm> palms, float iou_thresh)
+        private static List<Palm> NonMaxSuppression(List<Palm> palms, float iou_threshold)
         {
             var filtered = new List<Palm>();
 
@@ -140,7 +141,7 @@ namespace TensorFlowLite
                 foreach (Palm newPalm in filtered)
                 {
                     float iou = CalcIntersectionOverUnion(originalPalm.rect, newPalm.rect);
-                    if (iou >= iou_thresh)
+                    if (iou >= iou_threshold)
                     {
                         ignore_candidate = true;
                         break;
@@ -183,7 +184,9 @@ namespace TensorFlowLite
             float area0 = (ymax0 - ymin0) * (xmax0 - xmin0);
             float area1 = (ymax1 - ymin1) * (xmax1 - xmin1);
             if (area0 <= 0 || area1 <= 0)
+            {
                 return 0.0f;
+            }
 
             float intersect_xmin = Mathf.Max(xmin0, xmin1);
             float intersect_ymin = Mathf.Max(ymin0, ymin1);

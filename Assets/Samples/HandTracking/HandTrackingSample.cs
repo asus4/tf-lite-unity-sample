@@ -9,18 +9,24 @@ public class HandTrackingSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")] string palmModelFile = "coco_ssd_mobilenet_quant.tflite";
     [SerializeField] TextAsset anchorCsv = null;
+    [SerializeField, FilePopup("*.tflite")] string landmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
+
     [SerializeField] RawImage cameraView = null;
     [SerializeField] Image framePrefab = null;
 
     WebCamTexture webcamTexture;
     PalmDetect palmDetect;
+    LandmarkDetect landmarkDetect;
 
     Image[] frames;
 
     void Start()
     {
-        string path = Path.Combine(Application.streamingAssetsPath, palmModelFile);
-        palmDetect = new PalmDetect(path, anchorCsv.text);
+        string palmPath = Path.Combine(Application.streamingAssetsPath, palmModelFile);
+        palmDetect = new PalmDetect(palmPath, anchorCsv.text);
+
+        string landmarkPath = Path.Combine(Application.streamingAssetsPath, landmarkModelFile);
+        landmarkDetect = new LandmarkDetect(landmarkPath);
 
         string cameraName = WebCamUtil.FindName();
         webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
@@ -40,6 +46,7 @@ public class HandTrackingSample : MonoBehaviour
     {
         webcamTexture?.Stop();
         palmDetect?.Dispose();
+        landmarkDetect?.Dispose();
     }
 
     void Update()
@@ -50,9 +57,20 @@ public class HandTrackingSample : MonoBehaviour
 
         palmDetect.Invoke(webcamTexture);
 
+        var palms = palmDetect.GetResults(0.7f, 0.3f);
+        UpdateFrame(palms);
+
         cameraView.material = palmDetect.transformMat;
 
-        var palms = palmDetect.GetResults(0.7f, 0.3f);
+        if (palms.Count <= 0)
+        {
+            return;
+        }
+        landmarkDetect.Invoke(palmDetect.Input0);
+    }
+
+    void UpdateFrame(List<PalmDetect.Palm> palms)
+    {
         var size = ((RectTransform)cameraView.transform).rect.size;
         for (int i = 0; i < palms.Count; i++)
         {
