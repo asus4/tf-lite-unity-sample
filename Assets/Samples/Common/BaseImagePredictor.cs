@@ -12,12 +12,13 @@ namespace TensorFlowLite
         protected int channels;
         protected T[,,] inputs;
         protected TextureToTensor tex2tensor;
-        protected TextureToTensor.ResizeOptions resizeOptions;
+        protected TextureResizer resizer;
+        protected TextureResizer.ResizeOptions resizeOptions;
 
         public Texture2D inputTex => tex2tensor.texture;
-        public Material transformMat => tex2tensor.material;
+        public Material transformMat => resizer.material;
 
-        public TextureToTensor.ResizeOptions ResizeOptions
+        public TextureResizer.ResizeOptions ResizeOptions
         {
             get => resizeOptions;
             set => resizeOptions = value;
@@ -35,9 +36,10 @@ namespace TensorFlowLite
             InitInputs();
 
             tex2tensor = new TextureToTensor();
-            resizeOptions = new TextureToTensor.ResizeOptions()
+            resizer = new TextureResizer();
+            resizeOptions = new TextureResizer.ResizeOptions()
             {
-                aspectMode = TextureToTensor.AspectMode.Fill,
+                aspectMode = TextureResizer.AspectMode.Fill,
                 rotationDegree = 0,
                 flipX = false,
                 flipY = true,
@@ -50,26 +52,26 @@ namespace TensorFlowLite
         {
             interpreter?.Dispose();
             tex2tensor?.Dispose();
+            resizer?.Dispose();
         }
-
 
         public abstract void Invoke(Texture inputTex);
 
         protected void ToTensor(Texture inputTex, float[,,] inputs)
         {
-            RenderTexture tex = tex2tensor.Resize(inputTex, resizeOptions);
+            RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
             tex2tensor.ToTensor(tex, inputs);
         }
 
         protected void ToTensor(Texture inputTex, float[,,] inputs, float offset, float scale)
         {
-            RenderTexture tex = tex2tensor.Resize(inputTex, resizeOptions);
+            RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
             tex2tensor.ToTensor(tex, inputs, offset, scale);
         }
 
         protected void ToTensor(Texture inputTex, sbyte[,,] inputs)
         {
-            RenderTexture tex = tex2tensor.Resize(inputTex, resizeOptions);
+            RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
             tex2tensor.ToTensor(tex, inputs);
         }
 

@@ -414,6 +414,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   palmModelFile: mediapipe/palm_detection_builtin_256_float16_quant.tflite
   anchorCsv: {fileID: 4900000, guid: ac891b637ea4d40e3b56370fe09af38c, type: 3}
+  landmarkModelFile: mediapipe/hand_landmark_256_float16_quant.tflite
   cameraView: {fileID: 2074584278}
   framePrefab: {fileID: 2968957287132992089, guid: a99d341f10eb64b908889659294d2a55,
     type: 3}
