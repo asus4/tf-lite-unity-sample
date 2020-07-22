@@ -10,7 +10,7 @@ namespace TensorFlowLite
         protected int width;
         protected int height;
         protected int channels;
-        protected T[,,] inputs;
+        protected T[,,] input0;
         protected TextureToTensor tex2tensor;
         protected TextureResizer resizer;
         protected TextureResizer.ResizeOptions resizeOptions;
@@ -63,6 +63,12 @@ namespace TensorFlowLite
             tex2tensor.ToTensor(tex, inputs);
         }
 
+        protected void ToTensor(RenderTexture inputTex, float[,,] inputs, bool resize)
+        {
+            RenderTexture tex = resize ? resizer.Resize(inputTex, resizeOptions) : inputTex;
+            tex2tensor.ToTensor(tex, inputs);
+        }
+
         protected void ToTensor(Texture inputTex, float[,,] inputs, float offset, float scale)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
@@ -81,7 +87,7 @@ namespace TensorFlowLite
             height = idim0[1];
             width = idim0[2];
             channels = idim0[3];
-            inputs = new T[height, width, channels];
+            input0 = new T[height, width, channels];
 
             int inputCount = interpreter.GetInputTensorCount();
             for (int i = 0; i < inputCount; i++)
