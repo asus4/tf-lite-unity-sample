@@ -6,21 +6,27 @@ using TensorFlowLite;
 
 public class SmartReplySample : MonoBehaviour
 {
-    [SerializeField, FilePopup("*.tflite")] string fileName = "deeplabv3_257_mv_gpu.tflite";
+    [SerializeField, FilePopup("*.tflite")] string fileName = "smartreply.tflite";
+    [SerializeField] TextAsset responseText = null;
 
     SmartReply smartReply;
 
     void Start()
     {
         string path = Path.Combine(Application.streamingAssetsPath, fileName);
-        smartReply = new SmartReply(path);
+        var responses  = responseText.text.Split('\n');
+        smartReply = new SmartReply(path, responses);
 
-        // TODO UI
+        // TODO add ui
+        smartReply.Invoke("How are you");
+
     }
 
     void OnDestroy()
     {
         smartReply?.Dispose();
     }
+
+
 
 }
