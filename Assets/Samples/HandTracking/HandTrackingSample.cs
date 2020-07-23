@@ -34,8 +34,11 @@ public class HandTrackingSample : MonoBehaviour
         landmarkDetect = new HandLandmarkDetect(landmarkPath);
         Debug.Log($"landmark dimension: {landmarkDetect.Dim}");
 
-
-        string cameraName = WebCamUtil.FindName();
+        string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
+        {
+            isFrontFacing = false,
+            kind = WebCamKind.WideAngle,
+        });
         webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
         cameraView.texture = webcamTexture;
         webcamTexture.Play();
