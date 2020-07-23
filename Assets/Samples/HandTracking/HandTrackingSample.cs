@@ -14,12 +14,16 @@ public class HandTrackingSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField] Image framePrefab = null;
     [SerializeField] RawImage debugPalmView = null;
+    [SerializeField] Mesh jointMesh = null;
+    [SerializeField] Material jointMaterial = null;
 
     WebCamTexture webcamTexture;
     PalmDetect palmDetect;
     LandmarkDetect landmarkDetect;
 
     Image[] frames;
+    Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
+    Matrix4x4[] jointMatrices = new Matrix4x4[LandmarkDetect.JOINT_COUNT];
 
     void Start()
     {
@@ -64,17 +68,17 @@ public class HandTrackingSample : MonoBehaviour
         var palms = palmDetect.GetResults(0.7f, 0.3f);
         UpdateFrame(palms);
 
-
         if (palms.Count <= 0)
         {
             return;
         }
 
-        // Calc only first palm
+        // Detect only first palm
         landmarkDetect.Invoke(webcamTexture, palms[0]);
         debugPalmView.texture = landmarkDetect.inputTex;
 
-        joints = landmarkDetect.GetResult().joints;
+        var joints = landmarkDetect.GetResult().joints;
+        DrawJoints(joints);
     }
 
     void UpdateFrame(List<PalmDetect.Palm> palms)
@@ -90,7 +94,6 @@ public class HandTrackingSample : MonoBehaviour
             frames[i].gameObject.SetActive(false);
         }
     }
-
 
 
     void SetFrame(Graphic frame, PalmDetect.Palm palm, Vector2 size)
@@ -111,32 +114,26 @@ public class HandTrackingSample : MonoBehaviour
         }
     }
 
-    public Vector3[] joints;
-    Vector3[] corners = new Vector3[4];
 
-    void OnDrawGizmos()
+    void DrawJoints(Vector3[] joints)
     {
-        if (joints == null)
-        {
-            return;
-        }
-
-        // var rt = debugPalmView.transform as RectTransform;
         var rt = cameraView.transform as RectTransform;
-        rt.GetWorldCorners(corners);
-        Vector3 min = corners[0];
-        Vector3 max = corners[2];
+        rt.GetWorldCorners(rtCorners);
+        Vector3 min = rtCorners[0];
+        Vector3 max = rtCorners[2];
         float zScale = max.x - min.x;
 
-        Gizmos.color = Color.cyan;
-        var size = Vector3.one * 20f;
-        foreach (var p0 in joints)
+        var rotation = Quaternion.identity;
+        var scale = Vector3.one * 0.1f;
+        for (int i = 0; i < LandmarkDetect.JOINT_COUNT; i++)
         {
-            var p1 = p0;
-            p1 = MathTF.Leap3(min, max, p1);
-            p1.z = p0.z * zScale;
-            Gizmos.DrawCube(p1, size);
+            var p = joints[i];
+            p = MathTF.Leap3(min, max, p);
+            p.z = joints[i].z * zScale;
+            var mtx = Matrix4x4.TRS(p, rotation, scale);
+            jointMatrices[i] = mtx;
         }
+        Graphics.DrawMeshInstanced(jointMesh, 0, jointMaterial, jointMatrices);
     }
 
 }
