@@ -85,9 +85,9 @@ namespace TensorFlowLite
         {
             const float OFFSET = 128f;
             const float SCALE = 1f / 128f;
-            ToTensor(inputTex, inputs, OFFSET, SCALE);
+            ToTensor(inputTex, input0, OFFSET, SCALE);
 
-            interpreter.SetInputTensorData(0, inputs);
+            interpreter.SetInputTensorData(0, input0);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
@@ -125,11 +125,6 @@ namespace TensorFlowLite
             return results;
         }
 
-        static float Sigmoid(float x)
-        {
-            return (1.0f / (1.0f + Mathf.Exp(-x)));
-        }
-
         static void ApplySigmoid(float[,,] arr)
         {
             int rows = arr.GetLength(0); // y
@@ -142,7 +137,7 @@ namespace TensorFlowLite
                 {
                     for (int part = 0; part < parts; part++)
                     {
-                        arr[y, x, part] = Sigmoid(arr[y, x, part]);
+                        arr[y, x, part] = MathTF.Sigmoid(arr[y, x, part]);
                     }
                 }
             }

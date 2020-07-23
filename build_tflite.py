@@ -40,6 +40,8 @@ def build_ios():
     # Metal Delegate
     run_cmd('bazel build -c opt --config=ios_fat --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --copt=-fembed-bitcode --linkopt -s --strip always --cxxopt=-std=c++14 //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_framework --apple_platform_type=ios')
     unzip('bazel-bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_framework.zip', 'iOS')
+    # Experimental Flex Delegate
+    # run_cmd('bazel build -c opt --config=ios --ios_multi_cpus=armv7,arm64,x86_64 //tensorflow/lite/experimental/ios:TensorFlowLiteSelectTfOps_framework')
 
 def build_android():
     # Main
