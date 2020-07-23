@@ -19,11 +19,11 @@ public class HandTrackingSample : MonoBehaviour
 
     WebCamTexture webcamTexture;
     PalmDetect palmDetect;
-    LandmarkDetect landmarkDetect;
+    HandLandmarkDetect landmarkDetect;
 
     Image[] frames;
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
-    Matrix4x4[] jointMatrices = new Matrix4x4[LandmarkDetect.JOINT_COUNT];
+    Matrix4x4[] jointMatrices = new Matrix4x4[HandLandmarkDetect.JOINT_COUNT];
 
     void Start()
     {
@@ -31,7 +31,7 @@ public class HandTrackingSample : MonoBehaviour
         palmDetect = new PalmDetect(palmPath, anchorCsv.text);
 
         string landmarkPath = Path.Combine(Application.streamingAssetsPath, landmarkModelFile);
-        landmarkDetect = new LandmarkDetect(landmarkPath);
+        landmarkDetect = new HandLandmarkDetect(landmarkPath);
         Debug.Log($"landmark dimension: {landmarkDetect.Dim}");
 
 
@@ -125,7 +125,7 @@ public class HandTrackingSample : MonoBehaviour
 
         var rotation = Quaternion.identity;
         var scale = Vector3.one * 0.1f;
-        for (int i = 0; i < LandmarkDetect.JOINT_COUNT; i++)
+        for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
         {
             var p = joints[i];
             p = MathTF.Leap3(min, max, p);

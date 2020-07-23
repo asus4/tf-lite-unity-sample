@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace TensorFlowLite
 {
-    public class LandmarkDetect : BaseImagePredictor<float>
+    public class HandLandmarkDetect : BaseImagePredictor<float>
     {
         public class Result
         {
@@ -30,7 +30,7 @@ namespace TensorFlowLite
         public Vector2 PalmShift { get; set; } = new Vector2(0, -0.2f);
         public float PalmScale { get; set; } = 2.3f;
 
-        public LandmarkDetect(string modelPath) : base(modelPath, true)
+        public HandLandmarkDetect(string modelPath) : base(modelPath, true)
         {
             var out0info = interpreter.GetOutputTensorInfo(0);
             switch (out0info.shape[1])
