@@ -8,7 +8,6 @@ using TensorFlowLite;
 public class HandTrackingSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")] string palmModelFile = "coco_ssd_mobilenet_quant.tflite";
-    [SerializeField] TextAsset anchorCsv = null;
     [SerializeField, FilePopup("*.tflite")] string landmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
 
     [SerializeField] RawImage cameraView = null;
@@ -28,7 +27,7 @@ public class HandTrackingSample : MonoBehaviour
     void Start()
     {
         string palmPath = Path.Combine(Application.streamingAssetsPath, palmModelFile);
-        palmDetect = new PalmDetect(palmPath, anchorCsv.text);
+        palmDetect = new PalmDetect(palmPath);
 
         string landmarkPath = Path.Combine(Application.streamingAssetsPath, landmarkModelFile);
         landmarkDetect = new HandLandmarkDetect(landmarkPath);
