@@ -28,7 +28,7 @@ namespace TensorFlowLite
 
         public Dimension Dim { get; private set; }
         public Vector2 PalmShift { get; set; } = new Vector2(0, -0.2f);
-        public float PalmScale { get; set; } = 2.3f;
+        public float PalmScale { get; set; } = 2.8f;
 
         public HandLandmarkDetect(string modelPath) : base(modelPath, true)
         {
@@ -61,6 +61,7 @@ namespace TensorFlowLite
         public void Invoke(Texture inputTex, PalmDetect.Palm palm)
         {
             var options = resizeOptions;
+
             cropMatrix = resizer.VertexTransfrom = CalcPalmMatrix(ref palm, PalmShift, PalmScale);
             resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
             RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height);
@@ -110,17 +111,24 @@ namespace TensorFlowLite
         private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
         private static Matrix4x4 CalcPalmMatrix(ref PalmDetect.Palm palm, Vector2 shift, float scale)
         {
-            // TODO: Calcurate hand rotation
+            // Calc rotation based on 
             // Center of wrist - Middle finger
-            // var vec = palm.keypoints[2] - palm.keypoints[0];
-            // float rotation = 90f + Mathf.Atan2(vec.y, vec.x) * Mathf.Rad2Deg;
+            const float RAD_90 = 90f * Mathf.PI / 180f;
+            var vec = palm.keypoints[2] - palm.keypoints[0];
+            Quaternion rotation = Quaternion.Euler(0, 0, -(RAD_90 + Mathf.Atan2(vec.y, vec.x)) * Mathf.Rad2Deg);
 
+            // Calc hand scale
             float handScale = Mathf.Max(palm.rect.width, palm.rect.height) * scale;
-            Vector2 center = palm.rect.center + new Vector2(-0.5f, -0.5f) + (shift * handScale);
+
+            // Calc hand center position
+            Vector2 center = palm.rect.center + new Vector2(-0.5f, -0.5f);
+            center = (Vector2)(rotation * center);
+            center += (shift * handScale);
             center /= handScale;
+
             Matrix4x4 trs = Matrix4x4.TRS(
                                new Vector3(-center.x, -center.y, 0),
-                               Quaternion.Euler(0, 0, 0),
+                               rotation,
                                new Vector3(1 / handScale, -1 / handScale, 1)
                             );
             return PUSH_MATRIX * trs * POP_MATRIX;

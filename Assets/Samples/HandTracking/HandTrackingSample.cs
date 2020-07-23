@@ -47,6 +47,7 @@ public class HandTrackingSample : MonoBehaviour
         for (int i = 0; i < frames.Length; i++)
         {
             frames[i] = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, parent);
+            frames[i].transform.localPosition = Vector3.zero;
         }
     }
     void OnDestroy()
@@ -128,8 +129,12 @@ public class HandTrackingSample : MonoBehaviour
         for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
         {
             var p = joints[i];
+
+#if !UNITY_EDITOR
+            p.x = 1.0f - p.x; // FIXME: bug flipping on iPhone 
+#endif
             p = MathTF.Leap3(min, max, p);
-            p.z = joints[i].z * zScale;
+            p.z += (joints[i].z - 0.5f) * zScale;
             var mtx = Matrix4x4.TRS(p, rotation, scale);
             jointMatrices[i] = mtx;
         }
