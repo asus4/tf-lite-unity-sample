@@ -26,4 +26,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Samples/StyleTransfer/StyleTransfer.unity
     guid: 494656ebdd6dc43b4843586753a539bb
+  - enabled: 1
+    path: Assets/Samples/HandTracking/HandTracking.unity
+    guid: 662ce65fb2adc439e84fa9fc8d766fe4
   m_configObjects: {}
