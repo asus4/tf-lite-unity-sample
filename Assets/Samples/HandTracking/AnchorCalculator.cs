@@ -59,9 +59,9 @@ namespace TensorFlowLite
             return minScale + (maxScale - minScale) * 1.0f * strideIndex / (numStrides - 1.0f);
         }
 
-        public static List<Rect> GenerateAnchors(Options options)
+        public static PalmDetect.Anchor[] Generate(Options options)
         {
-            var anchors = new List<Rect>();
+            var anchors = new List<PalmDetect.Anchor>();
 
             int layer_id = 0;
             while (layer_id < options.strides.Length)
@@ -144,8 +144,9 @@ namespace TensorFlowLite
                             float x_center = (x + options.anchorOffsetX) * 1.0f / feature_map_width;
                             float y_center = (y + options.anchorOffsetY) * 1.0f / feature_map_height;
 
-                            Rect new_anchor = new Rect();
-                            new_anchor.center = new Vector2(x_center, y_center);
+                            var new_anchor = new PalmDetect.Anchor();
+                            new_anchor.x = x_center;
+                            new_anchor.y = y_center;
 
                             if (options.fixedAnchorSize)
                             {
@@ -163,7 +164,7 @@ namespace TensorFlowLite
                 }
                 layer_id = last_same_stride_layer;
             }
-            return anchors;
+            return anchors.ToArray();
         }
     }
 }

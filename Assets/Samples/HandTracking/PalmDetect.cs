@@ -8,7 +8,7 @@ namespace TensorFlowLite
 
     public class PalmDetect : BaseImagePredictor<float>
     {
-        private struct Anchor
+        public struct Anchor
         {
             public float x; // center
             public float y; // center
@@ -37,10 +37,32 @@ namespace TensorFlowLite
 
         public float[,,] Input0 => input0;
 
-        public PalmDetect(string modelPath, string anchorCSV) : base(modelPath, true)
+        public PalmDetect(string modelPath) : base(modelPath, true)
         {
-            // TODO calc anchor with Anchor calclator
-            anchors = ParseAnchors(anchorCSV);
+            var options = new AnchorCalcurator.Options()
+            {
+                inputSizeWidth = 256,
+                inputSizeHeight = 256,
+
+                minScale = 0.1171875f,
+                maxScale = 0.75f,
+
+                anchorOffsetX = 0.5f,
+                anchorOffsetY = 0.5f,
+
+                numLayers = 5,
+                featureMapWidth = new int[0],
+                featureMapHeight = new int[0],
+                strides = new int[] { 8, 16, 32, 32, 32 },
+
+                aspectRatios = new float[] { 1.0f },
+
+                reduceBoxesInLowestLayer = false,
+                interpolatedScaleAspectRatio = 1.0f,
+                fixedAnchorSize = true,
+            };
+
+            anchors = AnchorCalcurator.Generate(options);
             UnityEngine.Debug.AssertFormat(anchors.Length == 2944, "Anchors count must be 2944");
         }
 
@@ -108,26 +130,6 @@ namespace TensorFlowLite
             }
 
             return NonMaxSuppression(results, iouThreshold);
-        }
-
-        private static Anchor[] ParseAnchors(string csv)
-        {
-            string[] lines = csv.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            var anchors = new Anchor[lines.Length];
-
-            var lineSeparator = new char[] { ',' };
-            for (int i = 0; i < lines.Length; i++)
-            {
-                var cols = lines[i].Split(lineSeparator, StringSplitOptions.RemoveEmptyEntries);
-                anchors[i] = new Anchor()
-                {
-                    x = float.Parse(cols[0]),
-                    y = float.Parse(cols[1]),
-                    width = float.Parse(cols[2]),
-                    height = float.Parse(cols[3]),
-                };
-            }
-            return anchors;
         }
 
         private static List<Palm> NonMaxSuppression(List<Palm> palms, float iou_threshold)
