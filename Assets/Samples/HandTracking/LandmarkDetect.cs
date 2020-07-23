@@ -75,10 +75,9 @@ namespace TensorFlowLite
 
         public Result GetResult()
         {
+            // Normalize 0 ~ 255 => 0.0 ~ 1.0
             const float SCALE = 1f / 255f;
-            // const float SCALE = 1f;
             var mtx = cropMatrix.inverse;
-            // var mtx = Matrix4x4.identity;
 
             result.score = output1[0];
             if (Dim == Dimension.TWO)
