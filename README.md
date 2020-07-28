@@ -4,7 +4,7 @@
 
 Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples) to Unity. and some utilities for Unity.
 
-Tested on 
+Tested on  
 - macOS / iOS / Android / Ubuntu / Windows  
 - Unity 2019.3.3f1  
 - TensorFlow 2.2.0  
@@ -43,6 +43,8 @@ __DeepLab Semantic Segmentation__
 __Style Transfer__  
 ![styletransfter](https://i.imgur.com/SOLMjZi.gif)
 
+__Hand Tracking__  
+![handtracking](https://imgur.com/KDOCx2U.gif)
 
 ## License
 
@@ -51,5 +53,6 @@ Samples folder `Assets/Samples/*` is licensed under MIT
 Other licenses
 
 - [TensorFlow](https://github.com/tensorflow/tensorflow/blob/master/LICENSE)
-- [*.tflite Models](https://www.tensorflow.org/lite/models)
-
+- [Assets/StreamingAssets/*.tflite Models](https://www.tensorflow.org/lite/models)
+- [Assets/StreamingAssets/mediapipe Models](https://github.com/google/mediapipe)
+  - Some MediaPipe C# codes are based on [terryky/tflite_gles_app](https://github.com/terryky/tflite_gles_app)
