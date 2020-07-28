@@ -31,6 +31,14 @@ Pre-built libraries are included. If you want to use the latest TFLite,
 
 - To build macOS Metal Delegate on TensorFlow v2.3.0 or later, See [the issue](https://github.com/tensorflow/tensorflow/issues/41039)
 
+## Misc
+
+\[Android\] You can see logs from tflite by filtering with "tflite"  
+
+```bash
+adb logcat Unity:V tflite:V "*:S"
+```
+
 ## Show Cases
 
 __MNIST__  

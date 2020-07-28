@@ -177,7 +177,7 @@ namespace TensorFlowLite
         private const string TensorFlowLibrary = "libtensorflowlite_c";
 #endif
 
-        // Mirror of TfLiteStatus
+        // TfLiteStatus
         public enum Status
         {
             Ok = 0,
@@ -185,6 +185,7 @@ namespace TensorFlowLite
             DelegateError = 2
         }
 
+        // TfLiteType
         public enum DataType
         {
             NoType = 0,
@@ -198,6 +199,7 @@ namespace TensorFlowLite
             Complex64 = 8,
             Int8 = 9,
             Float16 = 10,
+            Float64 = 11,
         }
 
         public struct QuantizationParams
