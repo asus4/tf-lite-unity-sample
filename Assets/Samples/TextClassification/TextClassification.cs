@@ -32,7 +32,7 @@ namespace TensorFlowLite
             vocabulary = BuildVocabulary(vocabularyText);
 
             // NO GPU
-            var options = new Interpreter.Options()
+            var options = new InterpreterOptions()
             {
                 threads = 2
             };

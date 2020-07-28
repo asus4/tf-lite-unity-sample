@@ -26,11 +26,15 @@ namespace TensorFlowLite
 
         public BaseImagePredictor(string modelPath, bool useGPU = true)
         {
-            var options = new Interpreter.Options()
+            var options = new InterpreterOptions()
             {
                 threads = 2,
-                gpuDelegate = useGPU ? CreateGpuDelegate() : null,
             };
+            if (useGPU)
+            {
+                options.AddGpuDelegate(CreateGpuDelegate());
+            }
+
             interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
             interpreter.LogIOInfo();
             InitInputs();

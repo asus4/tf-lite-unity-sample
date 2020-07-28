@@ -14,7 +14,7 @@ namespace TensorFlowLite
             this.responses = responses;
 
             // No GPU
-            var options = new Interpreter.Options()
+            var options = new InterpreterOptions()
             {
                 threads = 2
             };
