@@ -44,7 +44,7 @@ __Style Transfer__
 ![styletransfter](https://i.imgur.com/SOLMjZi.gif)
 
 __Hand Tracking__  
-![handtracking](https://imgur.com/KDOCx2U.gif)
+![handtracking](https://i.imgur.com/KDOCx2U.gif)
 
 ## License
 
