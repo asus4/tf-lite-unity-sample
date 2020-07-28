@@ -22,10 +22,9 @@ public class MnistSample : MonoBehaviour
 
     void Start()
     {
-        var options = new Interpreter.Options()
+        var options = new InterpreterOptions()
         {
             threads = 2,
-            gpuDelegate = null,
         };
         interpreter = new Interpreter(FileUtil.LoadFile(fileName), options);
         interpreter.ResizeInputTensor(0, new int[] { 1, 28, 28, 1 });

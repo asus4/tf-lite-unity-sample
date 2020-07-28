@@ -28,21 +28,6 @@ namespace TensorFlowLite
     /// </summary>
     public class Interpreter : IDisposable
     {
-        public struct Options : IEquatable<Options>
-        {
-            /// <summary>
-            /// The number of CPU threads to use for the interpreter.
-            /// </summary>
-            public int threads;
-            public IGpuDelegate gpuDelegate;
-
-            public bool Equals(Options other)
-            {
-                return threads == other.threads
-                    && gpuDelegate == other.gpuDelegate;
-            }
-        }
-
         public struct TensorInfo
         {
             public string name { get; internal set; }
@@ -62,46 +47,33 @@ namespace TensorFlowLite
 
         private TfLiteModel model = IntPtr.Zero;
         private TfLiteInterpreter interpreter = IntPtr.Zero;
-        private TfLiteInterpreterOptions options = IntPtr.Zero;
-        private IGpuDelegate gpuDelegate = null;
+        private InterpreterOptions options = null;
 
-        public Interpreter(byte[] modelData) : this(modelData, default(Options)) { }
+        public Interpreter(byte[] modelData) : this(modelData, null) { }
 
-        public Interpreter(byte[] modelData, Options options)
+        public Interpreter(byte[] modelData, InterpreterOptions options)
         {
             GCHandle modelDataHandle = GCHandle.Alloc(modelData, GCHandleType.Pinned);
             IntPtr modelDataPtr = modelDataHandle.AddrOfPinnedObject();
             model = TfLiteModelCreate(modelDataPtr, modelData.Length);
             if (model == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Model");
 
-            if (!options.Equals(default(Options)))
-            {
-                this.options = TfLiteInterpreterOptionsCreate();
-                if (options.threads > 1)
-                {
-                    TfLiteInterpreterOptionsSetNumThreads(this.options, options.threads);
-                }
-                if (options.gpuDelegate != null)
-                {
-                    TfLiteInterpreterOptionsAddDelegate(this.options, options.gpuDelegate.Delegate);
-                    gpuDelegate = options.gpuDelegate;
-                }
-            }
+            this.options = options;
 
-            interpreter = TfLiteInterpreterCreate(model, this.options);
+            interpreter = TfLiteInterpreterCreate(model, options.nativePtr);
             if (interpreter == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Interpreter");
         }
+
 
         public void Dispose()
         {
             if (interpreter != IntPtr.Zero) TfLiteInterpreterDelete(interpreter);
             interpreter = IntPtr.Zero;
+
             if (model != IntPtr.Zero) TfLiteModelDelete(model);
             model = IntPtr.Zero;
-            if (options != IntPtr.Zero) TfLiteInterpreterOptionsDelete(options);
-            options = IntPtr.Zero;
-            if (gpuDelegate != null) gpuDelegate.Dispose();
-            gpuDelegate = null;
+
+            if (options != null) options.Dispose();
         }
 
         public void Invoke()
@@ -247,24 +219,6 @@ namespace TensorFlowLite
 
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe void TfLiteModelDelete(TfLiteModel model);
-
-        [DllImport(TensorFlowLibrary)]
-        private static extern unsafe TfLiteInterpreterOptions TfLiteInterpreterOptionsCreate();
-
-        [DllImport(TensorFlowLibrary)]
-        private static extern unsafe void TfLiteInterpreterOptionsDelete(TfLiteInterpreterOptions options);
-
-        [DllImport(TensorFlowLibrary)]
-        private static extern unsafe void TfLiteInterpreterOptionsSetNumThreads(
-            TfLiteInterpreterOptions options,
-            int num_threads
-        );
-
-
-        [DllImport(TensorFlowLibrary)]
-        private static extern unsafe void TfLiteInterpreterOptionsAddDelegate(
-            TfLiteInterpreterOptions options,
-            TfLiteDelegate _delegate);
 
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe TfLiteInterpreter TfLiteInterpreterCreate(
