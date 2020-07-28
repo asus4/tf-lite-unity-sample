@@ -22,7 +22,7 @@ namespace TensorFlowLite
 #if UNITY_ANDROID && !UNITY_EDITOR
 
     /// <summary>
-    /// TfLiteGpuDelegateOptionsV2
+    /// the Mirror of TfLiteGpuDelegateOptionsV2
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct Options
@@ -32,6 +32,8 @@ namespace TensorFlowLite
         int inferencePriority1;
         int inferencePriority2;
         int inferencePriority3;
+        long experimentalFlags;
+        int maxDelegatedPartitions;
     };
 
     public class GlDelegate : IGpuDelegate

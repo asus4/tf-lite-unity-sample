@@ -82,7 +82,7 @@ namespace TensorFlowLite
             UInt32 min_version, UInt32 max_version);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern void TfLiteInterpreterOptionsSetUseNNAPI(TfLiteInterpreterOptions options, bool enable);
+        internal static extern void TfLiteInterpreterOptionsSetUseNNAPI(TfLiteInterpreterOptions options, bool enable);
 
     }
 }

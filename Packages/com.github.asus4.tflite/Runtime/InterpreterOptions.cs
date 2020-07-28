@@ -29,6 +29,7 @@ namespace TensorFlowLite
         internal TfLiteInterpreterOptions nativePtr;
 
         private List<IGpuDelegate> delegates;
+
         private int _threads;
         public int threads
         {
@@ -37,6 +38,19 @@ namespace TensorFlowLite
             {
                 _threads = value;
                 TfLiteInterpreterOptionsSetNumThreads(nativePtr, value);
+            }
+        }
+
+        private bool _useNNAPI;
+        public bool useNNAPI
+        {
+            get => _useNNAPI;
+            set
+            {
+                _useNNAPI = value;
+#if UNITY_ANDROID && !UNITY_EDITOR
+                InterpreterExtension.TfLiteInterpreterOptionsSetUseNNAPI(nativePtr, value);
+#endif // UNITY_ANDROID && !UNITY_EDITOR
             }
         }
 
@@ -59,11 +73,31 @@ namespace TensorFlowLite
             delegates.Clear();
         }
 
-        public void AddGpuDelegate(IGpuDelegate gpuDelegate)
+        public void AddGpuDelegate()
         {
+            var gpuDelegate = CreateGpuDelegate();
             TfLiteInterpreterOptionsAddDelegate(nativePtr, gpuDelegate.Delegate);
             delegates.Add(gpuDelegate);
         }
+
+
+#pragma warning disable CS0162 // Unreachable code detected 
+        private static IGpuDelegate CreateGpuDelegate()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            return new GlDelegate();
+#elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+            return new MetalDelegate(new MetalDelegate.Options()
+            {
+                allowPrecisionLoss = false,
+                waitType = MetalDelegate.WaitType.Passive,
+            });
+#endif
+            UnityEngine.Debug.LogWarning("GPU Delegate is not supported on this platform");
+            return null;
+        }
+#pragma warning restore CS0162 // Unreachable code detected    
+
 
         #region Externs
 

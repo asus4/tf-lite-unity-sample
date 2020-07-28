@@ -35,8 +35,6 @@ namespace TensorFlowLite
         private List<Palm> results = new List<Palm>();
         private Anchor[] anchors;
 
-        public float[,,] Input0 => input0;
-
         public PalmDetect(string modelPath) : base(modelPath, true)
         {
             var options = new AnchorCalcurator.Options()
