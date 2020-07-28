@@ -32,7 +32,7 @@ namespace TensorFlowLite
             };
             if (useGPU)
             {
-                options.AddGpuDelegate(CreateGpuDelegate());
+                options.AddGpuDelegate();
             }
 
             interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
@@ -101,23 +101,5 @@ namespace TensorFlowLite
             }
             interpreter.AllocateTensors();
         }
-
-#pragma warning disable CS0162 // Unreachable code detected 
-        static IGpuDelegate CreateGpuDelegate()
-        {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            return new GlDelegate();
-#elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-            return new MetalDelegate(new MetalDelegate.Options()
-            {
-                allowPrecisionLoss = false,
-                waitType = MetalDelegate.WaitType.Passive,
-            });
-#endif
-            UnityEngine.Debug.LogWarning("GPU Delegate is not supported on this platform");
-            return null;
-        }
     }
-#pragma warning restore CS0162 // Unreachable code detected 
-
 }

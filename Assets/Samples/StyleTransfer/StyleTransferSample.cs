@@ -12,7 +12,6 @@ public class StyleTransferSample : MonoBehaviour
     [SerializeField] Texture2D styleImage = null;
     [SerializeField] RawImage preview = null;
     [SerializeField] ComputeShader compute = null;
-    // [SerializeField] Texture2D sampleTexture;
 
     WebCamTexture webcamTexture;
     StyleTransfer styleTransfer;
