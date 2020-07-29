@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
@@ -14,9 +13,13 @@ namespace TensorFlowLite
         [SetUp]
         public void SetUp()
         {
+            if (vocabularyTable != null)
+            {
+                return;
+            }
             var vocabText = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Samples/Bert/vocab.txt");
-            Debug.Log($"vocab: {vocabText}");
             vocabularyTable = Bert.LoadVocabularies(vocabText.text);
+            Debug.Log("Vocab Loaded");
         }
 
         [Test]
@@ -77,9 +80,41 @@ namespace TensorFlowLite
             ArrayEqual(expected, result);
         }
 
+        [TestCase("", new string[] { })]
+        [TestCase("teacher", new string[] { "teacher" })]
+        [TestCase("meaningfully", new string[] { "meaningful", "##ly" })]
+        public void WordPieceTokenizeTest(string input, string[] expected)
+        {
+            ArrayEqual(expected, BertTokenizer.WordPieceTokenize(input, vocabularyTable));
+        }
+
+
+        [TestCase("", new string[] { })]
+        [TestCase("unwanted running", new string[] { "un", "##want", "##ed", "runn", "##ing" })]
+        [TestCase("unwantedX running", new string[] { "[UNK]", "runn", "##ing" })]
+        public void WordPieceTokenizeWithCutomCocabTest(string input, string[] expected)
+        {
+            var vocabText = @"[UNK]
+[CLS]
+[SEP]
+want
+##want
+##ed
+wa
+un
+runn
+##ing";
+            var table = Bert.LoadVocabularies(vocabText);
+
+            Assert.True(table.ContainsKey("[UNK]"));
+            Assert.True(table.ContainsKey("want"));
+            Assert.True(table.ContainsKey("##want"));
+            ArrayEqual(expected, BertTokenizer.WordPieceTokenize(input, table));
+        }
         private static void ArrayEqual(string[] a, string[] b)
         {
-            Assert.AreEqual(a.Length, b.Length);
+            Assert.AreEqual(a.Length, b.Length,
+                            "a:{0} b:{1}", string.Join("/", a), string.Join("/", b));
             for (int i = 0; i < a.Length; i++)
             {
                 Assert.AreEqual(a[i], b[i]);
