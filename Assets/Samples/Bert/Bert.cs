@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using UnityEngine;
 
 
@@ -9,6 +9,30 @@ namespace TensorFlowLite
 
     public class Bert : IDisposable
     {
+
+        public class ContentData
+        {
+            public string[] contentWords;
+            public Dictionary<int, int> tokenIdxToWordIdxMapping;
+            public string originalContent;
+        }
+
+        public class Excerpt
+        {
+            public string value;
+
+        }
+
+        public class Answer
+        {
+
+        }
+
+        const int MAX_ANSWER_LENTH = 32;
+        const int MAX_QUERY_LENTH = 64;
+        const int MAX_SEQ_LENTH = 384;
+
+
         Interpreter interpreter;
 
         int[] inputs0; // input_ids
@@ -29,12 +53,11 @@ namespace TensorFlowLite
             interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
             interpreter.LogIOInfo();
 
-            const int BUFFER_SIZE = 384;
-            inputs0 = new int[BUFFER_SIZE];
-            inputs1 = new int[BUFFER_SIZE];
-            inputs2 = new int[BUFFER_SIZE];
-            outputs0 = new float[BUFFER_SIZE];
-            outputs1 = new float[BUFFER_SIZE];
+            inputs0 = new int[MAX_SEQ_LENTH];
+            inputs1 = new int[MAX_SEQ_LENTH];
+            inputs2 = new int[MAX_SEQ_LENTH];
+            outputs0 = new float[MAX_SEQ_LENTH];
+            outputs1 = new float[MAX_SEQ_LENTH];
 
             interpreter.AllocateTensors();
 
@@ -48,7 +71,8 @@ namespace TensorFlowLite
 
         public void Invoke(string query, string content)
         {
-            ToInputs(query, content);
+
+            PreProcess(query, content);
 
             interpreter.SetInputTensorData(0, inputs0);
             interpreter.SetInputTensorData(1, inputs1);
@@ -56,13 +80,98 @@ namespace TensorFlowLite
 
             interpreter.Invoke();
 
+            ResetArray(outputs0);
+            ResetArray(outputs1);
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
         }
 
-        void ToInputs(string query, string content)
+        ContentData PreProcess(string query, string content)
         {
-            var tokens = BertTokenizer.BasicTokenize(query);
+            var queryTokens = BertTokenizer.Fulltokenize(query, vocabularyTable)
+                                           .Take(MAX_QUERY_LENTH);
+
+            var contentWords = content.Split((char c) => c.IsBertWhiteSpace(), StringSplitOptions.RemoveEmptyEntries);
+            var contentTokenIdxToWordIdxMapping = new List<int>();
+            var contentTokens = new List<string>();
+            for (int i = 0; i < contentWords.Length; i++)
+            {
+                var wordTokens = BertTokenizer.Fulltokenize(contentWords[i], vocabularyTable);
+                foreach (var subToken in wordTokens)
+                {
+                    contentTokenIdxToWordIdxMapping.Add(i);
+                    contentTokens.Add(subToken);
+                }
+            }
+
+            // -3 accounts for [CLS], [SEP] and [SEP]
+            // int maxContentLen = MAX_SEQ_LENTH - queryTokens.Count() - 3;
+            //  contentTokens.AddRange(new string[MAX_SEQ_LENTH - queryTokens.Count() - 3 - contentTokens.Count]);
+
+            var tokens = new List<string>(MAX_SEQ_LENTH);
+            var segmentIds = new List<Int32>(MAX_SEQ_LENTH);
+
+            // Map token index to original index (in feature.origTokens).
+            var tokenIdxToWordIdxMapping = new Dictionary<int, int>();
+
+            // Start of generating the `InputFeatures`.
+            tokens.Add("[CLS]");
+            segmentIds.Add(0);
+
+            // For query input.
+            foreach (string t in queryTokens)
+            {
+                tokens.Add(t);
+                segmentIds.Add(0);
+            }
+
+            // For separation.
+            tokens.Add("[SEP]");
+            segmentIds.Add(0);
+
+            // For text input.
+            for (int i = 0; i < contentTokens.Count; i++)
+            {
+                tokens.Add(contentTokens[i]);
+                segmentIds.Add(1);
+                tokenIdxToWordIdxMapping[tokens.Count] = contentTokenIdxToWordIdxMapping[i];
+            }
+
+            // For ending mark.
+            tokens.Add("[SEP]");
+            segmentIds.Add(1);
+
+            ResetArray(inputs0);
+            ResetArray(inputs1);
+            ResetArray(inputs2);
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                // Input IDs
+                inputs0[i] = vocabularyTable[tokens[i]];
+                // Input Mask
+                inputs1[i] = 1;
+                // Segment IDs
+                inputs2[i] = segmentIds[i];
+            }
+
+            return new ContentData()
+            {
+                contentWords = contentWords,
+                tokenIdxToWordIdxMapping = tokenIdxToWordIdxMapping,
+                originalContent = content,
+            };
+        }
+
+        public Answer GetResult()
+        {
+            // Name Alias
+            float[] startLogits = outputs1;
+            float[] endLogits = outputs0;
+
+            int[] startIndexes = CandidateAnswerIndexes(startLogits, 5);
+            int[] endIndexes = CandidateAnswerIndexes(endLogits, 5);
+
+            return null;
         }
 
         public static Dictionary<string, int> LoadVocabularies(string text)
@@ -75,6 +184,24 @@ namespace TensorFlowLite
             }
             return vocablaries;
         }
+
+        private static void ResetArray<T>(T[] arr)
+        {
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = default(T);
+            }
+        }
+
+        private static int[] CandidateAnswerIndexes(float[] logits, int answerCount)
+        {
+            return logits.ToIndexValueTuple()
+                .OrderByDescending(t => t.Item2)
+                .Take(answerCount)
+                .Select(t => t.Item1)
+                .ToArray();
+        }
+
 
     }
 }

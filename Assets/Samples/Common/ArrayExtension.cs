@@ -1,24 +1,14 @@
-﻿using UnityEngine;
-using Unity.Mathematics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TensorFlowLite
 {
     public static class ArrayExtension
     {
-        public static int3 GetLengths(this int[,,] arr)
+        public static Tuple<int, T>[] ToIndexValueTuple<T>(this T[] arr)
         {
-            return new int3(
-                arr.GetLength(0),
-                arr.GetLength(1),
-                arr.GetLength(2));
-        }
-
-        public static int3 GetLengths(this float[,,] arr)
-        {
-            return new int3(
-                arr.GetLength(0),
-                arr.GetLength(1),
-                arr.GetLength(2));
+            return arr.Select(o => Tuple.Create(0, o)).ToArray();
         }
     }
 }
