@@ -13,6 +13,15 @@ namespace TensorFlowLite
     // https://github.com/google-research/bert/blob/d66a146741588fb208450bde15aa7db143baaa69/tokenization.py#L161).
     public class BertTokenizer
     {
+        public static string[] Fulltokenize(string text, Dictionary<string, int> table)
+        {
+            return BasicTokenize(text).SelectMany(word =>
+            {
+                return WordPieceTokenize(word, table);
+            }).ToArray();
+        }
+
+
         public static string[] BasicTokenize(string text)
         {
             var sb = new StringBuilder();
@@ -110,7 +119,7 @@ namespace TensorFlowLite
             return tokens.ToArray();
         }
 
-        public static string[] TokenizeWithPunctuation(string text)
+        private static string[] TokenizeWithPunctuation(string text)
         {
             var sb = new StringBuilder();
             var tokens = new List<string>();
@@ -166,20 +175,6 @@ namespace TensorFlowLite
             return false;
         }
 
-        public static bool IsBertControl(this string s)
-        {
-            if (!Char.IsSurrogate(s, 0))
-            {
-                return s[0].IsBertControl();
-            }
-            switch (CharUnicodeInfo.GetUnicodeCategory(s, 0))
-            {
-                case UnicodeCategory.Control: return true;
-                case UnicodeCategory.Format: return true;
-            }
-            return false;
-        }
-
         public static bool IsBertShouldBeRemoved(this char c)
         {
             return c == '\u0000' || c == '\ufffd';
@@ -209,6 +204,53 @@ namespace TensorFlowLite
                     return true;
             }
             return false;
+        }
+    }
+
+    public static class StringExtension
+    {
+        public static bool IsBertControl(this string s)
+        {
+            if (!Char.IsSurrogate(s, 0))
+            {
+                return s[0].IsBertControl();
+            }
+            switch (CharUnicodeInfo.GetUnicodeCategory(s, 0))
+            {
+                case UnicodeCategory.Control: return true;
+                case UnicodeCategory.Format: return true;
+            }
+            return false;
+        }
+
+        public delegate bool SeparatorFunc(char c);
+
+        public static string[] Split(this string text, SeparatorFunc separator, StringSplitOptions options)
+        {
+            var components = new List<string>();
+            var sb = new StringBuilder();
+
+            foreach (var c in text)
+            {
+                if (separator(c))
+                {
+                    if (options == StringSplitOptions.None || sb.Length > 0)
+                    {
+                        components.Add(sb.ToString());
+                    }
+                    sb.Clear();
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            if (sb.Length > 0)
+            {
+                components.Add(sb.ToString());
+            }
+            return components.ToArray();
         }
     }
 
