@@ -77,7 +77,7 @@ public class BertSample : MonoBehaviour
         sentenceDropdown.onValueChanged.RemoveAllListeners();
         templetesDropdown.onValueChanged.RemoveAllListeners();
         askButton.onClick.RemoveAllListeners();
-        bert.Dispose();
+        bert?.Dispose();
     }
 
     void SelectData(QASet qa)
@@ -91,7 +91,7 @@ public class BertSample : MonoBehaviour
     void Invoke(QASet qa, string question)
     {
         Debug.Log($"questions: {question}");
-        // TODO bert invoke
+        bert.Invoke(question, qa.content);
     }
 
 }
