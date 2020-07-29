@@ -8,7 +8,7 @@ Tested on
 
 - macOS / iOS / Android / Ubuntu / Windows  
 - Unity 2019.3.3f1  
-- TensorFlow 2.2.0  
+- TensorFlow 2.3.0
 
 ## Install TensorFlow Lite for Unity
 
@@ -29,7 +29,7 @@ Pre-built libraries are included. If you want to use the latest TFLite,
   ./build_tflte.py --tfpath ../tensorflow -ios -android -macos
   ```
 
-- To build macOS Metal Delegate on TensorFlow v2.3.0 or later, See [the issue](https://github.com/tensorflow/tensorflow/issues/41039)
+- To build macOS Metal Delegate on TensorFlow v2.3.0 or later, You need to apply the changes in [the issue](https://github.com/tensorflow/tensorflow/issues/41039)
 
 ## Misc
 
