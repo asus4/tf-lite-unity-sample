@@ -36,6 +36,80 @@ namespace TensorFlowLite
                        .SelectMany((word) => TokenizeWithPunctuation(word)).ToArray();
         }
 
+        /// <summary>
+        /// Tokenizes a piece of text into its word pieces.
+        /// This uses a greedy longest-match-first algorithm to perform tokenization
+        /// using the given vocabulary.
+        /// </summary>
+        /// <param name="text">A single token or whitespace separated tokens. This should have already been passed through `BasicTokenizer.</param>
+        /// <param name="table">A Vocabulary Table</param>
+        /// <returns>A list of wordpiece tokens.</returns>
+        public static string[] WordPieceTokenize(string text, Dictionary<string, int> table)
+        {
+            const string UNKNOWN_TOKEN = "[UNK]";
+            const uint MAX_INPUT_CHARS_PER_WORD = 200;
+
+            var tokens = new List<string>();
+            var subTokens = new List<String>();
+
+            var words = text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var word in words)
+            {
+                if (word.Length >= MAX_INPUT_CHARS_PER_WORD)
+                {
+                    tokens.Append(UNKNOWN_TOKEN);
+                    continue;
+                }
+
+                bool isBad = false;
+                int start = 0;
+                subTokens.Clear();
+
+                while (start < word.Length)
+                {
+                    int end = word.Length;
+                    string curSubstr = null;
+
+                    while (start < end)
+                    {
+                        string substr = word.Substring(start, end - start);
+
+                        if (start > 0)
+                        {
+                            substr = "##" + substr;
+                        }
+                        // UnityEngine.Debug.Log($"s: {start}, e: {end}, substr: {substr}");
+
+                        if (table.ContainsKey(substr))
+                        {
+                            // UnityEngine.Debug.LogWarning($"found: {substr}");
+                            curSubstr = substr;
+                            break;
+                        }
+                        end -= 1;
+                    }
+
+                    if (curSubstr == null)
+                    {
+                        isBad = true;
+                        break;
+                    }
+
+                    subTokens.Add(curSubstr);
+                    start = end;
+                }
+                if (isBad)
+                {
+                    tokens.Add(UNKNOWN_TOKEN);
+                }
+                else
+                {
+                    tokens.AddRange(subTokens);
+                }
+            }
+            return tokens.ToArray();
+        }
+
         public static string[] TokenizeWithPunctuation(string text)
         {
             var sb = new StringBuilder();
@@ -63,6 +137,7 @@ namespace TensorFlowLite
             }
             return tokens.ToArray();
         }
+
     }
 
     public static class CharExtension

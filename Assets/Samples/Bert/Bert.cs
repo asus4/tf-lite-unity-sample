@@ -67,7 +67,7 @@ namespace TensorFlowLite
 
         public static Dictionary<string, int> LoadVocabularies(string text)
         {
-            var lines = text.Split('\n');
+            var lines = text.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             var vocablaries = new Dictionary<string, int>();
             for (int i = 0; i < lines.Length; i++)
             {
