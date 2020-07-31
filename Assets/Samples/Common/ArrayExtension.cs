@@ -6,9 +6,13 @@ namespace TensorFlowLite
 {
     public static class ArrayExtension
     {
-        public static Tuple<int, T>[] ToIndexValueTuple<T>(this T[] arr)
+        public static IEnumerable<Tuple<int, T>> ToIndexValueTuple<T>(this T[] arr)
         {
-            return arr.Select(o => Tuple.Create(0, o)).ToArray();
+            int index = 0;
+            return arr.Select(o =>
+            {
+                return Tuple.Create(index++, o);
+            });
         }
     }
 }

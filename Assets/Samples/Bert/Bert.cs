@@ -15,6 +15,17 @@ namespace TensorFlowLite
             public string[] contentWords;
             public Dictionary<int, int> tokenIdxToWordIdxMapping;
             public string originalContent;
+
+            public string TokenToWord(int start, int end)
+            {
+                var sb = new System.Text.StringBuilder();
+                for (int i = start; i < end; i++)
+                {
+                    sb.Append(contentWords[i]);
+                    sb.Append(' ');
+                }
+                return sb.ToString();
+            }
         }
 
         public struct Score
@@ -22,12 +33,22 @@ namespace TensorFlowLite
             public float logit;
             public int start;
             public int end;
+
+            public override string ToString()
+            {
+                return $"[s:{start} e:{end} logit:{logit}]";
+            }
         }
 
         public class Answer
         {
             public string text;
             public Score score;
+
+            public override string ToString()
+            {
+                return $"score: {score}, text: {text}";
+            }
         }
 
         const int MAX_ANSWER_LENTH = 32;
@@ -71,10 +92,10 @@ namespace TensorFlowLite
             interpreter?.Dispose();
         }
 
-        public void Invoke(string query, string content)
+        public Answer[] Invoke(string query, string content)
         {
 
-            PreProcess(query, content);
+            var contentData = PreProcess(query, content);
 
             interpreter.SetInputTensorData(0, inputs0);
             interpreter.SetInputTensorData(1, inputs1);
@@ -86,9 +107,11 @@ namespace TensorFlowLite
             ResetArray(outputs1);
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
+
+            return PostProcess(contentData);
         }
 
-        ContentData PreProcess(string query, string content)
+        private ContentData PreProcess(string query, string content)
         {
             var queryTokens = BertTokenizer.Fulltokenize(query, vocabularyTable)
                                            .Take(MAX_QUERY_LENTH);
@@ -164,33 +187,58 @@ namespace TensorFlowLite
             };
         }
 
-        public Answer[] GetResult()
+        private Answer[] PostProcess(ContentData content)
         {
             // Name Alias
             float[] startLogits = outputs1;
             float[] endLogits = outputs0;
 
+            Debug.LogFormat("start logits {1}: {0}", string.Join(",", startLogits), startLogits.Length);
+            Debug.LogFormat("end logits {1}: {0}", string.Join(",", endLogits), endLogits.Length);
+
             // Get the candidate start/end indexes of answer from `startLogits` and `endLogits`.
             int[] startIndexes = CandidateAnswerIndexes(startLogits, 5);
             int[] endIndexes = CandidateAnswerIndexes(endLogits, 5);
 
+            Debug.LogFormat("start indexes {1}: {0}", string.Join(",", startIndexes), startIndexes.Length);
+            Debug.LogFormat("end indexes {1}: {0}", string.Join(",", endIndexes), endIndexes.Length);
+
             // Make list which stores prediction and its range to find original results and filter invalid pairs.     
             var candidates = startIndexes.SelectMany((startIndex) =>
-            {
-                return endIndexes.Select((endIndex) =>
                 {
-                    return new Score()
+                    return endIndexes.Select((endIndex) =>
                     {
-                        logit = startLogits[startIndex] + endLogits[endIndex],
-                        start = startIndex,
-                        end = endIndex,
-                    };
-                });
-            }).OrderByDescending(score => score.logit);
+                        return new Score()
+                        {
+                            logit = startLogits[startIndex] + endLogits[endIndex],
+                            start = startIndex,
+                            end = endIndex,
+                        };
+                    });
+                })
+                .OrderByDescending(score => score.logit)
+                .ToArray();
 
-            // 
+            // Excecute softmax in each score.logit
+            candidates = candidates.Select(o => o.logit)
+                                   .Softmax()
+                                   .Zip(candidates, (logit, score) =>
+                                   {
+                                       score.logit = logit;
+                                       return score;
+                                   })
+                                   .ToArray();
 
-            return null;
+            return candidates.Take(5)
+                             .Select((score) =>
+                             {
+                                 return new Answer()
+                                 {
+                                     text = content.TokenToWord(score.start, score.end),
+                                     score = score,
+                                 };
+                             })
+                             .ToArray();
         }
 
         public static Dictionary<string, int> LoadVocabularies(string text)
