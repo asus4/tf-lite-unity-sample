@@ -16,14 +16,36 @@ namespace TensorFlowLite
             public Dictionary<int, int> tokenIdxToWordIdxMapping;
             public string originalContent;
 
-            public string TokenToWord(int start, int end)
+            public string TokenToWord(int tokenStart, int tokenEnd)
             {
+                int wordStart, wordEnd;
+                if (!tokenIdxToWordIdxMapping.TryGetValue(tokenStart, out wordStart)) return null;
+                if (!tokenIdxToWordIdxMapping.TryGetValue(tokenEnd, out wordEnd)) return null;
+
                 var sb = new System.Text.StringBuilder();
-                for (int i = start; i < end; i++)
+                for (int i = wordStart; i <= wordEnd; i++)
                 {
                     sb.Append(contentWords[i]);
                     sb.Append(' ');
                 }
+                return sb.ToString();
+            }
+
+            public override string ToString()
+            {
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine($"ORIGINAL: {originalContent.Length}");
+                sb.AppendLine(originalContent);
+                sb.AppendLine("======");
+                sb.AppendLine($"WORDS: {contentWords.Length}");
+                sb.AppendLine(string.Join(" / ", contentWords));
+                sb.AppendLine("======");
+                sb.AppendLine($"INDEX MAPPING: {tokenIdxToWordIdxMapping.Count}");
+                foreach (var kv in tokenIdxToWordIdxMapping)
+                {
+                    sb.Append($"({kv.Key}:{kv.Value}),");
+                }
+                sb.AppendLine("}");
                 return sb.ToString();
             }
         }
@@ -38,6 +60,8 @@ namespace TensorFlowLite
             {
                 return $"[s:{start} e:{end} logit:{logit}]";
             }
+
+            public bool IsCorrect => end > start && (end - start) <= MAX_ANSWER_LENTH;
         }
 
         public class Answer
@@ -54,7 +78,8 @@ namespace TensorFlowLite
         const int MAX_ANSWER_LENTH = 32;
         const int MAX_QUERY_LENTH = 64;
         const int MAX_SEQ_LENTH = 384;
-
+        const int PREDICT_ANS_NUM = 5;
+        const int OUTPUT_OFFSET = 1; // Need to shift 1 for outputs ([CLS])
 
         Interpreter interpreter;
 
@@ -107,6 +132,9 @@ namespace TensorFlowLite
             ResetArray(outputs1);
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
+
+            Debug.Log("Cotent Data:");
+            Debug.Log(contentData);
 
             return PostProcess(contentData);
         }
@@ -204,7 +232,8 @@ namespace TensorFlowLite
             Debug.LogFormat("end indexes {1}: {0}", string.Join(",", endIndexes), endIndexes.Length);
 
             // Make list which stores prediction and its range to find original results and filter invalid pairs.     
-            var candidates = startIndexes.SelectMany((startIndex) =>
+            IEnumerable<Score> candidates = startIndexes
+                .SelectMany((startIndex) =>
                 {
                     return endIndexes.Select((endIndex) =>
                     {
@@ -216,29 +245,41 @@ namespace TensorFlowLite
                         };
                     });
                 })
-                .OrderByDescending(score => score.logit)
-                .ToArray();
+                .Where((score) => score.IsCorrect) // Filter non error
+                .OrderByDescending(score => score.logit);
 
             // Excecute softmax in each score.logit
-            candidates = candidates.Select(o => o.logit)
-                                   .Softmax()
-                                   .Zip(candidates, (logit, score) =>
-                                   {
-                                       score.logit = logit;
-                                       return score;
-                                   })
-                                   .ToArray();
+            candidates = candidates
+                .Select(o => o.logit)
+                .Softmax()
+                .Zip(candidates, (logit, score) =>
+                {
+                    score.logit = logit;
+                    return score;
+                });
 
-            return candidates.Take(5)
-                             .Select((score) =>
-                             {
-                                 return new Answer()
-                                 {
-                                     text = content.TokenToWord(score.start, score.end),
-                                     score = score,
-                                 };
-                             })
-                             .ToArray();
+            Debug.Log($"candidateScores: {candidates.Count()}");
+            foreach (var score in candidates)
+            {
+                Debug.Log($"B: {score}");
+            }
+
+            // Convert to answers
+            return candidates
+                .Select((score) =>
+                {
+                    string text = content.TokenToWord(score.start + OUTPUT_OFFSET, score.end + OUTPUT_OFFSET);
+
+                    if (string.IsNullOrEmpty(text)) return null;
+                    return new Answer()
+                    {
+                        text = text,
+                        score = score,
+                    };
+                })
+                .Where(answer => answer != null)
+                .Take(PREDICT_ANS_NUM)
+                .ToArray();
         }
 
         public static Dictionary<string, int> LoadVocabularies(string text)
