@@ -21,12 +21,14 @@ namespace TensorFlowLite
                 + "both research and production at Google. TensorFlow was developed by the Google Brain "
                 + "team for internal Google use. It was released under the Apache License 2.0 on November "
                 + "9, 2015.";
-            
+
             string question1 = "What is TensorFlow";
             string answer1 = "a free and open-source software library for dataflow and differentiable "
                 + "programming across a range of tasks";
             bert.Invoke(question1, content);
-            
+
+            var answers = bert.GetResult();
+            Debug.Log(answers);
         }
     }
 }
