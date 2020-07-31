@@ -17,15 +17,17 @@ namespace TensorFlowLite
             public string originalContent;
         }
 
-        public class Excerpt
+        public struct Score
         {
-            public string value;
-
+            public float logit;
+            public int start;
+            public int end;
         }
 
         public class Answer
         {
-
+            public string text;
+            public Score score;
         }
 
         const int MAX_ANSWER_LENTH = 32;
@@ -162,14 +164,31 @@ namespace TensorFlowLite
             };
         }
 
-        public Answer GetResult()
+        public Answer[] GetResult()
         {
             // Name Alias
             float[] startLogits = outputs1;
             float[] endLogits = outputs0;
 
+            // Get the candidate start/end indexes of answer from `startLogits` and `endLogits`.
             int[] startIndexes = CandidateAnswerIndexes(startLogits, 5);
             int[] endIndexes = CandidateAnswerIndexes(endLogits, 5);
+
+            // Make list which stores prediction and its range to find original results and filter invalid pairs.     
+            var candidates = startIndexes.SelectMany((startIndex) =>
+            {
+                return endIndexes.Select((endIndex) =>
+                {
+                    return new Score()
+                    {
+                        logit = startLogits[startIndex] + endLogits[endIndex],
+                        start = startIndex,
+                        end = endIndex,
+                    };
+                });
+            }).OrderByDescending(score => score.logit);
+
+            // 
 
             return null;
         }
