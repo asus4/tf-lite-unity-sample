@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-
+using System.Text.RegularExpressions;
 
 namespace TensorFlowLite
 {
-
     public class Bert : IDisposable
     {
 
@@ -16,19 +14,23 @@ namespace TensorFlowLite
             public Dictionary<int, int> tokenIdxToWordIdxMapping;
             public string originalContent;
 
-            public string TokenToWord(int tokenStart, int tokenEnd)
+            public Match TokenToWord(int tokenStart, int tokenEnd)
             {
                 int wordStart, wordEnd;
                 if (!tokenIdxToWordIdxMapping.TryGetValue(tokenStart, out wordStart)) return null;
                 if (!tokenIdxToWordIdxMapping.TryGetValue(tokenEnd, out wordEnd)) return null;
 
-                var sb = new System.Text.StringBuilder();
-                for (int i = wordStart; i <= wordEnd; i++)
+                var words = contentWords
+                    .Skip(wordStart)
+                    .Take(wordEnd - wordStart + 1);
+                string pattern = string.Join("\\s+", words.Select(w => Regex.Escape(w)));
+                var matched = Regex.Match(originalContent, pattern);
+                if (matched != null)
                 {
-                    sb.Append(contentWords[i]);
-                    sb.Append(' ');
+                    return matched;
                 }
-                return sb.ToString();
+                UnityEngine.Debug.LogError($"Not matched: {string.Join(" ", words)}");
+                return null;
             }
         }
 
@@ -48,8 +50,10 @@ namespace TensorFlowLite
 
         public class Answer
         {
-            public string text;
+            public Match matched;
             public Score score;
+
+            public string text => matched.Value;
 
             public override string ToString()
             {
@@ -241,12 +245,12 @@ namespace TensorFlowLite
             return candidates
                 .Select((score) =>
                 {
-                    string text = content.TokenToWord(score.start + OUTPUT_OFFSET, score.end + OUTPUT_OFFSET);
+                    var matched = content.TokenToWord(score.start + OUTPUT_OFFSET, score.end + OUTPUT_OFFSET);
 
-                    if (string.IsNullOrEmpty(text)) return null;
+                    if (matched == null) return null;
                     return new Answer()
                     {
-                        text = text,
+                        matched = matched,
                         score = score,
                     };
                 })
