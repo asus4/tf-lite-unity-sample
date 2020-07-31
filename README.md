@@ -54,7 +54,10 @@ __Style Transfer__
 ![styletransfter](https://i.imgur.com/SOLMjZi.gif)
 
 __Hand Tracking__  
-![handtracking](https://i.imgur.com/KDOCx2U.gif)
+![handtracking](https://user-images.githubusercontent.com/357497/89078175-28179780-d384-11ea-8a35-8b48a31aa52d.gif)
+
+__BERT__  
+![BERT](https://user-images.githubusercontent.com/357497/89077837-6496c380-d383-11ea-96f8-a5ae6e61d603.png)
 
 ## License
 
