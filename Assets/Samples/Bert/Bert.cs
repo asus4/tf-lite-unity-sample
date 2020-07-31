@@ -30,24 +30,6 @@ namespace TensorFlowLite
                 }
                 return sb.ToString();
             }
-
-            public override string ToString()
-            {
-                var sb = new System.Text.StringBuilder();
-                sb.AppendLine($"ORIGINAL: {originalContent.Length}");
-                sb.AppendLine(originalContent);
-                sb.AppendLine("======");
-                sb.AppendLine($"WORDS: {contentWords.Length}");
-                sb.AppendLine(string.Join(" / ", contentWords));
-                sb.AppendLine("======");
-                sb.AppendLine($"INDEX MAPPING: {tokenIdxToWordIdxMapping.Count}");
-                foreach (var kv in tokenIdxToWordIdxMapping)
-                {
-                    sb.Append($"({kv.Key}:{kv.Value}),");
-                }
-                sb.AppendLine("}");
-                return sb.ToString();
-            }
         }
 
         public struct Score
@@ -132,9 +114,6 @@ namespace TensorFlowLite
             ResetArray(outputs1);
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
-
-            Debug.Log("Cotent Data:");
-            Debug.Log(contentData);
 
             return PostProcess(contentData);
         }
@@ -221,15 +200,15 @@ namespace TensorFlowLite
             float[] startLogits = outputs1;
             float[] endLogits = outputs0;
 
-            Debug.LogFormat("start logits {1}: {0}", string.Join(",", startLogits), startLogits.Length);
-            Debug.LogFormat("end logits {1}: {0}", string.Join(",", endLogits), endLogits.Length);
+            // Debug.LogFormat("start logits {1}: {0}", string.Join(",", startLogits), startLogits.Length);
+            // Debug.LogFormat("end logits {1}: {0}", string.Join(",", endLogits), endLogits.Length);
 
             // Get the candidate start/end indexes of answer from `startLogits` and `endLogits`.
             int[] startIndexes = CandidateAnswerIndexes(startLogits, 5);
             int[] endIndexes = CandidateAnswerIndexes(endLogits, 5);
 
-            Debug.LogFormat("start indexes {1}: {0}", string.Join(",", startIndexes), startIndexes.Length);
-            Debug.LogFormat("end indexes {1}: {0}", string.Join(",", endIndexes), endIndexes.Length);
+            // Debug.LogFormat("start indexes {1}: {0}", string.Join(",", startIndexes), startIndexes.Length);
+            // Debug.LogFormat("end indexes {1}: {0}", string.Join(",", endIndexes), endIndexes.Length);
 
             // Make list which stores prediction and its range to find original results and filter invalid pairs.     
             IEnumerable<Score> candidates = startIndexes
@@ -257,12 +236,6 @@ namespace TensorFlowLite
                     score.logit = logit;
                     return score;
                 });
-
-            Debug.Log($"candidateScores: {candidates.Count()}");
-            foreach (var score in candidates)
-            {
-                Debug.Log($"B: {score}");
-            }
 
             // Convert to answers
             return candidates
