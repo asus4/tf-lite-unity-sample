@@ -39,6 +39,8 @@ public class BertSample : MonoBehaviour
 
     Bert bert;
 
+    QASet CurrentQASet => dataSets[sentenceDropdown.value];
+
     void Start()
     {
         string path = Path.Combine(Application.streamingAssetsPath, fileName);
@@ -66,9 +68,7 @@ public class BertSample : MonoBehaviour
         {
             var question = questionInput.text;
             if (string.IsNullOrWhiteSpace(question)) return;
-
-            var currentQa = dataSets[sentenceDropdown.value];
-            Invoke(currentQa, question);
+            Invoke(CurrentQASet, question);
         });
     }
 
@@ -91,7 +91,23 @@ public class BertSample : MonoBehaviour
     void Invoke(QASet qa, string question)
     {
         Debug.Log($"questions: {question}");
-        bert.Invoke(question, qa.content);
+        var answers = bert.Invoke(question, qa.content);
+        if (answers.Length == 0)
+        {
+            Debug.LogError("Answer Not Found!");
+        }
+
+        sentenceLabel.text = GenerateHighlightedText(qa.content, answers.First());
+    }
+
+    string GenerateHighlightedText(string text, Bert.Answer answer)
+    {
+        var match = answer.matched;
+        return text.Substring(0, match.Index)
+            + "<b><color=#ffa500ff>"
+            + match.Value
+            + "</color></b>"
+            + text.Substring(match.Index + match.Length);
     }
 
 }

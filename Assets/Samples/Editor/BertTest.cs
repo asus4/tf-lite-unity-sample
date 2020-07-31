@@ -94,7 +94,8 @@ namespace TensorFlowLite
         {
             Assert.IsNotNull(answers);
             Assert.True(answers.Length > 0);
-            Assert.True(answers[0].text.Contains(expected));
+            string actual = answers[0].text;
+            Assert.True(actual.Contains(expected), $"expected: {expected}\nbut actual: {actual}");
         }
     }
 }
