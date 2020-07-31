@@ -25,10 +25,16 @@ namespace TensorFlowLite
             string question1 = "What is TensorFlow";
             string answer1 = "a free and open-source software library for dataflow and differentiable "
                 + "programming across a range of tasks";
-            bert.Invoke(question1, content);
 
-            var answers = bert.GetResult();
-            Debug.Log(answers);
+            var answers = bert.Invoke(question1, content);
+
+
+            int i = 0;
+            foreach (var answer in answers)
+            {
+                Debug.Log($"index:{i} {answer}");
+                i++;
+            }
         }
     }
 }
