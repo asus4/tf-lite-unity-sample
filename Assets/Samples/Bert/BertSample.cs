@@ -95,6 +95,11 @@ public class BertSample : MonoBehaviour
         if (answers.Length == 0)
         {
             Debug.LogError("Answer Not Found!");
+            return;
+        }
+        for (int i = 0; i < answers.Length; i++)
+        {
+            Debug.Log($"Answer {i}: {answers[i]}");
         }
 
         sentenceLabel.text = GenerateHighlightedText(qa.content, answers.First());
