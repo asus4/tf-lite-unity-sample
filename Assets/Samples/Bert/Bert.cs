@@ -57,7 +57,7 @@ namespace TensorFlowLite
 
             public override string ToString()
             {
-                return $"score: {score}, text: {text}";
+                return $"score: {score.logit}, text: {text}";
             }
         }
 
@@ -79,11 +79,11 @@ namespace TensorFlowLite
 
         public Bert(string modelPath, string vocabText)
         {
-            // NO GPU
             var options = new InterpreterOptions()
             {
-                threads = 2
+                threads = 2,
             };
+
             interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
             interpreter.LogIOInfo();
 

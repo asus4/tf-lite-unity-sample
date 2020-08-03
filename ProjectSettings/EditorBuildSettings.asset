@@ -29,4 +29,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Samples/HandTracking/HandTracking.unity
     guid: 662ce65fb2adc439e84fa9fc8d766fe4
+  - enabled: 1
+    path: Assets/Samples/Bert/Bert.unity
+    guid: a09d7e2da582c4bfdb3aebd6a0e9779f
   m_configObjects: {}
