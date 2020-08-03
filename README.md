@@ -29,7 +29,7 @@ Pre-built libraries are included. If you want to use the latest TFLite,
   ./build_tflte.py --tfpath ../tensorflow -ios -android -macos
   ```
 
-- To build macOS Metal Delegate on TensorFlow v2.3.0 or later, You need to apply the changes in [the issue](https://github.com/tensorflow/tensorflow/issues/41039)
+- To build macOS Metal Delegate on TensorFlow v2.3.0 or later, You need to apply following changes [the issue](https://github.com/tensorflow/tensorflow/issues/41039#issuecomment-664701908)
 
 ## Misc
 
