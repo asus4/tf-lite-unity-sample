@@ -26,6 +26,10 @@ namespace TensorFlowLite
 {
     public class InterpreterOptions : IDisposable
     {
+        // void (*reporter)(void* user_data, const char* format, va_list args),
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl, SetLastError = true)]
+        private delegate void ErrorReporterDelegate(IntPtr userData, string format, IntPtr argsPtrs);
+
         internal TfLiteInterpreterOptions nativePtr;
 
         private List<IGpuDelegate> delegates;
@@ -58,6 +62,8 @@ namespace TensorFlowLite
         {
             nativePtr = TfLiteInterpreterOptionsCreate();
             delegates = new List<IGpuDelegate>();
+
+            TfLiteInterpreterOptionsSetErrorReporter(nativePtr, OnErrorReporter, IntPtr.Zero);
         }
 
         public void Dispose()
@@ -80,6 +86,26 @@ namespace TensorFlowLite
             delegates.Add(gpuDelegate);
         }
 
+        private static void OnErrorReporter(System.IntPtr userData, string format, IntPtr args)
+        {
+            // Marshalling va_list as args.
+            // refs:
+            // https://github.com/dotnet/runtime/issues/9316
+            // https://github.com/jeremyVignelles/va-list-interop-demo
+
+            string report;
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            // TODO: use vsprintf on windows
+            log = format;
+#else
+            int formatLength = printf(format, args);
+            IntPtr buffer = Marshal.AllocHGlobal(formatLength);
+            sprintf(buffer, format, args);
+            report = Marshal.PtrToStringAnsi(buffer);
+            Marshal.FreeHGlobal(buffer);
+#endif
+            UnityEngine.Debug.LogError(report);
+        }
 
 #pragma warning disable CS0162 // Unreachable code detected 
         private static IGpuDelegate CreateGpuDelegate()
@@ -125,6 +151,30 @@ namespace TensorFlowLite
             TfLiteInterpreterOptions options,
             TfLiteDelegate _delegate);
 
+        [DllImport(TensorFlowLibrary, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void TfLiteInterpreterOptionsSetErrorReporter(
+            TfLiteInterpreterOptions options,
+            ErrorReporterDelegate errorReporter,
+            IntPtr user_data);
+
+
+#if !UNITY_EDITOR_WIN && !UNITY_STANDALONE_WIN
+#if UNITY_IOS && !UNITY_EDITOR
+        private const string LibCLibrary = "__Internal";
+#else
+        private const string LibCLibrary = "libc";
+#endif // UNITY_IOS && !UNITY_EDITOR
+        [DllImport(LibCLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        extern static int printf(
+            [In][MarshalAs(UnmanagedType.LPStr)] string format,
+            IntPtr args);
+
+        [DllImport(LibCLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        extern static int sprintf(
+            IntPtr buffer,
+            [In][MarshalAs(UnmanagedType.LPStr)] string format,
+            IntPtr args);
+#endif // !UNITY_EDITOR_WIN && !UNITY_STANDALONE_WIN
 
         #endregion // Externs
     }
