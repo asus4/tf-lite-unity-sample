@@ -44,9 +44,6 @@ def build_ios():
     unzip('bazel-bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_framework.zip', 'iOS')
     # Experimental Flex Delegate
     # run_cmd('bazel build -c opt --config=ios --ios_multi_cpus=armv7,arm64,x86_64 //tensorflow/lite/experimental/ios:TensorFlowLiteSelectTfOps_framework')
-    # Experimental CoreML Delegate / Arm64 only
-    run_cmd('bazel build -c opt --config=ios_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --copt=-fembed-bitcode --linkopt -s --strip always --cxxopt=-std=c++14 //tensorflow/lite/experimental/delegates/coreml:coreml_delegate --apple_platform_type=ios')
-    copy('bazel-bin/tensorflow/lite/experimental/delegates/coreml/libcoreml_delegate.a', 'iOS')
 
 def build_android():
     # Main
