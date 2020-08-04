@@ -86,6 +86,7 @@ namespace TensorFlowLite
             delegates.Add(gpuDelegate);
         }
 
+        [AOT.MonoPInvokeCallback(typeof(ErrorReporterDelegate))]
         private static void OnErrorReporter(System.IntPtr userData, string format, IntPtr args)
         {
             // Marshalling va_list as args.
@@ -159,11 +160,8 @@ namespace TensorFlowLite
 
 
 #if !UNITY_EDITOR_WIN && !UNITY_STANDALONE_WIN
-#if UNITY_IOS && !UNITY_EDITOR
-        private const string LibCLibrary = "__Internal";
-#else
         private const string LibCLibrary = "libc";
-#endif // UNITY_IOS && !UNITY_EDITOR
+
         [DllImport(LibCLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         extern static int printf(
             [In][MarshalAs(UnmanagedType.LPStr)] string format,
