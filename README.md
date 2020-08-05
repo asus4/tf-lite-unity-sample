@@ -14,10 +14,10 @@ Included prebuilt libraries
 
 | | iOS | Android | macOS | Ubuntu | Windows |
 |---|:---:|:---:|:---:|:---:|:---:|
-| Core CPU | o | o | o | o | o |
-| Metal Delegate | o | - | o | - | - |
-| OpenGL Delegate | - | o | - | - | - |
-| NNAPI Delegate | - | o | - | - | - |
+| Core CPU |✅|✅|✅|✅|✅|
+| Metal Delegate |✅| - |✅| - | - |
+| OpenGL Delegate | - |✅| - | - | - |
+| NNAPI Delegate | - |✅| - | - | - |
 
 ## Install TensorFlow Lite for Unity
 
