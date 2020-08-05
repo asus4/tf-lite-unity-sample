@@ -97,7 +97,7 @@ namespace TensorFlowLite
             string report;
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             // TODO: use vsprintf on windows
-            log = format;
+            report = format;
 #else
             int formatLength = printf(format, args);
             IntPtr buffer = Marshal.AllocHGlobal(formatLength);
