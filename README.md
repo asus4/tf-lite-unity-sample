@@ -6,9 +6,18 @@ Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples
 
 Tested on  
 
-- macOS / iOS / Android / Ubuntu / Windows  
+- iOS / Android / macOS / Ubuntu / Windows  
 - Unity 2019.3.3f1  
 - TensorFlow 2.3.0
+
+Included prebuilt libraries
+
+| | iOS | Android | macOS | Ubuntu | Windows |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Core CPU | o | o | o | o | o |
+| Metal Delegate | o | - | o | - | - |
+| OpenGL Delegate | - | o | - | - | - |
+| NNAPI Delegate | - | o | - | - | - |
 
 ## Install TensorFlow Lite for Unity
 
