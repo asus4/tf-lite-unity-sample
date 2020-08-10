@@ -8,8 +8,9 @@ assignees: ''
 ---
 
 **Environment (please complete the following information):**
- - OS: [e.g. iOS/Andoroid/macOS/Windows]
- - Version [e.g. master/v2.2.0]
+ - OS/OS Version: [e.g. iOS 11.0/Andoroid 8.1/macOS 10.15.6]
+ - Source Version: [e.g. master/v2.2.0]
+ - Unity Version: [e.g. Unity 2019.4.5.f1]
 
 **Describe the bug**
 A clear and concise description of what the bug is.
