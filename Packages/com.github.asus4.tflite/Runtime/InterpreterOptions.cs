@@ -82,6 +82,7 @@ namespace TensorFlowLite
         public void AddGpuDelegate()
         {
             var gpuDelegate = CreateGpuDelegate();
+            if (gpuDelegate == null) return;
             TfLiteInterpreterOptionsAddDelegate(nativePtr, gpuDelegate.Delegate);
             delegates.Add(gpuDelegate);
         }
