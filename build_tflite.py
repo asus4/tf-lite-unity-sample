@@ -35,6 +35,12 @@ def build_windows():
     copy('bazel-bin/tensorflow/lite/c/tensorflowlite_c.dll', 'Windows/libtensorflowlite_c.dll')
     # TODO GPU Delegate
 
+def build_linux():
+    # Testd on Ubuntu 18.04.5 LTS
+    # Main
+    run_cmd('bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/c:tensorflowlite_c')
+    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/libtensorflowlite_c.so')
+
 def build_ios():
     # Main
     run_cmd('bazel build --config=ios_fat -c opt //tensorflow/lite/experimental/ios:TensorFlowLiteC_framework')
@@ -64,6 +70,8 @@ if __name__ == '__main__':
                         help = 'Build macOS')
     parser.add_argument('-windows', action = "store_true", default = False,
                         help = 'Build Windows')
+    parser.add_argument('-linux', action = "store_true", default = False,
+                        help = 'Build Linux')
     parser.add_argument('-ios', action = "store_true", default = False,
                         help = 'Build iOS')
     parser.add_argument('-android', action = "store_true", default = False,
@@ -83,6 +91,11 @@ if __name__ == '__main__':
         assert platform_name == 'Windows', f'-windows not suppoted on the platfrom: {platform_name}'
         print('Build Windows')
         build_windows()
+    
+    if args.linux:
+        assert platform_name == 'Linux', f'-linux not suppoted on the platfrom: {platform_name}'
+        print('Build Linux')
+        build_linux()
     
     if args.ios:
         assert platform_name == 'Darwin', f'-ios not suppoted on the platfrom: {platform_name}'
