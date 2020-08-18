@@ -1,16 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace TensorFlowLite
 {
-    public abstract class BaseImagePredictor<T> : System.IDisposable
+    public abstract class BaseImagePredictor<T> : System.IDisposable where T : struct
     {
         protected Interpreter interpreter;
         protected int width;
         protected int height;
         protected int channels;
         protected T[,,] input0;
+        protected NativeArray<T> input;
         protected TextureToTensor tex2tensor;
         protected TextureResizer resizer;
         protected TextureResizer.ResizeOptions resizeOptions;
@@ -57,9 +60,16 @@ namespace TensorFlowLite
             interpreter?.Dispose();
             tex2tensor?.Dispose();
             resizer?.Dispose();
+            input.Dispose();
         }
 
         public abstract void Invoke(Texture inputTex);
+
+        protected void ToTensor(Texture inputTex, ref NativeArray<T> inputs)
+        {
+            RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
+            tex2tensor.ToTensor(tex, ref inputs);
+        }
 
         protected void ToTensor(Texture inputTex, float[,,] inputs)
         {
@@ -92,6 +102,7 @@ namespace TensorFlowLite
             width = idim0[2];
             channels = idim0[3];
             input0 = new T[height, width, channels];
+            input = new NativeArray<T>(height * width * channels, Allocator.Persistent, NativeArrayOptions.ClearMemory);
 
             int inputCount = interpreter.GetInputTensorCount();
             for (int i = 0; i < inputCount; i++)

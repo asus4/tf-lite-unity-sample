@@ -1,5 +1,4 @@
-﻿using System.IO;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace TensorFlowLite
 {
@@ -27,9 +26,10 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
-            ToTensor(inputTex, input0);
+            // ToTensor(inputTex, input0);
+            ToTensor(inputTex, ref input);
 
-            interpreter.SetInputTensorData(0, input0);
+            interpreter.SetInputTensorData(0, input);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);

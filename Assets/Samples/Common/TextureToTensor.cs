@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+
 
 namespace TensorFlowLite
 {
@@ -33,17 +36,30 @@ namespace TensorFlowLite
 
         public void ToTensor(RenderTexture texture, sbyte[,,] inputs)
         {
-            var pixels = FetchPixels(texture);
+            // var pixels = FetchToTexture2D(texture).GetPixels32();
+            var pixels = FetchToTexture2D(texture).GetRawTextureData<sbyte>();
             int width = texture.width;
+            int height = texture.height;
 
-            for (int i = 0; i < pixels.Length; i++)
+            for (int i = 0; i < width * height; i++)
             {
                 int y = i / width;
                 int x = i % width;
-                inputs[y, x, 0] = ((sbyte)pixels[i].r);
-                inputs[y, x, 1] = ((sbyte)pixels[i].g);
-                inputs[y, x, 2] = ((sbyte)pixels[i].b);
+                inputs[y, x, 0] = (sbyte)pixels[i * 3 + 0];
+                inputs[y, x, 1] = (sbyte)pixels[i * 3 + 1];
+                inputs[y, x, 2] = (sbyte)pixels[i * 3 + 2];
             }
+        }
+
+        public void ToTensor<T>(RenderTexture texture, ref NativeArray<T> inputs) where T : struct
+        {
+            var pixels = FetchToTexture2D(texture).GetRawTextureData<T>();
+            // Debug.Log($"pixels:{pixels.Length} inputs:{inputs.Length}");
+            if (pixels.Length != inputs.Length)
+            {
+                pixels = pixels.GetSubArray(0, inputs.Length);
+            }
+            inputs.CopyFrom(pixels);
         }
 
         public void ToTensor(RenderTexture texture, float[,,] inputs)
@@ -62,7 +78,7 @@ namespace TensorFlowLite
         public void ToTensor(RenderTexture texture, float[,,] inputs, float offset, float scale)
         {
             // TODO: optimize this
-            var pixels = FetchPixels(texture);
+            var pixels = FetchToTexture2D(texture).GetPixels32();
             int width = texture.width;
             for (int i = 0; i < pixels.Length; i++)
             {
@@ -76,7 +92,7 @@ namespace TensorFlowLite
 
         void ToTensorCPU(RenderTexture texture, float[,,] inputs)
         {
-            var pixels = FetchPixels(texture);
+            var pixels = FetchToTexture2D(texture).GetPixels32();
             int width = texture.width;
             const float scale = 255f;
             for (int i = 0; i < pixels.Length; i++)
@@ -111,7 +127,7 @@ namespace TensorFlowLite
             tensorBuffer.GetData(inputs);
         }
 
-        Color32[] FetchPixels(RenderTexture texture)
+        private Texture2D FetchToTexture2D(RenderTexture texture)
         {
             if (fetchTexture == null || !IsSameSize(fetchTexture, texture))
             {
@@ -125,7 +141,7 @@ namespace TensorFlowLite
 
             RenderTexture.active = prevRT;
 
-            return fetchTexture.GetPixels32();
+            return fetchTexture;
         }
 
         private static bool IsSameSize(Texture a, Texture b)
