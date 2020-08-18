@@ -54,9 +54,7 @@ namespace TensorFlowLite
             }
             else
             {
-                // FIXME temp debug
-                // ToTensorGPU(texture, inputs);
-                ToTensorCPU(texture, inputs);
+                ToTensorGPU(texture, inputs);
             }
         }
 
