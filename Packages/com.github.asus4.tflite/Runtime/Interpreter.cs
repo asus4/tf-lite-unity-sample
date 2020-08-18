@@ -15,6 +15,9 @@ limitations under the License.
 using System;
 using System.Runtime.InteropServices;
 
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+
 using TfLiteInterpreter = System.IntPtr;
 using TfLiteInterpreterOptions = System.IntPtr;
 using TfLiteModel = System.IntPtr;
@@ -93,6 +96,14 @@ namespace TensorFlowLite
             TfLiteTensor tensor = TfLiteInterpreterGetInputTensor(interpreter, inputTensorIndex);
             ThrowIfError(TfLiteTensorCopyFromBuffer(
                 tensor, tensorDataPtr, Buffer.ByteLength(inputTensorData)));
+        }
+
+        public unsafe void SetInputTensorData<T>(int inputTensorIndex, NativeArray<T> inputTensorData) where T : struct
+        {
+            IntPtr tensorDataPtr = (IntPtr)NativeArrayUnsafeUtility.GetUnsafePtr(inputTensorData);
+            TfLiteTensor tensor = TfLiteInterpreterGetInputTensor(interpreter, inputTensorIndex);
+            ThrowIfError(TfLiteTensorCopyFromBuffer(
+                tensor, tensorDataPtr, inputTensorData.Length * UnsafeUtility.SizeOf<T>()));
         }
 
         public void ResizeInputTensor(int inputTensorIndex, int[] inputTensorShape)
