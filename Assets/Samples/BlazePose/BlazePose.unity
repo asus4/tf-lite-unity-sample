@@ -381,7 +381,7 @@ GameObject:
   - component: {fileID: 1302103929}
   - component: {fileID: 1302103928}
   m_Layer: 5
-  m_Name: DebugPalm
+  m_Name: DebugView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -472,10 +472,11 @@ MonoBehaviour:
   poseDetectionModelFile: mediapipe/pose_detection.tflite
   poseLandmarkModelFile: mediapipe/pose_landmark_upper_body.tflite
   cameraView: {fileID: 2074584278}
-  framePrefab: {fileID: 0}
-  debugPalmView: {fileID: 0}
-  jointMesh: {fileID: 0}
-  jointMaterial: {fileID: 0}
+  framePrefab: {fileID: 2968957287132992089, guid: 549d34dea5be54edba285d4947e5cd26,
+    type: 3}
+  debugPalmView: {fileID: 1302103928}
+  jointMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  jointMaterial: {fileID: 2100000, guid: a038741359bd4454c91887120bb2ac01, type: 2}
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0

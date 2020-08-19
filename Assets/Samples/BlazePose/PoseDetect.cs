@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Unity.Mathematics;
 
@@ -28,9 +29,36 @@ namespace TensorFlowLite
         // classificators / scores
         private float[] output1 = new float[896];
 
+        private SsdAnchor[] anchors;
+        private List<Result> results = new List<Result>();
+
         public PoseDetect(string modelPath) : base(modelPath, true)
         {
+            var options = new SsdAnchorsCalcurator.Options()
+            {
+                inputSizeWidth = 128,
+                inputSizeHeight = 128,
 
+                minScale = 0.1484375f,
+                maxScale = 0.75f,
+
+                anchorOffsetX = 0.5f,
+                anchorOffsetY = 0.5f,
+
+                numLayers = 4,
+                featureMapWidth = new int[0],
+                featureMapHeight = new int[0],
+                strides = new int[] { 8, 16, 16, 16 },
+
+                aspectRatios = new float[] { 1.0f },
+
+                reduceBoxesInLowestLayer = false,
+                interpolatedScaleAspectRatio = 1.0f,
+                fixedAnchorSize = true,
+            };
+
+            anchors = SsdAnchorsCalcurator.Generate(options);
+            UnityEngine.Debug.AssertFormat(anchors.Length == 896, $"Anchors count must be 896, but was {anchors.Length}");
         }
 
         public override void Invoke(Texture inputTex)
@@ -44,15 +72,64 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(1, output1);
         }
 
-        public Result GetResults()
+        public Result GetResults(float scoreThreshold = 0.7f, float iouThreshold = 0.3f)
         {
-            Debug.Log("TODO get results");
-            return new Result()
+            results.Clear();
+
+            for (int i = 0; i < anchors.Length; i++)
             {
-                score = 0,
-                rect = default(Rect),
-                keypoints = default(float2x4),
-            };
+                float score = MathTF.Sigmoid(output1[i]);
+                if (score < scoreThreshold)
+                {
+                    continue;
+                }
+
+                SsdAnchor anchor = anchors[i];
+
+                float sx = output0[i, 0];
+                float sy = output0[i, 1];
+                float w = output0[i, 2];
+                float h = output0[i, 3];
+
+                float cx = sx + anchor.x * width;
+                float cy = sy + anchor.y * height;
+
+                cx /= (float)width;
+                cy /= (float)height;
+                w /= (float)width;
+                h /= (float)height;
+
+                var keypoints = new float2[4];
+                for (int j = 0; j < 4; j++)
+                {
+                    float lx = output0[i, 4 + (2 * j) + 0];
+                    float ly = output0[i, 4 + (2 * j) + 1];
+                    lx += anchor.x * width;
+                    ly += anchor.y * height;
+                    lx /= (float)width;
+                    ly /= (float)height;
+                    keypoints[j] = new float2(lx, ly);
+                }
+
+                results.Add(new Result()
+                {
+                    score = score,
+                    rect = new Rect(cx - w * 0.5f, cy - h * 0.5f, w, h),
+                    keypoints = new float2x4(keypoints[0], keypoints[1], keypoints[2], keypoints[3]),
+                });
+            }
+
+            // No result
+            if (results.Count == 0)
+            {
+                return new Result()
+                {
+                    score = -1,
+                };
+            }
+
+            Debug.Log(results.Count);
+            return results.OrderByDescending(o => o.score).First();
         }
     }
 }
