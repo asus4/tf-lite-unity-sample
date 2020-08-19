@@ -150,6 +150,7 @@ namespace TensorFlowLite
             public float score;
         }
 
+        static ArgMaxResult[] argMaxResults;
         static ArgMaxResult[] ArgMax2D(float[,,] scores)
         {
             int rows = scores.GetLength(0); //y
@@ -157,10 +158,13 @@ namespace TensorFlowLite
             int parts = scores.GetLength(2);
 
             // Init with minimum float
-            var results = new ArgMaxResult[parts];
+            if (argMaxResults == null)
+            {
+                argMaxResults = new ArgMaxResult[parts];
+            }
             for (int i = 0; i < parts; i++)
             {
-                results[i].score = float.MinValue;
+                argMaxResults[i].score = float.MinValue;
             }
 
             // ArgMax
@@ -171,9 +175,9 @@ namespace TensorFlowLite
                     for (int part = 0; part < parts; part++)
                     {
                         float current = scores[y, x, part];
-                        if (current > results[part].score)
+                        if (current > argMaxResults[part].score)
                         {
-                            results[part] = new ArgMaxResult()
+                            argMaxResults[part] = new ArgMaxResult()
                             {
                                 x = x,
                                 y = y,
@@ -183,7 +187,7 @@ namespace TensorFlowLite
                     }
                 }
             }
-            return results;
+            return argMaxResults;
         }
 
 
