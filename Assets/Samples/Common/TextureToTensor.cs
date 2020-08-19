@@ -78,7 +78,7 @@ namespace TensorFlowLite
         public void ToTensor(RenderTexture texture, float[,,] inputs, float offset, float scale)
         {
             // TODO: optimize this
-            var pixels = FetchToTexture2D(texture).GetPixels32();
+            var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
             int width = texture.width;
             for (int i = 0; i < pixels.Length; i++)
             {
@@ -92,7 +92,8 @@ namespace TensorFlowLite
 
         void ToTensorCPU(RenderTexture texture, float[,,] inputs)
         {
-            var pixels = FetchToTexture2D(texture).GetPixels32();
+            var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
+
             int width = texture.width;
             const float scale = 255f;
             for (int i = 0; i < pixels.Length; i++)
@@ -131,7 +132,10 @@ namespace TensorFlowLite
         {
             if (fetchTexture == null || !IsSameSize(fetchTexture, texture))
             {
-                fetchTexture = new Texture2D(texture.width, texture.height, TextureFormat.RGB24, 0, false);
+                // Due to GetRawTextureData() returns incorrect bytes length, we cant use liner color space options
+                // https://fogbugz.unity3d.com/default.asp?1271542_g3prspfd30mhavcb
+                // fetchTexture = new Texture2D(texture.width, texture.height, TextureFormat.RGB24, 0, false);
+                fetchTexture = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
             }
             var prevRT = RenderTexture.active;
             RenderTexture.active = texture;
