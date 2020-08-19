@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 471652803b8f9472c9f92f58bf6056f9
+guid: 466c272a40c93479ebdbfd0676ff0b9c
 folderAsset: yes
 PluginImporter:
   externalObjects: {}
@@ -8,7 +8,7 @@ PluginImporter:
   executionOrder: {}
   defineConstraints: []
   isPreloaded: 0
-  isOverridable: 0
+  isOverridable: 1
   isExplicitlyReferenced: 0
   validateReferences: 1
   platformData:
@@ -20,7 +20,6 @@ PluginImporter:
         Exclude Android: 1
         Exclude Editor: 1
         Exclude Linux64: 1
-        Exclude Lumin: 1
         Exclude OSXUniversal: 1
         Exclude WebGL: 1
         Exclude Win: 1
@@ -47,41 +46,29 @@ PluginImporter:
         DefaultValueInitialized: true
         OS: AnyOS
   - first:
-      Facebook: Win
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-  - first:
-      Facebook: Win64
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-  - first:
       Standalone: Linux64
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       Standalone: OSXUniversal
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       Standalone: Win
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       Standalone: Win64
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       iPhone: iOS
     second:
