@@ -83,9 +83,10 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
-            const float OFFSET = 128f;
-            const float SCALE = 1f / 128f;
-            ToTensor(inputTex, input0, OFFSET, SCALE);
+            // const float OFFSET = 128f;
+            // const float SCALE = 1f / 128f;
+            // ToTensor(inputTex, input0, OFFSET, SCALE);
+            ToTensor(inputTex, input0);
 
             interpreter.SetInputTensorData(0, input0);
             interpreter.Invoke();

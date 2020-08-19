@@ -8,13 +8,7 @@ namespace TensorFlowLite
 
     public class PalmDetect : BaseImagePredictor<float>
     {
-        public struct Anchor
-        {
-            public float x; // center
-            public float y; // center
-            public float width;
-            public float height;
-        }
+       
 
         public struct Palm
         {
@@ -33,11 +27,11 @@ namespace TensorFlowLite
         // 4 - 17 are 7 hand keypoint x and y coordinates: x1,y1,x2,y2,...x7,y7
         private float[,] output1 = new float[2944, 18];
         private List<Palm> results = new List<Palm>();
-        private Anchor[] anchors;
+        private SsdAnchor[] anchors;
 
         public PalmDetect(string modelPath) : base(modelPath, true)
         {
-            var options = new AnchorCalcurator.Options()
+            var options = new SsdAnchorCalcurator.Options()
             {
                 inputSizeWidth = 256,
                 inputSizeHeight = 256,
@@ -60,7 +54,7 @@ namespace TensorFlowLite
                 fixedAnchorSize = true,
             };
 
-            anchors = AnchorCalcurator.Generate(options);
+            anchors = SsdAnchorCalcurator.Generate(options);
             UnityEngine.Debug.AssertFormat(anchors.Length == 2944, "Anchors count must be 2944");
         }
 
@@ -91,7 +85,7 @@ namespace TensorFlowLite
                     continue;
                 }
 
-                Anchor anchor = anchors[i];
+                SsdAnchor anchor = anchors[i];
 
                 float sx = output1[i, 0];
                 float sy = output1[i, 1];

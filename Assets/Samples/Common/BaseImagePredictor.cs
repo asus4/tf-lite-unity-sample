@@ -65,12 +65,6 @@ namespace TensorFlowLite
 
         public abstract void Invoke(Texture inputTex);
 
-        protected void ToTensor(Texture inputTex, ref NativeArray<T> inputs)
-        {
-            RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
-            tex2tensor.ToTensor(tex, ref inputs);
-        }
-
         protected void ToTensor(Texture inputTex, float[,,] inputs)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);

@@ -48,16 +48,6 @@ namespace TensorFlowLite
             }
         }
 
-        public void ToTensor<T>(RenderTexture texture, ref NativeArray<T> inputs) where T : struct
-        {
-            var pixels = FetchToTexture2D(texture).GetRawTextureData<T>();
-            // Debug.Log($"pixels:{pixels.Length} inputs:{inputs.Length}");
-            if (pixels.Length != inputs.Length)
-            {
-                pixels = pixels.GetSubArray(0, inputs.Length);
-            }
-            inputs.CopyFrom(pixels);
-        }
 
         public void ToTensor(RenderTexture texture, float[,,] inputs)
         {
