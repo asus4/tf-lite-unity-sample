@@ -1,5 +1,9 @@
+# iOS frameworks
 **/TensorFlowLiteC.framework/TensorFlowLiteC filter=lfs diff=lfs merge=lfs -text
-**/tensorflow_lite_gpu_framework.framework/tensorflow_lite_gpu_framework filter=lfs diff=lfs merge=lfs -text
+**/TensorFlowLiteCMetal.framework/TensorFlowLiteCMetal filter=lfs diff=lfs merge=lfs -text
+**/TensorFlowLiteCCoreML.framework/TensorFlowLiteCCoreML filter=lfs diff=lfs merge=lfs -text
+
+# Big TFLite models
 Assets/StreamingAssets/mobilebert_float.tflite filter=lfs diff=lfs merge=lfs -text
 *.tflite filter=lfs diff=lfs merge=lfs -text
 *.so filter=lfs diff=lfs merge=lfs -text
