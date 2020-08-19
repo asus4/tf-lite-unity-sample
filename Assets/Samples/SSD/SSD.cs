@@ -26,10 +26,10 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
-            // ToTensor(inputTex, input0);
-            ToTensor(inputTex, ref input);
+            ToTensor(inputTex, input0);
+            // ToTensor(inputTex, ref input);
 
-            interpreter.SetInputTensorData(0, input);
+            interpreter.SetInputTensorData(0, input0);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);

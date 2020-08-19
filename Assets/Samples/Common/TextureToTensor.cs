@@ -36,18 +36,15 @@ namespace TensorFlowLite
 
         public void ToTensor(RenderTexture texture, sbyte[,,] inputs)
         {
-            // var pixels = FetchToTexture2D(texture).GetPixels32();
-            var pixels = FetchToTexture2D(texture).GetRawTextureData<sbyte>();
+            var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
             int width = texture.width;
-            int height = texture.height;
-
-            for (int i = 0; i < width * height; i++)
+            for (int i = 0; i < pixels.Length; i++)
             {
                 int y = i / width;
                 int x = i % width;
-                inputs[y, x, 0] = (sbyte)pixels[i * 3 + 0];
-                inputs[y, x, 1] = (sbyte)pixels[i * 3 + 1];
-                inputs[y, x, 2] = (sbyte)pixels[i * 3 + 2];
+                inputs[y, x, 0] = (sbyte)pixels[i].r;
+                inputs[y, x, 1] = (sbyte)pixels[i].g;
+                inputs[y, x, 2] = (sbyte)pixels[i].b;
             }
         }
 
