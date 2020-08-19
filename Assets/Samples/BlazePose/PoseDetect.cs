@@ -13,7 +13,11 @@ namespace TensorFlowLite
             public float score;
             public Rect rect;
             public float2x4 keypoints;
+
+            public static Result Negative => new Result() { score = -1, };
         }
+
+        const int MAX_POSE_NUM = 100;
 
         // regressors / points
         // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
@@ -122,14 +126,41 @@ namespace TensorFlowLite
             // No result
             if (results.Count == 0)
             {
-                return new Result()
-                {
-                    score = -1,
-                };
+                return Result.Negative;
             }
 
-            Debug.Log(results.Count);
-            return results.OrderByDescending(o => o.score).First();
+            // return results.OrderByDescending(o => o.score).First();
+            return NonMaxSuppression(results, iouThreshold).First();
+        }
+
+        private static List<Result> NonMaxSuppression(List<Result> results, float iou_threshold)
+        {
+            var filtered = new List<Result>();
+
+            foreach (Result original in results.OrderByDescending(o => o.score))
+            {
+                bool ignore_candidate = false;
+                foreach (Result newResult in filtered)
+                {
+                    float iou = original.rect.IntersectionOverUnion(newResult.rect);
+                    if (iou >= iou_threshold)
+                    {
+                        ignore_candidate = true;
+                        break;
+                    }
+                }
+
+                if (!ignore_candidate)
+                {
+                    filtered.Add(original);
+                    if (filtered.Count >= MAX_POSE_NUM)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return filtered;
         }
     }
 }
