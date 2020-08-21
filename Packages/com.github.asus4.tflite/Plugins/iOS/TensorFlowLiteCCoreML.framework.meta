@@ -77,7 +77,7 @@ PluginImporter:
         AddToEmbeddedBinaries: false
         CPU: AnyCPU
         CompileFlags: 
-        FrameworkDependencies: 
+        FrameworkDependencies: CoreML;
   - first:
       tvOS: tvOS
     second:
