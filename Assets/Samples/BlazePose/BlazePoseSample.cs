@@ -26,6 +26,7 @@ public class BlazePoseSample : MonoBehaviour
 
     Image frame;
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
+    Matrix4x4[] jointMatrices = new Matrix4x4[PoseLandmark.JOINT_COUNT];
 
     void Start()
     {
@@ -77,11 +78,8 @@ public class BlazePoseSample : MonoBehaviour
         poseLandmark.Invoke(webcamTexture, pose);
         debugView.texture = poseLandmark.inputTex;
 
-        if (poseLandmark.inputTex == null)
-        {
-            Debug.Log($"input tex is NULL");
-        }
-
+        var joints = poseLandmark.GetResult().joints;
+        DrawJoints(joints);
     }
 
     void UpdateFrame(ref PoseDetect.Result pose)
@@ -109,5 +107,31 @@ public class BlazePoseSample : MonoBehaviour
             kp.y = 1.0f - kp.y; // invert Y
             child.anchoredPosition = (kp * size - size * 0.5f) + kpOffset;
         }
+    }
+
+    void DrawJoints(Vector3[] joints)
+    {
+        var rt = cameraView.transform as RectTransform;
+        rt.GetWorldCorners(rtCorners);
+        Vector3 min = rtCorners[0];
+        Vector3 max = rtCorners[2];
+        float zScale = max.x - min.x;
+
+        var rotation = Quaternion.identity;
+        var scale = Vector3.one * 0.1f;
+        for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
+        {
+            var p = joints[i];
+
+#if !UNITY_EDITOR
+            // FIXME: Flipping on iPhone. Need to be fixed
+            p.x = 1.0f - p.x; 
+#endif
+            p = MathTF.Leap3(min, max, p);
+            p.z += (joints[i].z - 0.5f) * zScale;
+            var mtx = Matrix4x4.TRS(p, rotation, scale);
+            jointMatrices[i] = mtx;
+        }
+        Graphics.DrawMeshInstanced(jointMesh, 0, jointMaterial, jointMatrices);
     }
 }
