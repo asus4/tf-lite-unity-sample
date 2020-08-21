@@ -46,6 +46,11 @@ namespace TensorFlowLite
             var options = resizeOptions;
 
             cropMatrix = resizer.VertexTransfrom = CalcPoseMatrix(ref pose, PoseShift, PoseScale);
+            // cropMatrix = resizer.VertexTransfrom = PUSH_MATRIX * Matrix4x4.TRS(
+            //     new Vector3(0, 0, 0),
+            //     Quaternion.Euler(0, 0, 180),
+            //     Vector3.one
+            // ) * POP_MATRIX;
 
             resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
             RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height, true);
@@ -55,7 +60,7 @@ namespace TensorFlowLite
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
-            // interpreter.GetOutputTensorData(2, output2);
+            // interpreter.GetOutputTensorData(2, output2);// not in use
         }
 
         public Result GetResult()
@@ -65,14 +70,13 @@ namespace TensorFlowLite
             var mtx = cropMatrix.inverse;
 
             result.score = output1[0];
-
             for (int i = 0; i < JOINT_COUNT; i++)
             {
                 result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
-                    output0[i * 4],
-                    output0[i * 4 + 1],
-                    output0[i * 4 + 2]
-                ) * SCALE);
+                    output0[i * 4] * SCALE,
+                    output0[i * 4 + 1] * SCALE,
+                    output0[i * 4 + 2] * SCALE
+                ));
             }
 
             return result;

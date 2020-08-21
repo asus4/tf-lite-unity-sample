@@ -86,10 +86,10 @@ namespace TensorFlowLite
                 for (int i = 0; i < JOINT_COUNT; i++)
                 {
                     result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
-                        output0[i * 2],
-                        output0[i * 2 + 1],
+                        output0[i * 2] * SCALE,
+                        output0[i * 2 + 1] * SCALE,
                         0
-                    ) * SCALE);
+                    ));
                 }
             }
             else
@@ -97,10 +97,10 @@ namespace TensorFlowLite
                 for (int i = 0; i < JOINT_COUNT; i++)
                 {
                     result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
-                        output0[i * 3],
-                        output0[i * 3 + 1],
-                        output0[i * 3 + 2]
-                    ) * SCALE);
+                        output0[i * 3] * SCALE,
+                        output0[i * 3 + 1] * SCALE,
+                        output0[i * 3 + 2] * SCALE
+                    ));
                 }
             }
             return result;
