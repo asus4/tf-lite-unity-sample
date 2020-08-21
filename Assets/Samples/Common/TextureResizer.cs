@@ -30,6 +30,8 @@ namespace TensorFlowLite
         static readonly int _VertTransform = Shader.PropertyToID("_VertTransform");
         static readonly int _UVRect = Shader.PropertyToID("_UVRect");
 
+        public RenderTexture texture => resizeTexture;
+
         public Material material
         {
             get
@@ -85,10 +87,10 @@ namespace TensorFlowLite
 
             VertexTransfrom = GetVertTransform(options.rotationDegree, options.flipX, options.flipY);
             UVRect = GetTextureST(texture, options);
-            return ApplyResize(texture, options.width, options.height);
+            return ApplyResize(texture, options.width, options.height, false);
         }
 
-        public RenderTexture ApplyResize(Texture texture, int width, int height)
+        public RenderTexture ApplyResize(Texture texture, int width, int height, bool fillBackground)
         {
             if (resizeTexture == null
                 || resizeTexture.width != width
@@ -97,6 +99,12 @@ namespace TensorFlowLite
                 DisposeUtil.TryDispose(resizeTexture);
                 resizeTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             }
+
+            if (fillBackground)
+            {
+                Graphics.Blit(Texture2D.blackTexture, resizeTexture);
+            }
+
             Graphics.Blit(texture, resizeTexture, material, 0);
             return resizeTexture;
         }
