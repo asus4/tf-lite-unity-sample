@@ -64,7 +64,7 @@ namespace TensorFlowLite
 
             cropMatrix = resizer.VertexTransfrom = CalcPalmMatrix(ref palm, PalmShift, PalmScale);
             resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
-            RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height);
+            RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height, true);
             ToTensor(rt, input0, false);
 
             //
