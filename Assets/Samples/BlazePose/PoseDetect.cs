@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Unity.Mathematics;
@@ -8,6 +7,14 @@ namespace TensorFlowLite
 {
     public class PoseDetect : BaseImagePredictor<float>
     {
+        public enum KeyPoint
+        {
+            MidHipCenter = 0,
+            FullBodySizeRot = 1,
+            MidShoulderCenter = 2,
+            UpperBodySizeRot = 3,
+        }
+
         public struct Result
         {
             public float score;
@@ -15,6 +22,9 @@ namespace TensorFlowLite
             public float2x4 keypoints;
 
             public static Result Negative => new Result() { score = -1, };
+
+            public Vector2 HipCenter => keypoints[(int)KeyPoint.MidHipCenter];
+            public Vector2 MidShoulderCenter => keypoints[(int)KeyPoint.MidShoulderCenter];
         }
 
         const int MAX_POSE_NUM = 100;
@@ -22,12 +32,6 @@ namespace TensorFlowLite
         // regressors / points
         // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
         // 4 - 11 are 4 keypoint x and y coordinates: x0,y0,x1,y1,x2,y2,x3,y3
-
-        // KeyPoint
-        // MidHipCenter: 0
-        // FullBodySizeRot: 1
-        // MidShoulderCenter: 2
-        // UpperBodySizeRot: 3
         private float[,] output0 = new float[896, 12];
 
         // classificators / scores

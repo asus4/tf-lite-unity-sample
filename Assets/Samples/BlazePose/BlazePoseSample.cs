@@ -74,6 +74,13 @@ public class BlazePoseSample : MonoBehaviour
             return;
         }
 
+        poseLandmark.Invoke(webcamTexture, pose);
+        debugView.texture = poseLandmark.inputTex;
+
+        if (poseLandmark.inputTex == null)
+        {
+            Debug.Log($"input tex is NULL");
+        }
 
     }
 
@@ -93,6 +100,7 @@ public class BlazePoseSample : MonoBehaviour
         rt.anchoredPosition = p * size - size * 0.5f;
         rt.sizeDelta = pose.rect.size * size;
 
+        // Draw keypoints
         var kpOffset = -rt.anchoredPosition + new Vector2(-rt.sizeDelta.x, rt.sizeDelta.y) * 0.5f;
         for (int i = 0; i < 4; i++)
         {

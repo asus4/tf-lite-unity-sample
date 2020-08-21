@@ -474,7 +474,7 @@ MonoBehaviour:
   cameraView: {fileID: 2074584278}
   framePrefab: {fileID: 2968957287132992089, guid: 549d34dea5be54edba285d4947e5cd26,
     type: 3}
-  debugPalmView: {fileID: 1302103928}
+  debugView: {fileID: 1302103928}
   jointMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   jointMaterial: {fileID: 2100000, guid: a038741359bd4454c91887120bb2ac01, type: 2}
 --- !u!4 &1453601107
