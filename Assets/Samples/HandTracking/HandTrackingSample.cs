@@ -84,7 +84,7 @@ public class HandTrackingSample : MonoBehaviour
         DrawJoints(joints);
     }
 
-    void UpdateFrame(List<PalmDetect.Palm> palms)
+    void UpdateFrame(List<PalmDetect.Result> palms)
     {
         var size = ((RectTransform)cameraView.transform).rect.size;
         for (int i = 0; i < palms.Count; i++)
@@ -99,7 +99,7 @@ public class HandTrackingSample : MonoBehaviour
     }
 
 
-    void SetFrame(Graphic frame, PalmDetect.Palm palm, Vector2 size)
+    void SetFrame(Graphic frame, PalmDetect.Result palm, Vector2 size)
     {
         var rt = frame.transform as RectTransform;
         var p = palm.rect.position;

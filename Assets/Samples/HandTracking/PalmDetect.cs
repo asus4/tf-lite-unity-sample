@@ -10,7 +10,7 @@ namespace TensorFlowLite
     {
        
 
-        public struct Palm
+        public struct Result
         {
             public float score;
             public Rect rect;
@@ -26,7 +26,7 @@ namespace TensorFlowLite
         // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
         // 4 - 17 are 7 hand keypoint x and y coordinates: x1,y1,x2,y2,...x7,y7
         private float[,] output1 = new float[2944, 18];
-        private List<Palm> results = new List<Palm>();
+        private List<Result> results = new List<Result>();
         private SsdAnchor[] anchors;
 
         public PalmDetect(string modelPath) : base(modelPath, true)
@@ -73,7 +73,7 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(1, output1);
         }
 
-        public List<Palm> GetResults(float scoreThreshold = 0.7f, float iouThreshold = 0.3f)
+        public List<Result> GetResults(float scoreThreshold = 0.7f, float iouThreshold = 0.3f)
         {
             results.Clear();
 
@@ -112,7 +112,7 @@ namespace TensorFlowLite
                     keypoints[j] = new Vector2(lx, ly);
                 }
 
-                results.Add(new Palm()
+                results.Add(new Result()
                 {
                     score = score,
                     rect = new Rect(cx - w * 0.5f, cy - h * 0.5f, w, h),
@@ -124,14 +124,14 @@ namespace TensorFlowLite
             return NonMaxSuppression(results, iouThreshold);
         }
 
-        private static List<Palm> NonMaxSuppression(List<Palm> palms, float iou_threshold)
+        private static List<Result> NonMaxSuppression(List<Result> palms, float iou_threshold)
         {
-            var filtered = new List<Palm>();
+            var filtered = new List<Result>();
 
-            foreach (Palm originalPalm in palms.OrderByDescending(o => o.score))
+            foreach (Result originalPalm in palms.OrderByDescending(o => o.score))
             {
                 bool ignore_candidate = false;
-                foreach (Palm newPalm in filtered)
+                foreach (Result newPalm in filtered)
                 {
                     float iou = originalPalm.rect.IntersectionOverUnion(newPalm.rect);
                     if (iou >= iou_threshold)

@@ -22,11 +22,11 @@ public class BlazePoseSample : MonoBehaviour
 
     WebCamTexture webcamTexture;
     PoseDetect poseDetect;
-    PoseLandmark poseLandmark;
+    PoseLandmarkDetect poseLandmark;
 
     Image frame;
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
-    Matrix4x4[] jointMatrices = new Matrix4x4[PoseLandmark.JOINT_COUNT];
+    Matrix4x4[] jointMatrices = new Matrix4x4[PoseLandmarkDetect.JOINT_COUNT];
 
     void Start()
     {
@@ -34,7 +34,7 @@ public class BlazePoseSample : MonoBehaviour
         string detectionPath = Path.Combine(Application.streamingAssetsPath, poseDetectionModelFile);
         poseDetect = new PoseDetect(detectionPath);
         string landmarkPath = Path.Combine(Application.streamingAssetsPath, poseLandmarkModelFile);
-        poseLandmark = new PoseLandmark(landmarkPath);
+        poseLandmark = new PoseLandmarkDetect(landmarkPath);
 
         // Init camera 
         string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()

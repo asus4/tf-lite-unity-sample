@@ -28,7 +28,7 @@ namespace TensorFlowLite
 
         public Dimension Dim { get; private set; }
         public Vector2 PalmShift { get; set; } = new Vector2(0, -0.2f);
-        public float PalmScale { get; set; } = 2.8f;
+        public Vector2 PalmScale { get; set; } = new Vector2(2.8f, 2.8f);
 
         public HandLandmarkDetect(string modelPath) : base(modelPath, true)
         {
@@ -58,11 +58,14 @@ namespace TensorFlowLite
             throw new System.NotImplementedException("Use Invoke(Texture inputTex, PalmDetect.Palm palm)");
         }
 
-        public void Invoke(Texture inputTex, PalmDetect.Palm palm)
+        public void Invoke(Texture inputTex, PalmDetect.Result palm)
         {
-            var options = resizeOptions;
+            var options = (inputTex is WebCamTexture)
+                ? TextureResizer.ModifyOptionForWebcam(resizeOptions, (WebCamTexture)inputTex)
+                : resizeOptions;
 
-            cropMatrix = resizer.VertexTransfrom = CalcPalmMatrix(ref palm, PalmShift, PalmScale);
+            float rotation = CalcRotationDegree(ref palm) + options.rotationDegree;
+            cropMatrix = resizer.VertexTransfrom = RectTransformationCalculator.CalcMatrix(palm.rect, rotation, PalmShift, PalmScale);
             resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
             RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height, true);
             ToTensor(rt, input0, false);
@@ -106,32 +109,14 @@ namespace TensorFlowLite
             return result;
         }
 
-
-        private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
-        private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
-        private static Matrix4x4 CalcPalmMatrix(ref PalmDetect.Palm palm, Vector2 shift, float scale)
+        private static float CalcRotationDegree(ref PalmDetect.Result detection)
         {
             // Calc rotation based on 
             // Center of wrist - Middle finger
+
             const float RAD_90 = 90f * Mathf.PI / 180f;
-            var vec = palm.keypoints[2] - palm.keypoints[0];
-            Quaternion rotation = Quaternion.Euler(0, 0, -(RAD_90 + Mathf.Atan2(vec.y, vec.x)) * Mathf.Rad2Deg);
-
-            // Calc hand scale
-            float handScale = Mathf.Max(palm.rect.width, palm.rect.height) * scale;
-
-            // Calc hand center position
-            Vector2 center = palm.rect.center + new Vector2(-0.5f, -0.5f);
-            center = (Vector2)(rotation * center);
-            center += (shift * handScale);
-            center /= handScale;
-
-            Matrix4x4 trs = Matrix4x4.TRS(
-                               new Vector3(-center.x, -center.y, 0),
-                               rotation,
-                               new Vector3(1 / handScale, -1 / handScale, 1)
-                            );
-            return PUSH_MATRIX * trs * POP_MATRIX;
+            var vec = detection.keypoints[2] - detection.keypoints[0];
+            return -(RAD_90 + Mathf.Atan2(vec.y, vec.x)) * Mathf.Rad2Deg;
         }
     }
 }
