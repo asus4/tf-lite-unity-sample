@@ -8,7 +8,7 @@ namespace TensorFlowLite
     /// pose_landmark_upper_body_topology
     /// https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_landmark_upper_body_topology.svg
     /// </summary>
-    public class PoseLandmark : BaseImagePredictor<float>
+    public class PoseLandmarkDetect : BaseImagePredictor<float>
     {
         public class Result
         {
@@ -24,10 +24,11 @@ namespace TensorFlowLite
         private Result result;
         private Matrix4x4 cropMatrix;
 
-        public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
+        // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
+        public Vector2 PoseShift { get; set; } = new Vector2(0, 0.2f);
         public Vector2 PoseScale { get; set; } = new Vector2(1.5f, 1.5f);
 
-        public PoseLandmark(string modelPath) : base(modelPath, true)
+        public PoseLandmarkDetect(string modelPath) : base(modelPath, true)
         {
             result = new Result()
             {
@@ -43,15 +44,12 @@ namespace TensorFlowLite
 
         public void Invoke(Texture inputTex, PoseDetect.Result pose)
         {
-            var options = resizeOptions;
+            var options = (inputTex is WebCamTexture)
+                ? TextureResizer.ModifyOptionForWebcam(resizeOptions, (WebCamTexture)inputTex)
+                : resizeOptions;
 
-            cropMatrix = resizer.VertexTransfrom = CalcPoseMatrix(ref pose, PoseShift, PoseScale);
-            // cropMatrix = resizer.VertexTransfrom = PUSH_MATRIX * Matrix4x4.TRS(
-            //     new Vector3(0, 0, 0),
-            //     Quaternion.Euler(0, 0, 180),
-            //     Vector3.one
-            // ) * POP_MATRIX;
-
+            float rotation = CalcRotationDegree(ref pose) + options.rotationDegree;
+            cropMatrix = resizer.VertexTransfrom = RectTransformationCalculator.CalcMatrix(pose.rect, rotation, PoseShift, PoseScale);
             resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
             RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height, true);
             ToTensor(rt, input0, false);
@@ -60,6 +58,7 @@ namespace TensorFlowLite
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
+
             // interpreter.GetOutputTensorData(2, output2);// not in use
         }
 
@@ -82,33 +81,16 @@ namespace TensorFlowLite
             return result;
         }
 
-        private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
-        private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
 
-        // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
-        private static Matrix4x4 CalcPoseMatrix(ref PoseDetect.Result detection, Vector2 shift, Vector2 scale)
+        private static float CalcRotationDegree(ref PoseDetect.Result detection)
         {
             // Calc rotation based on 
             // Center of Hip and Center of shoulder
             const float RAD_90 = 90f * Mathf.PI / 180f;
-            var vec = detection.keypoints[0] - detection.keypoints[2];
-            Quaternion rotation = Quaternion.Euler(0, 0, (RAD_90 + Mathf.Atan2(vec.y, vec.x)) * Mathf.Rad2Deg);
-
-            // Calc hand scale
-            Vector2 size = Vector2.Scale(detection.rect.size, scale);
-
-            // Calc hand center position
-            Vector2 center = detection.rect.center + new Vector2(-0.5f, -0.5f);
-            center = (Vector2)(rotation * center);
-            center += (shift * size);
-            center /= size;
-
-            Matrix4x4 trs = Matrix4x4.TRS(
-                               new Vector3(-center.x, -center.y, 0),
-                               rotation,
-                               new Vector3(1, 1, 1)
-                            );
-            return PUSH_MATRIX * trs * POP_MATRIX;
+            var vec = detection.keypoints[2] - detection.keypoints[0];
+            return -(RAD_90 + Mathf.Atan2(vec.y, vec.x)) * Mathf.Rad2Deg;
         }
+
+
     }
 }

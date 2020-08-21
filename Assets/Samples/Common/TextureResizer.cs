@@ -67,15 +67,6 @@ namespace TensorFlowLite
             DisposeUtil.TryDispose(_blitMaterial);
         }
 
-        public ResizeOptions ModifyOptionForWebcam(ResizeOptions options, WebCamTexture texture)
-        {
-            options.rotationDegree += texture.videoRotationAngle;
-            if (texture.videoVerticallyMirrored)
-            {
-                options.flipX = !options.flipX;
-            }
-            return options;
-        }
 
         public RenderTexture Resize(Texture texture, ResizeOptions options)
         {
@@ -164,5 +155,16 @@ namespace TensorFlowLite
             );
             return PUSH_MATRIX * trs * POP_MATRIX;
         }
+
+        public static ResizeOptions ModifyOptionForWebcam(ResizeOptions options, WebCamTexture texture)
+        {
+            options.rotationDegree += texture.videoRotationAngle;
+            if (texture.videoVerticallyMirrored)
+            {
+                options.flipX = !options.flipX;
+            }
+            return options;
+        }
+
     }
 }
