@@ -133,7 +133,8 @@ public class HandTrackingSample : MonoBehaviour
             var p = joints[i];
 
 #if !UNITY_EDITOR
-            p.x = 1.0f - p.x; // FIXME: bug flipping on iPhone 
+            // FIXME: Flipping on iPhone. Need to be fixed
+            p.x = 1.0f - p.x; 
 #endif
             p = MathTF.Leap3(min, max, p);
             p.z += (joints[i].z - 0.5f) * zScale;

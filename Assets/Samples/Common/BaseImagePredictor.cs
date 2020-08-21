@@ -18,7 +18,15 @@ namespace TensorFlowLite
         protected TextureResizer resizer;
         protected TextureResizer.ResizeOptions resizeOptions;
 
-        public Texture2D inputTex => tex2tensor.texture;
+        public Texture inputTex
+        {
+            get
+            {
+                return (tex2tensor.texture != null)
+                    ? tex2tensor.texture as Texture
+                    : resizer.texture as Texture;
+            }
+        }
         public Material transformMat => resizer.material;
 
         public TextureResizer.ResizeOptions ResizeOptions

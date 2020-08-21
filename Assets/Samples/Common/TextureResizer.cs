@@ -30,6 +30,8 @@ namespace TensorFlowLite
         static readonly int _VertTransform = Shader.PropertyToID("_VertTransform");
         static readonly int _UVRect = Shader.PropertyToID("_UVRect");
 
+        public RenderTexture texture => resizeTexture;
+
         public Material material
         {
             get
