@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /* ---------------------------------------------------------------------- *
@@ -25,8 +23,15 @@ using UnityEngine;
 
 namespace TensorFlowLite
 {
+    public struct SsdAnchor
+    {
+        public float x; // center
+        public float y; // center
+        public float width;
+        public float height;
+    }
 
-    public class AnchorCalcurator
+    public static class SsdAnchorsCalcurator
     {
 
         // SsdAnchorsCalculatorOptions
@@ -59,9 +64,9 @@ namespace TensorFlowLite
             return minScale + (maxScale - minScale) * 1.0f * strideIndex / (numStrides - 1.0f);
         }
 
-        public static PalmDetect.Anchor[] Generate(Options options)
+        public static SsdAnchor[] Generate(Options options)
         {
-            var anchors = new List<PalmDetect.Anchor>();
+            var anchors = new List<SsdAnchor>();
 
             int layer_id = 0;
             while (layer_id < options.strides.Length)
@@ -144,7 +149,7 @@ namespace TensorFlowLite
                             float x_center = (x + options.anchorOffsetX) * 1.0f / feature_map_width;
                             float y_center = (y + options.anchorOffsetY) * 1.0f / feature_map_height;
 
-                            var new_anchor = new PalmDetect.Anchor();
+                            var new_anchor = new SsdAnchor();
                             new_anchor.x = x_center;
                             new_anchor.y = y_center;
 

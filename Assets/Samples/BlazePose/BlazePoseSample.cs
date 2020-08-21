@@ -5,34 +5,38 @@ using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
 
-public class HandTrackingSample : MonoBehaviour
+/// <summary>
+/// BlazePose form MediaPipe
+/// https://github.com/google/mediapipe
+/// </summary>
+public class BlazePoseSample : MonoBehaviour
 {
-    [SerializeField, FilePopup("*.tflite")] string palmModelFile = "coco_ssd_mobilenet_quant.tflite";
-    [SerializeField, FilePopup("*.tflite")] string landmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
+    [SerializeField, FilePopup("*.tflite")] string poseDetectionModelFile = "coco_ssd_mobilenet_quant.tflite";
+    [SerializeField, FilePopup("*.tflite")] string poseLandmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
 
     [SerializeField] RawImage cameraView = null;
     [SerializeField] Image framePrefab = null;
-    [SerializeField] RawImage debugPalmView = null;
+    [SerializeField] RawImage debugView = null;
     [SerializeField] Mesh jointMesh = null;
     [SerializeField] Material jointMaterial = null;
 
     WebCamTexture webcamTexture;
-    PalmDetect palmDetect;
-    HandLandmarkDetect landmarkDetect;
+    PoseDetect poseDetect;
+    PoseLandmark poseLandmark;
 
-    Image[] frames;
+    Image frame;
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
-    Matrix4x4[] jointMatrices = new Matrix4x4[HandLandmarkDetect.JOINT_COUNT];
+    Matrix4x4[] jointMatrices = new Matrix4x4[PoseLandmark.JOINT_COUNT];
 
     void Start()
     {
-        string palmPath = Path.Combine(Application.streamingAssetsPath, palmModelFile);
-        palmDetect = new PalmDetect(palmPath);
+        // Init model
+        string detectionPath = Path.Combine(Application.streamingAssetsPath, poseDetectionModelFile);
+        poseDetect = new PoseDetect(detectionPath);
+        string landmarkPath = Path.Combine(Application.streamingAssetsPath, poseLandmarkModelFile);
+        poseLandmark = new PoseLandmark(landmarkPath);
 
-        string landmarkPath = Path.Combine(Application.streamingAssetsPath, landmarkModelFile);
-        landmarkDetect = new HandLandmarkDetect(landmarkPath);
-        Debug.Log($"landmark dimension: {landmarkDetect.Dim}");
-
+        // Init camera 
         string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
         {
             isFrontFacing = false,
@@ -43,80 +47,67 @@ public class HandTrackingSample : MonoBehaviour
         webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
 
-        // Init frames
-        frames = new Image[PalmDetect.MAX_PALM_NUM];
-        var parent = cameraView.transform;
-        for (int i = 0; i < frames.Length; i++)
-        {
-            frames[i] = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, parent);
-            frames[i].transform.localPosition = Vector3.zero;
-        }
+        // Init frame
+        frame = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, cameraView.transform);
     }
+
     void OnDestroy()
     {
         webcamTexture?.Stop();
-        palmDetect?.Dispose();
-        landmarkDetect?.Dispose();
+        poseDetect?.Dispose();
+        poseLandmark?.Dispose();
     }
 
     void Update()
     {
-        var resizeOptions = palmDetect.ResizeOptions;
+        var resizeOptions = poseDetect.ResizeOptions;
         resizeOptions.rotationDegree = webcamTexture.videoRotationAngle;
-        palmDetect.ResizeOptions = resizeOptions;
+        poseDetect.ResizeOptions = resizeOptions;
 
-        palmDetect.Invoke(webcamTexture);
-        cameraView.material = palmDetect.transformMat;
+        poseDetect.Invoke(webcamTexture);
+        cameraView.material = poseDetect.transformMat;
 
-        var palms = palmDetect.GetResults(0.7f, 0.3f);
-        UpdateFrame(palms);
+        var pose = poseDetect.GetResults(0.7f, 0.3f);
+        UpdateFrame(ref pose);
 
-        if (palms.Count <= 0)
+        if (pose.score < 0)
         {
             return;
         }
 
-        // Detect only first palm
-        landmarkDetect.Invoke(webcamTexture, palms[0]);
-        debugPalmView.texture = landmarkDetect.inputTex;
+        poseLandmark.Invoke(webcamTexture, pose);
+        debugView.texture = poseLandmark.inputTex;
 
-        var joints = landmarkDetect.GetResult().joints;
+        var joints = poseLandmark.GetResult().joints;
         DrawJoints(joints);
     }
 
-    void UpdateFrame(List<PalmDetect.Palm> palms)
+    void UpdateFrame(ref PoseDetect.Result pose)
     {
+        if (pose.score < 0)
+        {
+            frame.gameObject.SetActive(false);
+            return;
+        }
+        frame.gameObject.SetActive(true);
+
         var size = ((RectTransform)cameraView.transform).rect.size;
-        for (int i = 0; i < palms.Count; i++)
-        {
-            frames[i].gameObject.SetActive(true);
-            SetFrame(frames[i], palms[i], size);
-        }
-        for (int i = palms.Count; i < frames.Length; i++)
-        {
-            frames[i].gameObject.SetActive(false);
-        }
-    }
-
-
-    void SetFrame(Graphic frame, PalmDetect.Palm palm, Vector2 size)
-    {
         var rt = frame.transform as RectTransform;
-        var p = palm.rect.position;
+        var p = pose.rect.position;
         p.y = 1.0f - p.y; // invert Y
         rt.anchoredPosition = p * size - size * 0.5f;
-        rt.sizeDelta = palm.rect.size * size;
+        rt.sizeDelta = pose.rect.size * size;
 
+        // Draw keypoints
         var kpOffset = -rt.anchoredPosition + new Vector2(-rt.sizeDelta.x, rt.sizeDelta.y) * 0.5f;
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < 4; i++)
         {
             var child = (RectTransform)rt.GetChild(i);
-            var kp = palm.keypoints[i];
+            Vector2 kp = pose.keypoints[i];
             kp.y = 1.0f - kp.y; // invert Y
             child.anchoredPosition = (kp * size - size * 0.5f) + kpOffset;
         }
     }
-
 
     void DrawJoints(Vector3[] joints)
     {
@@ -143,5 +134,4 @@ public class HandTrackingSample : MonoBehaviour
         }
         Graphics.DrawMeshInstanced(jointMesh, 0, jointMaterial, jointMatrices);
     }
-
 }

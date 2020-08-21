@@ -8,13 +8,7 @@ namespace TensorFlowLite
 
     public class PalmDetect : BaseImagePredictor<float>
     {
-        public struct Anchor
-        {
-            public float x; // center
-            public float y; // center
-            public float width;
-            public float height;
-        }
+       
 
         public struct Palm
         {
@@ -33,11 +27,11 @@ namespace TensorFlowLite
         // 4 - 17 are 7 hand keypoint x and y coordinates: x1,y1,x2,y2,...x7,y7
         private float[,] output1 = new float[2944, 18];
         private List<Palm> results = new List<Palm>();
-        private Anchor[] anchors;
+        private SsdAnchor[] anchors;
 
         public PalmDetect(string modelPath) : base(modelPath, true)
         {
-            var options = new AnchorCalcurator.Options()
+            var options = new SsdAnchorsCalcurator.Options()
             {
                 inputSizeWidth = 256,
                 inputSizeHeight = 256,
@@ -60,7 +54,7 @@ namespace TensorFlowLite
                 fixedAnchorSize = true,
             };
 
-            anchors = AnchorCalcurator.Generate(options);
+            anchors = SsdAnchorsCalcurator.Generate(options);
             UnityEngine.Debug.AssertFormat(anchors.Length == 2944, "Anchors count must be 2944");
         }
 
@@ -91,7 +85,7 @@ namespace TensorFlowLite
                     continue;
                 }
 
-                Anchor anchor = anchors[i];
+                SsdAnchor anchor = anchors[i];
 
                 float sx = output1[i, 0];
                 float sy = output1[i, 1];
@@ -139,7 +133,7 @@ namespace TensorFlowLite
                 bool ignore_candidate = false;
                 foreach (Palm newPalm in filtered)
                 {
-                    float iou = CalcIntersectionOverUnion(originalPalm.rect, newPalm.rect);
+                    float iou = originalPalm.rect.IntersectionOverUnion(newPalm.rect);
                     if (iou >= iou_threshold)
                     {
                         ignore_candidate = true;
@@ -160,44 +154,7 @@ namespace TensorFlowLite
             return filtered;
         }
 
-        private static float CalcIntersectionOverUnion(Rect rect0, Rect rect1)
-        {
-            float sx0 = rect0.xMin;
-            float sy0 = rect0.yMin;
-            float ex0 = rect0.xMax;
-            float ey0 = rect0.yMax;
-            float sx1 = rect1.xMin;
-            float sy1 = rect1.yMin;
-            float ex1 = rect1.xMax;
-            float ey1 = rect1.yMax;
-
-            float xmin0 = Mathf.Min(sx0, ex0);
-            float ymin0 = Mathf.Min(sy0, ey0);
-            float xmax0 = Mathf.Max(sx0, ex0);
-            float ymax0 = Mathf.Max(sy0, ey0);
-            float xmin1 = Mathf.Min(sx1, ex1);
-            float ymin1 = Mathf.Min(sy1, ey1);
-            float xmax1 = Mathf.Max(sx1, ex1);
-            float ymax1 = Mathf.Max(sy1, ey1);
-
-            float area0 = (ymax0 - ymin0) * (xmax0 - xmin0);
-            float area1 = (ymax1 - ymin1) * (xmax1 - xmin1);
-            if (area0 <= 0 || area1 <= 0)
-            {
-                return 0.0f;
-            }
-
-            float intersect_xmin = Mathf.Max(xmin0, xmin1);
-            float intersect_ymin = Mathf.Max(ymin0, ymin1);
-            float intersect_xmax = Mathf.Min(xmax0, xmax1);
-            float intersect_ymax = Mathf.Min(ymax0, ymax1);
-
-            float intersect_area = Mathf.Max(intersect_ymax - intersect_ymin, 0.0f) *
-                                   Mathf.Max(intersect_xmax - intersect_xmin, 0.0f);
-
-            return intersect_area / (area0 + area1 - intersect_area);
-        }
-
+     
 
     }
 }
