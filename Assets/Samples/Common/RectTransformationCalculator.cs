@@ -32,14 +32,14 @@ namespace TensorFlowLite
 
             Quaternion rotation = Quaternion.Euler(0, 0, options.rotationDegree);
             Vector2 size = Vector2.Scale(options.rect.size, options.scale);
-            if (options.mirrorHorizontal)
-            {
-                size.x *= -1;
-            }
-            if (options.mirrorVertiacal)
-            {
-                size.y *= -1;
-            }
+            // if (options.mirrorHorizontal)
+            // {
+            //     size.x *= -1;
+            // }
+            // if (options.mirrorVertiacal)
+            // {
+            //     size.y *= -1;
+            // }
 
             Vector2 shift = options.shift;
             // if (options.mirrorHorizontal)

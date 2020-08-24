@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -130,6 +129,7 @@ public class HandTrackingSample : MonoBehaviour
 
         var rotation = Quaternion.identity;
         var scale = Vector3.one * 0.1f;
+
         for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
         {
             var p = joints[i];
@@ -138,6 +138,7 @@ public class HandTrackingSample : MonoBehaviour
             // FIXME: Flipping on iPhone. Need to be fixed
             p.x = 1.0f - p.x; 
 #endif
+
             p = MathTF.Leap3(min, max, p);
             p.z += (joints[i].z - 0.5f) * zScale;
             var mtx = Matrix4x4.TRS(p, rotation, scale);

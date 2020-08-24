@@ -58,8 +58,7 @@ namespace TensorFlowLite
             }
             else
             {
-                ToTensorCPU(texture, inputs);
-                // ToTensorGPU(texture, inputs);
+                ToTensorGPU(texture, inputs);
             }
         }
 
