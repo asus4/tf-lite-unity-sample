@@ -37,12 +37,12 @@ public class DeepLabSample : MonoBehaviour
 
     void Update()
     {
-        var resizeOptions = deepLab.ResizeOptions;
-        resizeOptions.rotationDegree = webcamTexture.videoRotationAngle;
-        deepLab.ResizeOptions = resizeOptions;
-
         deepLab.Invoke(webcamTexture);
+        // Slow works on mobile
         outputView.texture = deepLab.GetResultTexture2D();
+
+        // Fast but errors on mobile. Need to be fixed 
+        // outputView.texture = deepLab.GetResultTexture();
 
         cameraView.material = deepLab.transformMat;
     }

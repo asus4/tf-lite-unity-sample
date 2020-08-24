@@ -44,12 +44,8 @@ public class PoseNetSample : MonoBehaviour
         poseNet.Invoke(webcamTexture);
         results = poseNet.GetResults();
 
-        // set uv
         cameraView.material = poseNet.transformMat;
-        // cameraView.uvRect = TextureToTensor.GetUVRect(
-        //     (float)webcamTexture.width / webcamTexture.height,
-        //     1,
-        //     TextureToTensor.AspectMode.Fill);
+        // cameraView.texture = poseNet.inputTex;
     }
 
     void OnGLDraw()

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace TensorFlowLite
 {
@@ -57,7 +56,7 @@ namespace TensorFlowLite
                 aspectMode = TextureResizer.AspectMode.Fill,
                 rotationDegree = 0,
                 mirrorHorizontal = false,
-                mirrorVertical = true,
+                mirrorVertical = false,
                 width = width,
                 height = height,
             };

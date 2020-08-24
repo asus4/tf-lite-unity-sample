@@ -27,7 +27,7 @@ namespace TensorFlowLite
         private Matrix4x4 cropMatrix;
 
         public Dimension Dim { get; private set; }
-        public Vector2 PalmShift { get; set; } = new Vector2(0, -0.2f);
+        public Vector2 PalmShift { get; set; } = new Vector2(0, 0.2f);
         public Vector2 PalmScale { get; set; } = new Vector2(2.8f, 2.8f);
         public Matrix4x4 CropMatrix => cropMatrix;
 
@@ -62,16 +62,10 @@ namespace TensorFlowLite
         public void Invoke(Texture inputTex, PalmDetect.Result palm)
         {
             var options = resizeOptions;
-            options.mirrorVertical = false;
             if (inputTex is WebCamTexture)
             {
                 options = TextureResizer.ModifyOptionForWebcam(options, (WebCamTexture)inputTex);
             }
-
-            // options.mirrorVertical = true;
-            // options.rotationDegree = (Time.time * 50) % 360.0f;
-            // options.mirrorHorizontal = true;
-            Debug.Log($"options.rotation: {options.rotationDegree}");
 
             float rotation = CalcHandRotation(ref palm) * Mathf.Rad2Deg;
             var mat = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
@@ -80,9 +74,8 @@ namespace TensorFlowLite
                 rotationDegree = rotation,
                 shift = PalmShift,
                 scale = PalmScale,
-                // cameraRotationDegree = -options.rotationDegree,
                 cameraRotationDegree = 0,
-                mirrorHorizontal = options.mirrorHorizontal,
+                mirrorHorizontal = !options.mirrorHorizontal,
                 mirrorVertiacal = options.mirrorVertical,
             });
             cropMatrix = resizer.VertexTransfrom = mat;
@@ -111,7 +104,7 @@ namespace TensorFlowLite
                 {
                     result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
                         output0[i * 2] * SCALE,
-                        output0[i * 2 + 1] * SCALE,
+                        1f - output0[i * 2 + 1] * SCALE,
                         0
                     ));
                 }
@@ -122,7 +115,7 @@ namespace TensorFlowLite
                 {
                     result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
                         output0[i * 3] * SCALE,
-                        output0[i * 3 + 1] * SCALE,
+                        1f - output0[i * 3 + 1] * SCALE,
                         output0[i * 3 + 2] * SCALE
                     ));
                 }
@@ -134,7 +127,7 @@ namespace TensorFlowLite
         {
             // Rotation based on Center of wrist - Middle finger
             const float RAD_90 = 90f * Mathf.PI / 180f;
-            var vec = detection.keypoints[2] - detection.keypoints[0];
+            var vec = detection.keypoints[0] - detection.keypoints[2];
             return -(RAD_90 + Mathf.Atan2(vec.y, vec.x));
         }
     }

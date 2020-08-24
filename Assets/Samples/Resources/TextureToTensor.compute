@@ -10,7 +10,7 @@ RWStructuredBuffer<float3> OutputFloatTensor;
 [numthreads(8,8,1)]
 void TextureToFloatTensor(uint2 tid : SV_DispatchThreadID)
 {
-    uint gid = tid.y * TextureWidth + tid.x;
+    uint gid = (TextureHeight - 1 - tid.y) * TextureWidth + tid.x;
     float4 c = InputTexture[tid];
     OutputFloatTensor[gid] = float3(c.x, c.y, c.z);
 }

@@ -566,9 +566,9 @@ MonoBehaviour:
   m_UVRect:
     serializedVersion: 2
     x: 0
-    y: 1
+    y: 0
     width: 1
-    height: -1
+    height: 1
 --- !u!222 &1302103929
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -692,9 +692,9 @@ MonoBehaviour:
   m_UVRect:
     serializedVersion: 2
     x: 0
-    y: 1
+    y: 0
     width: 1
-    height: -1
+    height: 1
 --- !u!222 &2074584279
 CanvasRenderer:
   m_ObjectHideFlags: 0

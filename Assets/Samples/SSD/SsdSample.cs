@@ -55,26 +55,22 @@ public class SsdSample : MonoBehaviour
 
     void Update()
     {
-        var resizeOptions = ssd.ResizeOptions;
-        resizeOptions.rotationDegree = webcamTexture.videoRotationAngle;
-        ssd.ResizeOptions = resizeOptions;
-
         ssd.Invoke(webcamTexture);
 
         var results = ssd.GetResults();
 
-        var size = ((RectTransform)cameraView.transform).rect.size;
+        var size = cameraView.rectTransform.rect.size;
         for (int i = 0; i < 10; i++)
         {
             SetFrame(frames[i], results[i], size);
         }
 
         cameraView.material = ssd.transformMat;
+        // cameraView.texture = ssd.inputTex;
     }
 
     void SetFrame(Text frame, SSD.Result result, Vector2 size)
     {
-
         if (result.score < scoreThreshold)
         {
             frame.gameObject.SetActive(false);
