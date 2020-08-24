@@ -130,6 +130,8 @@ public class BlazePoseSample : MonoBehaviour
             // FIXME: Flipping on iPhone. Need to be fixed
             p.x = 1.0f - p.x; 
 #endif
+            p.y = 1.0f - p.y;
+
             p = MathTF.Leap3(min, max, p);
             p.z += (joints[i].z - 0.5f) * zScale;
             var mtx = Matrix4x4.TRS(p, rotation, scale);
