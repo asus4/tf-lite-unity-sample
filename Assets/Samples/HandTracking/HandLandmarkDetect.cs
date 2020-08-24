@@ -29,6 +29,7 @@ namespace TensorFlowLite
         public Dimension Dim { get; private set; }
         public Vector2 PalmShift { get; set; } = new Vector2(0, -0.2f);
         public Vector2 PalmScale { get; set; } = new Vector2(2.8f, 2.8f);
+        public Matrix4x4 CropMatrix => cropMatrix;
 
         public HandLandmarkDetect(string modelPath) : base(modelPath, true)
         {
@@ -60,12 +61,31 @@ namespace TensorFlowLite
 
         public void Invoke(Texture inputTex, PalmDetect.Result palm)
         {
-            var options = (inputTex is WebCamTexture)
-                ? TextureResizer.ModifyOptionForWebcam(resizeOptions, (WebCamTexture)inputTex)
-                : resizeOptions;
+            var options = resizeOptions;
+            if (inputTex is WebCamTexture)
+            {
+                var webcamTex = (WebCamTexture)inputTex;
+                options.rotationDegree = webcamTex.videoRotationAngle;
+                options.mirrorVertical = webcamTex.videoVerticallyMirrored;
+            }
 
-            float rotation = CalcRotationDegree(ref palm) + options.rotationDegree;
-            cropMatrix = resizer.VertexTransfrom = RectTransformationCalculator.CalcMatrix(palm.rect, rotation, PalmShift, PalmScale);
+            // options.mirrorVertical = true;
+            // options.rotationDegree = (Time.time * 50) % 360.0f;
+            // Debug.Log($"options.rotation: {options.rotationDegree}");
+
+            float rotation = CalcRotationDegree(ref palm);
+            var mat = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
+            {
+                rect = palm.rect,
+                rotationDegree = rotation,
+                shift = PalmShift,
+                scale = PalmScale,
+                cameraRotationDegree = -options.rotationDegree,
+                mirrorHorizontal = options.mirrorHorizontal,
+                mirrorVertiacal = options.mirrorVertical,
+            });
+            cropMatrix = resizer.VertexTransfrom = mat;
+
             resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
             RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height, true);
             ToTensor(rt, input0, false);

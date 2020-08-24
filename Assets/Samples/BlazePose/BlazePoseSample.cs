@@ -17,6 +17,7 @@ public class BlazePoseSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField] Image framePrefab = null;
     [SerializeField] RawImage debugView = null;
+    [SerializeField] Image croppedFrame = null;
     [SerializeField] Mesh jointMesh = null;
     [SerializeField] Material jointMaterial = null;
 
@@ -80,6 +81,8 @@ public class BlazePoseSample : MonoBehaviour
 
         var joints = poseLandmark.GetResult().joints;
         DrawJoints(joints);
+
+        RectTransformationCalculator.DecodeToRectTransform(poseLandmark.CropMatrix, croppedFrame.rectTransform);
     }
 
     void UpdateFrame(ref PoseDetect.Result pose)

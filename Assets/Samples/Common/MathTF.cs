@@ -24,6 +24,16 @@ namespace TensorFlowLite
             );
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 Leap3Unclamped(in Vector3 a, in Vector3 b, in Vector3 t)
+        {
+            return new Vector3(
+                Mathf.LerpUnclamped(a.x, b.x, t.x),
+                Mathf.LerpUnclamped(a.y, b.y, t.y),
+                Mathf.LerpUnclamped(a.z, b.z, t.z)
+            );
+        }
+
         public static IEnumerable<float> Softmax(this IEnumerable<float> arr)
         {
             float max = arr.Max();

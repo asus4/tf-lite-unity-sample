@@ -19,8 +19,8 @@ namespace TensorFlowLite
             public int width;
             public int height;
             public float rotationDegree;
-            public bool flipX;
-            public bool flipY;
+            public bool mirrorHorizontal;
+            public bool mirrorVertical;
             public AspectMode aspectMode;
         }
 
@@ -76,7 +76,7 @@ namespace TensorFlowLite
                 options = ModifyOptionForWebcam(options, (WebCamTexture)texture);
             }
 
-            VertexTransfrom = GetVertTransform(options.rotationDegree, options.flipX, options.flipY);
+            VertexTransfrom = GetVertTransform(options.rotationDegree, options.mirrorHorizontal, options.mirrorVertical);
             UVRect = GetTextureST(texture, options);
             return ApplyResize(texture, options.width, options.height, false);
         }
@@ -100,7 +100,7 @@ namespace TensorFlowLite
             return resizeTexture;
         }
 
-        public static Vector4 GetTextureST(float srcAspect, float dstAspect, AspectMode mode)
+        private static Vector4 GetTextureST(float srcAspect, float dstAspect, AspectMode mode)
         {
             switch (mode)
             {
@@ -142,11 +142,11 @@ namespace TensorFlowLite
 
         private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
         private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
-        public static Matrix4x4 GetVertTransform(float rotation, bool invertX, bool invertY)
+        private static Matrix4x4 GetVertTransform(float rotation, bool mirrorHorizontal, bool mirrorVertical)
         {
             Vector3 scale = new Vector3(
-                invertX ? -1 : 1,
-                invertY ? -1 : 1,
+                mirrorHorizontal ? -1 : 1,
+                mirrorVertical ? -1 : 1,
                 1);
             Matrix4x4 trs = Matrix4x4.TRS(
                 Vector3.zero,
@@ -161,7 +161,8 @@ namespace TensorFlowLite
             options.rotationDegree += texture.videoRotationAngle;
             if (texture.videoVerticallyMirrored)
             {
-                options.flipX = !options.flipX;
+                // ?
+                options.mirrorHorizontal = !options.mirrorHorizontal;
             }
             return options;
         }
