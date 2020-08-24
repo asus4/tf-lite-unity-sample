@@ -13,6 +13,7 @@ public class HandTrackingSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField] Image framePrefab = null;
     [SerializeField] RawImage debugPalmView = null;
+    [SerializeField] Image cropedFrame = null;
     [SerializeField] Mesh jointMesh = null;
     [SerializeField] Material jointMaterial = null;
 
@@ -82,6 +83,8 @@ public class HandTrackingSample : MonoBehaviour
 
         var joints = landmarkDetect.GetResult().joints;
         DrawJoints(joints);
+
+        RectTransformationCalculator.DecodeToRectTransform(landmarkDetect.CropMatrix, cropedFrame.rectTransform);
     }
 
     void UpdateFrame(List<PalmDetect.Result> palms)
@@ -117,7 +120,6 @@ public class HandTrackingSample : MonoBehaviour
         }
     }
 
-
     void DrawJoints(Vector3[] joints)
     {
         var rt = cameraView.transform as RectTransform;
@@ -143,5 +145,4 @@ public class HandTrackingSample : MonoBehaviour
         }
         Graphics.DrawMeshInstanced(jointMesh, 0, jointMaterial, jointMatrices);
     }
-
 }

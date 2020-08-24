@@ -25,8 +25,9 @@ namespace TensorFlowLite
         private Matrix4x4 cropMatrix;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
-        public Vector2 PoseShift { get; set; } = new Vector2(0, 0.2f);
+        public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
         public Vector2 PoseScale { get; set; } = new Vector2(1.5f, 1.5f);
+        public Matrix4x4 CropMatrix => cropMatrix;
 
         public PoseLandmarkDetect(string modelPath) : base(modelPath, true)
         {
@@ -48,8 +49,15 @@ namespace TensorFlowLite
                 ? TextureResizer.ModifyOptionForWebcam(resizeOptions, (WebCamTexture)inputTex)
                 : resizeOptions;
 
-            float rotation = CalcRotationDegree(ref pose) + options.rotationDegree;
-            cropMatrix = resizer.VertexTransfrom = RectTransformationCalculator.CalcMatrix(pose.rect, rotation, PoseShift, PoseScale);
+            float rotation = CalcRotationDegree(ref pose);
+            var mat =RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options(){
+                rect = pose.rect,
+                rotationDegree = rotation,
+                shift = PoseShift,
+                scale = PoseScale,
+                cameraRotationDegree = -options.rotationDegree,
+            });
+            cropMatrix = resizer.VertexTransfrom = mat;
             resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
             RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height, true);
             ToTensor(rt, input0, false);
