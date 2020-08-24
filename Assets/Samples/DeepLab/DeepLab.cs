@@ -123,7 +123,7 @@ namespace TensorFlowLite
                 for (int x = 0; x < cols; x++)
                 {
                     int argmax = ArgMaxZ(outputs0, y, x, labels);
-                    labelPixels[y * cols + x] = COLOR_TABLE[argmax];
+                    labelPixels[(rows - 1 - y) * cols + x] = COLOR_TABLE[argmax];
                 }
             }
 

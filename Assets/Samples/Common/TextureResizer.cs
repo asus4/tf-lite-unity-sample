@@ -157,24 +157,31 @@ namespace TensorFlowLite
             return PUSH_MATRIX * trs * POP_MATRIX;
         }
 
-        public static ResizeOptions ModifyOptionForWebcam(ResizeOptions options, WebCamTexture texture)
+        public static ResizeOptions ModifyOptionForWebcam(ResizeOptions origOptions, WebCamTexture texture)
         {
-            if (options.rotationDegree - texture.videoRotationAngle < 0)
+            ResizeOptions newOptions = origOptions; // copy
+            int videoRotationAngle = texture.videoRotationAngle;
+            if (origOptions.rotationDegree - videoRotationAngle < 0)
             {
-                options.rotationDegree = 360f + options.rotationDegree - texture.videoRotationAngle;
+                newOptions.rotationDegree = 360f + origOptions.rotationDegree - videoRotationAngle;
             }
             else
             {
-                options.rotationDegree = options.rotationDegree - texture.videoRotationAngle;
+                newOptions.rotationDegree = origOptions.rotationDegree - videoRotationAngle;
+            }
+
+            bool needFlip90 = videoRotationAngle == 90 || videoRotationAngle == 270;
+            if (needFlip90)
+            {
+                newOptions.mirrorVertical = origOptions.mirrorHorizontal;
+                newOptions.mirrorHorizontal = origOptions.mirrorVertical;
             }
 
             if (texture.videoVerticallyMirrored)
             {
-                // ? Not sure
-                // options.mirrorHorizontal = !options.mirrorHorizontal;
-                options.mirrorVertical = !options.mirrorVertical;
+                newOptions.mirrorVertical = !newOptions.mirrorVertical;
             }
-            return options;
+            return newOptions;
         }
 
     }
