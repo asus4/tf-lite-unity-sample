@@ -38,9 +38,10 @@ namespace TensorFlowLite
         {
             var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
             int width = texture.width;
+            int height = texture.height - 1;
             for (int i = 0; i < pixels.Length; i++)
             {
-                int y = i / width;
+                int y = height - i / width;
                 int x = i % width;
                 inputs[y, x, 0] = (sbyte)pixels[i].r;
                 inputs[y, x, 1] = (sbyte)pixels[i].g;
@@ -57,7 +58,8 @@ namespace TensorFlowLite
             }
             else
             {
-                ToTensorGPU(texture, inputs);
+                ToTensorCPU(texture, inputs);
+                // ToTensorGPU(texture, inputs);
             }
         }
 
@@ -67,9 +69,10 @@ namespace TensorFlowLite
             // TODO: optimize this
             var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
             int width = texture.width;
+            int height = texture.height - 1;
             for (int i = 0; i < pixels.Length; i++)
             {
-                int y = i / width;
+                int y = height - i / width;
                 int x = i % width;
                 inputs[y, x, 0] = (pixels[i].r - offset) * scale;
                 inputs[y, x, 1] = (pixels[i].g - offset) * scale;
@@ -82,10 +85,11 @@ namespace TensorFlowLite
             var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
 
             int width = texture.width;
+            int height = texture.height - 1;
             const float scale = 255f;
             for (int i = 0; i < pixels.Length; i++)
             {
-                int y = i / width;
+                int y = height - i / width;
                 int x = i % width;
                 inputs[y, x, 0] = (float)(pixels[i].r) / scale;
                 inputs[y, x, 1] = (float)(pixels[i].g) / scale;

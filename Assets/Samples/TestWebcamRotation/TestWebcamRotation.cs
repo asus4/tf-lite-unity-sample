@@ -10,10 +10,12 @@ public class TestWebcamRotation : MonoBehaviour
 {
     [SerializeField] RawImage rawInputView = null;
     [SerializeField] RawImage resizedInputView = null;
+    [SerializeField] RawImage rawInputTrimedView = null;
     [SerializeField] Dropdown aspectModeDropdown = null;
     [SerializeField] Toggle mirrorHorizontalToggle = null;
     [SerializeField] Toggle mirrorVerticalToggle = null;
     [SerializeField] Text infoLabel = null;
+
 
     WebCamTexture webcamTexture;
     TextureResizer resizer;
@@ -78,6 +80,9 @@ public class TestWebcamRotation : MonoBehaviour
     void Update()
     {
         resizedInputView.texture = resizer.Resize(webcamTexture, resizeOptions);
+
+        rawInputTrimedView.texture = webcamTexture;
+        rawInputTrimedView.material = resizer.material;
 
         var options = TextureResizer.ModifyOptionForWebcam(resizeOptions, webcamTexture);
         sb.Clear();
