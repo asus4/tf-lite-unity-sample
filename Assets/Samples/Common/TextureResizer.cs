@@ -93,6 +93,7 @@ namespace TensorFlowLite
 
             if (fillBackground)
             {
+                // Fill with color 0,0,0,0
                 Graphics.Blit(Texture2D.blackTexture, resizeTexture);
             }
 
@@ -158,11 +159,20 @@ namespace TensorFlowLite
 
         public static ResizeOptions ModifyOptionForWebcam(ResizeOptions options, WebCamTexture texture)
         {
-            options.rotationDegree += texture.videoRotationAngle;
+            if (options.rotationDegree - texture.videoRotationAngle < 0)
+            {
+                options.rotationDegree = 360f + options.rotationDegree - texture.videoRotationAngle;
+            }
+            else
+            {
+                options.rotationDegree = options.rotationDegree - texture.videoRotationAngle;
+            }
+
             if (texture.videoVerticallyMirrored)
             {
-                // ?
-                options.mirrorHorizontal = !options.mirrorHorizontal;
+                // ? Not sure
+                // options.mirrorHorizontal = !options.mirrorHorizontal;
+                options.mirrorVertical = !options.mirrorVertical;
             }
             return options;
         }
