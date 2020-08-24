@@ -10,6 +10,9 @@ namespace TensorFlowLite
     {
         public ref struct Options
         {
+            /// <summary>
+            /// The Normalized Rect (0, 0, 1, 1)
+            /// </summary>
             public Rect rect;
             public float rotationDegree;
             public Vector2 shift;
@@ -26,6 +29,7 @@ namespace TensorFlowLite
 
         public static Matrix4x4 CalcMatrix(Options options)
         {
+
             Quaternion rotation = Quaternion.Euler(0, 0, options.rotationDegree);
             Vector2 size = Vector2.Scale(options.rect.size, options.scale);
             if (options.mirrorHorizontal)
@@ -37,10 +41,20 @@ namespace TensorFlowLite
                 size.y *= -1;
             }
 
+            Vector2 shift = options.shift;
+            // if (options.mirrorHorizontal)
+            // {
+            //     shift.x *= 1;
+            // }
+            // if (options.mirrorVertiacal)
+            // {
+            //     shift.y *= 1;
+            // }
+
             // Calc center position
             Vector2 center = options.rect.center + new Vector2(-0.5f, -0.5f);
             center = (Vector2)(rotation * center);
-            center += (options.shift * size);
+            center += (shift * size);
             center /= size;
 
             Matrix4x4 trs = Matrix4x4.TRS(
@@ -49,6 +63,8 @@ namespace TensorFlowLite
                 new Vector3(1 / size.x, -1 / size.y, 1)
             );
             Matrix4x4 camTransform = Matrix4x4.Rotate(Quaternion.Euler(0, 0, options.cameraRotationDegree));
+            // Matrix4x4 camTransform = Matrix4x4.Rotate(Quaternion.Euler(0, 0, 0));
+
             return PUSH_MATRIX * camTransform * trs * POP_MATRIX;
         }
 

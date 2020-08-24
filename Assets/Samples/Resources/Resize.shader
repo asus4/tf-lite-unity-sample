@@ -46,6 +46,10 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
+                if(i.uv.x < 0 || i.uv.x > 1 || i.uv.y < 0 || i.uv.y > 1)
+                {
+                    return fixed4(0, 0, 0, 0);
+                }
                 return tex2D(_MainTex, i.uv);
             }
             ENDCG

@@ -62,25 +62,26 @@ namespace TensorFlowLite
         public void Invoke(Texture inputTex, PalmDetect.Result palm)
         {
             var options = resizeOptions;
+            options.mirrorVertical = false;
             if (inputTex is WebCamTexture)
             {
-                var webcamTex = (WebCamTexture)inputTex;
-                options.rotationDegree = webcamTex.videoRotationAngle;
-                options.mirrorVertical = webcamTex.videoVerticallyMirrored;
+                options = TextureResizer.ModifyOptionForWebcam(options, (WebCamTexture)inputTex);
             }
 
             // options.mirrorVertical = true;
             // options.rotationDegree = (Time.time * 50) % 360.0f;
-            // Debug.Log($"options.rotation: {options.rotationDegree}");
+            // options.mirrorHorizontal = true;
+            Debug.Log($"options.rotation: {options.rotationDegree}");
 
-            float rotation = CalcRotationDegree(ref palm);
+            float rotation = CalcHandRotation(ref palm) * Mathf.Rad2Deg;
             var mat = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
             {
                 rect = palm.rect,
                 rotationDegree = rotation,
                 shift = PalmShift,
                 scale = PalmScale,
-                cameraRotationDegree = -options.rotationDegree,
+                // cameraRotationDegree = -options.rotationDegree,
+                cameraRotationDegree = 0,
                 mirrorHorizontal = options.mirrorHorizontal,
                 mirrorVertiacal = options.mirrorVertical,
             });
@@ -129,14 +130,12 @@ namespace TensorFlowLite
             return result;
         }
 
-        private static float CalcRotationDegree(ref PalmDetect.Result detection)
+        private static float CalcHandRotation(ref PalmDetect.Result detection)
         {
-            // Calc rotation based on 
-            // Center of wrist - Middle finger
-
+            // Rotation based on Center of wrist - Middle finger
             const float RAD_90 = 90f * Mathf.PI / 180f;
             var vec = detection.keypoints[2] - detection.keypoints[0];
-            return -(RAD_90 + Mathf.Atan2(vec.y, vec.x)) * Mathf.Rad2Deg;
+            return -(RAD_90 + Mathf.Atan2(vec.y, vec.x));
         }
     }
 }
