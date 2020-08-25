@@ -59,7 +59,9 @@ namespace TensorFlowLite
                 rotationDegree = rotation,
                 shift = PoseShift,
                 scale = PoseScale,
-                cameraRotationDegree = -options.rotationDegree,
+                cameraRotationDegree = 0,
+                mirrorHorizontal = !options.mirrorHorizontal,
+                mirrorVertiacal = options.mirrorVertical,
             });
             cropMatrix = resizer.VertexTransfrom = mat;
             resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
@@ -88,7 +90,7 @@ namespace TensorFlowLite
             {
                 result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
                     output0[i * 4] * SCALE,
-                    output0[i * 4 + 1] * SCALE,
+                    1f - output0[i * 4 + 1] * SCALE,
                     output0[i * 4 + 2] * SCALE
                 ));
             }
