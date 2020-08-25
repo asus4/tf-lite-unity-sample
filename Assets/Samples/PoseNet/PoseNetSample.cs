@@ -9,12 +9,13 @@ public class PoseNetSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")] string fileName = "posenet_mobilenet_v1_100_257x257_multi_kpt_stripped.tflite";
     [SerializeField] RawImage cameraView = null;
-    [SerializeField] GLDrawer glDrawer = null;
     [SerializeField, Range(0f, 1f)] float threshold = 0.5f;
+    [SerializeField, Range(0f, 1f)] float lineThickness = 0.5f;
 
     WebCamTexture webcamTexture;
     PoseNet poseNet;
     Vector3[] corners = new Vector3[4];
+    PrimitiveDraw draw;
 
     public PoseNet.Result[] results;
 
@@ -29,14 +30,26 @@ public class PoseNetSample : MonoBehaviour
         webcamTexture.Play();
         cameraView.texture = webcamTexture;
 
-        glDrawer.OnDraw += OnGLDraw;
+        draw = new PrimitiveDraw()
+        {
+            color = Color.green,
+        };
     }
 
     void OnDestroy()
     {
         webcamTexture?.Stop();
         poseNet?.Dispose();
-        glDrawer.OnDraw -= OnGLDraw;
+        draw?.Dispose();
+    }
+
+    void OnEnable()
+    {
+        Camera.onPostRender += DrawResult;
+    }
+    void OnDisable()
+    {
+        Camera.onPostRender -= DrawResult;
     }
 
     void Update()
@@ -48,16 +61,13 @@ public class PoseNetSample : MonoBehaviour
         // cameraView.texture = poseNet.inputTex;
     }
 
-    void OnGLDraw()
+    void DrawResult(Camera camera)
     {
         var rect = cameraView.GetComponent<RectTransform>();
         rect.GetWorldCorners(corners);
         Vector3 min = corners[0];
         Vector3 max = corners[2];
 
-        GL.Begin(GL.LINES);
-
-        GL.Color(Color.green);
         var connections = PoseNet.Connections;
         int len = connections.GetLength(0);
         for (int i = 0; i < len; i++)
@@ -66,11 +76,13 @@ public class PoseNetSample : MonoBehaviour
             var b = results[(int)connections[i, 1]];
             if (a.confidence >= threshold && b.confidence >= threshold)
             {
-                GL.Vertex(MathTF.Leap3(min, max, new Vector3(a.x, 1f - a.y, 0)));
-                GL.Vertex(MathTF.Leap3(min, max, new Vector3(b.x, 1f - b.y, 0)));
+                draw.Line(
+                    MathTF.Leap3(min, max, new Vector3(a.x, 1f - a.y, 0)),
+                    MathTF.Leap3(min, max, new Vector3(b.x, 1f - b.y, 0)),
+                    lineThickness
+                );
             }
         }
 
-        GL.End();
     }
 }
