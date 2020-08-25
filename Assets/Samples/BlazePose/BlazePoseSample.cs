@@ -8,6 +8,7 @@ using TensorFlowLite;
 /// <summary>
 /// BlazePose form MediaPipe
 /// https://github.com/google/mediapipe
+/// https://viz.mediapipe.dev/demo/pose_tracking
 /// </summary>
 public class BlazePoseSample : MonoBehaviour
 {

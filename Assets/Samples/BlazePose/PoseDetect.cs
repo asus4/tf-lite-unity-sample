@@ -80,7 +80,7 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(1, output1);
         }
 
-        public Result GetResults(float scoreThreshold = 0.7f, float iouThreshold = 0.3f)
+        public Result GetResults(float scoreThreshold = 0.5f, float iouThreshold = 0.3f)
         {
             results.Clear();
 
