@@ -29,6 +29,9 @@ public class BlazePoseSample : MonoBehaviour
     Image frame;
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
     Matrix4x4[] jointMatrices = new Matrix4x4[PoseLandmarkDetect.JOINT_COUNT];
+    PoseLandmarkDetect.Result landmarkResult;
+    Vector3[] worldJoints = new Vector3[PoseLandmarkDetect.JOINT_COUNT];
+    PrimitiveDraw draw;
 
     void Start()
     {
@@ -51,6 +54,11 @@ public class BlazePoseSample : MonoBehaviour
 
         // Init frame
         frame = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, cameraView.transform);
+
+        draw = new PrimitiveDraw()
+        {
+            color = Color.blue,
+        };
     }
 
     void OnDestroy()
@@ -58,6 +66,15 @@ public class BlazePoseSample : MonoBehaviour
         webcamTexture?.Stop();
         poseDetect?.Dispose();
         poseLandmark?.Dispose();
+    }
+
+    void OnEnable()
+    {
+        Camera.onPostRender += DrawJoints;
+    }
+    void OnDisable()
+    {
+        Camera.onPostRender -= DrawJoints;
     }
 
     void Update()
@@ -80,8 +97,7 @@ public class BlazePoseSample : MonoBehaviour
         poseLandmark.Invoke(webcamTexture, pose);
         debugView.texture = poseLandmark.inputTex;
 
-        var joints = poseLandmark.GetResult().joints;
-        DrawJoints(joints);
+        landmarkResult = poseLandmark.GetResult();
 
         RectTransformationCalculator.DecodeToRectTransform(poseLandmark.CropMatrix, croppedFrame.rectTransform);
     }
@@ -113,17 +129,21 @@ public class BlazePoseSample : MonoBehaviour
         }
     }
 
-    void DrawJoints(Vector3[] joints)
+    void DrawJoints(Camera camera)
     {
+        if (landmarkResult == null || landmarkResult.score < 0.2f)
+        {
+            return;
+        }
+
+        // Get world position of the joints
+        var joints = landmarkResult.joints;
         var rt = cameraView.transform as RectTransform;
         rt.GetWorldCorners(rtCorners);
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
         float zScale = max.x - min.x;
-
-        var rotation = Quaternion.identity;
-        var scale = Vector3.one * 0.1f;
-        for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
+        for (int i = 0; i < joints.Length; i++)
         {
             var p = joints[i];
 
@@ -133,9 +153,23 @@ public class BlazePoseSample : MonoBehaviour
 #endif
             p = MathTF.Leap3(min, max, p);
             p.z += (joints[i].z - 0.5f) * zScale;
-            var mtx = Matrix4x4.TRS(p, rotation, scale);
-            jointMatrices[i] = mtx;
+
+            worldJoints[i] = p;
         }
-        Graphics.DrawMeshInstanced(jointMesh, 0, jointMaterial, jointMatrices);
+
+        // Draw
+        for (int i = 0; i < worldJoints.Length; i++)
+        {
+            draw.Cube(worldJoints[i], 0.1f);
+        }
+        var connections = PoseLandmarkDetect.CONNECTIONS;
+        for (int i = 0; i < connections.Length; i += 2)
+        {
+            draw.Line(
+                worldJoints[connections[i]],
+                worldJoints[connections[i + 1]],
+                0.05f);
+        }
+
     }
 }

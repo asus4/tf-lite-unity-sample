@@ -46,13 +46,22 @@ namespace TensorFlowLite
             {
                 return;
             }
-            var center = (end + start) / 2;
-            var rot = Quaternion.LookRotation(vec, Vector3.up);
-            var scale = new Vector3(thickness, thickness, length);
-            var trs = Matrix4x4.TRS(center, rot, scale);
-
+            var mtx = Matrix4x4.TRS(
+                (end + start) / 2,
+                Quaternion.LookRotation(vec, Vector3.up),
+                new Vector3(thickness, thickness, length));
             material.SetPass(0);
-            Graphics.DrawMeshNow(cube, trs);
+            Graphics.DrawMeshNow(cube, mtx);
+        }
+
+        public void Cube(Vector3 center, float size)
+        {
+            var mtx = Matrix4x4.TRS(
+                center,
+                Quaternion.identity,
+                new Vector3(size, size, size));
+            material.SetPass(0);
+            Graphics.DrawMeshNow(cube, mtx);
         }
 
         private static Mesh CreateMesh(PrimitiveType type)

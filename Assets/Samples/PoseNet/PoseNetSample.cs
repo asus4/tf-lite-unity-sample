@@ -34,15 +34,22 @@ public class PoseNetSample : MonoBehaviour
         {
             color = Color.green,
         };
-        Camera.onPostRender += DrawResult;
     }
 
     void OnDestroy()
     {
-        Camera.onPostRender -= DrawResult;
         webcamTexture?.Stop();
         poseNet?.Dispose();
         draw?.Dispose();
+    }
+
+    void OnEnable()
+    {
+        Camera.onPostRender += DrawResult;
+    }
+    void OnDisable()
+    {
+        Camera.onPostRender -= DrawResult;
     }
 
     void Update()
