@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Mathematics;
 
 namespace TensorFlowLite
 {
@@ -50,21 +51,23 @@ namespace TensorFlowLite
                 : resizeOptions;
 
             // float rotation = CalcRotationDegree(ref pose);
-            // var mat = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
-            // {
-            //     rect = pose.rect,
-            //     rotationDegree = rotation,
-            //     shift = PoseShift,
-            //     scale = PoseScale,
-            //     cameraRotationDegree = -options.rotationDegree,
-            // });
-            // cropMatrix = resizer.VertexTransfrom = mat;
-            // resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
-            // RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height, true);
-            // ToTensor(rt, input0, false);
+            const float rotation = 180;
+            var rect = AlignmentPointsRect(ref pose);
+            var mat = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
+            {
+                rect = rect,
+                rotationDegree = rotation,
+                shift = PoseShift,
+                scale = PoseScale,
+                cameraRotationDegree = -options.rotationDegree,
+            });
+            cropMatrix = resizer.VertexTransfrom = mat;
+            resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
+            RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height, true);
+            ToTensor(rt, input0, false);
 
-            cropMatrix = Matrix4x4.identity;
-            ToTensor(inputTex, input0);
+            // cropMatrix = Matrix4x4.identity;
+            // ToTensor(inputTex, input0);
 
             interpreter.SetInputTensorData(0, input0);
             interpreter.Invoke();
@@ -94,13 +97,30 @@ namespace TensorFlowLite
         }
 
 
-        private static float CalcRotationDegree(ref PoseDetect.Result detection)
+        private static float CalcRotationDegree(ref PoseDetect.Result pose)
         {
             // Calc rotation based on 
             // Center of Hip and Center of shoulder
             const float RAD_90 = 90f * Mathf.PI / 180f;
-            var vec = detection.keypoints[0] - detection.keypoints[2];
+            var vec = pose.keypoints[0] - pose.keypoints[2];
             return -(RAD_90 + Mathf.Atan2(vec.y, vec.x)) * Mathf.Rad2Deg;
+        }
+
+        // AlignmentPointsRectsCalculator from MediaPipe
+        private static Rect AlignmentPointsRect(ref PoseDetect.Result pose)
+        {
+            float2 center = pose.keypoints[2];
+            float2 scale = pose.keypoints[3];
+            float boxSize = Mathf.Sqrt(
+                (scale.x - center.x) * (scale.x - center.x)
+                + (scale.y - center.y) * (scale.y - center.y)
+            ) * 2f;
+
+            return new Rect(
+                center.x - boxSize / 2,
+                center.y - boxSize / 2,
+                boxSize,
+                boxSize);
         }
 
 
