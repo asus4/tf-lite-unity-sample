@@ -22,7 +22,9 @@ public class HandTrackingSample : MonoBehaviour
 
     Image[] frames;
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
-    Matrix4x4[] jointMatrices = new Matrix4x4[HandLandmarkDetect.JOINT_COUNT];
+    HandLandmarkDetect.Result landmarkResult;
+    Vector3[] worldJoints = new Vector3[HandLandmarkDetect.JOINT_COUNT];
+    PrimitiveDraw draw;
 
     void Start()
     {
@@ -51,12 +53,26 @@ public class HandTrackingSample : MonoBehaviour
             frames[i] = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, parent);
             frames[i].transform.localPosition = Vector3.zero;
         }
+
+        draw = new PrimitiveDraw()
+        {
+            color = Color.blue,
+        };
     }
     void OnDestroy()
     {
         webcamTexture?.Stop();
         palmDetect?.Dispose();
         landmarkDetect?.Dispose();
+    }
+
+    void OnEnable()
+    {
+        Camera.onPostRender += DrawJoints;
+    }
+    void OnDisable()
+    {
+        Camera.onPostRender -= DrawJoints;
     }
 
     void Update()
@@ -73,6 +89,10 @@ public class HandTrackingSample : MonoBehaviour
 
         if (palms.Count <= 0)
         {
+            if (landmarkResult != null)
+            {
+                landmarkResult.score = 0;
+            }
             return;
         }
 
@@ -80,9 +100,7 @@ public class HandTrackingSample : MonoBehaviour
         landmarkDetect.Invoke(webcamTexture, palms[0]);
         debugPalmView.texture = landmarkDetect.inputTex;
 
-        var joints = landmarkDetect.GetResult().joints;
-        DrawJoints(joints);
-
+        landmarkResult = landmarkDetect.GetResult();
         RectTransformationCalculator.DecodeToRectTransform(landmarkDetect.CropMatrix, cropedFrame.rectTransform);
     }
 
@@ -119,31 +137,44 @@ public class HandTrackingSample : MonoBehaviour
         }
     }
 
-    void DrawJoints(Vector3[] joints)
+    void DrawJoints(Camera camera)
     {
-        var rt = cameraView.transform as RectTransform;
-        rt.GetWorldCorners(rtCorners);
+        if (landmarkResult == null || landmarkResult.score < 0.2f)
+        {
+            return;
+        }
+
+        // Get world position of the joints
+        var joints = landmarkResult.joints;
+        cameraView.rectTransform.GetWorldCorners(rtCorners);
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
         float zScale = max.x - min.x;
-
-        var rotation = Quaternion.identity;
-        var scale = Vector3.one * 0.1f;
-
         for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
         {
             var p = joints[i];
-
 #if !UNITY_EDITOR
             // FIXME: Flipping on iPhone. Need to be fixed
             p.x = 1.0f - p.x; 
 #endif
-
             p = MathTF.Leap3(min, max, p);
             p.z += (joints[i].z - 0.5f) * zScale;
-            var mtx = Matrix4x4.TRS(p, rotation, scale);
-            jointMatrices[i] = mtx;
+            worldJoints[i] = p;
         }
-        Graphics.DrawMeshInstanced(jointMesh, 0, jointMaterial, jointMatrices);
+
+
+        for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
+        {
+            draw.Cube(worldJoints[i], 0.1f);
+        }
+
+        var connections = HandLandmarkDetect.CONNECTIONS;
+        for (int i = 0; i < connections.Length; i += 2)
+        {
+            draw.Line(
+                worldJoints[connections[i]],
+                worldJoints[connections[i + 1]],
+                0.05f);
     }
+}
 }
