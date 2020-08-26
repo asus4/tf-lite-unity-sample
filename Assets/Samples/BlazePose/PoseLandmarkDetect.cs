@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+
 using UnityEngine;
 using Unity.Mathematics;
 
@@ -25,6 +27,10 @@ namespace TensorFlowLite
         // private float[,] output2 = new float[128, 128]; // output_segmentation, not in use
         private Result result;
         private Matrix4x4 cropMatrix;
+        private Stopwatch stopwatch;
+        private RelativeVelocityFilter[] filterX;
+        private RelativeVelocityFilter[] filterY;
+        private RelativeVelocityFilter[] filterZ;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
         public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
@@ -38,6 +44,18 @@ namespace TensorFlowLite
                 score = 0,
                 joints = new Vector3[JOINT_COUNT],
             };
+
+            // Init filters
+            filterX = new RelativeVelocityFilter[JOINT_COUNT];
+            filterY = new RelativeVelocityFilter[JOINT_COUNT];
+            filterZ = new RelativeVelocityFilter[JOINT_COUNT];
+            for (int i = 0; i < JOINT_COUNT; i++)
+            {
+                filterX[i] = new RelativeVelocityFilter(5, 10, RelativeVelocityFilter.DistanceEstimationMode.kForceCurrentScale);
+                filterY[i] = new RelativeVelocityFilter(5, 10, RelativeVelocityFilter.DistanceEstimationMode.kForceCurrentScale);
+                filterZ[i] = new RelativeVelocityFilter(5, 10, RelativeVelocityFilter.DistanceEstimationMode.kForceCurrentScale);
+            }
+            stopwatch = Stopwatch.StartNew();
         }
 
         public override void Invoke(Texture inputTex)
@@ -80,20 +98,52 @@ namespace TensorFlowLite
             // interpreter.GetOutputTensorData(2, output2);// not in use
         }
 
-        public Result GetResult()
+        public Result GetResult(bool useFilter = true)
         {
             // Normalize 0 ~ 255 => 0.0 ~ 1.0
             const float SCALE = 1f / 255f;
             var mtx = cropMatrix.inverse;
 
             result.score = output1[0];
+
+            Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
+            Vector2 max = new Vector2(float.MinValue, float.MinValue);
+
             for (int i = 0; i < JOINT_COUNT; i++)
             {
-                result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
+                Vector3 p = mtx.MultiplyPoint3x4(new Vector3(
                     output0[i * 4] * SCALE,
                     1f - output0[i * 4 + 1] * SCALE,
                     output0[i * 4 + 2] * SCALE
                 ));
+                result.joints[i] = p;
+
+                if (p.x < min.x) { min.x = p.x; }
+                if (p.x > max.x) { max.x = p.x; }
+                if (p.y < min.y) { min.y = p.y; }
+                if (p.y > max.y) { max.y = p.y; }
+            }
+
+            if (useFilter)
+            {
+                UnityEngine.Debug.Log("filtering");
+                // Apply filters
+                const long TICKS_TO_NANO = 10;
+                long timestampNS = stopwatch.Elapsed.Ticks * TICKS_TO_NANO;
+                Vector2 size = max - min;
+                float valueScale = 1f / ((size.x + size.y) / 2);
+                for (int i = 0; i < JOINT_COUNT; i++)
+                {
+                    Vector3 p = result.joints[i];
+                    p.x = filterX[i].Apply(timestampNS, valueScale, p.x);
+                    p.y = filterY[i].Apply(timestampNS, valueScale, p.y);
+                    p.z = filterZ[i].Apply(timestampNS, valueScale, p.z);
+                    result.joints[i] = p;
+                }
+            }
+            else
+            {
+                UnityEngine.Debug.Log("NO filter");
             }
 
             return result;

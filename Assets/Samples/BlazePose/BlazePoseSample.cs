@@ -21,6 +21,7 @@ public class BlazePoseSample : MonoBehaviour
     [SerializeField] Image croppedFrame = null;
     [SerializeField] Mesh jointMesh = null;
     [SerializeField] Material jointMaterial = null;
+    [SerializeField] bool useLandmarkFilter = true;
 
     WebCamTexture webcamTexture;
     PoseDetect poseDetect;
@@ -97,7 +98,7 @@ public class BlazePoseSample : MonoBehaviour
         poseLandmark.Invoke(webcamTexture, pose);
         debugView.texture = poseLandmark.inputTex;
 
-        landmarkResult = poseLandmark.GetResult();
+        landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
 
         RectTransformationCalculator.DecodeToRectTransform(poseLandmark.CropMatrix, croppedFrame.rectTransform);
     }
