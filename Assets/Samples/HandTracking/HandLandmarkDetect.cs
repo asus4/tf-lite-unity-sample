@@ -65,24 +65,24 @@ namespace TensorFlowLite
             var options = resizeOptions;
             if (inputTex is WebCamTexture)
             {
-                options = TextureResizer.ModifyOptionForWebcam(options, (WebCamTexture)inputTex);
+                options = options.GetModifedForWebcam((WebCamTexture)inputTex);
             }
 
-            float rotation = CalcHandRotation(ref palm) * Mathf.Rad2Deg;
-            var mat = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
+            cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
             {
                 rect = palm.rect,
-                rotationDegree = rotation,
+                rotationDegree = CalcHandRotation(ref palm) * Mathf.Rad2Deg,
                 shift = PalmShift,
                 scale = PalmScale,
-                cameraRotationDegree = 0,
+                cameraRotationDegree = options.rotationDegree,
                 mirrorHorizontal = !options.mirrorHorizontal,
                 mirrorVertiacal = options.mirrorVertical,
             });
-            cropMatrix = resizer.VertexTransfrom = mat;
 
-            resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
-            RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height, true);
+            RenderTexture rt = resizer.Resize(
+                inputTex, options.width, options.height, true,
+                cropMatrix,
+                TextureResizer.GetTextureST(inputTex, options));
             ToTensor(rt, input0, false);
 
             //

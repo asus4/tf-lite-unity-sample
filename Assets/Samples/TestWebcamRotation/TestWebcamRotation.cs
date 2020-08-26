@@ -84,7 +84,8 @@ public class TestWebcamRotation : MonoBehaviour
         rawInputTrimedView.texture = webcamTexture;
         rawInputTrimedView.material = resizer.material;
 
-        var options = TextureResizer.ModifyOptionForWebcam(resizeOptions, webcamTexture);
+        var options = resizeOptions.GetModifedForWebcam(webcamTexture);
+
         sb.Clear();
         sb.AppendLine("Midified Options");
         sb.AppendLine($"Rotation: {options.rotationDegree}");

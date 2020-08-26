@@ -22,6 +22,33 @@ namespace TensorFlowLite
             public bool mirrorHorizontal;
             public bool mirrorVertical;
             public AspectMode aspectMode;
+
+            public ResizeOptions GetModifedForWebcam(WebCamTexture texture)
+            {
+                ResizeOptions modified = this; // copy
+                int videoRotationAngle = texture.videoRotationAngle;
+                if (rotationDegree - videoRotationAngle < 0)
+                {
+                    modified.rotationDegree = 360f + rotationDegree - videoRotationAngle;
+                }
+                else
+                {
+                    modified.rotationDegree = rotationDegree - videoRotationAngle;
+                }
+
+                bool needFlip90 = videoRotationAngle == 90 || videoRotationAngle == 270;
+                if (needFlip90)
+                {
+                    modified.mirrorVertical = mirrorHorizontal;
+                    modified.mirrorHorizontal = mirrorVertical;
+                }
+
+                if (texture.videoVerticallyMirrored)
+                {
+                    modified.mirrorVertical = !modified.mirrorVertical;
+                }
+                return modified;
+            }
         }
 
         RenderTexture resizeTexture;
@@ -73,7 +100,7 @@ namespace TensorFlowLite
             // Set options
             if (texture is WebCamTexture)
             {
-                options = ModifyOptionForWebcam(options, (WebCamTexture)texture);
+                options = options.GetModifedForWebcam((WebCamTexture)texture);
             }
 
             VertexTransfrom = GetVertTransform(options.rotationDegree, options.mirrorHorizontal, options.mirrorVertical);
@@ -81,7 +108,17 @@ namespace TensorFlowLite
             return ApplyResize(texture, options.width, options.height, false);
         }
 
-        public RenderTexture ApplyResize(Texture texture, int width, int height, bool fillBackground)
+        public RenderTexture Resize(Texture texture,
+            int width, int height, bool fillBackground,
+             Matrix4x4 transform,
+             Vector4 uvRect)
+        {
+            VertexTransfrom = transform;
+            UVRect = uvRect;
+            return ApplyResize(texture, width, height, fillBackground);
+        }
+
+        private RenderTexture ApplyResize(Texture texture, int width, int height, bool fillBackground)
         {
             if (resizeTexture == null
                 || resizeTexture.width != width
@@ -155,33 +192,6 @@ namespace TensorFlowLite
                 scale
             );
             return PUSH_MATRIX * trs * POP_MATRIX;
-        }
-
-        public static ResizeOptions ModifyOptionForWebcam(ResizeOptions origOptions, WebCamTexture texture)
-        {
-            ResizeOptions newOptions = origOptions; // copy
-            int videoRotationAngle = texture.videoRotationAngle;
-            if (origOptions.rotationDegree - videoRotationAngle < 0)
-            {
-                newOptions.rotationDegree = 360f + origOptions.rotationDegree - videoRotationAngle;
-            }
-            else
-            {
-                newOptions.rotationDegree = origOptions.rotationDegree - videoRotationAngle;
-            }
-
-            bool needFlip90 = videoRotationAngle == 90 || videoRotationAngle == 270;
-            if (needFlip90)
-            {
-                newOptions.mirrorVertical = origOptions.mirrorHorizontal;
-                newOptions.mirrorHorizontal = origOptions.mirrorVertical;
-            }
-
-            if (texture.videoVerticallyMirrored)
-            {
-                newOptions.mirrorVertical = !newOptions.mirrorVertical;
-            }
-            return newOptions;
         }
 
     }
