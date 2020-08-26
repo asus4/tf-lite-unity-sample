@@ -24,52 +24,52 @@ namespace TensorFlowLite
         {
             // When the value scale changes, uses a heuristic
             // that is not translation invariant (see the implementation for details).
-            kLegacyTransition,
+            LegacyTransition,
             // The current (i.e. last) value scale is always used for scale estimation.
             // When using this mode, the filter is translation invariant, i.e.
             //     Filter(Data + Offset) = Filter(Data) + Offset.
-            kForceCurrentScale,
+            ForceCurrentScale,
         }
 
         private struct WindowElement
         {
             public float distance;
-            public long duration;
-            public WindowElement(float distance, long duration)
+            public double duration;
+            public WindowElement(float distance, double duration)
             {
                 this.distance = distance;
                 this.duration = duration;
             }
         };
 
-        private float last_value_ = 0.0f;
-        private float last_value_scale_ = 1.0f;
-        private long last_timestamp_ = -1;
+        private float lastValue = 0.0f;
+        private float lastValueScale = 1.0f;
+        private double lastTimestamp = -1;
 
-        private uint max_window_size_;
-        private Queue<WindowElement> window_;
-        private LowPassFilter low_pass_filter_;
-        private float velocity_scale_;
-        private DistanceEstimationMode distance_mode_;
+        private uint maxWindowSize;
+        private Queue<WindowElement> windows;
+        private LowPassFilter lowPassFilter;
+        private float velocityScale;
+        private DistanceEstimationMode distanceMode;
 
         public RelativeVelocityFilter(
-            uint window_size,
-            float velocity_scale,
-            DistanceEstimationMode distance_mode)
+            uint windowSize,
+            float velocityScale,
+            DistanceEstimationMode distanceMode)
         {
-            max_window_size_ = window_size;
-            velocity_scale_ = velocity_scale;
-            distance_mode_ = distance_mode;
-            low_pass_filter_ = new LowPassFilter()
+            maxWindowSize = windowSize;
+            this.velocityScale = velocityScale;
+            this.distanceMode = distanceMode;
+            lowPassFilter = new LowPassFilter()
             {
                 alpha = 1f,
             };
-            window_ = new Queue<WindowElement>();
+            windows = new Queue<WindowElement>();
         }
 
-        public float Apply(long new_timestamp, float value_scale, float value)
+        public float Apply(double newTimestamp, float valueScale, float value)
         {
-            if (last_timestamp_ >= new_timestamp)
+            if (lastTimestamp >= newTimestamp)
             {
                 // Results are unpredictable in this case, so nothing to do but
                 // return same value
@@ -77,53 +77,80 @@ namespace TensorFlowLite
                 return value;
             }
 
-            float alpha;
-            if (last_timestamp_ == -1)
+            double alpha;
+            if (lastTimestamp == -1)
             {
-                alpha = 1.0f;
+                alpha = 1.0;
             }
             else
             {
-                float distance = distance_mode_ == DistanceEstimationMode.kLegacyTransition
-                    ? value * value_scale - last_value_ * last_value_scale_ // Original.
-                    : value_scale * (value - last_value_);  // Translation invariant.
+                float distance = distanceMode == DistanceEstimationMode.LegacyTransition
+                    ? value * valueScale - lastValue * lastValueScale // Original.
+                    : valueScale * (value - lastValue);  // Translation invariant.
 
-                long duration = new_timestamp - last_timestamp_;
+                double duration = newTimestamp - lastTimestamp;
 
                 float cumulative_distance = distance;
-                long cumulative_duration = duration;
+                double cumulative_duration = duration;
 
                 // Define max cumulative duration assuming
                 // 30 frames per second is a good frame rate, so assuming 30 values
                 // per second or 1 / 30 of a second is a good duration per window element
-                const long kAssumedMaxDuration = 1000000000 / 30;
-                long max_cumulative_duration = (1 + window_.Count) * kAssumedMaxDuration;
-                foreach (var el in window_)
+                const double kAssumedMaxDuration = 1.0 / 30.0;
+                double max_cumulative_duration = (1 + windows.Count) * kAssumedMaxDuration;
+                foreach (var windows in windows)
                 {
-                    if (cumulative_duration + el.duration > max_cumulative_duration)
+                    if (cumulative_duration + windows.duration > max_cumulative_duration)
                     {
                         // This helps in cases when durations are large and outdated
                         // window elements have bad impact on filtering results
                         break;
                     }
-                    cumulative_distance += el.distance;
-                    cumulative_duration += el.duration;
+                    cumulative_distance += windows.distance;
+                    cumulative_duration += windows.duration;
                 }
-                const double kNanoSecondsToSecond = 1e-9;
-                float velocity = (float)(cumulative_distance / (cumulative_duration * kNanoSecondsToSecond));
-                alpha = 1.0f - 1.0f / (1.0f + velocity_scale_ * Math.Abs(velocity));
-                window_.Enqueue(new WindowElement(distance, duration));
-                if (window_.Count > max_window_size_)
+                double velocity = cumulative_distance / cumulative_duration;
+                alpha = 1.0 - 1.0 / (1.0 + velocityScale * Math.Abs(velocity));
+
+                windows.Enqueue(new WindowElement(distance, duration));
+                if (windows.Count > maxWindowSize)
                 {
-                    window_.Dequeue();
+                    windows.Dequeue();
                 }
             }
 
-            last_value_ = value;
-            last_value_scale_ = value_scale;
-            last_timestamp_ = new_timestamp;
+            lastValue = value;
+            lastValueScale = valueScale;
+            lastTimestamp = newTimestamp;
 
-            return low_pass_filter_.Apply(value, alpha);
+            // Debug.Log($"alpha: {alpha}");
+            return lowPassFilter.Apply(value, (float)alpha);
+        }
+    }
+
+    public class RelativeVelocityFilter3D
+    {
+        private RelativeVelocityFilter x;
+        private RelativeVelocityFilter y;
+        private RelativeVelocityFilter z;
+
+        public RelativeVelocityFilter3D(
+            uint windowSize,
+            float velocityScale,
+            RelativeVelocityFilter.DistanceEstimationMode distanceMode)
+        {
+            x = new RelativeVelocityFilter(windowSize, velocityScale, distanceMode);
+            y = new RelativeVelocityFilter(windowSize, velocityScale, distanceMode);
+            z = new RelativeVelocityFilter(windowSize, velocityScale, distanceMode);
+        }
+
+        public Vector3 Apply(double newTimestamp, float valueScale, Vector3 value)
+        {
+            return new Vector3(
+                x.Apply(newTimestamp, valueScale, value.x),
+                y.Apply(newTimestamp, valueScale, value.y),
+                z.Apply(newTimestamp, valueScale, value.z)
+            );
         }
     }
 }

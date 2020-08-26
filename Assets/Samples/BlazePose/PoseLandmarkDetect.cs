@@ -28,9 +28,7 @@ namespace TensorFlowLite
         private Result result;
         private Matrix4x4 cropMatrix;
         private Stopwatch stopwatch;
-        private RelativeVelocityFilter[] filterX;
-        private RelativeVelocityFilter[] filterY;
-        private RelativeVelocityFilter[] filterZ;
+        private RelativeVelocityFilter3D[] filter;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
         public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
@@ -46,14 +44,13 @@ namespace TensorFlowLite
             };
 
             // Init filters
-            filterX = new RelativeVelocityFilter[JOINT_COUNT];
-            filterY = new RelativeVelocityFilter[JOINT_COUNT];
-            filterZ = new RelativeVelocityFilter[JOINT_COUNT];
+            filter = new RelativeVelocityFilter3D[JOINT_COUNT];
+            const int windowSize = 5;
+            const float velocityScale = 10;
+            const RelativeVelocityFilter.DistanceEstimationMode mode = RelativeVelocityFilter.DistanceEstimationMode.LegacyTransition;
             for (int i = 0; i < JOINT_COUNT; i++)
             {
-                filterX[i] = new RelativeVelocityFilter(5, 10, RelativeVelocityFilter.DistanceEstimationMode.kForceCurrentScale);
-                filterY[i] = new RelativeVelocityFilter(5, 10, RelativeVelocityFilter.DistanceEstimationMode.kForceCurrentScale);
-                filterZ[i] = new RelativeVelocityFilter(5, 10, RelativeVelocityFilter.DistanceEstimationMode.kForceCurrentScale);
+                filter[i] = new RelativeVelocityFilter3D(windowSize, velocityScale, mode);
             }
             stopwatch = Stopwatch.StartNew();
         }
@@ -126,24 +123,15 @@ namespace TensorFlowLite
 
             if (useFilter)
             {
-                UnityEngine.Debug.Log("filtering");
                 // Apply filters
-                const long TICKS_TO_NANO = 10;
-                long timestampNS = stopwatch.Elapsed.Ticks * TICKS_TO_NANO;
+                double timestamp = stopwatch.Elapsed.TotalSeconds;
                 Vector2 size = max - min;
                 float valueScale = 1f / ((size.x + size.y) / 2);
                 for (int i = 0; i < JOINT_COUNT; i++)
                 {
                     Vector3 p = result.joints[i];
-                    p.x = filterX[i].Apply(timestampNS, valueScale, p.x);
-                    p.y = filterY[i].Apply(timestampNS, valueScale, p.y);
-                    p.z = filterZ[i].Apply(timestampNS, valueScale, p.z);
-                    result.joints[i] = p;
+                    result.joints[i] = filter[i].Apply(timestamp, valueScale, p);
                 }
-            }
-            else
-            {
-                UnityEngine.Debug.Log("NO filter");
             }
 
             return result;
