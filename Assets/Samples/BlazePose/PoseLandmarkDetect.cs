@@ -20,6 +20,7 @@ namespace TensorFlowLite
         }
 
         public const int JOINT_COUNT = 25;
+        // A pair of indexes
         public static readonly int[] CONNECTIONS = new int[] { 0, 1, 1, 2, 2, 3, 3, 7, 0, 4, 4, 5, 5, 6, 6, 8, 9, 10, 11, 12, 11, 13, 13, 15, 15, 17, 15, 19, 15, 21, 17, 19, 12, 14, 14, 16, 16, 18, 16, 20, 16, 22, 18, 20, 11, 23, 12, 24, 23, 24, };
 
         private float[] output0 = new float[124]; // ld_3d
@@ -63,29 +64,28 @@ namespace TensorFlowLite
         public void Invoke(Texture inputTex, PoseDetect.Result pose)
         {
             var options = (inputTex is WebCamTexture)
-                ? TextureResizer.ModifyOptionForWebcam(resizeOptions, (WebCamTexture)inputTex)
+                ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
                 : resizeOptions;
 
             // float rotation = CalcRotationDegree(ref pose);
             const float rotation = 180;
             var rect = AlignmentPointsRect(ref pose);
-            var mat = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
+            cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
             {
                 rect = rect,
                 rotationDegree = rotation,
                 shift = PoseShift,
                 scale = PoseScale,
-                cameraRotationDegree = 0,
+                cameraRotationDegree = options.rotationDegree,
                 mirrorHorizontal = !options.mirrorHorizontal,
                 mirrorVertiacal = options.mirrorVertical,
             });
-            cropMatrix = resizer.VertexTransfrom = mat;
-            resizer.UVRect = TextureResizer.GetTextureST(inputTex, options);
-            RenderTexture rt = resizer.ApplyResize(inputTex, options.width, options.height, true);
-            ToTensor(rt, input0, false);
 
-            // cropMatrix = Matrix4x4.identity;
-            // ToTensor(inputTex, input0);
+            RenderTexture rt = resizer.Resize(
+               inputTex, options.width, options.height, true,
+               cropMatrix,
+               TextureResizer.GetTextureST(inputTex, options));
+            ToTensor(rt, input0, false);
 
             interpreter.SetInputTensorData(0, input0);
             interpreter.Invoke();

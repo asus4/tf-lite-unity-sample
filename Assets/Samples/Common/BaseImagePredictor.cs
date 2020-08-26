@@ -12,7 +12,6 @@ namespace TensorFlowLite
         protected int height;
         protected int channels;
         protected T[,,] input0;
-        protected NativeArray<T> input;
         protected TextureToTensor tex2tensor;
         protected TextureResizer resizer;
         protected TextureResizer.ResizeOptions resizeOptions;
@@ -67,7 +66,6 @@ namespace TensorFlowLite
             interpreter?.Dispose();
             tex2tensor?.Dispose();
             resizer?.Dispose();
-            input.Dispose();
         }
 
         public abstract void Invoke(Texture inputTex);
@@ -103,7 +101,6 @@ namespace TensorFlowLite
             width = idim0[2];
             channels = idim0[3];
             input0 = new T[height, width, channels];
-            input = new NativeArray<T>(height * width * channels, Allocator.Persistent, NativeArrayOptions.ClearMemory);
 
             int inputCount = interpreter.GetInputTensorCount();
             for (int i = 0; i < inputCount; i++)
