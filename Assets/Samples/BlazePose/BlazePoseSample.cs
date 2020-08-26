@@ -80,10 +80,6 @@ public class BlazePoseSample : MonoBehaviour
 
     void Update()
     {
-        var resizeOptions = poseDetect.ResizeOptions;
-        resizeOptions.rotationDegree = webcamTexture.videoRotationAngle;
-        poseDetect.ResizeOptions = resizeOptions;
-
         poseDetect.Invoke(webcamTexture);
         cameraView.material = poseDetect.transformMat;
 
@@ -147,11 +143,6 @@ public class BlazePoseSample : MonoBehaviour
         for (int i = 0; i < joints.Length; i++)
         {
             var p = joints[i];
-
-#if !UNITY_EDITOR
-            // FIXME: Flipping on iPhone. Need to be fixed
-            p.x = 1.0f - p.x; 
-#endif
             p = MathTF.Leap3(min, max, p);
             p.z += (joints[i].z - 0.5f) * zScale;
 
