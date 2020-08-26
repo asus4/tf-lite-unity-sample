@@ -77,10 +77,6 @@ public class HandTrackingSample : MonoBehaviour
 
     void Update()
     {
-        var resizeOptions = palmDetect.ResizeOptions;
-        resizeOptions.rotationDegree = webcamTexture.videoRotationAngle;
-        palmDetect.ResizeOptions = resizeOptions;
-
         palmDetect.Invoke(webcamTexture);
         cameraView.material = palmDetect.transformMat;
 
@@ -153,10 +149,6 @@ public class HandTrackingSample : MonoBehaviour
         for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
         {
             var p = joints[i];
-#if !UNITY_EDITOR
-            // FIXME: Flipping on iPhone. Need to be fixed
-            p.x = 1.0f - p.x; 
-#endif
             p = MathTF.Leap3(min, max, p);
             p.z += (joints[i].z - 0.5f) * zScale;
             worldJoints[i] = p;
@@ -175,6 +167,6 @@ public class HandTrackingSample : MonoBehaviour
                 worldJoints[connections[i]],
                 worldJoints[connections[i + 1]],
                 0.05f);
+        }
     }
-}
 }
