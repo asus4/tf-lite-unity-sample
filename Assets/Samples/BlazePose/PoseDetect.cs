@@ -137,25 +137,25 @@ namespace TensorFlowLite
             return NonMaxSuppression(results, iouThreshold).First();
         }
 
-        private static List<Result> NonMaxSuppression(List<Result> results, float iou_threshold)
+        private static List<Result> NonMaxSuppression(List<Result> results, float iouThreshold)
         {
             var filtered = new List<Result>();
 
             // FIXME LinQ allocs GC each frame
             foreach (Result original in results.OrderByDescending(o => o.score))
             {
-                bool ignore_candidate = false;
+                bool ignoreCandidate = false;
                 foreach (Result newResult in filtered)
                 {
                     float iou = original.rect.IntersectionOverUnion(newResult.rect);
-                    if (iou >= iou_threshold)
+                    if (iou >= iouThreshold)
                     {
-                        ignore_candidate = true;
+                        ignoreCandidate = true;
                         break;
                     }
                 }
 
-                if (!ignore_candidate)
+                if (!ignoreCandidate)
                 {
                     filtered.Add(original);
                     if (filtered.Count >= MAX_POSE_NUM)
