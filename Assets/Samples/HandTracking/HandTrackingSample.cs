@@ -15,11 +15,6 @@ public class HandTrackingSample : MonoBehaviour
     [SerializeField] Image cropedFrame = null;
     [SerializeField] Mesh jointMesh = null;
     [SerializeField] Material jointMaterial = null;
-    [SerializeField] Texture2D testHandTex;
-    [SerializeField] int testRotation;
-    [SerializeField] bool testFlipH;
-    [SerializeField] bool testFlipV;
-
     WebCamTexture webcamTexture;
     PalmDetect palmDetect;
     HandLandmarkDetect landmarkDetect;
@@ -80,30 +75,11 @@ public class HandTrackingSample : MonoBehaviour
         Camera.onPostRender -= DrawJoints;
     }
 
-    TextureResizer.ResizeOptions ModityForTest(TextureResizer.ResizeOptions options)
-    {
-        options.rotationDegree = testRotation;
-        options.mirrorHorizontal = testFlipH;
-        options.mirrorVertical = testFlipV;
-        return options;
-    }
-
     void Update()
     {
-        Texture tex;
-        if (testHandTex != null)
-        {
-            tex = testHandTex;
-            cameraView.texture = tex;
-            palmDetect.resizeOptions = ModityForTest(palmDetect.resizeOptions);
-            landmarkDetect.resizeOptions = ModityForTest(landmarkDetect.resizeOptions);
-        }
-        else
-        {
-            tex = webcamTexture;
-        }
 
-        palmDetect.Invoke(tex);
+
+        palmDetect.Invoke(webcamTexture);
         cameraView.material = palmDetect.transformMat;
 
         var palms = palmDetect.GetResults(0.7f, 0.3f);
@@ -119,21 +95,13 @@ public class HandTrackingSample : MonoBehaviour
         }
 
         // Detect only first palm
-        landmarkDetect.Invoke(tex, palms[0]);
+        landmarkDetect.Invoke(webcamTexture, palms[0]);
         debugPalmView.texture = landmarkDetect.inputTex;
 
         landmarkResult = landmarkDetect.GetResult();
         {
-            // Apply webcam rotation to landmarks
-            Matrix4x4 mtx;
-            if (testHandTex != null)
-            {
-                mtx = WebCamUtil.GetMatrix(testRotation, testFlipH, testFlipV);
-            }
-            else
-            {
-                mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
-            }
+            // Apply webcam rotation to draw landmarks correctly
+            Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
             for (int i = 0; i < landmarkResult.joints.Length; i++)
             {
                 landmarkResult.joints[i] = mtx.MultiplyPoint3x4(landmarkResult.joints[i]);
