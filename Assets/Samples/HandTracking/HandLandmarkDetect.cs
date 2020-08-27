@@ -62,11 +62,9 @@ namespace TensorFlowLite
 
         public void Invoke(Texture inputTex, PalmDetect.Result palm)
         {
-            var options = resizeOptions;
-            if (inputTex is WebCamTexture)
-            {
-                options = options.GetModifedForWebcam((WebCamTexture)inputTex);
-            }
+            var options = (inputTex is WebCamTexture)
+                ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
+                : resizeOptions;
 
             cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
             {
