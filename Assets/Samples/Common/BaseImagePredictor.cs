@@ -14,7 +14,7 @@ namespace TensorFlowLite
         protected T[,,] input0;
         protected TextureToTensor tex2tensor;
         protected TextureResizer resizer;
-        protected TextureResizer.ResizeOptions resizeOptions;
+        public TextureResizer.ResizeOptions resizeOptions;
 
         public Texture inputTex
         {

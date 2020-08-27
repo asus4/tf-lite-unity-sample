@@ -35,5 +35,24 @@ namespace TensorFlowLite
             }
             return devices.Last().name;
         }
+
+        private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
+        private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
+
+        public static Matrix4x4 GetMatrix(float rotationDegree, bool mirrorHorizontal, bool mirrorVertical)
+        {
+            return
+                PUSH_MATRIX
+                * Matrix4x4.TRS(
+                    new Vector3(0, 0, 0),
+                    Quaternion.Euler(0, 0, rotationDegree),
+                    new Vector3(
+                        mirrorHorizontal ? -1 : 1,
+                        mirrorVertical ? -1 : 1,
+                        0
+                    )
+                )
+                * POP_MATRIX;
+        }
     }
 }

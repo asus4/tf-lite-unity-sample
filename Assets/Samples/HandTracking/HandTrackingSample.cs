@@ -15,13 +15,18 @@ public class HandTrackingSample : MonoBehaviour
     [SerializeField] Image cropedFrame = null;
     [SerializeField] Mesh jointMesh = null;
     [SerializeField] Material jointMaterial = null;
+    [SerializeField] Texture2D testHandTex;
+    [SerializeField] int testRotation;
+    [SerializeField] bool testFlipH;
+    [SerializeField] bool testFlipV;
 
     WebCamTexture webcamTexture;
     PalmDetect palmDetect;
     HandLandmarkDetect landmarkDetect;
 
     Image[] frames;
-    Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
+    // just cache for GetWorldCorners
+    Vector3[] rtCorners = new Vector3[4];
     HandLandmarkDetect.Result landmarkResult;
     Vector3[] worldJoints = new Vector3[HandLandmarkDetect.JOINT_COUNT];
     PrimitiveDraw draw;
@@ -75,9 +80,30 @@ public class HandTrackingSample : MonoBehaviour
         Camera.onPostRender -= DrawJoints;
     }
 
+    TextureResizer.ResizeOptions ModityForTest(TextureResizer.ResizeOptions options)
+    {
+        options.rotationDegree = testRotation;
+        options.mirrorHorizontal = testFlipH;
+        options.mirrorVertical = testFlipV;
+        return options;
+    }
+
     void Update()
     {
-        palmDetect.Invoke(webcamTexture);
+        Texture tex;
+        if (testHandTex != null)
+        {
+            tex = testHandTex;
+            cameraView.texture = tex;
+            palmDetect.resizeOptions = ModityForTest(palmDetect.resizeOptions);
+            landmarkDetect.resizeOptions = ModityForTest(landmarkDetect.resizeOptions);
+        }
+        else
+        {
+            tex = webcamTexture;
+        }
+
+        palmDetect.Invoke(tex);
         cameraView.material = palmDetect.transformMat;
 
         var palms = palmDetect.GetResults(0.7f, 0.3f);
@@ -93,11 +119,28 @@ public class HandTrackingSample : MonoBehaviour
         }
 
         // Detect only first palm
-        landmarkDetect.Invoke(webcamTexture, palms[0]);
+        landmarkDetect.Invoke(tex, palms[0]);
         debugPalmView.texture = landmarkDetect.inputTex;
 
         landmarkResult = landmarkDetect.GetResult();
-        RectTransformationCalculator.DecodeToRectTransform(landmarkDetect.CropMatrix, cropedFrame.rectTransform);
+        {
+            // Apply webcam rotation to landmarks
+            Matrix4x4 mtx;
+            if (testHandTex != null)
+            {
+                mtx = WebCamUtil.GetMatrix(testRotation, testFlipH, testFlipV);
+            }
+            else
+            {
+                mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
+            }
+            for (int i = 0; i < landmarkResult.joints.Length; i++)
+            {
+                landmarkResult.joints[i] = mtx.MultiplyPoint3x4(landmarkResult.joints[i]);
+            }
+        }
+
+        RectTransformationCalculator.ApplyToRectTransform(landmarkDetect.CropMatrix, cropedFrame.rectTransform);
     }
 
     void UpdateFrame(List<PalmDetect.Result> palms)
@@ -169,4 +212,5 @@ public class HandTrackingSample : MonoBehaviour
                 0.05f);
         }
     }
+
 }

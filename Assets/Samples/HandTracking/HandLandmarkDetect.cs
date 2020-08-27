@@ -74,8 +74,8 @@ namespace TensorFlowLite
                 rotationDegree = CalcHandRotation(ref palm) * Mathf.Rad2Deg,
                 shift = PalmShift,
                 scale = PalmScale,
-                cameraRotationDegree = options.rotationDegree,
-                mirrorHorizontal = !options.mirrorHorizontal,
+                cameraRotationDegree = -options.rotationDegree,
+                mirrorHorizontal = options.mirrorHorizontal,
                 mirrorVertiacal = options.mirrorVertical,
             });
 
@@ -127,7 +127,7 @@ namespace TensorFlowLite
         private static float CalcHandRotation(ref PalmDetect.Result detection)
         {
             // Rotation based on Center of wrist - Middle finger
-            const float RAD_90 = 90f * Mathf.PI / 180f;
+            const float RAD_90 = 90f * Mathf.Deg2Rad;
             var vec = detection.keypoints[0] - detection.keypoints[2];
             return -(RAD_90 + Mathf.Atan2(vec.y, vec.x));
         }

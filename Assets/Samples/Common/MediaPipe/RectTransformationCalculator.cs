@@ -62,13 +62,20 @@ namespace TensorFlowLite
                 rotation,
                 new Vector3(1 / size.x, -1 / size.y, 1)
             );
-            Matrix4x4 camTransform = Matrix4x4.Rotate(Quaternion.Euler(0, 0, options.cameraRotationDegree));
-            // Matrix4x4 camTransform = Matrix4x4.Rotate(Quaternion.Euler(0, 0, 0));
 
-            return PUSH_MATRIX * camTransform * trs * POP_MATRIX;
+            Matrix4x4 cameraMtx = Matrix4x4.TRS(
+                new Vector3(0, 0, 0),
+                Quaternion.Euler(0, 0, -options.cameraRotationDegree),
+                new Vector3(
+                    options.mirrorHorizontal ? -1 : 1,
+                    options.mirrorVertiacal ? -1 : 1,
+                    1
+                )
+            );
+            return PUSH_MATRIX * trs * cameraMtx * POP_MATRIX;
         }
 
-        public static void DecodeToRectTransform(Matrix4x4 mtx, RectTransform t)
+        public static void ApplyToRectTransform(Matrix4x4 mtx, RectTransform t)
         {
             mtx = POP_MATRIX * mtx.inverse * PUSH_MATRIX;
             var position = mtx.ExtractPosition() + new Vector3(0.5f, 0.5f, 0);
