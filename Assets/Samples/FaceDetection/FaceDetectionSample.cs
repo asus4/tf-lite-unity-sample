@@ -17,7 +17,9 @@ public class FaceDetectionSample : MonoBehaviour
 
     WebCamTexture webcamTexture;
     FaceDetect faceDetect;
+    List<FaceDetect.Result> results;
     PrimitiveDraw draw;
+    Vector3[] rtCorners = new Vector3[4];
 
     void Start()
     {
@@ -40,9 +42,51 @@ public class FaceDetectionSample : MonoBehaviour
         };
     }
 
+    void OnDestroy()
+    {
+        webcamTexture?.Stop();
+        faceDetect?.Dispose();
+        draw?.Dispose();
+    }
+
+    void OnEnable()
+    {
+        Camera.onPostRender += OnDrawResults;
+    }
+    void OnDisable()
+    {
+        Camera.onPostRender -= OnDrawResults;
+    }
+
+
     void Update()
     {
         faceDetect.Invoke(webcamTexture);
         cameraView.material = faceDetect.transformMat;
+        results = faceDetect.GetResults();
     }
+
+    void OnDrawResults(Camera camera)
+    {
+        if (results == null)
+        {
+            return;
+        }
+
+        cameraView.rectTransform.GetWorldCorners(rtCorners);
+        Vector3 min = rtCorners[0];
+        Vector3 max = rtCorners[2];
+
+        foreach (var result in results)
+        {
+            Rect rect = MathTF.Leap(min, max, result.rect, true);
+            draw.Rect(rect, 0.05f);
+            foreach (Vector2 p in result.keypoints)
+            {
+                draw.Point(MathTF.Leap(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
+            }
+        }
+    }
+
+
 }

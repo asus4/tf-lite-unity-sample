@@ -76,9 +76,9 @@ public class PoseNetSample : MonoBehaviour
             var b = results[(int)connections[i, 1]];
             if (a.confidence >= threshold && b.confidence >= threshold)
             {
-                draw.Line(
-                    MathTF.Leap3(min, max, new Vector3(a.x, 1f - a.y, 0)),
-                    MathTF.Leap3(min, max, new Vector3(b.x, 1f - b.y, 0)),
+                draw.Line3D(
+                    MathTF.Leap(min, max, new Vector3(a.x, 1f - a.y, 0)),
+                    MathTF.Leap(min, max, new Vector3(b.x, 1f - b.y, 0)),
                     lineThickness
                 );
             }
