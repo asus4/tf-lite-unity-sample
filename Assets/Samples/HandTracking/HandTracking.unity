@@ -629,6 +629,10 @@ MonoBehaviour:
   cropedFrame: {fileID: 423874093}
   jointMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   jointMaterial: {fileID: 2100000, guid: a038741359bd4454c91887120bb2ac01, type: 2}
+  testHandTex: {fileID: 0}
+  testRotation: 0
+  testFlipH: 0
+  testFlipV: 0
 --- !u!1 &2074584276
 GameObject:
   m_ObjectHideFlags: 0
