@@ -134,6 +134,7 @@ namespace TensorFlowLite
         {
             filterdResults.Clear();
             // FIXME LinQ allocs GC each frame
+            // Use sorted list
             foreach (Result original in results.OrderByDescending(o => o.score))
             {
                 bool ignoreCandidate = false;
