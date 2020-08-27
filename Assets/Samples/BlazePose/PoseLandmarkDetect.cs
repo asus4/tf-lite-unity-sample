@@ -68,16 +68,15 @@ namespace TensorFlowLite
                 : resizeOptions;
 
             // float rotation = CalcRotationDegree(ref pose);
-            const float rotation = 180;
             var rect = AlignmentPointsRect(ref pose);
             cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
             {
                 rect = rect,
-                rotationDegree = rotation,
+                rotationDegree = 180,
                 shift = PoseShift,
                 scale = PoseScale,
-                cameraRotationDegree = options.rotationDegree,
-                mirrorHorizontal = !options.mirrorHorizontal,
+                cameraRotationDegree = -options.rotationDegree,
+                mirrorHorizontal = options.mirrorHorizontal,
                 mirrorVertiacal = options.mirrorVertical,
             });
 

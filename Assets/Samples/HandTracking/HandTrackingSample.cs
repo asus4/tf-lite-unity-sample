@@ -15,13 +15,13 @@ public class HandTrackingSample : MonoBehaviour
     [SerializeField] Image cropedFrame = null;
     [SerializeField] Mesh jointMesh = null;
     [SerializeField] Material jointMaterial = null;
-
     WebCamTexture webcamTexture;
     PalmDetect palmDetect;
     HandLandmarkDetect landmarkDetect;
 
     Image[] frames;
-    Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
+    // just cache for GetWorldCorners
+    Vector3[] rtCorners = new Vector3[4];
     HandLandmarkDetect.Result landmarkResult;
     Vector3[] worldJoints = new Vector3[HandLandmarkDetect.JOINT_COUNT];
     PrimitiveDraw draw;
@@ -77,6 +77,8 @@ public class HandTrackingSample : MonoBehaviour
 
     void Update()
     {
+
+
         palmDetect.Invoke(webcamTexture);
         cameraView.material = palmDetect.transformMat;
 
@@ -97,7 +99,16 @@ public class HandTrackingSample : MonoBehaviour
         debugPalmView.texture = landmarkDetect.inputTex;
 
         landmarkResult = landmarkDetect.GetResult();
-        RectTransformationCalculator.DecodeToRectTransform(landmarkDetect.CropMatrix, cropedFrame.rectTransform);
+        {
+            // Apply webcam rotation to draw landmarks correctly
+            Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
+            for (int i = 0; i < landmarkResult.joints.Length; i++)
+            {
+                landmarkResult.joints[i] = mtx.MultiplyPoint3x4(landmarkResult.joints[i]);
+            }
+        }
+
+        RectTransformationCalculator.ApplyToRectTransform(landmarkDetect.CropMatrix, cropedFrame.rectTransform);
     }
 
     void UpdateFrame(List<PalmDetect.Result> palms)
@@ -169,4 +180,5 @@ public class HandTrackingSample : MonoBehaviour
                 0.05f);
         }
     }
+
 }
