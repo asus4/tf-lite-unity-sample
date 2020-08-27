@@ -96,7 +96,7 @@ public class BlazePoseSample : MonoBehaviour
 
         landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
 
-        RectTransformationCalculator.DecodeToRectTransform(poseLandmark.CropMatrix, croppedFrame.rectTransform);
+        RectTransformationCalculator.ApplyToRectTransform(poseLandmark.CropMatrix, croppedFrame.rectTransform);
     }
 
     void UpdateFrame(ref PoseDetect.Result pose)
