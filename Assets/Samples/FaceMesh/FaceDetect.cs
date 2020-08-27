@@ -24,6 +24,9 @@ namespace TensorFlowLite
             public float score;
             public Rect rect;
             public Vector2[] keypoints;
+
+            public Vector2 rightEye => keypoints[(int)KeyPoint.RightEye];
+            public Vector2 leftEye => keypoints[(int)KeyPoint.LeftEye];
         }
 
         private const int KEY_POINT_SIZE = 6;
