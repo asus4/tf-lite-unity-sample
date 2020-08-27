@@ -95,6 +95,14 @@ public class BlazePoseSample : MonoBehaviour
         debugView.texture = poseLandmark.inputTex;
 
         landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
+        {
+            // Apply webcam rotation to draw landmarks correctly
+            Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
+            for (int i = 0; i < landmarkResult.joints.Length; i++)
+            {
+                landmarkResult.joints[i] = mtx.MultiplyPoint3x4(landmarkResult.joints[i]);
+            }
+        }
 
         RectTransformationCalculator.ApplyToRectTransform(poseLandmark.CropMatrix, croppedFrame.rectTransform);
     }
