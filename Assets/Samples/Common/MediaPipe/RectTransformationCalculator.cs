@@ -22,6 +22,11 @@ namespace TensorFlowLite
             public float cameraRotationDegree;
             public bool mirrorHorizontal;
             public bool mirrorVertiacal;
+
+            public bool IsCameraModified =>
+                cameraRotationDegree != 0
+                || mirrorHorizontal
+                || mirrorVertiacal;
         }
 
         private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
@@ -63,6 +68,10 @@ namespace TensorFlowLite
                 new Vector3(1 / size.x, -1 / size.y, 1)
             );
 
+            if (!options.IsCameraModified)
+            {
+                return POP_MATRIX * trs * PUSH_MATRIX;
+            }
             Matrix4x4 cameraMtx = Matrix4x4.TRS(
                 new Vector3(0, 0, 0),
                 Quaternion.Euler(0, 0, -options.cameraRotationDegree),
