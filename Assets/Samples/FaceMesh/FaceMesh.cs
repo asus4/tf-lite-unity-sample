@@ -11,7 +11,7 @@ namespace TensorFlowLite
             public float score;
             public Vector3[] keypoints;
         }
-        private const int KEYPOINT_COUNT = 468;
+        public const int KEYPOINT_COUNT = 468;
         private float[,] output0 = new float[KEYPOINT_COUNT, 3]; // keypoint
         private float[] output1 = new float[1]; // flag
 
@@ -19,7 +19,7 @@ namespace TensorFlowLite
         private Matrix4x4 cropMatrix;
 
         public Vector2 FaceShift { get; set; } = new Vector2(0, 0.1f);
-        public Vector2 FaceScale { get; set; } = new Vector2(2f, 2f);
+        public Vector2 FaceScale { get; set; } = new Vector2(1.5f, 1.5f);
         public Matrix4x4 CropMatrix => cropMatrix;
 
 
@@ -71,9 +71,8 @@ namespace TensorFlowLite
         {
             const float SCALE = 1f / 255f;
             var mtx = cropMatrix.inverse;
-            // var mtx = cropMatrix;
-            result.score = output1[0];
 
+            result.score = output1[0];
             for (int i = 0; i < KEYPOINT_COUNT; i++)
             {
                 result.keypoints[i] = mtx.MultiplyPoint3x4(new Vector3(
