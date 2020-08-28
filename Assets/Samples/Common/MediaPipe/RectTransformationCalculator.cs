@@ -24,8 +24,8 @@ namespace TensorFlowLite
             public bool mirrorVertiacal;
         }
 
-        private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
-        private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
+        private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
+        private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
 
         public static Matrix4x4 CalcMatrix(Options options)
         {
@@ -72,12 +72,12 @@ namespace TensorFlowLite
                     1
                 )
             );
-            return PUSH_MATRIX * trs * cameraMtx * POP_MATRIX;
+            return POP_MATRIX * trs * cameraMtx * PUSH_MATRIX;
         }
 
         public static void ApplyToRectTransform(Matrix4x4 mtx, RectTransform t)
         {
-            mtx = POP_MATRIX * mtx.inverse * PUSH_MATRIX;
+            mtx = PUSH_MATRIX * mtx.inverse * POP_MATRIX;
             var position = mtx.ExtractPosition() + new Vector3(0.5f, 0.5f, 0);
             var rotation = mtx.ExtractRotation();
             var scale = mtx.ExtractScale();
