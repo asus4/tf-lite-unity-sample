@@ -6,13 +6,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
 
-public class FaceMeshSample : MonoBehaviour
+public sealed class FaceMeshSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")] string faceModelFile = "coco_ssd_mobilenet_quant.tflite";
     [SerializeField, FilePopup("*.tflite")] string faceMeshModelFile = "coco_ssd_mobilenet_quant.tflite";
 
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage croppedView = null;
+    [SerializeField] Material faceMaterial = null;
 
 
     WebCamTexture webcamTexture;
@@ -22,6 +23,9 @@ public class FaceMeshSample : MonoBehaviour
     FaceMesh.Result meshResult;
     PrimitiveDraw draw;
     Vector3[] rtCorners = new Vector3[4];
+    MeshFilter faceMeshFilter;
+    Vector3[] faceKeypoints;
+
 
     void Start()
     {
@@ -45,6 +49,19 @@ public class FaceMeshSample : MonoBehaviour
         {
             color = Color.blue,
         };
+
+        // Create Face Mesh Renderer
+        {
+            var go = new GameObject("Face");
+            go.transform.SetParent(transform);
+            var faceRenderer = go.AddComponent<MeshRenderer>();
+            faceRenderer.material = faceMaterial;
+
+            faceMeshFilter = go.AddComponent<MeshFilter>();
+            faceMeshFilter.sharedMesh = FaceMeshBuilder.CreateMesh();
+
+            faceKeypoints = new Vector3[FaceMesh.KEYPOINT_COUNT];
+        }
     }
 
     void OnDestroy()
@@ -79,6 +96,24 @@ public class FaceMeshSample : MonoBehaviour
         faceMesh.Invoke(webcamTexture, detectionResult);
         croppedView.texture = faceMesh.inputTex;
         meshResult = faceMesh.GetResult();
+
+        if (meshResult.score < 0.5f)
+        {
+            return;
+        }
+
+        cameraView.rectTransform.GetWorldCorners(rtCorners);
+        Vector3 min = rtCorners[0];
+        Vector3 max = rtCorners[2];
+        float zScale = (max.x - min.x) / 2;
+        for (int i = 0; i < meshResult.keypoints.Length; i++)
+        {
+            Vector3 p = MathTF.Leap(min, max, meshResult.keypoints[i]);
+            p.z = meshResult.keypoints[i].z * zScale;
+            faceKeypoints[i] = p;
+        }
+        FaceMeshBuilder.UpdateMesh(faceMeshFilter.sharedMesh, faceKeypoints);
+
     }
 
     void OnDrawResults(Camera camera)
@@ -103,17 +138,11 @@ public class FaceMeshSample : MonoBehaviour
             }
         }
 
+        // Draw Mesh
+        draw.color = Color.green;
+        foreach (Vector3 p in faceKeypoints)
         {
-            float zScale = max.x - min.x;
-            draw.color = Color.green;
-            foreach (Vector3 p in meshResult.keypoints)
-            {
-                Vector3 p1 = MathTF.Leap(min, max, p);
-                p1.z += (p.z - 0.5f) * zScale;
-                draw.Point(p1, 0.05f);
-            }
+            draw.Point(p, 0.05f);
         }
     }
-
-
 }
