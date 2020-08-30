@@ -43,7 +43,7 @@ namespace TensorFlowLite
         public GlDelegate()
         {
             Options options = TfLiteGpuDelegateOptionsV2Default();
-            Delegate = TfLiteGpuDelegateV2Create(options);
+            Delegate = TfLiteGpuDelegateV2Create(ref options);
         }
 
         public void Dispose()
@@ -59,7 +59,7 @@ namespace TensorFlowLite
         private static extern unsafe Options TfLiteGpuDelegateOptionsV2Default();
 
         [DllImport(TensorFlowLibraryGPU)]
-        private static extern unsafe TfLiteDelegate TfLiteGpuDelegateV2Create(Options options);
+        private static extern unsafe TfLiteDelegate TfLiteGpuDelegateV2Create(ref Options options);
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe void TfLiteGpuDelegateV2Delete(TfLiteDelegate gpuDelegate);
