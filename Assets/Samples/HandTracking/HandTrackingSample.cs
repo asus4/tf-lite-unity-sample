@@ -13,8 +13,6 @@ public class HandTrackingSample : MonoBehaviour
     [SerializeField] Image framePrefab = null;
     [SerializeField] RawImage debugPalmView = null;
     [SerializeField] Image cropedFrame = null;
-    [SerializeField] Mesh jointMesh = null;
-    [SerializeField] Material jointMaterial = null;
     WebCamTexture webcamTexture;
     PalmDetect palmDetect;
     HandLandmarkDetect landmarkDetect;
@@ -77,8 +75,6 @@ public class HandTrackingSample : MonoBehaviour
 
     void Update()
     {
-
-
         palmDetect.Invoke(webcamTexture);
         cameraView.material = palmDetect.transformMat;
 
@@ -128,7 +124,7 @@ public class HandTrackingSample : MonoBehaviour
 
     void SetFrame(Graphic frame, PalmDetect.Result palm, Vector2 size)
     {
-        var rt = frame.transform as RectTransform;
+        var rt = frame.rectTransform;
         var p = palm.rect.position;
         p.y = 1.0f - p.y; // invert Y
         rt.anchoredPosition = p * size - size * 0.5f;
@@ -160,7 +156,7 @@ public class HandTrackingSample : MonoBehaviour
         for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
         {
             var p = joints[i];
-            p = MathTF.Leap3(min, max, p);
+            p = MathTF.Leap(min, max, p);
             p.z += (joints[i].z - 0.5f) * zScale;
             worldJoints[i] = p;
         }
@@ -174,7 +170,7 @@ public class HandTrackingSample : MonoBehaviour
         var connections = HandLandmarkDetect.CONNECTIONS;
         for (int i = 0; i < connections.Length; i += 2)
         {
-            draw.Line(
+            draw.Line3D(
                 worldJoints[connections[i]],
                 worldJoints[connections[i + 1]],
                 0.05f);

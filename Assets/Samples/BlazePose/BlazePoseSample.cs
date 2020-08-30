@@ -19,8 +19,6 @@ public class BlazePoseSample : MonoBehaviour
     [SerializeField] Image framePrefab = null;
     [SerializeField] RawImage debugView = null;
     [SerializeField] Image croppedFrame = null;
-    [SerializeField] Mesh jointMesh = null;
-    [SerializeField] Material jointMaterial = null;
     [SerializeField] bool useLandmarkFilter = true;
 
     WebCamTexture webcamTexture;
@@ -67,6 +65,7 @@ public class BlazePoseSample : MonoBehaviour
         webcamTexture?.Stop();
         poseDetect?.Dispose();
         poseLandmark?.Dispose();
+        draw?.Dispose();
     }
 
     void OnEnable()
@@ -151,7 +150,7 @@ public class BlazePoseSample : MonoBehaviour
         for (int i = 0; i < joints.Length; i++)
         {
             var p = joints[i];
-            p = MathTF.Leap3(min, max, p);
+            p = MathTF.Leap(min, max, p);
             p.z += (joints[i].z - 0.5f) * zScale;
 
             worldJoints[i] = p;
@@ -165,7 +164,7 @@ public class BlazePoseSample : MonoBehaviour
         var connections = PoseLandmarkDetect.CONNECTIONS;
         for (int i = 0; i < connections.Length; i += 2)
         {
-            draw.Line(
+            draw.Line3D(
                 worldJoints[connections[i]],
                 worldJoints[connections[i + 1]],
                 0.05f);

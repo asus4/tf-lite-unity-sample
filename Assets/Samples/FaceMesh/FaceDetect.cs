@@ -1,46 +1,51 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Unity.Mathematics;
 
 namespace TensorFlowLite
 {
-    public class PoseDetect : BaseImagePredictor<float>
+
+
+    public class FaceDetect : BaseImagePredictor<float>
     {
         public enum KeyPoint
         {
-            MidHipCenter = 0,
-            FullBodySizeRot = 1,
-            MidShoulderCenter = 2,
-            UpperBodySizeRot = 3,
+            RightEye,  //  0
+            LeftEye, //  1
+            Nose, //  2
+            Mouth, //  3
+            RightEar, //  4
+            LeftEar, //  5
         }
 
-        public struct Result
+        public class Result
         {
             public float score;
             public Rect rect;
-            public float2x4 keypoints;
+            public Vector2[] keypoints;
 
-            public static Result Negative => new Result() { score = -1, };
-
-            public Vector2 HipCenter => keypoints[(int)KeyPoint.MidHipCenter];
-            public Vector2 MidShoulderCenter => keypoints[(int)KeyPoint.MidShoulderCenter];
+            public Vector2 rightEye => keypoints[(int)KeyPoint.RightEye];
+            public Vector2 leftEye => keypoints[(int)KeyPoint.LeftEye];
         }
 
-        const int MAX_POSE_NUM = 100;
+        private const int KEY_POINT_SIZE = 6;
+
+        private const int MAX_FACE_NUM = 100;
 
         // regressors / points
         // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
-        // 4 - 11 are 4 keypoint x and y coordinates: x0,y0,x1,y1,x2,y2,x3,y3
-        private float[,] output0 = new float[896, 12];
+        // 4 - 15 are 6 keypoint x and y coordinates: x0,y0,x1,y1,x2,y2,x3,y3
+        private float[,] output0 = new float[896, 16];
 
         // classificators / scores
         private float[] output1 = new float[896];
 
         private SsdAnchor[] anchors;
         private List<Result> results = new List<Result>();
+        private List<Result> filterdResults = new List<Result>();
 
-        public PoseDetect(string modelPath) : base(modelPath, true)
+        public FaceDetect(string modelPath) : base(modelPath, true)
         {
             var options = new SsdAnchorsCalcurator.Options()
             {
@@ -80,7 +85,7 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(1, output1);
         }
 
-        public Result GetResults(float scoreThreshold = 0.5f, float iouThreshold = 0.3f)
+        public List<Result> GetResults(float scoreThreshold = 0.7f, float iouThreshold = 0.3f)
         {
             results.Clear();
 
@@ -91,7 +96,6 @@ namespace TensorFlowLite
                 {
                     continue;
                 }
-
                 SsdAnchor anchor = anchors[i];
 
                 float sx = output0[i, 0];
@@ -107,8 +111,8 @@ namespace TensorFlowLite
                 w /= (float)width;
                 h /= (float)height;
 
-                var keypoints = new float2[4];
-                for (int j = 0; j < 4; j++)
+                var keypoints = new Vector2[KEY_POINT_SIZE];
+                for (int j = 0; j < KEY_POINT_SIZE; j++)
                 {
                     float lx = output0[i, 4 + (2 * j) + 0];
                     float ly = output0[i, 4 + (2 * j) + 1];
@@ -116,36 +120,28 @@ namespace TensorFlowLite
                     ly += anchor.y * height;
                     lx /= (float)width;
                     ly /= (float)height;
-                    keypoints[j] = new float2(lx, ly);
+                    keypoints[j] = new Vector2(lx, ly);
                 }
-
                 results.Add(new Result()
                 {
                     score = score,
                     rect = new Rect(cx - w * 0.5f, cy - h * 0.5f, w, h),
-                    keypoints = new float2x4(keypoints[0], keypoints[1], keypoints[2], keypoints[3]),
+                    keypoints = keypoints,
                 });
             }
 
-            // No result
-            if (results.Count == 0)
-            {
-                return Result.Negative;
-            }
-
-            // return results.OrderByDescending(o => o.score).First();
-            return NonMaxSuppression(results, iouThreshold).First();
+            return NonMaxSuppression(results, iouThreshold);
         }
 
-        private static List<Result> NonMaxSuppression(List<Result> results, float iouThreshold)
+        private List<Result> NonMaxSuppression(List<Result> results, float iouThreshold)
         {
-            var filtered = new List<Result>();
-
+            filterdResults.Clear();
             // FIXME LinQ allocs GC each frame
+            // Use sorted list
             foreach (Result original in results.OrderByDescending(o => o.score))
             {
                 bool ignoreCandidate = false;
-                foreach (Result newResult in filtered)
+                foreach (Result newResult in filterdResults)
                 {
                     float iou = original.rect.IntersectionOverUnion(newResult.rect);
                     if (iou >= iouThreshold)
@@ -157,15 +153,14 @@ namespace TensorFlowLite
 
                 if (!ignoreCandidate)
                 {
-                    filtered.Add(original);
-                    if (filtered.Count >= MAX_POSE_NUM)
+                    filterdResults.Add(original);
+                    if (filterdResults.Count >= MAX_FACE_NUM)
                     {
                         break;
                     }
                 }
             }
-
-            return filtered;
+            return filterdResults;
         }
     }
 }
