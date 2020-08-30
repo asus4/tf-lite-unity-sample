@@ -39,13 +39,14 @@ namespace TensorFlowLite
         {
             public bool allowPrecisionLoss;
             public WaitType waitType;
+            public bool enableQuantization;
         }
 
         public TfLiteDelegate Delegate { get; private set; }
 
         public MetalDelegate(Options options)
         {
-            Delegate = TFLGpuDelegateCreate(options);
+            Delegate = TFLGpuDelegateCreate(ref options);
         }
 
         public void Dispose()
@@ -63,7 +64,7 @@ namespace TensorFlowLite
 #endif // UNITY_IOS && !UNITY_EDITOR
 
         [DllImport(TensorFlowLibraryGPU)]
-        private static extern unsafe TfLiteDelegate TFLGpuDelegateCreate(Options delegateOptions);
+        private static extern unsafe TfLiteDelegate TFLGpuDelegateCreate(ref Options delegateOptions);
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe void TFLGpuDelegateDelete(TfLiteDelegate gpuDelegate);
