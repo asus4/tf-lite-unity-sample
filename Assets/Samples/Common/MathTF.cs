@@ -15,12 +15,23 @@ namespace TensorFlowLite
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 Leap3(in Vector3 a, in Vector3 b, in Vector3 t)
+        public static Vector3 Leap(in Vector3 a, in Vector3 b, in Vector3 t)
         {
             return new Vector3(
                 Mathf.Lerp(a.x, b.x, t.x),
                 Mathf.Lerp(a.y, b.y, t.y),
                 Mathf.Lerp(a.z, b.z, t.z)
+            );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rect Leap(in Vector3 a, in Vector3 b, in Rect t, bool invertY)
+        {
+            return new Rect(
+                Mathf.Lerp(a.x, b.x, t.x),
+                Mathf.Lerp(a.y, b.y, invertY ? 1f - t.y - t.height : t.y),
+                t.width * (b.x - a.x),
+                t.height * (b.y - a.y)
             );
         }
 
