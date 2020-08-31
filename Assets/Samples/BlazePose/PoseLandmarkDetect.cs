@@ -29,7 +29,7 @@ namespace TensorFlowLite
         private Result result;
         private Matrix4x4 cropMatrix;
         private Stopwatch stopwatch;
-        private RelativeVelocityFilter3D[] filter;
+        private RelativeVelocityFilter2D[] filters;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
         public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
@@ -38,11 +38,11 @@ namespace TensorFlowLite
         {
             get
             {
-                return filter[0].VelocityScale;
+                return filters[0].VelocityScale;
             }
             set
             {
-                foreach (var f in filter)
+                foreach (var f in filters)
                 {
                     f.VelocityScale = value;
                 }
@@ -60,13 +60,13 @@ namespace TensorFlowLite
             };
 
             // Init filters
-            filter = new RelativeVelocityFilter3D[JointCount];
+            filters = new RelativeVelocityFilter2D[JointCount];
             const int windowSize = 5;
             const float velocityScale = 10;
             const RelativeVelocityFilter.DistanceEstimationMode mode = RelativeVelocityFilter.DistanceEstimationMode.LegacyTransition;
             for (int i = 0; i < JointCount; i++)
             {
-                filter[i] = new RelativeVelocityFilter3D(windowSize, velocityScale, mode);
+                filters[i] = new RelativeVelocityFilter2D(windowSize, velocityScale, mode);
             }
             stopwatch = Stopwatch.StartNew();
         }
@@ -133,7 +133,8 @@ namespace TensorFlowLite
                 for (int i = 0; i < JointCount; i++)
                 {
                     Vector3 p = result.joints[i];
-                    result.joints[i] = filter[i].Apply(timestamp, valueScale, p);
+                    Vector2 filtered = filters[i].Apply(timestamp, valueScale, p);
+                    result.joints[i] = new Vector3(filtered.x, filtered.y, p.z);
                 }
             }
 
