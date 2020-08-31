@@ -52,6 +52,12 @@ namespace TensorFlowLite
         private float velocityScale;
         private DistanceEstimationMode distanceMode;
 
+        public float VelocitySacle
+        {
+            get => velocityScale;
+            set => velocityScale = value;
+        }
+
         public RelativeVelocityFilter(
             uint windowSize,
             float velocityScale,
@@ -133,6 +139,17 @@ namespace TensorFlowLite
         private RelativeVelocityFilter x;
         private RelativeVelocityFilter y;
         private RelativeVelocityFilter z;
+
+        public float VelocityScale
+        {
+            get => x.VelocitySacle;
+            set
+            {
+                x.VelocitySacle = value;
+                y.VelocitySacle = value;
+                z.VelocitySacle = value;
+            }
+        }
 
         public RelativeVelocityFilter3D(
             uint windowSize,
