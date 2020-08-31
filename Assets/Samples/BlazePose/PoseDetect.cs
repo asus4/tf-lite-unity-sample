@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Unity.Mathematics;
 
 namespace TensorFlowLite
 {
@@ -15,7 +14,7 @@ namespace TensorFlowLite
             UpperBodySizeRot = 3,
         }
 
-        public struct Result
+        public class Result : System.IComparable<Result>
         {
             public float score;
             public Rect rect;
@@ -25,6 +24,11 @@ namespace TensorFlowLite
 
             public Vector2 HipCenter => keypoints[(int)KeyPoint.MidHipCenter];
             public Vector2 MidShoulderCenter => keypoints[(int)KeyPoint.MidShoulderCenter];
+
+            public int CompareTo(Result other)
+            {
+                return score > other.score ? -1 : 1;
+            }
         }
 
         const int MAX_POSE_NUM = 100;
@@ -37,7 +41,8 @@ namespace TensorFlowLite
         protected float[] output1 = new float[896];
 
         private SsdAnchor[] anchors;
-        private List<Result> results = new List<Result>();
+        // private List<Result> results = new List<Result>();
+        private SortedList<float, Result> results = new SortedList<float, Result>();
 
 
         public PoseDetect(string modelPath) : base(modelPath, true)
@@ -125,12 +130,13 @@ namespace TensorFlowLite
                     keypoints[j] = new Vector2(lx, ly);
                 }
 
-                results.Add(new Result()
-                {
-                    score = score,
-                    rect = new Rect(cx - w * 0.5f, cy - h * 0.5f, w, h),
-                    keypoints = keypoints,
-                });
+                results.Add(score,
+                    new Result()
+                    {
+                        score = score,
+                        rect = new Rect(cx - w * 0.5f, cy - h * 0.5f, w, h),
+                        keypoints = keypoints,
+                    });
             }
 
             // No result
@@ -139,8 +145,8 @@ namespace TensorFlowLite
                 return Result.Negative;
             }
 
-            // return results.OrderByDescending(o => o.score).First();
-            return NonMaxSuppression(results, iouThreshold).First();
+            return results.Last().Value;
+            // return NonMaxSuppression(results, iouThreshold).First();
         }
 
         private static List<Result> NonMaxSuppression(List<Result> results, float iouThreshold)
