@@ -28,6 +28,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     [SerializeField] bool useLandmarkFilter = true;
     [SerializeField] Vector2 poseShift;
     [SerializeField] Vector2 poseScale;
+    [SerializeField, Range(2f, 30f)] float filterVelocityScale = 10;
 
     WebCamTexture webcamTexture;
     PoseDetect poseDetect;
@@ -118,6 +119,10 @@ public sealed class BlazePoseSample : MonoBehaviour
         poseLandmark.Invoke(webcamTexture, pose);
         debugView.texture = poseLandmark.inputTex;
 
+        if (useLandmarkFilter)
+        {
+            poseLandmark.FilterVelocityScale = filterVelocityScale;
+        }
         landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
         UpdateJoints();
         RectTransformationCalculator.ApplyToRectTransform(poseLandmark.CropMatrix, croppedFrame.rectTransform);

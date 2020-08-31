@@ -34,6 +34,21 @@ namespace TensorFlowLite
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
         public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
         public Vector2 PoseScale { get; set; } = new Vector2(1.5f, 1.5f);
+        public float FilterVelocityScale
+        {
+            get
+            {
+                return filter[0].VelocityScale;
+            }
+            set
+            {
+                foreach (var f in filter)
+                {
+                    f.VelocityScale = value;
+                }
+            }
+        }
+
         public Matrix4x4 CropMatrix => cropMatrix;
 
         public PoseLandmarkDetect(string modelPath) : base(modelPath, true)
@@ -208,7 +223,7 @@ namespace TensorFlowLite
             return RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
             {
                 rect = rect,
-                rotationDegree = 180 + rotation,
+                rotationDegree = rotation,
                 shift = PoseShift,
                 scale = PoseScale,
                 cameraRotationDegree = -options.rotationDegree,
