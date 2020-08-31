@@ -42,7 +42,7 @@ namespace TensorFlowLite
 
         private SsdAnchor[] anchors;
         // private List<Result> results = new List<Result>();
-        private SortedList<float, Result> results = new SortedList<float, Result>();
+        private SortedSet<Result> results = new SortedSet<Result>();
 
 
         public PoseDetect(string modelPath) : base(modelPath, true)
@@ -130,13 +130,12 @@ namespace TensorFlowLite
                     keypoints[j] = new Vector2(lx, ly);
                 }
 
-                results.Add(score,
-                    new Result()
-                    {
-                        score = score,
-                        rect = new Rect(cx - w * 0.5f, cy - h * 0.5f, w, h),
-                        keypoints = keypoints,
-                    });
+                results.Add(new Result()
+                {
+                    score = score,
+                    rect = new Rect(cx - w * 0.5f, cy - h * 0.5f, w, h),
+                    keypoints = keypoints,
+                });
             }
 
             // No result
@@ -145,7 +144,7 @@ namespace TensorFlowLite
                 return Result.Negative;
             }
 
-            return results.Last().Value;
+            return results.First();
             // return NonMaxSuppression(results, iouThreshold).First();
         }
 
