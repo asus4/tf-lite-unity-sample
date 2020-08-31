@@ -607,7 +607,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poseDetectionModelFile: mlkit/posedetector.tflite
-  poseLandmarkModelFile: mediapipe/pose_landmark_upper_body.tflite
+  poseLandmarkModelFile: mlkit/pose_39kp_lite.tflite
   mode: 1
   cameraView: {fileID: 2074584278}
   framePrefab: {fileID: 2968957287132992089, guid: 549d34dea5be54edba285d4947e5cd26,
@@ -615,6 +615,8 @@ MonoBehaviour:
   debugView: {fileID: 1302103928}
   croppedFrame: {fileID: 1000650481}
   useLandmarkFilter: 1
+  poseShift: {x: 0, y: 0}
+  poseScale: {x: 0, y: 0}
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0
