@@ -22,10 +22,15 @@ namespace TensorFlowLite
             public float cameraRotationDegree;
             public bool mirrorHorizontal;
             public bool mirrorVertiacal;
+
+            public bool IsCameraModified =>
+                cameraRotationDegree != 0
+                || mirrorHorizontal
+                || mirrorVertiacal;
         }
 
-        private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
-        private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
+        private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
+        private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
 
         public static Matrix4x4 CalcMatrix(Options options)
         {
@@ -63,6 +68,10 @@ namespace TensorFlowLite
                 new Vector3(1 / size.x, -1 / size.y, 1)
             );
 
+            if (!options.IsCameraModified)
+            {
+                return POP_MATRIX * trs * PUSH_MATRIX;
+            }
             Matrix4x4 cameraMtx = Matrix4x4.TRS(
                 new Vector3(0, 0, 0),
                 Quaternion.Euler(0, 0, -options.cameraRotationDegree),
@@ -72,12 +81,12 @@ namespace TensorFlowLite
                     1
                 )
             );
-            return PUSH_MATRIX * trs * cameraMtx * POP_MATRIX;
+            return POP_MATRIX * trs * cameraMtx * PUSH_MATRIX;
         }
 
         public static void ApplyToRectTransform(Matrix4x4 mtx, RectTransform t)
         {
-            mtx = POP_MATRIX * mtx.inverse * PUSH_MATRIX;
+            mtx = PUSH_MATRIX * mtx.inverse * POP_MATRIX;
             var position = mtx.ExtractPosition() + new Vector3(0.5f, 0.5f, 0);
             var rotation = mtx.ExtractRotation();
             var scale = mtx.ExtractScale();
