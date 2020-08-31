@@ -10,16 +10,23 @@ using TensorFlowLite;
 /// https://github.com/google/mediapipe
 /// https://viz.mediapipe.dev/demo/pose_tracking
 /// </summary>
-public class BlazePoseSample : MonoBehaviour
+public sealed class BlazePoseSample : MonoBehaviour
 {
+    public enum Mode
+    {
+        UpperBody,
+        FullBody,
+    }
+
     [SerializeField, FilePopup("*.tflite")] string poseDetectionModelFile = "coco_ssd_mobilenet_quant.tflite";
     [SerializeField, FilePopup("*.tflite")] string poseLandmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
-
+    [SerializeField] Mode mode = Mode.UpperBody;
     [SerializeField] RawImage cameraView = null;
     [SerializeField] Image framePrefab = null;
     [SerializeField] RawImage debugView = null;
     [SerializeField] Image croppedFrame = null;
     [SerializeField] bool useLandmarkFilter = true;
+    [SerializeField, Range(2f, 30f)] float filterVelocityScale = 10;
 
     WebCamTexture webcamTexture;
     PoseDetect poseDetect;
@@ -27,18 +34,28 @@ public class BlazePoseSample : MonoBehaviour
 
     Image frame;
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
-    Matrix4x4[] jointMatrices = new Matrix4x4[PoseLandmarkDetect.JOINT_COUNT];
     PoseLandmarkDetect.Result landmarkResult;
-    Vector3[] worldJoints = new Vector3[PoseLandmarkDetect.JOINT_COUNT];
+    Vector3[] worldJoints;
     PrimitiveDraw draw;
 
     void Start()
     {
         // Init model
         string detectionPath = Path.Combine(Application.streamingAssetsPath, poseDetectionModelFile);
-        poseDetect = new PoseDetect(detectionPath);
         string landmarkPath = Path.Combine(Application.streamingAssetsPath, poseLandmarkModelFile);
-        poseLandmark = new PoseLandmarkDetect(landmarkPath);
+        switch (mode)
+        {
+            case Mode.UpperBody:
+                poseDetect = new PoseDetectUpperBody(detectionPath);
+                poseLandmark = new PoseLandmarkDetectUpperBody(landmarkPath);
+                break;
+            case Mode.FullBody:
+                poseDetect = new PoseDetectFullBody(detectionPath);
+                poseLandmark = new PoseLandmarkDetectFullBody(landmarkPath);
+                break;
+            default:
+                throw new System.NotSupportedException($"Mode: {mode} is not supported");
+        }
 
         // Init camera 
         string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
@@ -58,6 +75,7 @@ public class BlazePoseSample : MonoBehaviour
         {
             color = Color.blue,
         };
+        worldJoints = new Vector3[poseLandmark.JointCount];
     }
 
     void OnDestroy()
@@ -93,16 +111,12 @@ public class BlazePoseSample : MonoBehaviour
         poseLandmark.Invoke(webcamTexture, pose);
         debugView.texture = poseLandmark.inputTex;
 
-        landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
+        if (useLandmarkFilter)
         {
-            // Apply webcam rotation to draw landmarks correctly
-            Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
-            for (int i = 0; i < landmarkResult.joints.Length; i++)
-            {
-                landmarkResult.joints[i] = mtx.MultiplyPoint3x4(landmarkResult.joints[i]);
-            }
+            poseLandmark.FilterVelocityScale = filterVelocityScale;
         }
-
+        landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
+        UpdateJoints();
         RectTransformationCalculator.ApplyToRectTransform(poseLandmark.CropMatrix, croppedFrame.rectTransform);
     }
 
@@ -124,12 +138,30 @@ public class BlazePoseSample : MonoBehaviour
 
         // Draw keypoints
         var kpOffset = -rt.anchoredPosition + new Vector2(-rt.sizeDelta.x, rt.sizeDelta.y) * 0.5f;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < poseDetect.KeypointsCount; i++)
         {
             var child = (RectTransform)rt.GetChild(i);
             Vector2 kp = pose.keypoints[i];
             kp.y = 1.0f - kp.y; // invert Y
             child.anchoredPosition = (kp * size - size * 0.5f) + kpOffset;
+        }
+    }
+
+    void UpdateJoints()
+    {
+        // Apply webcam rotation to draw landmarks correctly
+        Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
+        var rt = cameraView.transform as RectTransform;
+        rt.GetWorldCorners(rtCorners);
+        Vector3 min = rtCorners[0];
+        Vector3 max = rtCorners[2];
+
+        var joints = landmarkResult.joints;
+        for (int i = 0; i < joints.Length; i++)
+        {
+            var p = mtx.MultiplyPoint3x4(joints[i]);
+            p = MathTF.Leap(min, max, p);
+            worldJoints[i] = p;
         }
     }
 
@@ -140,28 +172,12 @@ public class BlazePoseSample : MonoBehaviour
             return;
         }
 
-        // Get world position of the joints
-        var joints = landmarkResult.joints;
-        var rt = cameraView.transform as RectTransform;
-        rt.GetWorldCorners(rtCorners);
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
-        float zScale = max.x - min.x;
-        for (int i = 0; i < joints.Length; i++)
-        {
-            var p = joints[i];
-            p = MathTF.Leap(min, max, p);
-            p.z += (joints[i].z - 0.5f) * zScale;
-
-            worldJoints[i] = p;
-        }
-
         // Draw
         for (int i = 0; i < worldJoints.Length; i++)
         {
             draw.Cube(worldJoints[i], 0.1f);
         }
-        var connections = PoseLandmarkDetect.CONNECTIONS;
+        var connections = poseLandmark.Connections;
         for (int i = 0; i < connections.Length; i += 2)
         {
             draw.Line3D(
@@ -169,6 +185,5 @@ public class BlazePoseSample : MonoBehaviour
                 worldJoints[connections[i + 1]],
                 0.05f);
         }
-
     }
 }
