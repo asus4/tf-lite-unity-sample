@@ -179,12 +179,12 @@ namespace TensorFlowLite
 
         protected override Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options)
         {
-            // float rotation = CalcRotationDegree(ref pose);
+            float rotation = CalcRotationDegree(pose.keypoints[2], pose.keypoints[3]);
             var rect = AlignmentPointsToRect(pose.keypoints[2], pose.keypoints[3]);
             return RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
             {
                 rect = rect,
-                rotationDegree = 180,
+                rotationDegree = rotation,
                 shift = PoseShift,
                 scale = PoseScale,
                 cameraRotationDegree = -options.rotationDegree,
