@@ -117,8 +117,9 @@ namespace TensorFlowLite
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             return new MetalDelegate(new MetalDelegate.Options()
             {
-                allowPrecisionLoss = false,
+                allowPrecisionLoss = true,
                 waitType = MetalDelegate.WaitType.Passive,
+                enableQuantization = false,
             });
 #endif
             UnityEngine.Debug.LogWarning("GPU Delegate is not supported on this platform");
