@@ -15,14 +15,11 @@ EditorBuildSettings:
     path: Assets/Samples/SSD/SSD.unity
     guid: 97a93d56ec0ff46078e253cebe3c63ee
   - enabled: 1
-    path: Assets/Samples/PoseNet/PoseNet.unity
-    guid: 338da8008aa764c05a72b5db18dc0d5c
-  - enabled: 1
     path: Assets/Samples/DeepLab/DeepLab.unity
     guid: 83d7df9250b9b412fb5713f372009893
   - enabled: 1
-    path: Assets/Samples/TextClassification/TextClassification.unity
-    guid: 60a19500630374f2da35947df5148c5e
+    path: Assets/Samples/PoseNet/PoseNet.unity
+    guid: 338da8008aa764c05a72b5db18dc0d5c
   - enabled: 1
     path: Assets/Samples/StyleTransfer/StyleTransfer.unity
     guid: 494656ebdd6dc43b4843586753a539bb
@@ -30,11 +27,17 @@ EditorBuildSettings:
     path: Assets/Samples/HandTracking/HandTracking.unity
     guid: 662ce65fb2adc439e84fa9fc8d766fe4
   - enabled: 1
+    path: Assets/Samples/BlazePose/BlazePoseUpperBody.unity
+    guid: d950d4d838fef4617a05bdf13bad7f89
+  - enabled: 1
+    path: Assets/Samples/BlazePose/BlazePoseFullBody.unity
+    guid: 3abf2ff7d3acd4eda8d5014c1830c433
+  - enabled: 1
+    path: Assets/Samples/TextClassification/TextClassification.unity
+    guid: 60a19500630374f2da35947df5148c5e
+  - enabled: 1
     path: Assets/Samples/Bert/Bert.unity
     guid: a09d7e2da582c4bfdb3aebd6a0e9779f
-  - enabled: 1
-    path: Assets/Samples/BlazePose/BlazePose.unity
-    guid: d950d4d838fef4617a05bdf13bad7f89
   - enabled: 1
     path: Assets/Samples/TestWebcamRotation/TestWebcamRotation.unity
     guid: 9d50926a120584683985b32230436be4

@@ -52,6 +52,12 @@ namespace TensorFlowLite
         private float velocityScale;
         private DistanceEstimationMode distanceMode;
 
+        public float VelocitySacle
+        {
+            get => velocityScale;
+            set => velocityScale = value;
+        }
+
         public RelativeVelocityFilter(
             uint windowSize,
             float velocityScale,
@@ -128,11 +134,55 @@ namespace TensorFlowLite
         }
     }
 
+    public class RelativeVelocityFilter2D
+    {
+        private RelativeVelocityFilter x;
+        private RelativeVelocityFilter y;
+
+        public float VelocityScale
+        {
+            get => x.VelocitySacle;
+            set
+            {
+                x.VelocitySacle = value;
+                y.VelocitySacle = value;
+            }
+        }
+
+        public RelativeVelocityFilter2D(
+            uint windowSize,
+            float velocityScale,
+            RelativeVelocityFilter.DistanceEstimationMode distanceMode)
+        {
+            x = new RelativeVelocityFilter(windowSize, velocityScale, distanceMode);
+            y = new RelativeVelocityFilter(windowSize, velocityScale, distanceMode);
+        }
+
+        public Vector2 Apply(double newTimestamp, float valueScale, Vector2 value)
+        {
+            return new Vector2(
+                x.Apply(newTimestamp, valueScale, value.x),
+                y.Apply(newTimestamp, valueScale, value.y)
+            );
+        }
+    }
+
     public class RelativeVelocityFilter3D
     {
         private RelativeVelocityFilter x;
         private RelativeVelocityFilter y;
         private RelativeVelocityFilter z;
+
+        public float VelocityScale
+        {
+            get => x.VelocitySacle;
+            set
+            {
+                x.VelocitySacle = value;
+                y.VelocitySacle = value;
+                z.VelocitySacle = value;
+            }
+        }
 
         public RelativeVelocityFilter3D(
             uint windowSize,
