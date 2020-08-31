@@ -26,8 +26,6 @@ public sealed class BlazePoseSample : MonoBehaviour
     [SerializeField] RawImage debugView = null;
     [SerializeField] Image croppedFrame = null;
     [SerializeField] bool useLandmarkFilter = true;
-    [SerializeField] Vector2 poseShift;
-    [SerializeField] Vector2 poseScale;
     [SerializeField, Range(2f, 30f)] float filterVelocityScale = 10;
 
     WebCamTexture webcamTexture;
@@ -78,9 +76,6 @@ public sealed class BlazePoseSample : MonoBehaviour
             color = Color.blue,
         };
         worldJoints = new Vector3[poseLandmark.JointCount];
-
-        poseShift = poseLandmark.PoseShift;
-        poseScale = poseLandmark.PoseScale;
     }
 
     void OnDestroy()
@@ -112,9 +107,6 @@ public sealed class BlazePoseSample : MonoBehaviour
         {
             return;
         }
-
-        poseLandmark.PoseShift = poseShift;
-        poseLandmark.PoseScale = poseScale;
 
         poseLandmark.Invoke(webcamTexture, pose);
         debugView.texture = poseLandmark.inputTex;
