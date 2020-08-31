@@ -5,7 +5,7 @@ using Unity.Mathematics;
 
 namespace TensorFlowLite
 {
-    public class PoseDetect : BaseImagePredictor<float>
+    public abstract class PoseDetect : BaseImagePredictor<float>
     {
         public enum KeyPoint
         {
@@ -19,7 +19,7 @@ namespace TensorFlowLite
         {
             public float score;
             public Rect rect;
-            public float2x4 keypoints;
+            public Vector2[] keypoints;
 
             public static Result Negative => new Result() { score = -1, };
 
@@ -28,17 +28,17 @@ namespace TensorFlowLite
         }
 
         const int MAX_POSE_NUM = 100;
+        public int KeypointsCount { get; private set; }
 
         // regressors / points
-        // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
-        // 4 - 11 are 4 keypoint x and y coordinates: x0,y0,x1,y1,x2,y2,x3,y3
-        private float[,] output0 = new float[896, 12];
+        protected float[,] output0;
 
         // classificators / scores
-        private float[] output1 = new float[896];
+        protected float[] output1 = new float[896];
 
         private SsdAnchor[] anchors;
         private List<Result> results = new List<Result>();
+
 
         public PoseDetect(string modelPath) : base(modelPath, true)
         {
@@ -67,6 +67,10 @@ namespace TensorFlowLite
 
             anchors = SsdAnchorsCalcurator.Generate(options);
             UnityEngine.Debug.AssertFormat(anchors.Length == 896, $"Anchors count must be 896, but was {anchors.Length}");
+
+            // Get Keypoint Mode
+            var odim0 = interpreter.GetOutputTensorInfo(0).shape;
+            KeypointsCount = (odim0[2] - 4) / 2;
         }
 
         public override void Invoke(Texture inputTex)
@@ -83,6 +87,8 @@ namespace TensorFlowLite
         public Result GetResults(float scoreThreshold = 0.5f, float iouThreshold = 0.3f)
         {
             results.Clear();
+
+            int keypointsCount = KeypointsCount;
 
             for (int i = 0; i < anchors.Length; i++)
             {
@@ -107,8 +113,8 @@ namespace TensorFlowLite
                 w /= (float)width;
                 h /= (float)height;
 
-                var keypoints = new float2[4];
-                for (int j = 0; j < 4; j++)
+                var keypoints = new Vector2[keypointsCount];
+                for (int j = 0; j < keypointsCount; j++)
                 {
                     float lx = output0[i, 4 + (2 * j) + 0];
                     float ly = output0[i, 4 + (2 * j) + 1];
@@ -116,14 +122,14 @@ namespace TensorFlowLite
                     ly += anchor.y * height;
                     lx /= (float)width;
                     ly /= (float)height;
-                    keypoints[j] = new float2(lx, ly);
+                    keypoints[j] = new Vector2(lx, ly);
                 }
 
                 results.Add(new Result()
                 {
                     score = score,
                     rect = new Rect(cx - w * 0.5f, cy - h * 0.5f, w, h),
-                    keypoints = new float2x4(keypoints[0], keypoints[1], keypoints[2], keypoints[3]),
+                    keypoints = keypoints,
                 });
             }
 
@@ -166,6 +172,26 @@ namespace TensorFlowLite
             }
 
             return filtered;
+        }
+    }
+
+    public sealed class PoseDetectUpperBody : PoseDetect
+    {
+        public PoseDetectUpperBody(string modelPath) : base(modelPath)
+        {
+            // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
+            // 4 - 11 are 4 keypoints x and y coordinates: x0,y0,x1,y1,x2,y2,x3,y3
+            output0 = new float[896, 12];
+        }
+    }
+
+    public sealed class PoseDetectFullBody : PoseDetect
+    {
+        public PoseDetectFullBody(string modelPath) : base(modelPath)
+        {
+            // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
+            // 4 - 11 are 2 keypoints x and y coordinates: x0,y0,x1,y1
+            output0 = new float[896, 8];
         }
     }
 }
