@@ -12,9 +12,15 @@ using TensorFlowLite;
 /// </summary>
 public class BlazePoseSample : MonoBehaviour
 {
+    public enum Mode
+    {
+        UpperBody,
+        FullBody,
+    }
+
     [SerializeField, FilePopup("*.tflite")] string poseDetectionModelFile = "coco_ssd_mobilenet_quant.tflite";
     [SerializeField, FilePopup("*.tflite")] string poseLandmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
-
+    [SerializeField] Mode mode = Mode.UpperBody;
     [SerializeField] RawImage cameraView = null;
     [SerializeField] Image framePrefab = null;
     [SerializeField] RawImage debugView = null;
@@ -36,9 +42,21 @@ public class BlazePoseSample : MonoBehaviour
     {
         // Init model
         string detectionPath = Path.Combine(Application.streamingAssetsPath, poseDetectionModelFile);
-        poseDetect = new PoseDetect(detectionPath);
         string landmarkPath = Path.Combine(Application.streamingAssetsPath, poseLandmarkModelFile);
-        poseLandmark = new PoseLandmarkDetect(landmarkPath);
+        switch (mode)
+        {
+            case Mode.UpperBody:
+                poseDetect = new PoseDetectUpperBody(detectionPath);
+                poseLandmark = new PoseLandmarkDetect(landmarkPath);
+                break;
+            case Mode.FullBody:
+                poseDetect = new PoseDetectFullBody(detectionPath);
+                poseLandmark = new PoseLandmarkDetect(landmarkPath);
+                break;
+            default:
+                throw new System.NotSupportedException($"Mode: {mode} is not supported");
+        }
+
 
         // Init camera 
         string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
@@ -124,7 +142,7 @@ public class BlazePoseSample : MonoBehaviour
 
         // Draw keypoints
         var kpOffset = -rt.anchoredPosition + new Vector2(-rt.sizeDelta.x, rt.sizeDelta.y) * 0.5f;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < poseDetect.KeypointsCount; i++)
         {
             var child = (RectTransform)rt.GetChild(i);
             Vector2 kp = pose.keypoints[i];
