@@ -6,13 +6,6 @@ namespace TensorFlowLite
 {
     public abstract class PoseDetect : BaseImagePredictor<float>
     {
-        public enum KeyPoint
-        {
-            MidHipCenter = 0,
-            FullBodySizeRot = 1,
-            MidShoulderCenter = 2,
-            UpperBodySizeRot = 3,
-        }
 
         public class Result : System.IComparable<Result>
         {
@@ -21,9 +14,6 @@ namespace TensorFlowLite
             public Vector2[] keypoints;
 
             public static Result Negative => new Result() { score = -1, };
-
-            public Vector2 HipCenter => keypoints[(int)KeyPoint.MidHipCenter];
-            public Vector2 MidShoulderCenter => keypoints[(int)KeyPoint.MidShoulderCenter];
 
             public int CompareTo(Result other)
             {
