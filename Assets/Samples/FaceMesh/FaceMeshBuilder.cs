@@ -24,7 +24,7 @@ namespace TensorFlowLite
 {
     public static class FaceMeshBuilder
     {
-        private static readonly int[] TRIANGULES = new int[]
+        private static readonly int[] TRIANGLES = new int[]
         {
             127, 34, 139, 11, 0, 37, 232, 231, 120, 72, 37, 39, 128, 121, 47, 232, 121,
             128, 104, 69, 67, 175, 171, 148, 157, 154, 155, 118, 50, 101, 73, 39, 40, 9,
@@ -672,7 +672,7 @@ namespace TensorFlowLite
         {
             var mesh = new Mesh();
             mesh.vertices = new Vector3[UV.Length];
-            mesh.triangles = TRIANGULES;
+            mesh.triangles = TRIANGLES;
             mesh.uv = UV;
             return mesh;
         }
