@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
+using Cysharp.Threading.Tasks;
 
 public class PoseNetSample : MonoBehaviour
 {
@@ -11,13 +12,14 @@ public class PoseNetSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField, Range(0f, 1f)] float threshold = 0.5f;
     [SerializeField, Range(0f, 1f)] float lineThickness = 0.5f;
+    [SerializeField] bool runBackground;
 
     WebCamTexture webcamTexture;
     PoseNet poseNet;
     Vector3[] corners = new Vector3[4];
     PrimitiveDraw draw;
-
-    public PoseNet.Result[] results;
+    UniTask<bool> task;
+    PoseNet.Result[] results;
 
     void Start()
     {
@@ -45,13 +47,24 @@ public class PoseNetSample : MonoBehaviour
 
     void Update()
     {
-        poseNet.Invoke(webcamTexture);
-        results = poseNet.GetResults();
+        if (runBackground)
+        {
+            if (task.Status.IsCompleted())
+            {
+                task = InvokeAsync();
+            }
+        }
+        else
+        {
+            poseNet.Invoke(webcamTexture);
+            results = poseNet.GetResults();
+            cameraView.material = poseNet.transformMat;
+        }
 
-        cameraView.material = poseNet.transformMat;
-        // cameraView.texture = poseNet.inputTex;
-
-        DrawResult();
+        if (results != null)
+        {
+            DrawResult();
+        }
     }
 
     void DrawResult()
@@ -78,5 +91,12 @@ public class PoseNetSample : MonoBehaviour
         }
 
         draw.Apply();
+    }
+
+    async UniTask<bool> InvokeAsync()
+    {
+        results = await poseNet.InvokeAsync(webcamTexture);
+        cameraView.material = poseNet.transformMat;
+        return true;
     }
 }
