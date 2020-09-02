@@ -69,7 +69,7 @@ public class HandTrackingSample : MonoBehaviour
 
         if (landmarkResult.score < 0.2f) return;
 
-        DrawcropMatrix(landmarkDetect.CropMatrix);
+        DrawCropMatrix(landmarkDetect.CropMatrix);
         DrawJoints(landmarkResult.joints);
     }
 
@@ -91,7 +91,7 @@ public class HandTrackingSample : MonoBehaviour
         draw.Apply();
     }
 
-    void DrawcropMatrix(in Matrix4x4 matrix)
+    void DrawCropMatrix(in Matrix4x4 matrix)
     {
         draw.color = Color.red;
 
@@ -112,13 +112,14 @@ public class HandTrackingSample : MonoBehaviour
     {
         draw.color = Color.blue;
 
-        // Get world position of the joints
+        // Get World Corners
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
 
         // Need to apply camera rotation and mirror on mobile
         Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
 
+        // Get joint locations in the world space
         float zScale = max.x - min.x;
         for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
         {
@@ -128,11 +129,13 @@ public class HandTrackingSample : MonoBehaviour
             worldJoints[i] = p1;
         }
 
+        // Cube
         for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
         {
             draw.Cube(worldJoints[i], 0.1f);
         }
 
+        // Connection Lines
         var connections = HandLandmarkDetect.CONNECTIONS;
         for (int i = 0; i < connections.Length; i += 2)
         {

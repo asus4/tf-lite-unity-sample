@@ -22,9 +22,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     [SerializeField, FilePopup("*.tflite")] string poseLandmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
     [SerializeField] Mode mode = Mode.UpperBody;
     [SerializeField] RawImage cameraView = null;
-    [SerializeField] Image framePrefab = null;
     [SerializeField] RawImage debugView = null;
-    [SerializeField] Image croppedFrame = null;
     [SerializeField] bool useLandmarkFilter = true;
     [SerializeField, Range(2f, 30f)] float filterVelocityScale = 10;
 
@@ -32,9 +30,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     PoseDetect poseDetect;
     PoseLandmarkDetect poseLandmark;
 
-    Image frame;
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
-    PoseLandmarkDetect.Result landmarkResult;
     Vector3[] worldJoints;
     PrimitiveDraw draw;
 
@@ -68,13 +64,8 @@ public sealed class BlazePoseSample : MonoBehaviour
         webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
 
-        // Init frame
-        frame = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, cameraView.transform);
 
-        draw = new PrimitiveDraw(Camera.main, gameObject.layer)
-        {
-            color = Color.blue,
-        };
+        draw = new PrimitiveDraw(Camera.main, gameObject.layer);
         worldJoints = new Vector3[poseLandmark.JointCount];
     }
 
@@ -90,14 +81,12 @@ public sealed class BlazePoseSample : MonoBehaviour
     {
         poseDetect.Invoke(webcamTexture);
         cameraView.material = poseDetect.transformMat;
+        cameraView.rectTransform.GetWorldCorners(rtCorners);
 
         var pose = poseDetect.GetResults(0.7f, 0.3f);
-        UpdateFrame(ref pose);
+        if (pose.score < 0) return;
 
-        if (pose.score < 0)
-        {
-            return;
-        }
+        DrawFrame(ref pose);
 
         poseLandmark.Invoke(webcamTexture, pose);
         debugView.texture = poseLandmark.inputTex;
@@ -106,63 +95,61 @@ public sealed class BlazePoseSample : MonoBehaviour
         {
             poseLandmark.FilterVelocityScale = filterVelocityScale;
         }
-        landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
-        UpdateJoints();
-        RectTransformationCalculator.ApplyToRectTransform(poseLandmark.CropMatrix, croppedFrame.rectTransform);
+        var landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
 
-        DrawJoints();
+        if (landmarkResult.score < 0.2f) return;
+
+        DrawCropMatrix(poseLandmark.CropMatrix);
+        DrawJoints(landmarkResult.joints);
     }
 
-    void UpdateFrame(ref PoseDetect.Result pose)
+    void DrawFrame(ref PoseDetect.Result pose)
     {
-        if (pose.score < 0)
-        {
-            frame.gameObject.SetActive(false);
-            return;
-        }
-        frame.gameObject.SetActive(true);
-
-        var size = ((RectTransform)cameraView.transform).rect.size;
-        var rt = frame.transform as RectTransform;
-        var p = pose.rect.position;
-        p.y = 1.0f - p.y; // invert Y
-        rt.anchoredPosition = p * size - size * 0.5f;
-        rt.sizeDelta = pose.rect.size * size;
-
-        // Draw keypoints
-        var kpOffset = -rt.anchoredPosition + new Vector2(-rt.sizeDelta.x, rt.sizeDelta.y) * 0.5f;
-        for (int i = 0; i < poseDetect.KeypointsCount; i++)
-        {
-            var child = (RectTransform)rt.GetChild(i);
-            Vector2 kp = pose.keypoints[i];
-            kp.y = 1.0f - kp.y; // invert Y
-            child.anchoredPosition = (kp * size - size * 0.5f) + kpOffset;
-        }
-    }
-
-    void UpdateJoints()
-    {
-        // Apply webcam rotation to draw landmarks correctly
-        Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
-        var rt = cameraView.transform as RectTransform;
-        rt.GetWorldCorners(rtCorners);
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
 
-        var joints = landmarkResult.joints;
+        draw.color = Color.green;
+        draw.Rect(MathTF.Lerp(min, max, pose.rect, true), 0.02f, min.z);
+
+        foreach (var kp in pose.keypoints)
+        {
+            draw.Point(MathTF.Lerp(min, max, (Vector3)kp, true), 0.05f);
+        }
+        draw.Apply();
+    }
+
+    void DrawCropMatrix(in Matrix4x4 matrix)
+    {
+        draw.color = Color.red;
+
+        Vector3 min = rtCorners[0];
+        Vector3 max = rtCorners[2];
+
+        var mtx = matrix.inverse;
+        Vector3 a = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(0, 0, 0)));
+        Vector3 b = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(1, 0, 0)));
+        Vector3 c = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(1, 1, 0)));
+        Vector3 d = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(0, 1, 0)));
+
+        draw.Quad(a, b, c, d, 0.02f);
+        draw.Apply();
+    }
+
+    void DrawJoints(Vector3[] joints)
+    {
+        // Apply webcam rotation to draw landmarks correctly
+        Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
+        Vector3 min = rtCorners[0];
+        Vector3 max = rtCorners[2];
+
+        draw.color = Color.blue;
+
+        // Update world joints
         for (int i = 0; i < joints.Length; i++)
         {
             var p = mtx.MultiplyPoint3x4(joints[i]);
             p = MathTF.Lerp(min, max, p);
             worldJoints[i] = p;
-        }
-    }
-
-    void DrawJoints()
-    {
-        if (landmarkResult == null || landmarkResult.score < 0.2f)
-        {
-            return;
         }
 
         // Draw
