@@ -6,10 +6,11 @@ using UnityEngine.Rendering;
 namespace TensorFlowLite
 {
     /// <summary>
-    /// A simple drawing util
+    /// A simple drawing utility
     /// </summary>
     public sealed class PrimitiveDraw : System.IDisposable
     {
+        #region Internal Class
         private class MeshBuffer : System.IDisposable
         {
             public Mesh mesh;
@@ -47,6 +48,9 @@ namespace TensorFlowLite
                 }
             }
         }
+        #endregion // Internal Class
+
+        #region Private members
 
         private Material material;
         private MaterialPropertyBlock mpb;
@@ -58,6 +62,10 @@ namespace TensorFlowLite
         private int layer;
 
         private static readonly int _Color = Shader.PropertyToID("_Color");
+
+        #endregion // Private members
+
+        #region Public
 
         public Color color
         {
@@ -168,6 +176,10 @@ namespace TensorFlowLite
             Line(d, a, thickness);
         }
 
+        #endregion // Public
+
+        #region Private
+
         private void Draw(MeshBuffer mb, bool drawEditor)
         {
             if (mb.index <= 0) return;
@@ -230,6 +242,8 @@ namespace TensorFlowLite
             Object.Destroy(go);
             return mesh;
         }
+        #endregion // Private Methods
+
     }
 
 }
