@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Cysharp.Threading.Tasks;
 
 
 namespace TensorFlowLite
@@ -77,6 +78,26 @@ namespace TensorFlowLite
                 inputs[y, x, 1] = (pixels[i].g - offset) * scale;
                 inputs[y, x, 2] = (pixels[i].b - offset) * scale;
             }
+        }
+
+        public async UniTask<bool> ToTensorAsync(RenderTexture texture, float[,,] inputs)
+        {
+            await UniTask.SwitchToMainThread();
+            var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
+            int width = texture.width;
+            int height = texture.height - 1;
+            await UniTask.SwitchToThreadPool();
+
+            const float scale = 255f;
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                int y = height - i / width;
+                int x = i % width;
+                inputs[y, x, 0] = (float)(pixels[i].r) / scale;
+                inputs[y, x, 1] = (float)(pixels[i].g) / scale;
+                inputs[y, x, 2] = (float)(pixels[i].b) / scale;
+            }
+            return true;
         }
 
         void ToTensorCPU(RenderTexture texture, float[,,] inputs)
