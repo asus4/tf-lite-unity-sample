@@ -19,8 +19,6 @@ public sealed class FaceMeshSample : MonoBehaviour
     WebCamTexture webcamTexture;
     FaceDetect faceDetect;
     FaceMesh faceMesh;
-    FaceDetect.Result detectionResult;
-    FaceMesh.Result meshResult;
     PrimitiveDraw draw;
     Vector3[] rtCorners = new Vector3[4];
     MeshFilter faceMeshFilter;
@@ -73,7 +71,7 @@ public sealed class FaceMeshSample : MonoBehaviour
     {
         faceDetect.Invoke(webcamTexture);
         cameraView.material = faceDetect.transformMat;
-        detectionResult = faceDetect.GetResults().FirstOrDefault();
+        var detectionResult = faceDetect.GetResults().FirstOrDefault();
 
         if (detectionResult == null)
         {
@@ -82,23 +80,18 @@ public sealed class FaceMeshSample : MonoBehaviour
 
         faceMesh.Invoke(webcamTexture, detectionResult);
         croppedView.texture = faceMesh.inputTex;
-        meshResult = faceMesh.GetResult();
+        var meshResult = faceMesh.GetResult();
 
         if (meshResult.score < 0.5f)
         {
             return;
         }
 
-        OnDrawResults();
+        DrawResults(detectionResult, meshResult);
     }
 
-    void OnDrawResults()
+    void DrawResults(FaceDetect.Result detection, FaceMesh.Result face)
     {
-        if (detectionResult == null)
-        {
-            return;
-        }
-
         cameraView.rectTransform.GetWorldCorners(rtCorners);
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
@@ -106,11 +99,11 @@ public sealed class FaceMeshSample : MonoBehaviour
         // Draw Face Detection
         {
             draw.color = Color.blue;
-            Rect rect = MathTF.Leap(min, max, detectionResult.rect, true);
+            Rect rect = MathTF.Lerp(min, max, detection.rect, true);
             draw.Rect(rect, 0.05f);
-            foreach (Vector2 p in detectionResult.keypoints)
+            foreach (Vector2 p in detection.keypoints)
             {
-                draw.Point(MathTF.Leap(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
+                draw.Point(MathTF.Lerp(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
             }
         }
         draw.Apply();
@@ -118,10 +111,10 @@ public sealed class FaceMeshSample : MonoBehaviour
         // Draw face
         draw.color = Color.green;
         float zScale = (max.x - min.x) / 2;
-        for (int i = 0; i < meshResult.keypoints.Length; i++)
+        for (int i = 0; i < face.keypoints.Length; i++)
         {
-            Vector3 p = MathTF.Leap(min, max, meshResult.keypoints[i]);
-            p.z = meshResult.keypoints[i].z * zScale;
+            Vector3 p = MathTF.Lerp(min, max, face.keypoints[i]);
+            p.z = face.keypoints[i].z * zScale;
             faceKeypoints[i] = p;
             draw.Point(p, 0.05f);
         }

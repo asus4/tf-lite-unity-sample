@@ -79,11 +79,11 @@ public class FaceDetectionSample : MonoBehaviour
 
         foreach (var result in results)
         {
-            Rect rect = MathTF.Leap(min, max, result.rect, true);
+            Rect rect = MathTF.Lerp(min, max, result.rect, true);
             draw.Rect(rect, 0.05f);
             foreach (Vector2 p in result.keypoints)
             {
-                draw.Point(MathTF.Leap(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
+                draw.Point(MathTF.Lerp(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
             }
         }
     }

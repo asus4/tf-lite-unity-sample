@@ -82,6 +82,8 @@ namespace TensorFlowLite
 
             this.camera = camera ?? Camera.main;
             this.layer = layer;
+
+            color = Color.green;
         }
 
         public void Dispose()
@@ -113,13 +115,13 @@ namespace TensorFlowLite
             }
         }
 
-        public void Rect(Rect rect, float thickness)
+        public void Rect(Rect rect, float thickness, float z = 0)
         {
             if (rect.width <= 0 || rect.height <= 0) return;
-            var p0 = new Vector3(rect.xMin, rect.yMin, 0);
-            var p1 = new Vector3(rect.xMax, rect.yMin, 0);
-            var p2 = new Vector3(rect.xMax, rect.yMax, 0);
-            var p3 = new Vector3(rect.xMin, rect.yMax, 0);
+            var p0 = new Vector3(rect.xMin, rect.yMin, z);
+            var p1 = new Vector3(rect.xMax, rect.yMin, z);
+            var p2 = new Vector3(rect.xMax, rect.yMax, z);
+            var p3 = new Vector3(rect.xMin, rect.yMax, z);
             Matrix4x4 mtx;
             TryLine2DMatrix(p0, p1, thickness, out mtx);
             quad.Add(mtx);
@@ -158,8 +160,18 @@ namespace TensorFlowLite
             cube.Add(mtx);
         }
 
+        public void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, float thickness)
+        {
+            Line(a, b, thickness);
+            Line(b, c, thickness);
+            Line(c, d, thickness);
+            Line(d, a, thickness);
+        }
+
         private void Draw(MeshBuffer mb, bool drawEditor)
         {
+            if (mb.index <= 0) return;
+
             Graphics.DrawMeshInstanced(
                 mb.mesh, 0, material, mb.buffer, mb.index,
                 mpb, ShadowCastingMode.Off, false, layer, camera,

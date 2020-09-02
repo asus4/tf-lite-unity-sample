@@ -15,17 +15,17 @@ namespace TensorFlowLite
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 Leap(in Vector3 a, in Vector3 b, in Vector3 t)
+        public static Vector3 Lerp(in Vector3 a, in Vector3 b, in Vector3 t, bool invertY = false)
         {
             return new Vector3(
                 Mathf.Lerp(a.x, b.x, t.x),
-                Mathf.Lerp(a.y, b.y, t.y),
+                Mathf.Lerp(a.y, b.y, invertY ? 1f - t.y : t.y),
                 Mathf.Lerp(a.z, b.z, t.z)
             );
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rect Leap(in Vector3 a, in Vector3 b, in Rect t, bool invertY)
+        public static Rect Lerp(in Vector3 a, in Vector3 b, in Rect t, bool invertY = false)
         {
             return new Rect(
                 Mathf.Lerp(a.x, b.x, t.x),
@@ -36,7 +36,7 @@ namespace TensorFlowLite
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 Leap3Unclamped(in Vector3 a, in Vector3 b, in Vector3 t)
+        public static Vector3 LerpUnclamped(in Vector3 a, in Vector3 b, in Vector3 t)
         {
             return new Vector3(
                 Mathf.LerpUnclamped(a.x, b.x, t.x),
