@@ -372,7 +372,7 @@ PlayerSettings:
     m_DynamicBatching: 0
   m_BuildTargetGraphicsJobs:
   - m_BuildTarget: MacStandaloneSupport
-    m_GraphicsJobs: 0
+    m_GraphicsJobs: 1
   - m_BuildTarget: Switch
     m_GraphicsJobs: 0
   - m_BuildTarget: MetroSupport
@@ -386,7 +386,7 @@ PlayerSettings:
   - m_BuildTarget: PS4Player
     m_GraphicsJobs: 0
   - m_BuildTarget: iOSSupport
-    m_GraphicsJobs: 0
+    m_GraphicsJobs: 1
   - m_BuildTarget: WindowsStandaloneSupport
     m_GraphicsJobs: 0
   - m_BuildTarget: XboxOnePlayer
@@ -394,7 +394,7 @@ PlayerSettings:
   - m_BuildTarget: LuminSupport
     m_GraphicsJobs: 0
   - m_BuildTarget: AndroidPlayer
-    m_GraphicsJobs: 0
+    m_GraphicsJobs: 1
   - m_BuildTarget: WebGLSupport
     m_GraphicsJobs: 0
   m_BuildTargetGraphicsJobMode:

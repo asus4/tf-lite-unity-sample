@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "4d554a67182e6c47ebb1bc6e413e99bb067dff1c"
+    },
     "com.github.asus4.tflite": {
       "version": "file:com.github.asus4.tflite",
       "depth": 0,
