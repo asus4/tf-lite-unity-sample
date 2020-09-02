@@ -36,10 +36,7 @@ public class FaceDetectionSample : MonoBehaviour
         webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
 
-        draw = new PrimitiveDraw()
-        {
-            color = Color.blue,
-        };
+        draw = new PrimitiveDraw(Camera.main, gameObject.layer);
     }
 
     void OnDestroy()
@@ -49,43 +46,35 @@ public class FaceDetectionSample : MonoBehaviour
         draw?.Dispose();
     }
 
-    void OnEnable()
-    {
-        Camera.onPostRender += OnDrawResults;
-    }
-    void OnDisable()
-    {
-        Camera.onPostRender -= OnDrawResults;
-    }
-
-
     void Update()
     {
         faceDetect.Invoke(webcamTexture);
         cameraView.material = faceDetect.transformMat;
-        results = faceDetect.GetResults();
+        cameraView.rectTransform.GetWorldCorners(rtCorners);
+
+        var results = faceDetect.GetResults();
+        if (results == null) return;
+
+        DrawResults(results);
     }
 
-    void OnDrawResults(Camera camera)
+    void DrawResults(List<FaceDetect.Result> results)
     {
-        if (results == null)
-        {
-            return;
-        }
-
-        cameraView.rectTransform.GetWorldCorners(rtCorners);
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
 
+        draw.color = Color.blue;
+
         foreach (var result in results)
         {
-            Rect rect = MathTF.Leap(min, max, result.rect, true);
+            Rect rect = MathTF.Lerp(min, max, result.rect, true);
             draw.Rect(rect, 0.05f);
             foreach (Vector2 p in result.keypoints)
             {
-                draw.Point(MathTF.Leap(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
+                draw.Point(MathTF.Lerp(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
             }
         }
+        draw.Apply();
     }
 
 
