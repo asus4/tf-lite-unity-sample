@@ -83,27 +83,6 @@ namespace TensorFlowLite
             );
             return POP_MATRIX * trs * cameraMtx * PUSH_MATRIX;
         }
-
-        public static void ApplyToRectTransform(Matrix4x4 mtx, RectTransform t)
-        {
-            mtx = PUSH_MATRIX * mtx.inverse * POP_MATRIX;
-            var position = mtx.ExtractPosition() + new Vector3(0.5f, 0.5f, 0);
-            var rotation = mtx.ExtractRotation();
-            var scale = mtx.ExtractScale();
-
-            var size = t.sizeDelta;
-            var min = new Vector3(-size.x / 2, -size.y / 2, 0);
-            var max = new Vector3(size.x / 2, size.y / 2, 0);
-
-            // Modify RectTransfrom setting
-            t.pivot = t.anchorMin = t.anchorMax = new Vector2(0.5f, 0.5f);
-            t.sizeDelta = ((RectTransform)t.parent).rect.size;
-
-            // Set TRS
-            t.localPosition = MathTF.LerpUnclamped(min, max, position);
-            t.localRotation = rotation;
-            t.localScale = scale;
-        }
     }
 
 }
