@@ -45,10 +45,7 @@ public sealed class FaceMeshSample : MonoBehaviour
         webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
 
-        draw = new PrimitiveDraw()
-        {
-            color = Color.blue,
-        };
+        draw = new PrimitiveDraw(Camera.main, gameObject.layer);
 
         // Create Face Mesh Renderer
         {
@@ -72,16 +69,6 @@ public sealed class FaceMeshSample : MonoBehaviour
         draw?.Dispose();
     }
 
-    void OnEnable()
-    {
-        Camera.onPostRender += OnDrawResults;
-    }
-    void OnDisable()
-    {
-        Camera.onPostRender -= OnDrawResults;
-    }
-
-
     void Update()
     {
         faceDetect.Invoke(webcamTexture);
@@ -102,21 +89,10 @@ public sealed class FaceMeshSample : MonoBehaviour
             return;
         }
 
-        cameraView.rectTransform.GetWorldCorners(rtCorners);
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
-        float zScale = (max.x - min.x) / 2;
-        for (int i = 0; i < meshResult.keypoints.Length; i++)
-        {
-            Vector3 p = MathTF.Leap(min, max, meshResult.keypoints[i]);
-            p.z = meshResult.keypoints[i].z * zScale;
-            faceKeypoints[i] = p;
-        }
-        FaceMeshBuilder.UpdateMesh(faceMeshFilter.sharedMesh, faceKeypoints);
-
+        OnDrawResults();
     }
 
-    void OnDrawResults(Camera camera)
+    void OnDrawResults()
     {
         if (detectionResult == null)
         {
@@ -137,12 +113,21 @@ public sealed class FaceMeshSample : MonoBehaviour
                 draw.Point(MathTF.Leap(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
             }
         }
+        draw.Apply();
 
-        // Draw Mesh
+        // Draw face
         draw.color = Color.green;
-        foreach (Vector3 p in faceKeypoints)
+        float zScale = (max.x - min.x) / 2;
+        for (int i = 0; i < meshResult.keypoints.Length; i++)
         {
+            Vector3 p = MathTF.Leap(min, max, meshResult.keypoints[i]);
+            p.z = meshResult.keypoints[i].z * zScale;
+            faceKeypoints[i] = p;
             draw.Point(p, 0.05f);
         }
+        draw.Apply();
+
+        // Update Mesh
+        FaceMeshBuilder.UpdateMesh(faceMeshFilter.sharedMesh, faceKeypoints);
     }
 }
