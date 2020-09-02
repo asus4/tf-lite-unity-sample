@@ -43,15 +43,6 @@ public class PoseNetSample : MonoBehaviour
         draw?.Dispose();
     }
 
-    void OnEnable()
-    {
-        Camera.onPostRender += DrawResult;
-    }
-    void OnDisable()
-    {
-        Camera.onPostRender -= DrawResult;
-    }
-
     void Update()
     {
         poseNet.Invoke(webcamTexture);
@@ -59,9 +50,11 @@ public class PoseNetSample : MonoBehaviour
 
         cameraView.material = poseNet.transformMat;
         // cameraView.texture = poseNet.inputTex;
+
+        DrawResult();
     }
 
-    void DrawResult(Camera camera)
+    void DrawResult()
     {
         var rect = cameraView.GetComponent<RectTransform>();
         rect.GetWorldCorners(corners);
@@ -84,5 +77,6 @@ public class PoseNetSample : MonoBehaviour
             }
         }
 
+        draw.Apply();
     }
 }

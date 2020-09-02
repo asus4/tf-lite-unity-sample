@@ -36,10 +36,7 @@ public class FaceDetectionSample : MonoBehaviour
         webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
 
-        draw = new PrimitiveDraw()
-        {
-            color = Color.blue,
-        };
+        draw = new PrimitiveDraw(Camera.main, gameObject.layer);
     }
 
     void OnDestroy()
@@ -49,33 +46,24 @@ public class FaceDetectionSample : MonoBehaviour
         draw?.Dispose();
     }
 
-    void OnEnable()
-    {
-        Camera.onPostRender += OnDrawResults;
-    }
-    void OnDisable()
-    {
-        Camera.onPostRender -= OnDrawResults;
-    }
-
-
     void Update()
     {
         faceDetect.Invoke(webcamTexture);
         cameraView.material = faceDetect.transformMat;
-        results = faceDetect.GetResults();
+        cameraView.rectTransform.GetWorldCorners(rtCorners);
+
+        var results = faceDetect.GetResults();
+        if (results == null) return;
+
+        DrawResults(results);
     }
 
-    void OnDrawResults(Camera camera)
+    void DrawResults(List<FaceDetect.Result> results)
     {
-        if (results == null)
-        {
-            return;
-        }
-
-        cameraView.rectTransform.GetWorldCorners(rtCorners);
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
+
+        draw.color = Color.blue;
 
         foreach (var result in results)
         {
@@ -86,6 +74,7 @@ public class FaceDetectionSample : MonoBehaviour
                 draw.Point(MathTF.Lerp(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
             }
         }
+        draw.Apply();
     }
 
 
