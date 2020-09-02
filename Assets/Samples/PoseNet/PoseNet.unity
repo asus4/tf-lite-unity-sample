@@ -154,7 +154,7 @@ MonoBehaviour:
   cameraView: {fileID: 237587965}
   threshold: 0.5
   lineThickness: 0.5
-  results: []
+  runBackground: 1
 --- !u!4 &86521803
 Transform:
   m_ObjectHideFlags: 0

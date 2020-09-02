@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 namespace TensorFlowLite
 {
@@ -83,18 +84,28 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
-            // const float OFFSET = 128f;
-            // const float SCALE = 1f / 128f;
-            // ToTensor(inputTex, input0, OFFSET, SCALE);
             ToTensor(inputTex, input0);
 
             interpreter.SetInputTensorData(0, input0);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
-            // not using
-            // interpreter.GetOutputTensorData(2, outputs2);
-            // interpreter.GetOutputTensorData(3, outputs3);
+        }
+
+        public async UniTask<Result[]> InvokeAsync(Texture inputTex)
+        {
+            await ToTensorAsync(inputTex, input0);
+            await UniTask.SwitchToThreadPool();
+
+            interpreter.SetInputTensorData(0, input0);
+            interpreter.Invoke();
+            interpreter.GetOutputTensorData(0, outputs0);
+            interpreter.GetOutputTensorData(1, outputs1);
+
+            var results = GetResults();
+
+            await UniTask.SwitchToMainThread();
+            return results;
         }
 
         public Result[] GetResults()
