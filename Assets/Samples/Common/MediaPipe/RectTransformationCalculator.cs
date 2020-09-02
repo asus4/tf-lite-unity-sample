@@ -29,8 +29,8 @@ namespace TensorFlowLite
                 || mirrorVertiacal;
         }
 
-        private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
-        private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
+        public static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
+        public static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
 
         public static Matrix4x4 CalcMatrix(Options options)
         {
@@ -100,7 +100,7 @@ namespace TensorFlowLite
             t.sizeDelta = ((RectTransform)t.parent).rect.size;
 
             // Set TRS
-            t.localPosition = MathTF.Leap3Unclamped(min, max, position);
+            t.localPosition = MathTF.LerpUnclamped(min, max, position);
             t.localRotation = rotation;
             t.localScale = scale;
         }

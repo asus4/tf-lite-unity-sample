@@ -71,7 +71,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         // Init frame
         frame = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, cameraView.transform);
 
-        draw = new PrimitiveDraw()
+        draw = new PrimitiveDraw(Camera.main, gameObject.layer)
         {
             color = Color.blue,
         };
@@ -84,15 +84,6 @@ public sealed class BlazePoseSample : MonoBehaviour
         poseDetect?.Dispose();
         poseLandmark?.Dispose();
         draw?.Dispose();
-    }
-
-    void OnEnable()
-    {
-        Camera.onPostRender += DrawJoints;
-    }
-    void OnDisable()
-    {
-        Camera.onPostRender -= DrawJoints;
     }
 
     void Update()
@@ -118,6 +109,8 @@ public sealed class BlazePoseSample : MonoBehaviour
         landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
         UpdateJoints();
         RectTransformationCalculator.ApplyToRectTransform(poseLandmark.CropMatrix, croppedFrame.rectTransform);
+
+        DrawJoints();
     }
 
     void UpdateFrame(ref PoseDetect.Result pose)
@@ -160,12 +153,12 @@ public sealed class BlazePoseSample : MonoBehaviour
         for (int i = 0; i < joints.Length; i++)
         {
             var p = mtx.MultiplyPoint3x4(joints[i]);
-            p = MathTF.Leap(min, max, p);
+            p = MathTF.Lerp(min, max, p);
             worldJoints[i] = p;
         }
     }
 
-    void DrawJoints(Camera camera)
+    void DrawJoints()
     {
         if (landmarkResult == null || landmarkResult.score < 0.2f)
         {
@@ -175,7 +168,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         // Draw
         for (int i = 0; i < worldJoints.Length; i++)
         {
-            draw.Cube(worldJoints[i], 0.1f);
+            draw.Cube(worldJoints[i], 0.2f);
         }
         var connections = poseLandmark.Connections;
         for (int i = 0; i < connections.Length; i += 2)
@@ -185,5 +178,6 @@ public sealed class BlazePoseSample : MonoBehaviour
                 worldJoints[connections[i + 1]],
                 0.05f);
         }
+        draw.Apply();
     }
 }
