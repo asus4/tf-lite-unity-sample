@@ -18,8 +18,8 @@ namespace TensorFlowLite
         private Result result;
         private Matrix4x4 cropMatrix;
 
-        public Vector2 FaceShift { get; set; } = new Vector2(0, 0.1f);
-        public Vector2 FaceScale { get; set; } = new Vector2(1.5f, 1.5f);
+        public Vector2 FaceShift { get; set; } = new Vector2(0f, 0.1f);
+        public Vector2 FaceScale { get; set; } = new Vector2(1.6f, 1.6f);
         public Matrix4x4 CropMatrix => cropMatrix;
 
 
