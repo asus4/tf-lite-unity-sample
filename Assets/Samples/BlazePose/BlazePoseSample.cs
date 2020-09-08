@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
+using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// BlazePose form MediaPipe
@@ -25,6 +26,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     [SerializeField] RawImage debugView = null;
     [SerializeField] bool useLandmarkFilter = true;
     [SerializeField, Range(2f, 30f)] float filterVelocityScale = 10;
+    [SerializeField] bool runBackground;
 
     WebCamTexture webcamTexture;
     PoseDetect poseDetect;
@@ -33,6 +35,9 @@ public sealed class BlazePoseSample : MonoBehaviour
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
     Vector3[] worldJoints;
     PrimitiveDraw draw;
+    UniTask<bool> task;
+    PoseDetect.Result poseResult;
+    PoseLandmarkDetect.Result landmarkResult;
 
     void Start()
     {
@@ -64,7 +69,6 @@ public sealed class BlazePoseSample : MonoBehaviour
         webcamTexture.Play();
         Debug.Log($"Starting camera: {cameraName}");
 
-
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
         worldJoints = new Vector3[poseLandmark.JointCount];
     }
@@ -79,31 +83,28 @@ public sealed class BlazePoseSample : MonoBehaviour
 
     void Update()
     {
-        poseDetect.Invoke(webcamTexture);
-        cameraView.material = poseDetect.transformMat;
-        cameraView.rectTransform.GetWorldCorners(rtCorners);
-
-        var pose = poseDetect.GetResults(0.7f, 0.3f);
-        if (pose.score < 0) return;
-
-        DrawFrame(ref pose);
-
-        poseLandmark.Invoke(webcamTexture, pose);
-        debugView.texture = poseLandmark.inputTex;
-
-        if (useLandmarkFilter)
+        if (runBackground)
         {
-            poseLandmark.FilterVelocityScale = filterVelocityScale;
+            if (task.Status.IsCompleted())
+            {
+                task = InvokeAsync();
+            }
         }
-        var landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
+        else
+        {
+            Invoke();
+        }
 
-        if (landmarkResult.score < 0.2f) return;
+        if (poseResult == null || poseResult.score < 0f) return;
+        DrawFrame(poseResult);
 
+        if (landmarkResult == null || landmarkResult.score < 0.2f) return;
         DrawCropMatrix(poseLandmark.CropMatrix);
         DrawJoints(landmarkResult.joints);
+
     }
 
-    void DrawFrame(ref PoseDetect.Result pose)
+    void DrawFrame(PoseDetect.Result pose)
     {
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
@@ -167,5 +168,51 @@ public sealed class BlazePoseSample : MonoBehaviour
                 0.05f);
         }
         draw.Apply();
+    }
+
+    void Invoke()
+    {
+        poseDetect.Invoke(webcamTexture);
+        cameraView.material = poseDetect.transformMat;
+        cameraView.rectTransform.GetWorldCorners(rtCorners);
+
+        poseResult = poseDetect.GetResults(0.7f, 0.3f);
+        if (poseResult.score < 0) return;
+
+        poseLandmark.Invoke(webcamTexture, poseResult);
+        debugView.texture = poseLandmark.inputTex;
+
+        if (useLandmarkFilter)
+        {
+            poseLandmark.FilterVelocityScale = filterVelocityScale;
+        }
+        landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
+    }
+
+    async UniTask<bool> InvokeAsync()
+    {
+        // Note: `await` changes PlayerLoopTiming from Update to FixedUpdate.
+        poseResult = await poseDetect.InvokeAsync(webcamTexture, PlayerLoopTiming.FixedUpdate);
+
+        if (poseResult.score < 0) return false;
+
+        if (useLandmarkFilter)
+        {
+            poseLandmark.FilterVelocityScale = filterVelocityScale;
+        }
+        landmarkResult = await poseLandmark.InvokeAsync(webcamTexture, poseResult, useLandmarkFilter, PlayerLoopTiming.Update);
+
+        // Back to the update timing from now on 
+        if (cameraView != null)
+        {
+            cameraView.material = poseDetect.transformMat;
+            cameraView.rectTransform.GetWorldCorners(rtCorners);
+        }
+        if (debugView != null)
+        {
+            debugView.texture = poseLandmark.inputTex;
+        }
+
+        return true;
     }
 }

@@ -103,6 +103,13 @@ namespace TensorFlowLite
             return true;
         }
 
+        protected async UniTask<bool> ToTensorAsync(RenderTexture inputTex, float[,,] inputs, bool resize)
+        {
+            RenderTexture tex = resize ? resizer.Resize(inputTex, resizeOptions) : inputTex;
+            await tex2tensor.ToTensorAsync(tex, inputs);
+            return true;
+        }
+
         private void InitInputs()
         {
             var idim0 = interpreter.GetInputTensorInfo(0).shape;

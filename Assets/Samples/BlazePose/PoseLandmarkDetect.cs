@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 namespace TensorFlowLite
 {
@@ -94,6 +95,31 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(1, output1);
 
             // interpreter.GetOutputTensorData(2, output2);// not in use
+        }
+
+        public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, bool useFilter, PlayerLoopTiming timing)
+        {
+            var options = (inputTex is WebCamTexture)
+                ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
+                : resizeOptions;
+
+            cropMatrix = CalcCropMatrix(ref pose, ref options);
+            RenderTexture rt = resizer.Resize(
+              inputTex, options.width, options.height, true,
+              cropMatrix,
+              TextureResizer.GetTextureST(inputTex, options));
+            await ToTensorAsync(rt, input0, false);
+            await UniTask.SwitchToThreadPool();
+
+            interpreter.SetInputTensorData(0, input0);
+            interpreter.Invoke();
+            interpreter.GetOutputTensorData(0, output0);
+            interpreter.GetOutputTensorData(1, output1);
+
+            var result = GetResult(useFilter);
+            await UniTask.SwitchToMainThread(timing);
+
+            return result;
         }
 
         public Result GetResult(bool useFilter = true)
