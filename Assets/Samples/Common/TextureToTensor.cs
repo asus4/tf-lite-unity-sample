@@ -82,7 +82,7 @@ namespace TensorFlowLite
 
         public async UniTask<bool> ToTensorAsync(RenderTexture texture, float[,,] inputs)
         {
-            await UniTask.SwitchToMainThread();
+            await UniTask.SwitchToMainThread(PlayerLoopTiming.FixedUpdate);
             var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
             int width = texture.width;
             int height = texture.height - 1;
