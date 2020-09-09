@@ -31,7 +31,7 @@ namespace TensorFlowLite
         public float height;
     }
 
-    public static class SsdAnchorsCalcurator
+    public static class SsdAnchorsCalculator
     {
 
         // SsdAnchorsCalculatorOptions

@@ -37,7 +37,7 @@ namespace TensorFlowLite
 
         public PoseDetect(string modelPath) : base(modelPath, true)
         {
-            var options = new SsdAnchorsCalcurator.Options()
+            var options = new SsdAnchorsCalculator.Options()
             {
                 inputSizeWidth = 128,
                 inputSizeHeight = 128,
@@ -60,7 +60,7 @@ namespace TensorFlowLite
                 fixedAnchorSize = true,
             };
 
-            anchors = SsdAnchorsCalcurator.Generate(options);
+            anchors = SsdAnchorsCalculator.Generate(options);
             UnityEngine.Debug.AssertFormat(anchors.Length == 896, $"Anchors count must be 896, but was {anchors.Length}");
 
             // Get Keypoint Mode

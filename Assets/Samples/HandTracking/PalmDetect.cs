@@ -31,7 +31,7 @@ namespace TensorFlowLite
 
         public PalmDetect(string modelPath) : base(modelPath, true)
         {
-            var options = new SsdAnchorsCalcurator.Options()
+            var options = new SsdAnchorsCalculator.Options()
             {
                 inputSizeWidth = 256,
                 inputSizeHeight = 256,
@@ -54,7 +54,7 @@ namespace TensorFlowLite
                 fixedAnchorSize = true,
             };
 
-            anchors = SsdAnchorsCalcurator.Generate(options);
+            anchors = SsdAnchorsCalculator.Generate(options);
             UnityEngine.Debug.AssertFormat(anchors.Length == 2944, "Anchors count must be 2944");
         }
 
