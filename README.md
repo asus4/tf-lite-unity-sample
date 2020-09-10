@@ -12,7 +12,7 @@ Tested on
 
 Included prebuilt libraries
 
-| | iOS | Android | macOS | Ubuntu | Windows |
+| | iOS | Android (arm64) | macOS | Ubuntu | Windows |
 |---|:---:|:---:|:---:|:---:|:---:|
 | Core CPU |✅|✅|✅|✅|✅|
 | Metal Delegate |✅| - |✅| - | - |
