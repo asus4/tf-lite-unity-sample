@@ -28,12 +28,14 @@ Samples
 
 Included prebuilt libraries
 
-| | iOS | Android (arm64) | macOS | Ubuntu | Windows |
+| | iOS | Android | macOS | Ubuntu | Windows |
 |---|:---:|:---:|:---:|:---:|:---:|
 | Core CPU |✅|✅|✅|✅|✅|
 | Metal Delegate |✅| - |✅| - | - |
 | OpenGL Delegate | - |✅| - | - | - |
 | NNAPI Delegate | - |✅| - | - | - |
+
+- All libraries except iOS are targeted 64bit platform: arm64 or x86_64.
 
 ## Install TensorFlow Lite for Unity
 
