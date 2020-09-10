@@ -24,7 +24,9 @@ Samples
   - Hand Tracking
   - Blaze Face
   - Face Mesh
-  - Blaze Pose
+  - Blaze Pose (Upper body)
+- MLKit
+  - Blaze Pose (Full body)
 
 Included prebuilt libraries
 
