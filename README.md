@@ -6,9 +6,25 @@ Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples
 
 Tested on  
 
-- iOS / Android / macOS / Ubuntu / Windows  
+- iOS / Android / macOS / Windows  
 - Unity 2019.4.5f1  
 - TensorFlow 2.3.0
+
+Samples
+
+- TensorFlow
+  - MNIST
+  - SSD Object Detection
+  - DeepLab
+  - PoseNet
+  - Style Transfer
+  - Text Classification
+  - Bert Question and Answer
+- MediaPipe
+  - Hand Tracking
+  - Blaze Face
+  - Face Mesh
+  - Blaze Pose
 
 Included prebuilt libraries
 
@@ -21,13 +37,13 @@ Included prebuilt libraries
 
 ## Install TensorFlow Lite for Unity
 
-- Clone or Download this repository with examples
+- Clone this repository with examples
   - Need [Git-LFS](https://git-lfs.github.com/) to build for iOS
 - Or core library is available on [OpenUPM](https://openupm.com/packages/com.github.asus4.tflite/)
 
-## Update TensorFlow Lite
+## Build TensorFlow Lite libraries
 
-Pre-built libraries are included. If you want to use the latest TFLite,
+Pre-built libraries are included. If you want to build the latest TFLite,
 
 1. Clone [TensorFlow library](https://github.com/tensorflow/tensorflow/)
 2. Run `./configure` in the TensorFlow library
@@ -45,6 +61,7 @@ Pre-built libraries are included. If you want to use the latest TFLite,
 \[Android\] You can see logs from tflite by filtering with "tflite"  
 
 ```bash
+# Filtering logcat only Unity and tflite
 adb logcat Unity:V tflite:V "*:S"
 ```
 
