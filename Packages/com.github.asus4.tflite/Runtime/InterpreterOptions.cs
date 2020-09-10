@@ -106,7 +106,7 @@ namespace TensorFlowLite
             report = Marshal.PtrToStringAnsi(buffer);
             Marshal.FreeHGlobal(buffer);
 #endif
-            UnityEngine.Debug.LogError(report);
+            UnityEngine.Debug.LogWarning($"Interperter Warning: {report}");
         }
 
 #pragma warning disable CS0162 // Unreachable code detected 
