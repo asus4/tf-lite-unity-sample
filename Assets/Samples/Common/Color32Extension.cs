@@ -8,10 +8,10 @@ namespace TensorFlowLite
         public static float4 ToARGB(this Color32 c)
         {
             return new float4(
-                unchecked((sbyte)c.a) / 256f,
-                unchecked((sbyte)c.r) / 256f,
-                unchecked((sbyte)c.g) / 256f,
-                unchecked((sbyte)c.b) / 256f
+                unchecked((sbyte)c.a) / 255f,
+                unchecked((sbyte)c.r) / 255f,
+                unchecked((sbyte)c.g) / 255f,
+                unchecked((sbyte)c.b) / 255f
             );
         }
 
