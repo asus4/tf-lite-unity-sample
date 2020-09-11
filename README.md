@@ -60,7 +60,7 @@ Pre-built libraries are included. If you want to build the latest TFLite,
 
 - To build macOS Metal Delegate on TensorFlow v2.3.0 or later, You need to apply following changes [the issue](https://github.com/tensorflow/tensorflow/issues/41039#issuecomment-664701908)
 
-## Misc
+## TIPS
 
 \[Android\] You can see logs from tflite by filtering with "tflite"  
 
