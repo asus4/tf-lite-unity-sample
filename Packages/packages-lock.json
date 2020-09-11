@@ -4,9 +4,7 @@
       "version": "file:com.github.asus4.tflite",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {
-        "com.unity.mathematics": "1.1.0"
-      }
+      "dependencies": {}
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
