@@ -1,0 +1,407 @@
+fileFormatVersion: 2
+guid: a1a8e0a737b293c459331c3a5b2e739e
+timeCreated: 1496226998
+licenseType: Store
+ModelImporter:
+  serializedVersion: 21
+  fileIDToRecycleName:
+    100000: giraffe
+    100002: //RootNode
+    100004: joint1
+    100006: joint10
+    100008: joint11
+    100010: joint12
+    100012: joint13
+    100014: joint14
+    100016: joint15
+    100018: joint16
+    100020: joint17
+    100022: joint18
+    100024: joint19
+    100026: joint2
+    100028: joint20
+    100030: joint21
+    100032: joint22
+    100034: joint23
+    100036: joint24
+    100038: joint25
+    100040: joint26
+    100042: joint27
+    100044: joint28
+    100046: joint29
+    100048: joint3
+    100050: joint30
+    100052: joint31
+    100054: joint32
+    100056: joint33
+    100058: joint34
+    100060: joint35
+    100062: joint36
+    100064: joint37
+    100066: joint38
+    100068: joint39
+    100070: joint4
+    100072: joint40
+    100074: joint41
+    100076: joint42
+    100078: joint5
+    100080: joint6
+    100082: joint7
+    100084: joint8
+    100086: joint9
+    400000: giraffe
+    400002: //RootNode
+    400004: joint1
+    400006: joint10
+    400008: joint11
+    400010: joint12
+    400012: joint13
+    400014: joint14
+    400016: joint15
+    400018: joint16
+    400020: joint17
+    400022: joint18
+    400024: joint19
+    400026: joint2
+    400028: joint20
+    400030: joint21
+    400032: joint22
+    400034: joint23
+    400036: joint24
+    400038: joint25
+    400040: joint26
+    400042: joint27
+    400044: joint28
+    400046: joint29
+    400048: joint3
+    400050: joint30
+    400052: joint31
+    400054: joint32
+    400056: joint33
+    400058: joint34
+    400060: joint35
+    400062: joint36
+    400064: joint37
+    400066: joint38
+    400068: joint39
+    400070: joint4
+    400072: joint40
+    400074: joint41
+    400076: joint42
+    400078: joint5
+    400080: joint6
+    400082: joint7
+    400084: joint8
+    400086: joint9
+    4300000: giraffe
+    7400000: Giraffe_Walk
+    7400002: Giraffe_Idle
+    9500000: //RootNode
+    13700000: giraffe
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Giraffe_Walk
+      takeName: Take 001
+      firstFrame: 0
+      lastFrame: 47
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: giraffe
+        weight: 1
+      - path: joint1
+        weight: 1
+      - path: joint1/joint2
+        weight: 1
+      - path: joint1/joint2/joint3
+        weight: 1
+      - path: joint1/joint2/joint3/joint4
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7/joint8
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7/joint8/joint9
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7/joint8/joint9/joint10
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7/joint8/joint9/joint10/joint11
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12/joint13
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12/joint13/joint14
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12/joint13/joint14/joint15
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12/joint13/joint14/joint15/joint16
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12/joint13/joint14/joint15/joint16/joint17
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18/joint19
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18/joint19/joint20
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18/joint19/joint20/joint21
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18/joint19/joint20/joint21/joint22
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18/joint19/joint20/joint21/joint22/joint23
+        weight: 1
+      - path: joint1/joint24
+        weight: 1
+      - path: joint1/joint24/joint25
+        weight: 1
+      - path: joint1/joint24/joint25/joint26
+        weight: 1
+      - path: joint1/joint24/joint25/joint26/joint27
+        weight: 1
+      - path: joint1/joint24/joint25/joint26/joint27/joint28
+        weight: 1
+      - path: joint1/joint24/joint25/joint26/joint27/joint28/joint29
+        weight: 1
+      - path: joint1/joint24/joint25/joint26/joint27/joint28/joint29/joint30
+        weight: 1
+      - path: joint1/joint31
+        weight: 1
+      - path: joint1/joint31/joint32
+        weight: 1
+      - path: joint1/joint31/joint32/joint33
+        weight: 1
+      - path: joint1/joint31/joint32/joint33/joint34
+        weight: 1
+      - path: joint1/joint31/joint32/joint33/joint34/joint35
+        weight: 1
+      - path: joint1/joint31/joint32/joint33/joint34/joint35/joint36
+        weight: 1
+      - path: joint1/joint37
+        weight: 1
+      - path: joint1/joint37/joint38
+        weight: 1
+      - path: joint1/joint37/joint38/joint39
+        weight: 1
+      - path: joint1/joint37/joint38/joint39/joint40
+        weight: 1
+      - path: joint1/joint37/joint38/joint39/joint40/joint41
+        weight: 1
+      - path: joint1/joint37/joint38/joint39/joint40/joint41/joint42
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Giraffe_Idle
+      takeName: Take 001
+      firstFrame: 54
+      lastFrame: 150
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: giraffe
+        weight: 1
+      - path: joint1
+        weight: 1
+      - path: joint1/joint2
+        weight: 1
+      - path: joint1/joint2/joint3
+        weight: 1
+      - path: joint1/joint2/joint3/joint4
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7/joint8
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7/joint8/joint9
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7/joint8/joint9/joint10
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7/joint8/joint9/joint10/joint11
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12/joint13
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12/joint13/joint14
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12/joint13/joint14/joint15
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12/joint13/joint14/joint15/joint16
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint12/joint13/joint14/joint15/joint16/joint17
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18/joint19
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18/joint19/joint20
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18/joint19/joint20/joint21
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18/joint19/joint20/joint21/joint22
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint18/joint19/joint20/joint21/joint22/joint23
+        weight: 1
+      - path: joint1/joint24
+        weight: 1
+      - path: joint1/joint24/joint25
+        weight: 1
+      - path: joint1/joint24/joint25/joint26
+        weight: 1
+      - path: joint1/joint24/joint25/joint26/joint27
+        weight: 1
+      - path: joint1/joint24/joint25/joint26/joint27/joint28
+        weight: 1
+      - path: joint1/joint24/joint25/joint26/joint27/joint28/joint29
+        weight: 1
+      - path: joint1/joint24/joint25/joint26/joint27/joint28/joint29/joint30
+        weight: 1
+      - path: joint1/joint31
+        weight: 1
+      - path: joint1/joint31/joint32
+        weight: 1
+      - path: joint1/joint31/joint32/joint33
+        weight: 1
+      - path: joint1/joint31/joint32/joint33/joint34
+        weight: 1
+      - path: joint1/joint31/joint32/joint33/joint34/joint35
+        weight: 1
+      - path: joint1/joint31/joint32/joint33/joint34/joint35/joint36
+        weight: 1
+      - path: joint1/joint37
+        weight: 1
+      - path: joint1/joint37/joint38
+        weight: 1
+      - path: joint1/joint37/joint38/joint39
+        weight: 1
+      - path: joint1/joint37/joint38/joint39/joint40
+        weight: 1
+      - path: joint1/joint37/joint38/joint39/joint40/joint41
+        weight: 1
+      - path: joint1/joint37/joint38/joint39/joint40/joint41/joint42
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 0
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,349 @@
+fileFormatVersion: 2
+guid: 10c37af58eff3db4986601ce9ca8ee2e
+timeCreated: 1520103990
+licenseType: Store
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: actor:cat
+    100002: actor:geo_grp
+    100004: actor:skin_backAnkle_L
+    100006: actor:skin_backAnkle_R
+    100008: actor:skin_backHip_L
+    100010: actor:skin_backHip_R
+    100012: actor:skin_backKnee_L
+    100014: actor:skin_backKnee_R
+    100016: actor:skin_backToes1_L
+    100018: actor:skin_backToes1_R
+    100020: actor:skin_backToes2_L
+    100022: actor:skin_backToes2_R
+    100024: actor:skin_backToes3_L
+    100026: actor:skin_backToes3_R
+    100028: actor:skin_backToes4_L
+    100030: actor:skin_backToes4_R
+    100032: actor:skin_Chest_M
+    100034: actor:skin_Eye_L
+    100036: actor:skin_Eye_R
+    100038: actor:skin_frontAnkle_L
+    100040: actor:skin_frontAnkle_R
+    100042: actor:skin_frontHip_L
+    100044: actor:skin_frontHip_R
+    100046: actor:skin_frontKnee_L
+    100048: actor:skin_frontKnee_R
+    100050: actor:skin_frontRump_L
+    100052: actor:skin_frontRump_R
+    100054: actor:skin_frontToes1_L
+    100056: actor:skin_frontToes1_R
+    100058: actor:skin_frontToes2_L
+    100060: actor:skin_frontToes2_R
+    100062: actor:skin_frontToes3_L
+    100064: actor:skin_frontToes3_R
+    100066: actor:skin_frontToes4_L
+    100068: actor:skin_frontToes4_R
+    100070: actor:skin_Head_M
+    100072: actor:skin_HeadEnd_M
+    100074: actor:skin_Jaw_M
+    100076: actor:skin_JawEnd_M
+    100078: actor:skin_joint1_L
+    100080: actor:skin_joint1_R
+    100082: actor:skin_joint2_L
+    100084: actor:skin_joint2_R
+    100086: actor:skin_Neck1_M
+    100088: actor:skin_Neck2_M
+    100090: actor:skin_Neck3_M
+    100092: actor:skin_Neck4_M
+    100094: actor:skin_Neck_M
+    100096: actor:skin_Root_M
+    100098: actor:skin_RootPart1_M
+    100100: actor:skin_RootPart2_M
+    100102: actor:skin_Spine1_M
+    100104: actor:skin_Spine1Part1_M
+    100106: actor:skin_Spine1Part2_M
+    100108: actor:skin_Tail0_M
+    100110: actor:skin_Tail1_M
+    100112: actor:skin_Tail2_M
+    100114: actor:skin_Tail3_M
+    100116: actor:skin_Tail4_M
+    100118: //RootNode
+    400000: actor:cat
+    400002: actor:geo_grp
+    400004: actor:skin_backAnkle_L
+    400006: actor:skin_backAnkle_R
+    400008: actor:skin_backHip_L
+    400010: actor:skin_backHip_R
+    400012: actor:skin_backKnee_L
+    400014: actor:skin_backKnee_R
+    400016: actor:skin_backToes1_L
+    400018: actor:skin_backToes1_R
+    400020: actor:skin_backToes2_L
+    400022: actor:skin_backToes2_R
+    400024: actor:skin_backToes3_L
+    400026: actor:skin_backToes3_R
+    400028: actor:skin_backToes4_L
+    400030: actor:skin_backToes4_R
+    400032: actor:skin_Chest_M
+    400034: actor:skin_Eye_L
+    400036: actor:skin_Eye_R
+    400038: actor:skin_frontAnkle_L
+    400040: actor:skin_frontAnkle_R
+    400042: actor:skin_frontHip_L
+    400044: actor:skin_frontHip_R
+    400046: actor:skin_frontKnee_L
+    400048: actor:skin_frontKnee_R
+    400050: actor:skin_frontRump_L
+    400052: actor:skin_frontRump_R
+    400054: actor:skin_frontToes1_L
+    400056: actor:skin_frontToes1_R
+    400058: actor:skin_frontToes2_L
+    400060: actor:skin_frontToes2_R
+    400062: actor:skin_frontToes3_L
+    400064: actor:skin_frontToes3_R
+    400066: actor:skin_frontToes4_L
+    400068: actor:skin_frontToes4_R
+    400070: actor:skin_Head_M
+    400072: actor:skin_HeadEnd_M
+    400074: actor:skin_Jaw_M
+    400076: actor:skin_JawEnd_M
+    400078: actor:skin_joint1_L
+    400080: actor:skin_joint1_R
+    400082: actor:skin_joint2_L
+    400084: actor:skin_joint2_R
+    400086: actor:skin_Neck1_M
+    400088: actor:skin_Neck2_M
+    400090: actor:skin_Neck3_M
+    400092: actor:skin_Neck4_M
+    400094: actor:skin_Neck_M
+    400096: actor:skin_Root_M
+    400098: actor:skin_RootPart1_M
+    400100: actor:skin_RootPart2_M
+    400102: actor:skin_Spine1_M
+    400104: actor:skin_Spine1Part1_M
+    400106: actor:skin_Spine1Part2_M
+    400108: actor:skin_Tail0_M
+    400110: actor:skin_Tail1_M
+    400112: actor:skin_Tail2_M
+    400114: actor:skin_Tail3_M
+    400116: actor:skin_Tail4_M
+    400118: //RootNode
+    4300000: actor:cat
+    7400000: Cat-Sit
+    9500000: //RootNode
+    13700000: actor:cat
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Cat-Sit
+      takeName: Take 001
+      firstFrame: 1
+      lastFrame: 34
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: actor:geo_grp
+        weight: 1
+      - path: actor:geo_grp/actor:cat
+        weight: 1
+      - path: actor:skin_Root_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_L/actor:skin_backKnee_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_L/actor:skin_backKnee_L/actor:skin_backAnkle_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_L/actor:skin_backKnee_L/actor:skin_backAnkle_L/actor:skin_backToes1_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_L/actor:skin_backKnee_L/actor:skin_backAnkle_L/actor:skin_backToes1_L/actor:skin_backToes2_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_L/actor:skin_backKnee_L/actor:skin_backAnkle_L/actor:skin_backToes1_L/actor:skin_backToes2_L/actor:skin_backToes3_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_L/actor:skin_backKnee_L/actor:skin_backAnkle_L/actor:skin_backToes1_L/actor:skin_backToes2_L/actor:skin_backToes3_L/actor:skin_backToes4_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_R/actor:skin_backKnee_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_R/actor:skin_backKnee_R/actor:skin_backAnkle_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_R/actor:skin_backKnee_R/actor:skin_backAnkle_R/actor:skin_backToes1_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_R/actor:skin_backKnee_R/actor:skin_backAnkle_R/actor:skin_backToes1_R/actor:skin_backToes2_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_R/actor:skin_backKnee_R/actor:skin_backAnkle_R/actor:skin_backToes1_R/actor:skin_backToes2_R/actor:skin_backToes3_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_backHip_R/actor:skin_backKnee_R/actor:skin_backAnkle_R/actor:skin_backToes1_R/actor:skin_backToes2_R/actor:skin_backToes3_R/actor:skin_backToes4_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_L/actor:skin_frontHip_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_L/actor:skin_frontHip_L/actor:skin_frontKnee_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_L/actor:skin_frontHip_L/actor:skin_frontKnee_L/actor:skin_frontAnkle_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_L/actor:skin_frontHip_L/actor:skin_frontKnee_L/actor:skin_frontAnkle_L/actor:skin_frontToes1_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_L/actor:skin_frontHip_L/actor:skin_frontKnee_L/actor:skin_frontAnkle_L/actor:skin_frontToes1_L/actor:skin_frontToes2_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_L/actor:skin_frontHip_L/actor:skin_frontKnee_L/actor:skin_frontAnkle_L/actor:skin_frontToes1_L/actor:skin_frontToes2_L/actor:skin_frontToes3_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_L/actor:skin_frontHip_L/actor:skin_frontKnee_L/actor:skin_frontAnkle_L/actor:skin_frontToes1_L/actor:skin_frontToes2_L/actor:skin_frontToes3_L/actor:skin_frontToes4_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_R/actor:skin_frontHip_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_R/actor:skin_frontHip_R/actor:skin_frontKnee_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_R/actor:skin_frontHip_R/actor:skin_frontKnee_R/actor:skin_frontAnkle_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_R/actor:skin_frontHip_R/actor:skin_frontKnee_R/actor:skin_frontAnkle_R/actor:skin_frontToes1_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_R/actor:skin_frontHip_R/actor:skin_frontKnee_R/actor:skin_frontAnkle_R/actor:skin_frontToes1_R/actor:skin_frontToes2_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_R/actor:skin_frontHip_R/actor:skin_frontKnee_R/actor:skin_frontAnkle_R/actor:skin_frontToes1_R/actor:skin_frontToes2_R/actor:skin_frontToes3_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_frontRump_R/actor:skin_frontHip_R/actor:skin_frontKnee_R/actor:skin_frontAnkle_R/actor:skin_frontToes1_R/actor:skin_frontToes2_R/actor:skin_frontToes3_R/actor:skin_frontToes4_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M/actor:skin_Head_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M/actor:skin_Head_M/actor:skin_Eye_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M/actor:skin_Head_M/actor:skin_Eye_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M/actor:skin_Head_M/actor:skin_HeadEnd_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M/actor:skin_Head_M/actor:skin_Jaw_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M/actor:skin_Head_M/actor:skin_Jaw_M/actor:skin_JawEnd_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M/actor:skin_Head_M/actor:skin_joint1_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M/actor:skin_Head_M/actor:skin_joint1_L/actor:skin_joint2_L
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M/actor:skin_Head_M/actor:skin_joint1_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_RootPart1_M/actor:skin_RootPart2_M/actor:skin_Spine1_M/actor:skin_Spine1Part1_M/actor:skin_Spine1Part2_M/actor:skin_Chest_M/actor:skin_Neck_M/actor:skin_Neck1_M/actor:skin_Neck2_M/actor:skin_Neck3_M/actor:skin_Neck4_M/actor:skin_Head_M/actor:skin_joint1_R/actor:skin_joint2_R
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_Tail0_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_Tail0_M/actor:skin_Tail1_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_Tail0_M/actor:skin_Tail1_M/actor:skin_Tail2_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_Tail0_M/actor:skin_Tail1_M/actor:skin_Tail2_M/actor:skin_Tail3_M
+        weight: 1
+      - path: actor:skin_Root_M/actor:skin_Tail0_M/actor:skin_Tail1_M/actor:skin_Tail2_M/actor:skin_Tail3_M/actor:skin_Tail4_M
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

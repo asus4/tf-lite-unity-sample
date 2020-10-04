@@ -1,0 +1,192 @@
+fileFormatVersion: 2
+guid: 13dc339e98cd43441afa6d390c08c477
+timeCreated: 1552737725
+licenseType: Store
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: actor:Horse
+    100002: Ankle_L
+    100004: Ankle_R
+    100006: Chest_M
+    100008: DeformationSystem
+    100010: Elbow_L
+    100012: Elbow_R
+    100014: Fingers1_L
+    100016: Fingers1_R
+    100018: Fingers2_L
+    100020: Fingers2_R
+    100022: Fingers3_L
+    100024: Fingers3_R
+    100026: Fingers4_L
+    100028: Fingers4_R
+    100030: Geometry
+    100032: Head_M
+    100034: Hip_L
+    100036: Hip_R
+    100038: //RootNode
+    100040: joint1_L
+    100042: joint1_R
+    100044: joint2_L
+    100046: joint2_R
+    100048: joint3_L
+    100050: joint3_R
+    100052: Knee_L
+    100054: Knee_R
+    100056: Main
+    100058: Neck2_M
+    100060: Neck3_M
+    100062: Neck4_M
+    100064: Neck_M
+    100066: Root_M
+    100068: Scapula_L
+    100070: Scapula_R
+    100072: Shoulder_L
+    100074: Shoulder_R
+    100076: Spine1_2_M
+    100078: Spine1_M
+    100080: Tail0_M
+    100082: Tail1_M
+    100084: Tail2_M
+    100086: Tail3_M
+    100088: Tail4_M
+    100090: Tail5_M
+    100092: Toes1_L
+    100094: Toes1_R
+    100096: Toes2_L
+    100098: Toes2_R
+    100100: Toes3_L
+    100102: Toes3_R
+    100104: Toes4_L
+    100106: Toes4_R
+    100108: Wrist_L
+    100110: Wrist_R
+    400000: actor:Horse
+    400002: Ankle_L
+    400004: Ankle_R
+    400006: Chest_M
+    400008: DeformationSystem
+    400010: Elbow_L
+    400012: Elbow_R
+    400014: Fingers1_L
+    400016: Fingers1_R
+    400018: Fingers2_L
+    400020: Fingers2_R
+    400022: Fingers3_L
+    400024: Fingers3_R
+    400026: Fingers4_L
+    400028: Fingers4_R
+    400030: Geometry
+    400032: Head_M
+    400034: Hip_L
+    400036: Hip_R
+    400038: //RootNode
+    400040: joint1_L
+    400042: joint1_R
+    400044: joint2_L
+    400046: joint2_R
+    400048: joint3_L
+    400050: joint3_R
+    400052: Knee_L
+    400054: Knee_R
+    400056: Main
+    400058: Neck2_M
+    400060: Neck3_M
+    400062: Neck4_M
+    400064: Neck_M
+    400066: Root_M
+    400068: Scapula_L
+    400070: Scapula_R
+    400072: Shoulder_L
+    400074: Shoulder_R
+    400076: Spine1_2_M
+    400078: Spine1_M
+    400080: Tail0_M
+    400082: Tail1_M
+    400084: Tail2_M
+    400086: Tail3_M
+    400088: Tail4_M
+    400090: Tail5_M
+    400092: Toes1_L
+    400094: Toes1_R
+    400096: Toes2_L
+    400098: Toes2_R
+    400100: Toes3_L
+    400102: Toes3_R
+    400104: Toes4_L
+    400106: Toes4_R
+    400108: Wrist_L
+    400110: Wrist_R
+    4300000: actor:Horse
+    9500000: //RootNode
+    13700000: actor:Horse
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 10
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

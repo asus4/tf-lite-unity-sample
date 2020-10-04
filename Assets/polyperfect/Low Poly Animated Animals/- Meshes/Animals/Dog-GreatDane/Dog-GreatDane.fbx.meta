@@ -1,0 +1,205 @@
+fileFormatVersion: 2
+guid: c2f0696e55a07411e8829626657ee982
+timeCreated: 1542230638
+licenseType: Store
+ModelImporter:
+  serializedVersion: 21
+  fileIDToRecycleName:
+    100000: backAnkle_L
+    100002: backAnkle_R
+    100004: backHip_L
+    100006: backHip_R
+    100008: backKnee_L
+    100010: backKnee_R
+    100012: backToes1_L
+    100014: backToes1_R
+    100016: backToes2_L
+    100018: backToes2_R
+    100020: backToes3_L
+    100022: backToes3_R
+    100024: backToes4_L
+    100026: backToes4_R
+    100028: DeformationSystem
+    100030: Dog-GreatDane
+    100032: //RootNode
+    100034: frontAnkle_L
+    100036: frontAnkle_R
+    100038: frontHip_L
+    100040: frontHip_R
+    100042: frontKnee_L
+    100044: frontKnee_R
+    100046: frontRump_L
+    100048: frontRump_R
+    100050: frontToes1_L
+    100052: frontToes1_R
+    100054: frontToes2_L
+    100056: frontToes2_R
+    100058: frontToes3_L
+    100060: frontToes3_R
+    100062: frontToes4_L
+    100064: frontToes4_R
+    100066: Geometry
+    100068: Head_M
+    100070: Jaw_M
+    100072: JawEnd_M
+    100074: joint1_L
+    100076: joint1_R
+    100078: joint2_L
+    100080: joint2_R
+    100082: joint3_L
+    100084: joint3_R
+    100086: joint4_M
+    100088: Main
+    100090: Neck1_M
+    100092: Neck3_M
+    100094: Neck4_M
+    100096: Neck_M
+    100098: Root_M
+    100100: Spine11_M
+    100102: Spine1_M
+    100104: Tail0_M
+    100106: Tail2_M
+    100108: Tail3_M
+    100110: Tail4_M
+    100112: Tail5_M
+    100114: Tail6_M
+    100116: tempRename1_M
+    100118: tempRename_M
+    400000: backAnkle_L
+    400002: backAnkle_R
+    400004: backHip_L
+    400006: backHip_R
+    400008: backKnee_L
+    400010: backKnee_R
+    400012: backToes1_L
+    400014: backToes1_R
+    400016: backToes2_L
+    400018: backToes2_R
+    400020: backToes3_L
+    400022: backToes3_R
+    400024: backToes4_L
+    400026: backToes4_R
+    400028: DeformationSystem
+    400030: Dog-GreatDane
+    400032: //RootNode
+    400034: frontAnkle_L
+    400036: frontAnkle_R
+    400038: frontHip_L
+    400040: frontHip_R
+    400042: frontKnee_L
+    400044: frontKnee_R
+    400046: frontRump_L
+    400048: frontRump_R
+    400050: frontToes1_L
+    400052: frontToes1_R
+    400054: frontToes2_L
+    400056: frontToes2_R
+    400058: frontToes3_L
+    400060: frontToes3_R
+    400062: frontToes4_L
+    400064: frontToes4_R
+    400066: Geometry
+    400068: Head_M
+    400070: Jaw_M
+    400072: JawEnd_M
+    400074: joint1_L
+    400076: joint1_R
+    400078: joint2_L
+    400080: joint2_R
+    400082: joint3_L
+    400084: joint3_R
+    400086: joint4_M
+    400088: Main
+    400090: Neck1_M
+    400092: Neck3_M
+    400094: Neck4_M
+    400096: Neck_M
+    400098: Root_M
+    400100: Spine11_M
+    400102: Spine1_M
+    400104: Tail0_M
+    400106: Tail2_M
+    400108: Tail3_M
+    400110: Tail4_M
+    400112: Tail5_M
+    400114: Tail6_M
+    400116: tempRename1_M
+    400118: tempRename_M
+    4300000: Dog-GreatDane
+    9500000: //RootNode
+    13700000: Dog-GreatDane
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

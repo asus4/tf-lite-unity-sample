@@ -1,0 +1,193 @@
+fileFormatVersion: 2
+guid: 63b5250ea377b104a8c56fd4f3aa55bc
+timeCreated: 1520025406
+licenseType: Store
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: actor:geo_grp
+    100002: actor:Rabbit
+    100004: actor:skin_backAnkle_L
+    100006: actor:skin_backAnkle_R
+    100008: actor:skin_backHip_L
+    100010: actor:skin_backHip_R
+    100012: actor:skin_backKnee_L
+    100014: actor:skin_backKnee_R
+    100016: actor:skin_backToes1_L
+    100018: actor:skin_backToes1_R
+    100020: actor:skin_backToes2_L
+    100022: actor:skin_backToes2_R
+    100024: actor:skin_backToes3_L
+    100026: actor:skin_backToes3_R
+    100028: actor:skin_backToes4_L
+    100030: actor:skin_backToes4_R
+    100032: actor:skin_Chest_M
+    100034: actor:skin_frontAnkle_L
+    100036: actor:skin_frontAnkle_R
+    100038: actor:skin_frontHip_L
+    100040: actor:skin_frontHip_R
+    100042: actor:skin_frontKnee_L
+    100044: actor:skin_frontKnee_R
+    100046: actor:skin_frontRump_L
+    100048: actor:skin_frontRump_R
+    100050: actor:skin_frontToes1_L
+    100052: actor:skin_frontToes1_R
+    100054: actor:skin_frontToes2_L
+    100056: actor:skin_frontToes2_R
+    100058: actor:skin_frontToes3_L
+    100060: actor:skin_frontToes3_R
+    100062: actor:skin_frontToes4_L
+    100064: actor:skin_frontToes4_R
+    100066: actor:skin_Head_M
+    100068: actor:skin_HeadEnd_M
+    100070: actor:skin_Neck1_M
+    100072: actor:skin_Neck2_M
+    100074: actor:skin_Neck_M
+    100076: actor:skin_R_Ear_1_L
+    100078: actor:skin_R_Ear_1_R
+    100080: actor:skin_R_Ear_2_L
+    100082: actor:skin_R_Ear_2_R
+    100084: actor:skin_R_Ear_3_L
+    100086: actor:skin_R_Ear_3_R
+    100088: actor:skin_R_Ear_L
+    100090: actor:skin_R_Ear_R
+    100092: actor:skin_Root_M
+    100094: actor:skin_RootPart1_M
+    100096: actor:skin_RootPart2_M
+    100098: actor:skin_Spine1_M
+    100100: actor:skin_Spine1Part1_M
+    100102: actor:skin_Spine1Part2_M
+    100104: actor:skin_Tail0_M
+    100106: actor:skin_Tail1_M
+    100108: actor:skin_Tail2_M
+    100110: //RootNode
+    400000: actor:geo_grp
+    400002: actor:Rabbit
+    400004: actor:skin_backAnkle_L
+    400006: actor:skin_backAnkle_R
+    400008: actor:skin_backHip_L
+    400010: actor:skin_backHip_R
+    400012: actor:skin_backKnee_L
+    400014: actor:skin_backKnee_R
+    400016: actor:skin_backToes1_L
+    400018: actor:skin_backToes1_R
+    400020: actor:skin_backToes2_L
+    400022: actor:skin_backToes2_R
+    400024: actor:skin_backToes3_L
+    400026: actor:skin_backToes3_R
+    400028: actor:skin_backToes4_L
+    400030: actor:skin_backToes4_R
+    400032: actor:skin_Chest_M
+    400034: actor:skin_frontAnkle_L
+    400036: actor:skin_frontAnkle_R
+    400038: actor:skin_frontHip_L
+    400040: actor:skin_frontHip_R
+    400042: actor:skin_frontKnee_L
+    400044: actor:skin_frontKnee_R
+    400046: actor:skin_frontRump_L
+    400048: actor:skin_frontRump_R
+    400050: actor:skin_frontToes1_L
+    400052: actor:skin_frontToes1_R
+    400054: actor:skin_frontToes2_L
+    400056: actor:skin_frontToes2_R
+    400058: actor:skin_frontToes3_L
+    400060: actor:skin_frontToes3_R
+    400062: actor:skin_frontToes4_L
+    400064: actor:skin_frontToes4_R
+    400066: actor:skin_Head_M
+    400068: actor:skin_HeadEnd_M
+    400070: actor:skin_Neck1_M
+    400072: actor:skin_Neck2_M
+    400074: actor:skin_Neck_M
+    400076: actor:skin_R_Ear_1_L
+    400078: actor:skin_R_Ear_1_R
+    400080: actor:skin_R_Ear_2_L
+    400082: actor:skin_R_Ear_2_R
+    400084: actor:skin_R_Ear_3_L
+    400086: actor:skin_R_Ear_3_R
+    400088: actor:skin_R_Ear_L
+    400090: actor:skin_R_Ear_R
+    400092: actor:skin_Root_M
+    400094: actor:skin_RootPart1_M
+    400096: actor:skin_RootPart2_M
+    400098: actor:skin_Spine1_M
+    400100: actor:skin_Spine1Part1_M
+    400102: actor:skin_Spine1Part2_M
+    400104: actor:skin_Tail0_M
+    400106: actor:skin_Tail1_M
+    400108: actor:skin_Tail2_M
+    400110: //RootNode
+    4300000: actor:Rabbit
+    7400000: Take 001
+    9500000: //RootNode
+    13700000: actor:Rabbit
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,288 @@
+fileFormatVersion: 2
+guid: 5efdde548087d6f48b8e72684aa19fa9
+timeCreated: 1496316671
+licenseType: Store
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: baseCurve1
+    100002: baseCurve11
+    100004: baseCurve13
+    100006: baseCurve3
+    100008: baseCurve5
+    100010: baseCurve7
+    100012: baseCurve9
+    100014: follicle1
+    100016: follicle2
+    100018: follicle3
+    100020: follicle4
+    100022: follicle5
+    100024: follicle6
+    100026: follicle7
+    100028: joint1
+    100030: joint10
+    100032: joint11
+    100034: joint12
+    100036: joint13
+    100038: joint14
+    100040: joint15
+    100042: joint16
+    100044: joint17
+    100046: joint18
+    100048: joint19
+    100050: joint2
+    100052: joint20
+    100054: joint21
+    100056: joint22
+    100058: joint23
+    100060: joint24
+    100062: joint25
+    100064: joint26
+    100066: joint27
+    100068: joint28
+    100070: joint3
+    100072: joint4
+    100074: joint5
+    100076: joint6
+    100078: joint7
+    100080: joint8
+    100082: joint9
+    100084: tree-baobab
+    100086: //RootNode
+    400000: baseCurve1
+    400002: baseCurve11
+    400004: baseCurve13
+    400006: baseCurve3
+    400008: baseCurve5
+    400010: baseCurve7
+    400012: baseCurve9
+    400014: follicle1
+    400016: follicle2
+    400018: follicle3
+    400020: follicle4
+    400022: follicle5
+    400024: follicle6
+    400026: follicle7
+    400028: joint1
+    400030: joint10
+    400032: joint11
+    400034: joint12
+    400036: joint13
+    400038: joint14
+    400040: joint15
+    400042: joint16
+    400044: joint17
+    400046: joint18
+    400048: joint19
+    400050: joint2
+    400052: joint20
+    400054: joint21
+    400056: joint22
+    400058: joint23
+    400060: joint24
+    400062: joint25
+    400064: joint26
+    400066: joint27
+    400068: joint28
+    400070: joint3
+    400072: joint4
+    400074: joint5
+    400076: joint6
+    400078: joint7
+    400080: joint8
+    400082: joint9
+    400084: tree-baobab
+    400086: //RootNode
+    2300000: //RootNode
+    3300000: //RootNode
+    4300000: tree-baobab
+    4300002: tree-baobab_orange
+    7400000: Take 001
+    9500000: //RootNode
+    13700000: tree-baobab
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Take 001
+      takeName: Take 001
+      firstFrame: 56
+      lastFrame: 700
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: joint1
+        weight: 1
+      - path: joint1/joint2
+        weight: 1
+      - path: joint1/joint2/joint3
+        weight: 1
+      - path: joint1/joint2/joint3/follicle2
+        weight: 1
+      - path: joint1/joint2/joint3/follicle2/baseCurve3
+        weight: 1
+      - path: joint1/joint2/joint3/joint4
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/follicle1
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/follicle1/baseCurve1
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6
+        weight: 1
+      - path: joint1/joint2/joint3/joint4/joint5/joint6/joint7
+        weight: 1
+      - path: joint1/joint2/joint8
+        weight: 1
+      - path: joint1/joint2/joint8/follicle5
+        weight: 1
+      - path: joint1/joint2/joint8/follicle5/baseCurve9
+        weight: 1
+      - path: joint1/joint2/joint8/joint9
+        weight: 1
+      - path: joint1/joint2/joint8/joint9/joint10
+        weight: 1
+      - path: joint1/joint2/joint8/joint9/joint10/joint11
+        weight: 1
+      - path: joint1/joint2/joint8/joint12
+        weight: 1
+      - path: joint1/joint2/joint8/joint12/follicle4
+        weight: 1
+      - path: joint1/joint2/joint8/joint12/follicle4/baseCurve7
+        weight: 1
+      - path: joint1/joint2/joint8/joint12/joint13
+        weight: 1
+      - path: joint1/joint2/joint8/joint12/joint13/joint14
+        weight: 1
+      - path: joint1/joint2/joint8/joint12/joint13/joint14/joint15
+        weight: 1
+      - path: joint1/joint2/joint16
+        weight: 1
+      - path: joint1/joint2/joint16/follicle3
+        weight: 1
+      - path: joint1/joint2/joint16/follicle3/baseCurve5
+        weight: 1
+      - path: joint1/joint2/joint16/follicle6
+        weight: 1
+      - path: joint1/joint2/joint16/follicle6/baseCurve11
+        weight: 1
+      - path: joint1/joint2/joint16/follicle7
+        weight: 1
+      - path: joint1/joint2/joint16/follicle7/baseCurve13
+        weight: 1
+      - path: joint1/joint2/joint16/joint17
+        weight: 1
+      - path: joint1/joint2/joint16/joint17/joint18
+        weight: 1
+      - path: joint1/joint2/joint16/joint17/joint18/joint19
+        weight: 1
+      - path: joint1/joint2/joint16/joint20
+        weight: 1
+      - path: joint1/joint2/joint16/joint20/joint21
+        weight: 1
+      - path: joint1/joint2/joint16/joint20/joint21/joint22
+        weight: 1
+      - path: joint1/joint2/joint16/joint26
+        weight: 1
+      - path: joint1/joint2/joint16/joint26/joint27
+        weight: 1
+      - path: joint1/joint2/joint16/joint26/joint27/joint28
+        weight: 1
+      - path: joint1/joint2/joint23
+        weight: 1
+      - path: joint1/joint2/joint23/joint24
+        weight: 1
+      - path: joint1/joint2/joint23/joint24/joint25
+        weight: 1
+      - path: tree-baobab
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

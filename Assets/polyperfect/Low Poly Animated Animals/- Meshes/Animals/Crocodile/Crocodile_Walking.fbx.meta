@@ -1,0 +1,1982 @@
+fileFormatVersion: 2
+guid: 7a917c01be0f0f44b868de68c74d0e3a
+timeCreated: 1536611431
+licenseType: Store
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: backAnkle_L
+    100002: backAnkle_R
+    100004: backFootSideInner_L
+    100006: backFootSideInner_R
+    100008: backFootSideOuter_L
+    100010: backFootSideOuter_R
+    100012: backHip_L
+    100014: backHip_R
+    100016: backKnee_L
+    100018: backKnee_R
+    100020: backToes1_L
+    100022: backToes1_R
+    100024: backToes2_L
+    100026: backToes2_R
+    100028: backToes3_L
+    100030: backToes3_R
+    100032: backToes4_L
+    100034: backToes4_R
+    100036: Chest_M
+    100038: Croc
+    100040: //RootNode
+    100042: DeformationSystem
+    100044: frontAnkle_L
+    100046: frontAnkle_R
+    100048: frontHip_L
+    100050: frontHip_R
+    100052: frontKnee_L
+    100054: frontKnee_R
+    100056: frontRump_L
+    100058: frontRump_R
+    100060: frontToes1_L
+    100062: frontToes1_R
+    100064: frontToes2_L
+    100066: frontToes2_R
+    100068: frontToes3_L
+    100070: frontToes3_R
+    100072: frontToes4_L
+    100074: frontToes4_R
+    100076: Geometry
+    100078: Head_M
+    100080: joint11_L
+    100082: joint11_R
+    100084: joint12_L
+    100086: joint12_R
+    100088: joint1_M
+    100090: joint2_M
+    100092: joint3_M
+    100094: joint4_M
+    100096: joint5_M
+    100098: joint8_L
+    100100: joint8_R
+    100102: joint9_L
+    100104: joint9_R
+    100106: Main
+    100108: Neck1_M
+    100110: Neck2_M
+    100112: Neck3_M
+    100114: Neck4_M
+    100116: Neck_M
+    100118: Root_M
+    100120: RootPart1_M
+    100122: RootPart2_M
+    100124: Spine1_M
+    100126: Spine1Part1_M
+    100128: Spine1Part2_M
+    100130: Tail0_M
+    100132: Tail1_M
+    100134: Tail2_M
+    100136: Tail3_M
+    100138: Tail4_M
+    100140: Tail5_M
+    100142: Tail6_M
+    100144: FKbackFootSideInner_L
+    100146: FKbackFootSideInner_R
+    100148: FKbackFootSideOuter_L
+    100150: FKbackFootSideOuter_R
+    100152: FKExtrabackFootSideInner_L
+    100154: FKExtrabackFootSideInner_R
+    100156: FKExtrabackFootSideOuter_L
+    100158: FKExtrabackFootSideOuter_R
+    100160: FKExtrafrontRump_L
+    100162: FKExtrafrontRump_R
+    100164: FKExtrajoint11_L
+    100166: FKExtrajoint11_R
+    100168: FKExtrajoint1_M
+    100170: FKExtrajoint2_M
+    100172: FKExtrajoint4_M
+    100174: FKExtrajoint8_L
+    100176: FKExtrajoint8_R
+    100178: FKExtraNeck3_M
+    100180: FKExtraNeck4_M
+    100182: FKfrontRump_L
+    100184: FKfrontRump_R
+    100186: FKjoint11_L
+    100188: FKjoint11_R
+    100190: FKjoint1_M
+    100192: FKjoint2_M
+    100194: FKjoint4_M
+    100196: FKjoint8_L
+    100198: FKjoint8_R
+    100200: FKNeck3_M
+    100202: FKNeck4_M
+    100204: FKOffsetbackFootSideInner_L
+    100206: FKOffsetbackFootSideInner_R
+    100208: FKOffsetbackFootSideOuter_L
+    100210: FKOffsetbackFootSideOuter_R
+    100212: FKOffsetfrontRump_L
+    100214: FKOffsetfrontRump_R
+    100216: FKOffsetjoint11_L
+    100218: FKOffsetjoint11_R
+    100220: FKOffsetjoint1_M
+    100222: FKOffsetjoint2_M
+    100224: FKOffsetjoint4_M
+    100226: FKOffsetjoint8_L
+    100228: FKOffsetjoint8_R
+    100230: FKOffsetNeck3_M
+    100232: FKOffsetNeck4_M
+    100234: FKParentConstraintTobackToes3_L
+    100236: FKParentConstraintTobackToes3_R
+    100238: FKParentConstraintToChest_M
+    100240: FKParentConstraintTofrontToes3_L
+    100242: FKParentConstraintTofrontToes3_R
+    100244: FKParentConstraintToNeck2_M
+    100246: FKParentConstraintToTail6_M
+    100248: FKSystem
+    100250: FKXjoint1_M
+    100252: FKXjoint8_L
+    100254: FKXjoint8_R
+    100256: FKXNeck3_M
+    100258: LegAimfrontRump_L
+    100260: LegAimfrontRump_R
+    100262: MotionSystem
+    400000: backAnkle_L
+    400002: backAnkle_R
+    400004: backFootSideInner_L
+    400006: backFootSideInner_R
+    400008: backFootSideOuter_L
+    400010: backFootSideOuter_R
+    400012: backHip_L
+    400014: backHip_R
+    400016: backKnee_L
+    400018: backKnee_R
+    400020: backToes1_L
+    400022: backToes1_R
+    400024: backToes2_L
+    400026: backToes2_R
+    400028: backToes3_L
+    400030: backToes3_R
+    400032: backToes4_L
+    400034: backToes4_R
+    400036: Chest_M
+    400038: Croc
+    400040: //RootNode
+    400042: DeformationSystem
+    400044: frontAnkle_L
+    400046: frontAnkle_R
+    400048: frontHip_L
+    400050: frontHip_R
+    400052: frontKnee_L
+    400054: frontKnee_R
+    400056: frontRump_L
+    400058: frontRump_R
+    400060: frontToes1_L
+    400062: frontToes1_R
+    400064: frontToes2_L
+    400066: frontToes2_R
+    400068: frontToes3_L
+    400070: frontToes3_R
+    400072: frontToes4_L
+    400074: frontToes4_R
+    400076: Geometry
+    400078: Head_M
+    400080: joint11_L
+    400082: joint11_R
+    400084: joint12_L
+    400086: joint12_R
+    400088: joint1_M
+    400090: joint2_M
+    400092: joint3_M
+    400094: joint4_M
+    400096: joint5_M
+    400098: joint8_L
+    400100: joint8_R
+    400102: joint9_L
+    400104: joint9_R
+    400106: Main
+    400108: Neck1_M
+    400110: Neck2_M
+    400112: Neck3_M
+    400114: Neck4_M
+    400116: Neck_M
+    400118: Root_M
+    400120: RootPart1_M
+    400122: RootPart2_M
+    400124: Spine1_M
+    400126: Spine1Part1_M
+    400128: Spine1Part2_M
+    400130: Tail0_M
+    400132: Tail1_M
+    400134: Tail2_M
+    400136: Tail3_M
+    400138: Tail4_M
+    400140: Tail5_M
+    400142: Tail6_M
+    400144: FKbackFootSideInner_L
+    400146: FKbackFootSideInner_R
+    400148: FKbackFootSideOuter_L
+    400150: FKbackFootSideOuter_R
+    400152: FKExtrabackFootSideInner_L
+    400154: FKExtrabackFootSideInner_R
+    400156: FKExtrabackFootSideOuter_L
+    400158: FKExtrabackFootSideOuter_R
+    400160: FKExtrafrontRump_L
+    400162: FKExtrafrontRump_R
+    400164: FKExtrajoint11_L
+    400166: FKExtrajoint11_R
+    400168: FKExtrajoint1_M
+    400170: FKExtrajoint2_M
+    400172: FKExtrajoint4_M
+    400174: FKExtrajoint8_L
+    400176: FKExtrajoint8_R
+    400178: FKExtraNeck3_M
+    400180: FKExtraNeck4_M
+    400182: FKfrontRump_L
+    400184: FKfrontRump_R
+    400186: FKjoint11_L
+    400188: FKjoint11_R
+    400190: FKjoint1_M
+    400192: FKjoint2_M
+    400194: FKjoint4_M
+    400196: FKjoint8_L
+    400198: FKjoint8_R
+    400200: FKNeck3_M
+    400202: FKNeck4_M
+    400204: FKOffsetbackFootSideInner_L
+    400206: FKOffsetbackFootSideInner_R
+    400208: FKOffsetbackFootSideOuter_L
+    400210: FKOffsetbackFootSideOuter_R
+    400212: FKOffsetfrontRump_L
+    400214: FKOffsetfrontRump_R
+    400216: FKOffsetjoint11_L
+    400218: FKOffsetjoint11_R
+    400220: FKOffsetjoint1_M
+    400222: FKOffsetjoint2_M
+    400224: FKOffsetjoint4_M
+    400226: FKOffsetjoint8_L
+    400228: FKOffsetjoint8_R
+    400230: FKOffsetNeck3_M
+    400232: FKOffsetNeck4_M
+    400234: FKParentConstraintTobackToes3_L
+    400236: FKParentConstraintTobackToes3_R
+    400238: FKParentConstraintToChest_M
+    400240: FKParentConstraintTofrontToes3_L
+    400242: FKParentConstraintTofrontToes3_R
+    400244: FKParentConstraintToNeck2_M
+    400246: FKParentConstraintToTail6_M
+    400248: FKSystem
+    400250: FKXjoint1_M
+    400252: FKXjoint8_L
+    400254: FKXjoint8_R
+    400256: FKXNeck3_M
+    400258: LegAimfrontRump_L
+    400260: LegAimfrontRump_R
+    400262: MotionSystem
+    4300000: Croc
+    7400000: Crocodile_Walk
+    7400002: Crocodile_Idle
+    7400004: Crocodile_Swim
+    7400006: Crocodile_Attack_1
+    7400008: Crocodile_Attack_1
+    7400010: Crocodile_Death
+    9500000: //RootNode
+    13700000: Croc
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Crocodile_Walk
+      takeName: Take 001
+      firstFrame: 1
+      lastFrame: 33
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Geometry
+        weight: 1
+      - path: Geometry/Croc
+        weight: 1
+      - path: Main
+        weight: 1
+      - path: Main/DeformationSystem
+        weight: 1
+      - path: Main/DeformationSystem/Root_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/backToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideInner_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideOuter_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/joint9_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/backToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideInner_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideOuter_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/joint9_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/frontToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L/joint12_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/frontToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R/joint12_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M/joint3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M/Head_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M/joint5_M
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Crocodile_Idle
+      takeName: Take 001
+      firstFrame: 40
+      lastFrame: 195
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Geometry
+        weight: 1
+      - path: Geometry/Croc
+        weight: 1
+      - path: Main
+        weight: 1
+      - path: Main/DeformationSystem
+        weight: 1
+      - path: Main/DeformationSystem/Root_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/backToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideInner_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideOuter_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/joint9_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/backToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideInner_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideOuter_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/joint9_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/frontToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L/joint12_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/frontToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R/joint12_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M/joint3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M/Head_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M/joint5_M
+        weight: 1
+      - path: Main/MotionSystem
+        weight: 1
+      - path: Main/MotionSystem/FKSystem
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L/FKExtrabackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L/FKExtrabackFootSideInner_L/FKbackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L/FKExtrabackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L/FKExtrabackFootSideOuter_L/FKbackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R/FKExtrabackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R/FKExtrabackFootSideInner_R/FKbackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R/FKExtrabackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R/FKExtrabackFootSideOuter_R/FKbackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L/FKExtrafrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L/FKExtrafrontRump_L/FKfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R/FKExtrafrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R/FKExtrafrontRump_R/FKfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L/FKExtrajoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L/FKExtrajoint11_L/FKjoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R/FKExtrajoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R/FKExtrajoint11_R/FKjoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M/FKExtrajoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M/FKExtrajoint2_M/FKjoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M/FKExtraNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M/FKExtraNeck4_M/FKNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M/FKExtrajoint4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M/FKExtrajoint4_M/FKjoint4_M
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Crocodile_Swim
+      takeName: Take 001
+      firstFrame: 200
+      lastFrame: 240
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Geometry
+        weight: 1
+      - path: Geometry/Croc
+        weight: 1
+      - path: Main
+        weight: 1
+      - path: Main/DeformationSystem
+        weight: 1
+      - path: Main/DeformationSystem/Root_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/backToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideInner_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideOuter_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/joint9_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/backToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideInner_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideOuter_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/joint9_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/frontToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L/joint12_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/frontToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R/joint12_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M/joint3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M/Head_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M/joint5_M
+        weight: 1
+      - path: Main/MotionSystem
+        weight: 1
+      - path: Main/MotionSystem/FKSystem
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L/FKExtrabackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L/FKExtrabackFootSideInner_L/FKbackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L/FKExtrabackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L/FKExtrabackFootSideOuter_L/FKbackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R/FKExtrabackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R/FKExtrabackFootSideInner_R/FKbackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R/FKExtrabackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R/FKExtrabackFootSideOuter_R/FKbackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L/FKExtrafrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L/FKExtrafrontRump_L/FKfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R/FKExtrafrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R/FKExtrafrontRump_R/FKfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L/FKExtrajoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L/FKExtrajoint11_L/FKjoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R/FKExtrajoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R/FKExtrajoint11_R/FKjoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M/FKExtrajoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M/FKExtrajoint2_M/FKjoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M/FKExtraNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M/FKExtraNeck4_M/FKNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M/FKExtrajoint4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M/FKExtrajoint4_M/FKjoint4_M
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Crocodile_Attack_1
+      takeName: Take 001
+      firstFrame: 245
+      lastFrame: 290
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Geometry
+        weight: 1
+      - path: Geometry/Croc
+        weight: 1
+      - path: Main
+        weight: 1
+      - path: Main/DeformationSystem
+        weight: 1
+      - path: Main/DeformationSystem/Root_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/backToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideInner_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideOuter_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/joint9_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/backToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideInner_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideOuter_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/joint9_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/frontToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L/joint12_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/frontToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R/joint12_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M/joint3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M/Head_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M/joint5_M
+        weight: 1
+      - path: Main/MotionSystem
+        weight: 1
+      - path: Main/MotionSystem/FKSystem
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L/FKExtrabackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L/FKExtrabackFootSideInner_L/FKbackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L/FKExtrabackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L/FKExtrabackFootSideOuter_L/FKbackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R/FKExtrabackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R/FKExtrabackFootSideInner_R/FKbackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R/FKExtrabackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R/FKExtrabackFootSideOuter_R/FKbackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L/FKExtrafrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L/FKExtrafrontRump_L/FKfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R/FKExtrafrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R/FKExtrafrontRump_R/FKfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L/FKExtrajoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L/FKExtrajoint11_L/FKjoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R/FKExtrajoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R/FKExtrajoint11_R/FKjoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M/FKExtrajoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M/FKExtrajoint2_M/FKjoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M/FKExtraNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M/FKExtraNeck4_M/FKNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M/FKExtrajoint4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M/FKExtrajoint4_M/FKjoint4_M
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Crocodile_Attack_1
+      takeName: Take 001
+      firstFrame: 290
+      lastFrame: 345
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Geometry
+        weight: 1
+      - path: Geometry/Croc
+        weight: 1
+      - path: Main
+        weight: 1
+      - path: Main/DeformationSystem
+        weight: 1
+      - path: Main/DeformationSystem/Root_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/backToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideInner_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideOuter_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/joint9_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/backToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideInner_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideOuter_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/joint9_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/frontToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L/joint12_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/frontToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R/joint12_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M/joint3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M/Head_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M/joint5_M
+        weight: 1
+      - path: Main/MotionSystem
+        weight: 1
+      - path: Main/MotionSystem/FKSystem
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L/FKExtrabackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L/FKExtrabackFootSideInner_L/FKbackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L/FKExtrabackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L/FKExtrabackFootSideOuter_L/FKbackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R/FKExtrabackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R/FKExtrabackFootSideInner_R/FKbackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R/FKExtrabackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R/FKExtrabackFootSideOuter_R/FKbackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L/FKExtrafrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L/FKExtrafrontRump_L/FKfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R/FKExtrafrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R/FKExtrafrontRump_R/FKfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L/FKExtrajoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L/FKExtrajoint11_L/FKjoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R/FKExtrajoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R/FKExtrajoint11_R/FKjoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M/FKExtrajoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M/FKExtrajoint2_M/FKjoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M/FKExtraNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M/FKExtraNeck4_M/FKNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M/FKExtrajoint4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M/FKExtrajoint4_M/FKjoint4_M
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Crocodile_Death
+      takeName: Take 001
+      firstFrame: 350
+      lastFrame: 380
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Geometry
+        weight: 1
+      - path: Geometry/Croc
+        weight: 1
+      - path: Main
+        weight: 1
+      - path: Main/DeformationSystem
+        weight: 1
+      - path: Main/DeformationSystem/Root_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/backToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideInner_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/backFootSideOuter_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_L/backKnee_L/backAnkle_L/backToes1_L/backToes2_L/backToes3_L/joint8_L/joint9_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/backToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideInner_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/backFootSideOuter_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/backHip_R/backKnee_R/backAnkle_R/backToes1_R/backToes2_R/backToes3_R/joint8_R/joint9_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/frontToes4_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_L/frontHip_L/frontKnee_L/frontAnkle_L/frontToes1_L/frontToes2_L/frontToes3_L/joint11_L/joint12_L
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/frontToes4_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/frontRump_R/frontHip_R/frontKnee_R/frontAnkle_R/frontToes1_R/frontToes2_R/frontToes3_R/joint11_R/joint12_R
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/joint1_M/joint2_M/joint3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/RootPart1_M/RootPart2_M/Spine1_M/Spine1Part1_M/Spine1Part2_M/Chest_M/Neck_M/Neck1_M/Neck2_M/Neck3_M/Neck4_M/Head_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M
+        weight: 1
+      - path: Main/DeformationSystem/Root_M/Tail0_M/Tail1_M/Tail2_M/Tail3_M/Tail4_M/Tail5_M/Tail6_M/joint4_M/joint5_M
+        weight: 1
+      - path: Main/MotionSystem
+        weight: 1
+      - path: Main/MotionSystem/FKSystem
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L/FKExtrabackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideInner_L/FKExtrabackFootSideInner_L/FKbackFootSideInner_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L/FKExtrabackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_L/FKOffsetjoint8_L/FKExtrajoint8_L/FKjoint8_L/FKXjoint8_L/FKOffsetbackFootSideOuter_L/FKExtrabackFootSideOuter_L/FKbackFootSideOuter_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R/FKExtrabackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideInner_R/FKExtrabackFootSideInner_R/FKbackFootSideInner_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R/FKExtrabackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTobackToes3_R/FKOffsetjoint8_R/FKExtrajoint8_R/FKjoint8_R/FKXjoint8_R/FKOffsetbackFootSideOuter_R/FKExtrabackFootSideOuter_R/FKbackFootSideOuter_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L/FKExtrafrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_L/FKOffsetfrontRump_L/FKExtrafrontRump_L/FKfrontRump_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R/FKExtrafrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToChest_M/LegAimfrontRump_R/FKOffsetfrontRump_R/FKExtrafrontRump_R/FKfrontRump_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L/FKExtrajoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_L/FKOffsetjoint11_L/FKExtrajoint11_L/FKjoint11_L
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R/FKExtrajoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintTofrontToes3_R/FKOffsetjoint11_R/FKExtrajoint11_R/FKjoint11_R
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M/FKExtrajoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetjoint1_M/FKExtrajoint1_M/FKjoint1_M/FKXjoint1_M/FKOffsetjoint2_M/FKExtrajoint2_M/FKjoint2_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M/FKExtraNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToNeck2_M/FKOffsetNeck3_M/FKExtraNeck3_M/FKNeck3_M/FKXNeck3_M/FKOffsetNeck4_M/FKExtraNeck4_M/FKNeck4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M/FKExtrajoint4_M
+        weight: 1
+      - path: Main/MotionSystem/FKSystem/FKParentConstraintToTail6_M/FKOffsetjoint4_M/FKExtrajoint4_M/FKjoint4_M
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
