@@ -18,7 +18,7 @@ namespace TensorFlowLite
         private Result result;
         private Matrix4x4 cropMatrix;
 
-        public Vector2 FaceShift { get; set; } = new Vector2(0f, 0.1f);
+        public Vector2 FaceShift { get; set; } = new Vector2(0f, 0f);
         public Vector2 FaceScale { get; set; } = new Vector2(1.6f, 1.6f);
         public Matrix4x4 CropMatrix => cropMatrix;
 
@@ -82,6 +82,39 @@ namespace TensorFlowLite
                 ));
             }
             return result;
+        }
+
+        public FaceDetect.Result LandmarkToDetection(Result landmark)
+        {
+            // Original index looks like a bug
+            // rotation_vector_start_keypoint_index: 33  # Left side of left eye.
+            // rotation_vector_end_keypoint_index: 133  # Right side of right eye.
+
+            const int start = 33; // Left side of left eye.
+            const int end = 263; // Right side of right eye.
+
+            var keypoints = landmark.keypoints;
+            for (int i = 0; i < keypoints.Length; i++)
+            {
+                Vector3 v = keypoints[i];
+                v.y = 1f - v.y;
+                keypoints[i] = v;
+            }
+
+            Rect rect = RectExtension.GetBoundingBox(keypoints);
+            Vector2 center = rect.center;
+            float size = Mathf.Min(rect.width, rect.height);
+            rect = new Rect(center.x - size * 0.5f, center.y - size * 0.5f, size, size);
+
+            return new FaceDetect.Result()
+            {
+                score = landmark.score,
+                rect = rect,
+                keypoints = new Vector2[]
+                {
+                    keypoints[end], keypoints[start]
+                },
+            };
         }
 
         private static float CalcFaceRotation(ref FaceDetect.Result detection)

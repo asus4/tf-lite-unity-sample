@@ -10,10 +10,11 @@ public sealed class FaceMeshSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")] string faceModelFile = "coco_ssd_mobilenet_quant.tflite";
     [SerializeField, FilePopup("*.tflite")] string faceMeshModelFile = "coco_ssd_mobilenet_quant.tflite";
-
+    [SerializeField] bool useLandmarkToDetection = true;
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage croppedView = null;
     [SerializeField] Material faceMaterial = null;
+
 
 
     WebCamTexture webcamTexture;
@@ -23,7 +24,7 @@ public sealed class FaceMeshSample : MonoBehaviour
     Vector3[] rtCorners = new Vector3[4];
     MeshFilter faceMeshFilter;
     Vector3[] faceKeypoints;
-
+    FaceDetect.Result detection;
 
     void Start()
     {
@@ -35,7 +36,7 @@ public sealed class FaceMeshSample : MonoBehaviour
 
         string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
         {
-            isFrontFacing = false,
+            isFrontFacing = true,
             kind = WebCamKind.WideAngle,
         });
         webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
@@ -69,25 +70,34 @@ public sealed class FaceMeshSample : MonoBehaviour
 
     void Update()
     {
-        faceDetect.Invoke(webcamTexture);
-        cameraView.material = faceDetect.transformMat;
-        var detectionResult = faceDetect.GetResults().FirstOrDefault();
-
-        if (detectionResult == null)
+        if (detection == null || !useLandmarkToDetection)
         {
-            return;
+            faceDetect.Invoke(webcamTexture);
+            cameraView.material = faceDetect.transformMat;
+            detection = faceDetect.GetResults().FirstOrDefault();
+
+            if (detection == null)
+            {
+                return;
+            }
         }
 
-        faceMesh.Invoke(webcamTexture, detectionResult);
+        faceMesh.Invoke(webcamTexture, detection);
         croppedView.texture = faceMesh.inputTex;
         var meshResult = faceMesh.GetResult();
 
         if (meshResult.score < 0.5f)
         {
+            detection = null;
             return;
         }
 
-        DrawResults(detectionResult, meshResult);
+        DrawResults(detection, meshResult);
+
+        if (useLandmarkToDetection)
+        {
+            detection = faceMesh.LandmarkToDetection(meshResult);
+        }
     }
 
     void DrawResults(FaceDetect.Result detection, FaceMesh.Result face)

@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using UnityEngine;
 
 namespace TensorFlowLite
@@ -44,5 +44,40 @@ namespace TensorFlowLite
             return intersect_area / (area0 + area1 - intersect_area);
         }
 
+        public static Rect GetBoundingBox(Vector2[] arr)
+        {
+            float xMin = float.MaxValue;
+            float yMin = float.MaxValue;
+            float xMax = float.MinValue;
+            float yMax = float.MinValue;
+
+            foreach (Vector2 v in arr)
+            {
+                xMin = Math.Min(xMin, v.x);
+                yMin = Math.Min(yMin, v.y);
+                xMax = Math.Max(xMax, v.x);
+                yMax = Math.Max(yMax, v.y);
+            }
+
+            return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+        }
+
+        public static Rect GetBoundingBox(Vector3[] arr)
+        {
+            float xMin = float.MaxValue;
+            float yMin = float.MaxValue;
+            float xMax = float.MinValue;
+            float yMax = float.MinValue;
+
+            foreach (Vector3 v in arr)
+            {
+                xMin = Math.Min(xMin, v.x);
+                yMin = Math.Min(yMin, v.y);
+                xMax = Math.Max(xMax, v.x);
+                yMax = Math.Max(yMax, v.y);
+            }
+
+            return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+        }
     }
 }
