@@ -48,7 +48,7 @@ namespace TensorFlowLite
         Texture2D labelTex2D;
 
 
-        public DeepLab(string modelPath, ComputeShader compute) : base(modelPath, true)
+        public DeepLab(string modelPath, ComputeShader compute) : base(modelPath, false)
         {
             var odim0 = interpreter.GetOutputTensorInfo(0).shape;
 
