@@ -33,7 +33,7 @@ namespace TensorFlowLite
                 var prefers = devices.OrderByDescending(d => spec.GetScore(d));
                 return prefers.First().name;
             }
-            return devices.Last().name;
+            return devices.First().name;
         }
 
         private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
@@ -49,7 +49,7 @@ namespace TensorFlowLite
                     new Vector3(
                         mirrorHorizontal ? -1 : 1,
                         mirrorVertical ? -1 : 1,
-                        0
+                        1
                     )
                 )
                 * POP_MATRIX;
