@@ -21,12 +21,12 @@ def unzip(from_tf, to_unity):
 
 def build_mac():
     # Main
-    run_cmd('bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/c:tensorflowlite_c')
+    run_cmd('bazel build --config=macos -c opt --define tflite_with_xnnpack=true tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.dylib', 'macOS/libtensorflowlite_c.dylib')
     # Metal Delegate
     # v2.3.0 or later will throw error. Apply following changes to fix this
     # https://github.com/tensorflow/tensorflow/issues/41039#issuecomment-664701908
-    run_cmd('bazel build -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always --cxxopt=-std=c++14 --apple_platform_type=macos //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    run_cmd('bazel build --config=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always --apple_platform_type=macos //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
     copy('bazel-bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib', 'macOS/libtensorflowlite_metal_delegate.dylib')
 
 def build_windows():
@@ -40,6 +40,7 @@ def build_linux():
     # Main
     run_cmd('bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/libtensorflowlite_c.so')
+    # TODO GPU Delegate
 
 def build_ios():
     # Main
@@ -57,13 +58,13 @@ def build_ios():
 
 def build_android():
     # Main
-    run_cmd('bazel build -c opt --cxxopt=--std=c++11 --config=android_arm64 //tensorflow/lite/c:libtensorflowlite_c.so')
+    run_cmd('bazel build -c opt --config=android_arm64 --define tflite_with_xnnpack=true //tensorflow/lite/c:libtensorflowlite_c.so')
     copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Android')
     # GPU Delegate
-    run_cmd('bazel build -c opt --config android_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so')
+    run_cmd('bazel build -c opt --config=android_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so')
     copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_delegate.so', 'Android')
     # NNAPI Delegate
-    run_cmd('bazel build -c opt --cxxopt=--std=c++11 --config=android_arm64 //tensorflow/lite/delegates/nnapi:nnapi_delegate')
+    run_cmd('bazel build -c opt --config=android_arm64 //tensorflow/lite/delegates/nnapi:nnapi_delegate')
     copy('bazel-bin/tensorflow/lite/delegates/nnapi/libnnapi_delegate.so', 'Android')
 
 if __name__ == '__main__':
