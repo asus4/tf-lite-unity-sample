@@ -183,9 +183,9 @@ namespace TensorFlowLite
         #region Externs
 
 #if UNITY_IOS && !UNITY_EDITOR
-        private const string TensorFlowLibrary = "__Internal";
+        internal const string TensorFlowLibrary = "__Internal";
 #else
-        private const string TensorFlowLibrary = "libtensorflowlite_c";
+        internal const string TensorFlowLibrary = "libtensorflowlite_c";
 #endif
 
         // TfLiteStatus
