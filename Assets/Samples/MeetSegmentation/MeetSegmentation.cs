@@ -9,7 +9,7 @@ namespace TensorFlowLite
     {
         float[,,] outputs0; // height, width, 21
 
-        public MeetSegmentation(string modelPath, ComputeShader compute) : base(modelPath, true)
+        public MeetSegmentation(string modelPath, ComputeShader compute) : base(modelPath, false)
         {
             var odim0 = interpreter.GetOutputTensorInfo(0).shape;
 
