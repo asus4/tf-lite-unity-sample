@@ -37,6 +37,6 @@ public class MeetSegmentationSample : MonoBehaviour
 
     void Update()
     {
-
+        segmentation.Invoke(webcamTexture);
     }
 }

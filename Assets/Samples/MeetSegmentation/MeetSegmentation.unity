@@ -398,7 +398,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd85ce8fc40d406ba4f42c84b077d95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: segm_full_v491.tflite
+  fileName: segm_lite_v509.tflite
   cameraView: {fileID: 2074584278}
   outputView: {fileID: 1931683985}
   compute: {fileID: 0}
