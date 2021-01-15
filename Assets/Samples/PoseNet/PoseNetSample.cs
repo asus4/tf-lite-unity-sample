@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
@@ -20,6 +21,7 @@ public class PoseNetSample : MonoBehaviour
     PrimitiveDraw draw;
     UniTask<bool> task;
     PoseNet.Result[] results;
+    CancellationToken cancellationToken;
 
     void Start()
     {
@@ -36,6 +38,8 @@ public class PoseNetSample : MonoBehaviour
         {
             color = Color.green,
         };
+
+        cancellationToken = this.GetCancellationTokenOnDestroy();
     }
 
     void OnDestroy()
@@ -95,7 +99,7 @@ public class PoseNetSample : MonoBehaviour
 
     async UniTask<bool> InvokeAsync()
     {
-        results = await poseNet.InvokeAsync(webcamTexture);
+        results = await poseNet.InvokeAsync(webcamTexture, cancellationToken);
         cameraView.material = poseNet.transformMat;
         return true;
     }

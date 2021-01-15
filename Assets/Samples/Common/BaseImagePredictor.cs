@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
-using Unity.Collections;
 using Cysharp.Threading.Tasks;
 
 namespace TensorFlowLite
@@ -96,14 +96,14 @@ namespace TensorFlowLite
             tex2tensor.ToTensor(tex, inputs);
         }
 
-        protected async UniTask<bool> ToTensorAsync(Texture inputTex, float[,,] inputs)
+        protected async UniTask<bool> ToTensorAsync(Texture inputTex, float[,,] inputs, CancellationToken cancellationToken)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
             await tex2tensor.ToTensorAsync(tex, inputs);
             return true;
         }
 
-        protected async UniTask<bool> ToTensorAsync(RenderTexture inputTex, float[,,] inputs, bool resize)
+        protected async UniTask<bool> ToTensorAsync(RenderTexture inputTex, float[,,] inputs, bool resize, CancellationToken cancellationToken)
         {
             RenderTexture tex = resize ? resizer.Resize(inputTex, resizeOptions) : inputTex;
             await tex2tensor.ToTensorAsync(tex, inputs);

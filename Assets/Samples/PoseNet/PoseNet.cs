@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 
@@ -92,9 +92,9 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(1, outputs1);
         }
 
-        public async UniTask<Result[]> InvokeAsync(Texture inputTex)
+        public async UniTask<Result[]> InvokeAsync(Texture inputTex, CancellationToken cancellationToken)
         {
-            await ToTensorAsync(inputTex, input0);
+            await ToTensorAsync(inputTex, input0, cancellationToken);
             await UniTask.SwitchToThreadPool();
 
             interpreter.SetInputTensorData(0, input0);
@@ -104,7 +104,7 @@ namespace TensorFlowLite
 
             var results = GetResults();
 
-            await UniTask.SwitchToMainThread();
+            await UniTask.SwitchToMainThread(cancellationToken);
             return results;
         }
 
