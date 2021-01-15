@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
+using Cysharp.Threading.Tasks;
 
 public class HandTrackingSample : MonoBehaviour
 {
@@ -11,6 +13,8 @@ public class HandTrackingSample : MonoBehaviour
 
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage debugPalmView = null;
+    [SerializeField] bool runBackground;
+
     WebCamTexture webcamTexture;
     PalmDetect palmDetect;
     HandLandmarkDetect landmarkDetect;
@@ -19,6 +23,12 @@ public class HandTrackingSample : MonoBehaviour
     Vector3[] rtCorners = new Vector3[4];
     Vector3[] worldJoints = new Vector3[HandLandmarkDetect.JOINT_COUNT];
     PrimitiveDraw draw;
+    List<PalmDetect.Result> palmResults;
+    HandLandmarkDetect.Result landmarkResult;
+    UniTask<bool> task;
+    CancellationToken cancellationToken;
+
+
 
     void Start()
     {
@@ -51,26 +61,56 @@ public class HandTrackingSample : MonoBehaviour
 
     void Update()
     {
+        if (runBackground)
+        {
+            if (task.Status.IsCompleted())
+            {
+                task = InvokeAsync();
+            }
+        }
+        else
+        {
+            Invoke();
+        }
+
+        if (palmResults == null || palmResults.Count <= 0) return;
+        DrawFrames(palmResults);
+
+        if (landmarkResult == null || landmarkResult.score < 0.2f) return;
+        DrawCropMatrix(landmarkDetect.CropMatrix);
+        DrawJoints(landmarkResult.joints);
+    }
+
+    void Invoke()
+    {
         palmDetect.Invoke(webcamTexture);
         cameraView.material = palmDetect.transformMat;
         cameraView.rectTransform.GetWorldCorners(rtCorners);
 
-        var palms = palmDetect.GetResults(0.7f, 0.3f);
+        palmResults = palmDetect.GetResults(0.7f, 0.3f);
 
-        DrawFrames(palms);
 
-        if (palms.Count <= 0) return;
+        if (palmResults.Count <= 0) return;
 
         // Detect only first palm
-        landmarkDetect.Invoke(webcamTexture, palms[0]);
+        landmarkDetect.Invoke(webcamTexture, palmResults[0]);
         debugPalmView.texture = landmarkDetect.inputTex;
 
-        var landmarkResult = landmarkDetect.GetResult();
+        landmarkResult = landmarkDetect.GetResult();
+    }
 
-        if (landmarkResult.score < 0.2f) return;
+    async UniTask<bool> InvokeAsync()
+    {
+        palmResults = await palmDetect.InvokeAsync(webcamTexture, cancellationToken);
+        cameraView.material = palmDetect.transformMat;
+        cameraView.rectTransform.GetWorldCorners(rtCorners);
 
-        DrawCropMatrix(landmarkDetect.CropMatrix);
-        DrawJoints(landmarkResult.joints);
+        if (palmResults.Count <= 0) return false;
+
+        landmarkResult = await landmarkDetect.InvokeAsync(webcamTexture, palmResults[0], cancellationToken);
+        debugPalmView.texture = landmarkDetect.inputTex;
+
+        return true;
     }
 
     void DrawFrames(List<PalmDetect.Result> palms)

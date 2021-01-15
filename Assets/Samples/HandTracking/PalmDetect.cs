@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+
 
 namespace TensorFlowLite
 {
 
     public class PalmDetect : BaseImagePredictor<float>
     {
-       
+
 
         public struct Result
         {
@@ -71,6 +74,23 @@ namespace TensorFlowLite
 
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
+        }
+
+        public async UniTask<List<Result>> InvokeAsync(Texture inputTex, CancellationToken cancellationToken)
+        {
+            await ToTensorAsync(inputTex, input0, cancellationToken);
+            await UniTask.SwitchToThreadPool();
+
+            interpreter.SetInputTensorData(0, input0);
+            interpreter.Invoke();
+
+            interpreter.GetOutputTensorData(0, output0);
+            interpreter.GetOutputTensorData(1, output1);
+
+            var results = GetResults();
+
+            await UniTask.SwitchToMainThread(cancellationToken);
+            return results;
         }
 
         public List<Result> GetResults(float scoreThreshold = 0.7f, float iouThreshold = 0.3f)
@@ -154,7 +174,7 @@ namespace TensorFlowLite
             return filtered;
         }
 
-     
+
 
     }
 }

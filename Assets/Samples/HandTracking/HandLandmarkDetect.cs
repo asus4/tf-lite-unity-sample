@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 
 namespace TensorFlowLite
@@ -88,6 +90,39 @@ namespace TensorFlowLite
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
+        }
+
+        public async UniTask<Result> InvokeAsync(Texture inputTex, PalmDetect.Result palm, CancellationToken cancellationToken)
+        {
+            var options = (inputTex is WebCamTexture)
+               ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
+               : resizeOptions;
+            cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
+            {
+                rect = palm.rect,
+                rotationDegree = CalcHandRotation(ref palm) * Mathf.Rad2Deg,
+                shift = PalmShift,
+                scale = PalmScale,
+                cameraRotationDegree = -options.rotationDegree,
+                mirrorHorizontal = options.mirrorHorizontal,
+                mirrorVertiacal = options.mirrorVertical,
+            });
+
+            RenderTexture rt = resizer.Resize(
+                inputTex, options.width, options.height, true,
+                cropMatrix,
+                TextureResizer.GetTextureST(inputTex, options));
+            await ToTensorAsync(rt, input0, false, cancellationToken);
+            await UniTask.SwitchToThreadPool();
+
+            interpreter.SetInputTensorData(0, input0);
+            interpreter.Invoke();
+            interpreter.GetOutputTensorData(0, output0);
+            interpreter.GetOutputTensorData(1, output1);
+
+            var result = GetResult();
+            await UniTask.SwitchToMainThread(cancellationToken);
+            return result;
         }
 
         public Result GetResult()
