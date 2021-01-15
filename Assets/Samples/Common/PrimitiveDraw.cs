@@ -190,7 +190,7 @@ namespace TensorFlowLite
                 LightProbeUsage.Off, null);
 
 #if UNITY_EDITOR
-            if (drawEditor)
+            if (drawEditor && UnityEditor.SceneView.lastActiveSceneView != null)
             {
                 var editorCamera = UnityEditor.SceneView.lastActiveSceneView.camera;
                 Graphics.DrawMeshInstanced(
