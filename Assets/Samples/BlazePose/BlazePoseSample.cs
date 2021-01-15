@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,9 +36,11 @@ public sealed class BlazePoseSample : MonoBehaviour
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
     Vector3[] worldJoints;
     PrimitiveDraw draw;
-    UniTask<bool> task;
     PoseDetect.Result poseResult;
     PoseLandmarkDetect.Result landmarkResult;
+    UniTask<bool> task;
+    CancellationToken cancellationToken;
+
 
     void Start()
     {
@@ -71,6 +74,8 @@ public sealed class BlazePoseSample : MonoBehaviour
 
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
         worldJoints = new Vector3[poseLandmark.JointCount];
+
+        cancellationToken = this.GetCancellationTokenOnDestroy();
     }
 
     void OnDestroy()
@@ -192,7 +197,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     async UniTask<bool> InvokeAsync()
     {
         // Note: `await` changes PlayerLoopTiming from Update to FixedUpdate.
-        poseResult = await poseDetect.InvokeAsync(webcamTexture, PlayerLoopTiming.FixedUpdate);
+        poseResult = await poseDetect.InvokeAsync(webcamTexture, cancellationToken, PlayerLoopTiming.FixedUpdate);
 
         if (poseResult.score < 0) return false;
 
@@ -200,7 +205,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         {
             poseLandmark.FilterVelocityScale = filterVelocityScale;
         }
-        landmarkResult = await poseLandmark.InvokeAsync(webcamTexture, poseResult, useLandmarkFilter, PlayerLoopTiming.Update);
+        landmarkResult = await poseLandmark.InvokeAsync(webcamTexture, poseResult, useLandmarkFilter, cancellationToken, PlayerLoopTiming.Update);
 
         // Back to the update timing from now on 
         if (cameraView != null)
