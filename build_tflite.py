@@ -31,7 +31,7 @@ def build_mac():
 
 def build_windows():
     # Main
-    run_cmd('bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/c:tensorflowlite_c')
+    run_cmd('bazel build -c opt --define tflite_with_xnnpack=true tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/tensorflowlite_c.dll', 'Windows/libtensorflowlite_c.dll')
     # TODO GPU Delegate
 
