@@ -10,5 +10,6 @@
   "unity": "2019.3",
   "unityRelease": "0f1",
   "version": "2.4.0",
-  "type": "library"
+  "type": "library",
+  "hideInEditor": false
 }
