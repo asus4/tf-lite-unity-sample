@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 /* ---------------------------------------------------------------------- *
@@ -23,12 +24,60 @@ using UnityEngine;
 
 namespace TensorFlowLite
 {
-    public struct SsdAnchor
+    public struct SsdAnchor : System.IEquatable<SsdAnchor>
     {
         public float x; // center
         public float y; // center
         public float width;
         public float height;
+
+
+
+        public override int GetHashCode()
+        {
+            return x.GetHashCode() ^ (y.GetHashCode() << 2) ^ (width.GetHashCode() >> 2) ^ (height.GetHashCode() >> 1);
+        }
+
+        public override bool Equals(object other)
+        {
+            if (!(other is SsdAnchor)) return false;
+            return Equals((SsdAnchor)other);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(SsdAnchor other)
+        {
+            return x == other.x
+                && y == other.y
+                && width == other.width
+                && height == other.height;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(SsdAnchor lhs, SsdAnchor rhs)
+        {
+            // Returns false in the presence of NaN values.
+            float diffx = lhs.x - rhs.x;
+            float diffy = lhs.y - rhs.y;
+            float diffw = lhs.width - rhs.width;
+            float diffh = lhs.height - rhs.height;
+            float sqrmag = diffx * diffx + diffy * diffy + diffw * diffw + diffw * diffw;
+            return sqrmag < kEpsilon * kEpsilon;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(SsdAnchor lhs, SsdAnchor rhs)
+        {
+            // Returns true in the presence of NaN values.
+            return !(lhs == rhs);
+        }
+
+        public const float kEpsilon = 0.00001F;
+
+
+        public override string ToString()
+        {
+            return $"({x},{y},{width},{height})";
+        }
+
     }
 
     public static class SsdAnchorsCalculator
