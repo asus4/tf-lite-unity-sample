@@ -3,7 +3,6 @@
   "displayName": "TensorFlow Lite",
   "author": "Koki Ibukuro",
   "dependencies": {
-    "com.unity.mathematics": "1.1.0"
   },
   "description": "TensorFlow Lite Plugin for Unity",
   "keywords": [
