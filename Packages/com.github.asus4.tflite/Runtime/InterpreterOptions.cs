@@ -96,15 +96,15 @@ namespace TensorFlowLite
             // https://github.com/jeremyVignelles/va-list-interop-demo
 
             string report;
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-            // TODO: use vsprintf on windows
-            report = format;
-#else
+#if UNITY_EDITOR_MAC
             int formatLength = printf(format, args);
             IntPtr buffer = Marshal.AllocHGlobal(formatLength);
             sprintf(buffer, format, args);
             report = Marshal.PtrToStringAnsi(buffer);
             Marshal.FreeHGlobal(buffer);
+#else
+            // TODO: Support arglist for other platforms
+            report = format;
 #endif
             UnityEngine.Debug.LogWarning($"Interperter Warning: {report}");
         }
