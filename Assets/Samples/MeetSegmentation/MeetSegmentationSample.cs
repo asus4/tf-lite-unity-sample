@@ -38,5 +38,8 @@ public class MeetSegmentationSample : MonoBehaviour
     void Update()
     {
         segmentation.Invoke(webcamTexture);
+        cameraView.material = segmentation.transformMat;
+
+        outputView.texture = segmentation.GetResultTexture();
     }
 }
