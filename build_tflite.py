@@ -10,6 +10,7 @@ PLUGIN_PATH=f'{os.getcwd()}/Packages/com.github.asus4.tflite/Plugins'
 TENSORFLOW_PATH=''
 
 def run_cmd(cmd):
+    print(cmd)
     args = shlex.split(cmd)
     subprocess.call(args, cwd=TENSORFLOW_PATH)
 
@@ -19,19 +20,22 @@ def copy(from_tf, to_unity):
 def unzip(from_tf, to_unity):
     subprocess.call(['unzip', '-o', f'{TENSORFLOW_PATH}/{from_tf}', '-d' f'{PLUGIN_PATH}/{to_unity}'])
 
-def build_mac():
+def build_mac(enable_xnnpack = False):
     # Main
-    run_cmd('bazel build --config=macos -c opt --define tflite_with_xnnpack=true tensorflow/lite/c:tensorflowlite_c')
+    option_xnnpack = 'true' if enable_xnnpack else 'false'
+    run_cmd(f'bazel build --config=macos -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.dylib', 'macOS/libtensorflowlite_c.dylib')
+
     # Metal Delegate
     # v2.3.0 or later will throw error. Apply following changes to fix this
     # https://github.com/tensorflow/tensorflow/issues/41039#issuecomment-664701908
-    run_cmd('bazel build --config=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always --apple_platform_type=macos //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
-    copy('bazel-bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib', 'macOS/libtensorflowlite_metal_delegate.dylib')
+    # run_cmd('bazel build --config=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always --apple_platform_type=macos //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    # copy('bazel-bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib', 'macOS/libtensorflowlite_metal_delegate.dylib')
 
-def build_windows():
+def build_windows(enable_xnnpack = False):
     # Main
-    run_cmd('bazel build -c opt --define tflite_with_xnnpack=true tensorflow/lite/c:tensorflowlite_c')
+    option_xnnpack = 'true' if enable_xnnpack else 'false'
+    run_cmd(f'bazel build -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/tensorflowlite_c.dll', 'Windows/libtensorflowlite_c.dll')
     # TODO GPU Delegate
 
@@ -44,21 +48,22 @@ def build_linux():
 
 def build_ios():
     # Main
-    run_cmd('bazel build --config=ios_fat -c opt //tensorflow/lite/experimental/ios:TensorFlowLiteC_framework')
-    unzip('bazel-bin/tensorflow/lite/experimental/ios/TensorFlowLiteC_framework.zip', 'iOS')
+    run_cmd('bazel build --config=ios_fat -c opt //tensorflow/lite/ios:TensorFlowLiteC_framework')
+    unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteC_framework.zip', 'iOS')
     # Metal Delegate
-    run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/experimental/ios:TensorFlowLiteCMetal_framework')
-    unzip('bazel-bin/tensorflow/lite/experimental/ios/TensorFlowLiteCMetal_framework.zip', 'iOS')
+    run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
+    unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCMetal_framework.zip', 'iOS')
     # CoreML Delegate
-    run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/experimental/ios:TensorFlowLiteCCoreML_framework')
-    unzip('bazel-bin/tensorflow/lite/experimental/ios/TensorFlowLiteCCoreML_framework.zip', 'iOS')
+    run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteCCoreML_framework')
+    unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCCoreML_framework.zip', 'iOS')
     # SelectOps Delegate
-    # run_cmd('bazel build -c opt --config=ios --ios_multi_cpus=armv7,arm64,x86_64 //tensorflow/lite/experimental/ios:TensorFlowLiteSelectTfOps_framework')
-    # unzip('bazel-bin/tensorflow/lite/experimental/ios/TensorFlowLiteSelectTfOps_framework.zip', 'iOS')
+    # run_cmd('bazel build -c opt --config=ios --ios_multi_cpus=armv7,arm64,x86_64 //tensorflow/lite/ios:TensorFlowLiteSelectTfOps_framework')
+    # unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteSelectTfOps_framework.zip', 'iOS')
 
-def build_android():
+def build_android(enable_xnnpack = False):
     # Main
-    run_cmd('bazel build -c opt --config=android_arm64 --define tflite_with_xnnpack=true //tensorflow/lite/c:libtensorflowlite_c.so')
+    option_xnnpack = 'true' if enable_xnnpack else 'false'
+    run_cmd(f'bazel build -c opt --config=android_arm64 --define tflite_with_xnnpack={option_xnnpack} //tensorflow/lite/c:libtensorflowlite_c.so')
     copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Android')
     # GPU Delegate
     run_cmd('bazel build -c opt --config=android_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so')
@@ -81,6 +86,8 @@ if __name__ == '__main__':
                         help = 'Build iOS')
     parser.add_argument('-android', action = "store_true", default = False,
                         help = 'Build Android')
+    parser.add_argument('-xnnpack', action = "store_true", default = False,
+                        help = 'Build with XNNPACK')
 
     args = parser.parse_args()
     TENSORFLOW_PATH = os.path.abspath(args.tfpath) 
@@ -90,12 +97,12 @@ if __name__ == '__main__':
     if args.macos:
         assert platform_name == 'Darwin', f'-macos not suppoted on the platfrom: {platform_name}'
         print('Build macOS')
-        build_mac()
+        build_mac(args.xnnpack)
     
     if args.windows:
         assert platform_name == 'Windows', f'-windows not suppoted on the platfrom: {platform_name}'
         print('Build Windows')
-        build_windows()
+        build_windows(args.xnnpack)
     
     if args.linux:
         assert platform_name == 'Linux', f'-linux not suppoted on the platfrom: {platform_name}'
@@ -111,4 +118,4 @@ if __name__ == '__main__':
     if args.android:
         # Need to set Android build option in ./configure
         print('Build Android')
-        build_android()
+        build_android(args.xnnpack)
