@@ -8,7 +8,7 @@ namespace TensorFlowLite
     {
         float[] output0;
 
-        public StylePredict(string modelPath) : base(modelPath, false)
+        public StylePredict(string modelPath) : base(modelPath, true)
         {
 
             var outDim0 = interpreter.GetOutputTensorInfo(0).shape;

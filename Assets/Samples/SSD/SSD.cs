@@ -19,7 +19,7 @@ namespace TensorFlowLite
         float[] outputs2 = new float[10]; // Scores
         Result[] results = new Result[10];
 
-        public SSD(string modelPath) : base(modelPath, false)
+        public SSD(string modelPath) : base(modelPath, true)
         {
         }
 

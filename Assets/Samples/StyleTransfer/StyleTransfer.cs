@@ -13,7 +13,7 @@ namespace TensorFlowLite
         ComputeShader compute;
         ComputeBuffer outputBuffer;
 
-        public StyleTransfer(string modelPath, float[] styleBottleneck, ComputeShader compute) : base(modelPath, false)
+        public StyleTransfer(string modelPath, float[] styleBottleneck, ComputeShader compute) : base(modelPath, true)
         {
             this.styleBottleneck = styleBottleneck;
             this.compute = compute;
