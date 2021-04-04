@@ -45,6 +45,7 @@ Included prebuilt libraries
 - Clone this repository with examples
   - Need [Git-LFS](https://git-lfs.github.com/) to build for iOS
 - Or core library is available on [OpenUPM](https://openupm.com/packages/com.github.asus4.tflite/)
+- Add it from Unity Package Manager (add package from git URL): https://github.com/asus4/tf-lite-unity-sample.git?path=/Packages/com.github.asus4.tflite
 
 ## Build TensorFlow Lite libraries
 
