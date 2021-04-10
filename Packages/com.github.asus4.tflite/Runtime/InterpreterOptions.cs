@@ -96,7 +96,7 @@ namespace TensorFlowLite
             // https://github.com/jeremyVignelles/va-list-interop-demo
 
             string report;
-#if UNITY_EDITOR_MAC
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             int formatLength = printf(format, args);
             IntPtr buffer = Marshal.AllocHGlobal(formatLength);
             sprintf(buffer, format, args);
@@ -155,7 +155,7 @@ namespace TensorFlowLite
             IntPtr user_data);
 
 
-#if !UNITY_EDITOR_WIN && !UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         private const string LibCLibrary = "libc";
 
         [DllImport(LibCLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
@@ -168,7 +168,7 @@ namespace TensorFlowLite
             IntPtr buffer,
             [In][MarshalAs(UnmanagedType.LPStr)] string format,
             IntPtr args);
-#endif // !UNITY_EDITOR_WIN && !UNITY_STANDALONE_WIN
+#endif // UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
 
         #endregion // Externs
     }
