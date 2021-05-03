@@ -16,11 +16,10 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-
+using TfLiteDelegate = System.IntPtr;
 using TfLiteInterpreter = System.IntPtr;
 using TfLiteInterpreterOptions = System.IntPtr;
 using TfLiteTensor = System.IntPtr;
-using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
@@ -79,12 +78,16 @@ namespace TensorFlowLite
             delegates.Clear();
         }
 
-        public void AddGpuDelegate()
+        public void AddGpuDelegate(IGpuDelegate gpuDelegate)
         {
-            var gpuDelegate = CreateGpuDelegate();
             if (gpuDelegate == null) return;
             TfLiteInterpreterOptionsAddDelegate(nativePtr, gpuDelegate.Delegate);
             delegates.Add(gpuDelegate);
+        }
+
+        public void AddGpuDelegate()
+        {
+            AddGpuDelegate(CreateGpuDelegate());
         }
 
         [AOT.MonoPInvokeCallback(typeof(ErrorReporterDelegate))]

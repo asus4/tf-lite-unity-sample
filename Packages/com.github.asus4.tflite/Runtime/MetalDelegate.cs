@@ -14,8 +14,10 @@ limitations under the License.
 ==============================================================================*/
 
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 using TfLiteDelegate = System.IntPtr;
+using MTLBuffer = System.IntPtr;
 
 namespace TensorFlowLite
 {
@@ -55,6 +57,12 @@ namespace TensorFlowLite
             Delegate = TfLiteDelegate.Zero;
         }
 
+        public bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
+        {
+            UnityEngine.Debug.Assert(Delegate != TfLiteDelegate.Zero);
+            return TFLGpuDelegateBindMetalBufferToTensor(Delegate, tensorIndex, buffer.GetNativeBufferPtr());
+        }
+
         #region Externs
 
 #if UNITY_IOS && !UNITY_EDITOR
@@ -69,6 +77,8 @@ namespace TensorFlowLite
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe void TFLGpuDelegateDelete(TfLiteDelegate gpuDelegate);
 
+        [DllImport(TensorFlowLibraryGPU)]
+        private static extern bool TFLGpuDelegateBindMetalBufferToTensor(TfLiteDelegate gpuDelegate, int tensorIndex, MTLBuffer metalBuffer);
         #endregion
     }
 #endif // UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX

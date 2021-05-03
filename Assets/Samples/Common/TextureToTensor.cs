@@ -63,6 +63,13 @@ namespace TensorFlowLite
             }
         }
 
+        public void ToTensor(RenderTexture texture, out ComputeBuffer buffer)
+        {
+            Debug.Assert(texture.width % 8 == 0);
+            Debug.Assert(texture.height % 8 == 0);
+            ToTensorGPU(texture);
+            buffer = tensorBuffer;
+        }
 
         public void ToTensor(RenderTexture texture, float[,,] inputs, float offset, float scale)
         {
@@ -100,7 +107,7 @@ namespace TensorFlowLite
             return true;
         }
 
-        void ToTensorCPU(RenderTexture texture, float[,,] inputs)
+        private void ToTensorCPU(RenderTexture texture, float[,,] inputs)
         {
             var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
 
@@ -117,7 +124,7 @@ namespace TensorFlowLite
             }
         }
 
-        void ToTensorGPU(RenderTexture texture, float[,,] inputs)
+        private void ToTensorGPU(RenderTexture texture)
         {
             int width = texture.width;
             int height = texture.height;
@@ -135,7 +142,11 @@ namespace TensorFlowLite
             compute.SetInt(TextureHeight, height);
 
             compute.Dispatch(kernel, width / 8, height / 8, 1);
+        }
 
+        private void ToTensorGPU(RenderTexture texture, float[,,] inputs)
+        {
+            ToTensorGPU(texture);
             tensorBuffer.GetData(inputs);
         }
 
