@@ -14,6 +14,7 @@ limitations under the License.
 ==============================================================================*/
 using System;
 using System.Runtime.InteropServices;
+using Status = TensorFlowLite.Interpreter.Status;
 using TfLiteContext = System.IntPtr;
 using TfLiteDelegate = System.IntPtr;
 using TfLiteInterpreter = System.IntPtr;
@@ -65,6 +66,21 @@ namespace TensorFlowLite
             TfLiteSetAllowBufferHandleOutput(interpreter.InterpreterPointer, allowBufferHandleOutput);
         }
 
+        public static Status ModifyGraphWithDelegate(this Interpreter interpreter, IGpuDelegate gpuDelegate)
+        {
+            return TfLiteInterpreterModifyGraphWithDelegate(interpreter.InterpreterPointer, gpuDelegate.Delegate);
+        }
+
+        public static int GetInputTensorIndex(this Interpreter interpreter, int index)
+        {
+            return TfLiteInterpreterGetInputTensorIndex(interpreter.InterpreterPointer, index);
+        }
+
+        public static int GetOutputTensorIndex(this Interpreter interpreter, int index)
+        {
+            return TfLiteInterpreterGetOutputTensorIndex(interpreter.InterpreterPointer, index);
+        }
+
         private const string TensorFlowLibrary = Interpreter.TensorFlowLibrary;
 
         [DllImport(TensorFlowLibrary)]
@@ -91,5 +107,17 @@ namespace TensorFlowLite
         internal static extern void TfLiteSetAllowBufferHandleOutput(
             TfLiteInterpreter interpreter,
             bool allow_buffer_handle_output);
+
+        [DllImport(TensorFlowLibrary)]
+        internal static extern Status TfLiteInterpreterModifyGraphWithDelegate(
+            TfLiteInterpreter interpreter, TfLiteDelegate gpuDelegate);
+
+        [DllImport(TensorFlowLibrary)]
+        internal static extern int TfLiteInterpreterGetInputTensorIndex(
+            TfLiteInterpreter interpreter, int input_index);
+
+        [DllImport(TensorFlowLibrary)]
+        internal static extern int TfLiteInterpreterGetOutputTensorIndex(
+            TfLiteInterpreter interpreter, int output_index);
     }
 }
