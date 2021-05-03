@@ -14,15 +14,14 @@ limitations under the License.
 ==============================================================================*/
 using System;
 using System.Runtime.InteropServices;
-
+using TfLiteContext = System.IntPtr;
+using TfLiteDelegate = System.IntPtr;
 using TfLiteInterpreter = System.IntPtr;
 using TfLiteInterpreterOptions = System.IntPtr;
-using TfLiteRegistration = System.IntPtr;
-using TfLiteContext = System.IntPtr;
-using TfLiteNode = System.IntPtr;
 using TfLiteModel = System.IntPtr;
+using TfLiteNode = System.IntPtr;
+using TfLiteRegistration = System.IntPtr;
 using TfLiteTensor = System.IntPtr;
-using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
@@ -50,12 +49,20 @@ namespace TensorFlowLite
         public int version;
     }
 
-    public static class InterpreterExtension
+    /// <summary>
+    /// The bridge for c_api_experimental.h 
+    /// </summary>
+    public static class InterpreterExperimental
     {
-        public static void AddCustomOp(this Interpreter interpreter,string name, Registration registration)
+        public static void AddCustomOp(this Interpreter interpreter, string name, Registration registration)
         {
-            // UnityEngine.Debug.Log("add custom op");
+            throw new System.NotImplementedException();
             // TfLiteInterpreterOptionsAddCustomOp(interpreter, "HOGE");
+        }
+
+        public static void SetAllowBufferHandleOutput(this Interpreter interpreter, bool allowBufferHandleOutput)
+        {
+            TfLiteSetAllowBufferHandleOutput(interpreter.InterpreterPointer, allowBufferHandleOutput);
         }
 
         private const string TensorFlowLibrary = Interpreter.TensorFlowLibrary;
@@ -80,5 +87,9 @@ namespace TensorFlowLite
         [DllImport(TensorFlowLibrary)]
         internal static extern void TfLiteInterpreterOptionsSetUseNNAPI(TfLiteInterpreterOptions options, bool enable);
 
+        [DllImport(TensorFlowLibrary)]
+        internal static extern void TfLiteSetAllowBufferHandleOutput(
+            TfLiteInterpreter interpreter,
+            bool allow_buffer_handle_output);
     }
 }

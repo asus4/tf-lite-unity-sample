@@ -14,15 +14,13 @@ limitations under the License.
 ==============================================================================*/
 using System;
 using System.Runtime.InteropServices;
-
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-
+using TfLiteDelegate = System.IntPtr;
 using TfLiteInterpreter = System.IntPtr;
 using TfLiteInterpreterOptions = System.IntPtr;
 using TfLiteModel = System.IntPtr;
 using TfLiteTensor = System.IntPtr;
-using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
@@ -51,6 +49,8 @@ namespace TensorFlowLite
         private TfLiteModel model = IntPtr.Zero;
         private TfLiteInterpreter interpreter = IntPtr.Zero;
         private InterpreterOptions options = null;
+
+        internal TfLiteInterpreter InterpreterPointer => interpreter;
 
         public Interpreter(byte[] modelData) : this(modelData, null) { }
 
