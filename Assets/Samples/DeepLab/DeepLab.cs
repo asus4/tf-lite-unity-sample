@@ -8,7 +8,7 @@ namespace TensorFlowLite
     {
         // Port from
         // https://github.com/tensorflow/examples/blob/master/lite/examples/image_segmentation/ios/ImageSegmentation/ImageSegmentator.swift
-        static readonly Color32[] COLOR_TABLE = new Color32[]
+        public static readonly Color32[] COLOR_TABLE = new Color32[]
         {
             ToColor(0xFF00_0000), // Black
             ToColor(0xFF80_3E75), // Strong Purple
@@ -131,6 +131,24 @@ namespace TensorFlowLite
             labelTex2D.Apply();
 
             return labelTex2D;
+        }
+
+        public static void ResultToTexture2D(float[,,] tensor, Texture2D texture, Color32[] textureBuffer)
+        {
+            int rows = tensor.GetLength(0); // y
+            int cols = tensor.GetLength(1); // x
+            int labels = tensor.GetLength(2);
+
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < cols; x++)
+                {
+                    int argmax = ArgMaxZ(tensor, y, x, labels);
+                    textureBuffer[(rows - 1 - y) * cols + x] = COLOR_TABLE[argmax];
+                }
+            }
+            texture.SetPixels32(textureBuffer);
+            texture.Apply();
         }
 
         public static int ArgMaxZ(float[,,] arr, int x, int y, int numZ)

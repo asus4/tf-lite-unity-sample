@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
-using TensorFlowLite;
 
 public class DeepLabSample : MonoBehaviour
 {
@@ -11,6 +11,7 @@ public class DeepLabSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage outputView = null;
     [SerializeField] ComputeShader compute = null;
+    [SerializeField] Texture2D testTex;
 
     WebCamTexture webcamTexture;
     DeepLab deepLab;
@@ -37,7 +38,14 @@ public class DeepLabSample : MonoBehaviour
 
     void Update()
     {
-        deepLab.Invoke(webcamTexture);
+        if (testTex != null)
+        {
+            deepLab.Invoke(testTex);
+        }
+        else
+        {
+            deepLab.Invoke(webcamTexture);
+        }
         // Slow works on mobile
         outputView.texture = deepLab.GetResultTexture2D();
 
