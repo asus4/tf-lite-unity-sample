@@ -45,36 +45,61 @@ public class GpuBindSample : MonoBehaviour
 
         using (var interpreter = new Interpreter(FileUtil.LoadFile(fileName), options))
         {
-            StopSW(sb, "Prepere interpreter");
+            StopSW(sb, "Prepare interpreter");
 
-            // Set input
+            // Prepare inputs/outputs
             StartSW();
             var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
             int height = inputShape0[1];
             int width = inputShape0[2];
             int channels = inputShape0[3];
 
-            ComputeBuffer inputBuffer = null;
+            ComputeBuffer inputBuffer = null, outputBuffer = null;
+            float[] inputs = null, outputs = null;
             if (useBinding)
             {
                 inputBuffer = new ComputeBuffer(height * width * channels, sizeof(float));
+                outputBuffer = new ComputeBuffer(height * width, sizeof(float) * 21);
                 metalDelegate.BindBufferToTensor(0, inputBuffer);
                 interpreter.SetAllowBufferHandleOutput(true);
             }
             else
             {
-                var inputs = new float[height * width * channels];
+                inputs = new float[height * width * channels];
+                outputs = new float[height * width * 21];
+            }
+            StopSW(sb, "Prepare inputs/outputs");
+
+            // Set Input
+            StartSW();
+            if (useBinding)
+            {
+            }
+            else
+            {
                 interpreter.SetInputTensorData(0, inputs);
             }
-            StopSW(sb, "Set input");
-            StartSW();
+            StopSW(sb, "Set Input");
 
+            // Invoke
+            StartSW();
             interpreter.Invoke();
             StopSW(sb, "Invoke");
 
+            StartSW();
+            if (useBinding)
+            {
+            }
+            else
+            {
+                interpreter.GetOutputTensorData(0, outputs);
+            }
+            StopSW(sb, "Get Output");
 
             inputBuffer?.Release();
             inputBuffer?.Dispose();
+            outputBuffer?.Release();
+            outputBuffer?.Dispose();
         }
 
         Debug.Log(sb.ToString());
