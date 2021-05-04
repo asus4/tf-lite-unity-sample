@@ -412,9 +412,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bfcbf294b0d14fa489afd73af19b9fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: deeplabv3_257_mv_gpu.tflite
-  inputTex: {fileID: 2800000, guid: fda38c502b6624234a87a45bb9a2ef89, type: 3}
+  fileName: meet/segm_lite_v509_128x128_float16_quant.tflite
+  inputTex: {fileID: 2800000, guid: 4a858a587ad964c20b14f2f5fdc416c1, type: 3}
   outputImage: {fileID: 1821163632}
+  useBinding: 0
 --- !u!1 &1821163629
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,9 +15,9 @@ limitations under the License.
 
 using System.Runtime.InteropServices;
 using UnityEngine;
-
-using TfLiteDelegate = System.IntPtr;
+using Debug = UnityEngine.Debug;
 using MTLBuffer = System.IntPtr;
+using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
@@ -59,7 +59,8 @@ namespace TensorFlowLite
 
         public bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
         {
-            UnityEngine.Debug.Assert(Delegate != TfLiteDelegate.Zero);
+            Debug.Assert(buffer.IsValid());
+            Debug.Assert(Delegate != TfLiteDelegate.Zero);
             return TFLGpuDelegateBindMetalBufferToTensor(Delegate, tensorIndex, buffer.GetNativeBufferPtr());
         }
 
