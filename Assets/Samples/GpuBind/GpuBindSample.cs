@@ -13,16 +13,20 @@ public class GpuBindSample : MonoBehaviour
     [SerializeField] Texture2D inputTex = null;
     [SerializeField] RawImage outputImage = null;
     [SerializeField] bool useBinding = false;
+    [SerializeField] ComputeShader computeCPU = null;
+    [SerializeField] ComputeShader computeGPU = null;
 
     static readonly double msec = 1000.0 / Stopwatch.Frequency;
     Stopwatch stopwatch;
-    Texture2D outputTex;
+    RenderTexture outputTex;
     Color32[] textureBuffer;
 
     IEnumerator Start()
     {
         stopwatch = new Stopwatch();
-        outputTex = new Texture2D(inputTex.width, inputTex.height, TextureFormat.RGBA32, 0, false);
+        outputTex = new RenderTexture(inputTex.width, inputTex.height, 0, RenderTextureFormat.ARGB32);
+        outputTex.enableRandomWrite = true;
+        outputTex.Create();
         outputImage.texture = outputTex;
         textureBuffer = new Color32[inputTex.width * inputTex.height];
 
@@ -53,15 +57,18 @@ public class GpuBindSample : MonoBehaviour
         var metalDelegate = new MetalDelegate(new MetalDelegate.Options()
         {
             allowPrecisionLoss = false,
-            // waitType = MetalDelegate.WaitType.Passive,
-            waitType = useBinding
-                ? MetalDelegate.WaitType.Active
-                : MetalDelegate.WaitType.Passive,
+            waitType = MetalDelegate.WaitType.Passive,
+            // This option might be broke Unity
+            // waitType = useBinding
+            //     ? MetalDelegate.WaitType.Active
+            //     : MetalDelegate.WaitType.Passive,
             enableQuantization = true,
         });
         var options = new InterpreterOptions();
         options.AddGpuDelegate(metalDelegate);
 
+
+        ComputeBuffer inputBuffer = null, outputBuffer = null;
         using (var interpreter = new Interpreter(FileUtil.LoadFile(fileName), options))
         {
             StopSW(sb, "Prepare interpreter");
@@ -76,8 +83,8 @@ public class GpuBindSample : MonoBehaviour
             Debug.Assert(width == inputTex.width, $"{inputTex.width}");
             Debug.Assert(height == inputTex.height, $"{inputTex.height}");
 
-            ComputeBuffer inputBuffer = null, outputBuffer = null;
-            float[,,] outputs;
+            float[,,] outputs = new float[height, width, 2];
+
             if (useBinding)
             {
                 int inputTensorIndex0 = interpreter.GetInputTensorIndex(0);
@@ -94,11 +101,9 @@ public class GpuBindSample : MonoBehaviour
                     Debug.LogError("input is not binded");
                 }
 
-                outputBuffer = new ComputeBuffer(height * width * 2, sizeof(float));
-                outputs = new float[height, width, 2];
+                outputBuffer = new ComputeBuffer(height * width * 4, sizeof(float));
                 outputBuffer.SetData(outputs);
                 interpreter.SetAllowBufferHandleOutput(true);
-
                 if (!metalDelegate.BindBufferToTensor(outputTensorIndex0, outputBuffer))
                 {
                     Debug.LogError("output is not binded");
@@ -110,7 +115,7 @@ public class GpuBindSample : MonoBehaviour
                 TextureToTensorRGB(inputTex, inputs);
                 interpreter.SetInputTensorData(0, inputs);
 
-                outputs = new float[height, width, 2];
+                outputBuffer = new ComputeBuffer(height * width * 2, sizeof(float));
             }
             StopSW(sb, "Prepare inputs/outputs");
 
@@ -122,25 +127,22 @@ public class GpuBindSample : MonoBehaviour
             StartSW();
             if (useBinding)
             {
-                outputBuffer.GetData(outputs);
+                RenderToOutputTexture(computeGPU, outputBuffer, outputTex);
             }
             else
             {
                 interpreter.GetOutputTensorData(0, outputs);
+                outputBuffer.SetData(outputs);
+                RenderToOutputTexture(computeCPU, outputBuffer, outputTex);
             }
-            // Debug.Assert(ValidateTensor(outputs));
-
-            StopSW(sb, "Get Output");
-            StartSW();
-            // DeepLab.ResultToTexture2D(outputs, outputTex, textureBuffer);
             StopSW(sb, "Post Process");
-
-            // Cleanup
-            inputBuffer?.Release();
-            inputBuffer?.Dispose();
-            outputBuffer?.Release();
-            outputBuffer?.Dispose();
         }
+
+        // Cleanup
+        inputBuffer?.Release();
+        inputBuffer?.Dispose();
+        outputBuffer?.Release();
+        outputBuffer?.Dispose();
 
         Debug.Log(sb.ToString());
     }
@@ -154,6 +156,13 @@ public class GpuBindSample : MonoBehaviour
     {
         stopwatch.Stop();
         sb.AppendLine($"{message}: {stopwatch.ElapsedTicks * msec:0.00} ms");
+    }
+
+    static void RenderToOutputTexture(ComputeShader compute, ComputeBuffer buffer, RenderTexture texture)
+    {
+        compute.SetBuffer(0, "LabelBuffer", buffer);
+        compute.SetTexture(0, "Result", texture);
+        compute.Dispatch(0, texture.width / 8, texture.height / 8, 1);
     }
 
     static void TextureToTensorRGB(Texture2D texture, float[,,] tensor)
@@ -189,28 +198,6 @@ public class GpuBindSample : MonoBehaviour
             tensor[y, x, 2] = (float)(pixels[i].b) / scale;
             tensor[y, x, 3] = 1f;
         }
-    }
-
-    static bool ValidateTensor(float[,,] tensor)
-    {
-        int rows = tensor.GetLength(0); // y
-        int cols = tensor.GetLength(1); // x
-        int labels = tensor.GetLength(2);
-
-        for (int y = 0; y < rows; y++)
-        {
-            for (int x = 0; x < cols; x++)
-            {
-                for (int n = 0; n < labels; n++)
-                {
-                    if (tensor[y, x, n] != 0)
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
 }

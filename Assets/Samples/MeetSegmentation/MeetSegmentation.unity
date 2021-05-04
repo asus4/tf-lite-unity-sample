@@ -401,7 +401,7 @@ MonoBehaviour:
   fileName: meet/segm_lite_v509_128x128_float16_quant.tflite
   cameraView: {fileID: 2074584278}
   outputView: {fileID: 1931683985}
-  compute: {fileID: 7200000, guid: 7caf47e738c50420faa9d0d839d98a1a, type: 3}
+  compute: {fileID: 7200000, guid: f251d9385226e4b309b39eae95001ad2, type: 3}
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0
