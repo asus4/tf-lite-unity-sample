@@ -11,7 +11,6 @@ public class DeepLabSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage outputView = null;
     [SerializeField] ComputeShader compute = null;
-    [SerializeField] Texture2D testTex;
 
     WebCamTexture webcamTexture;
     DeepLab deepLab;
@@ -38,15 +37,8 @@ public class DeepLabSample : MonoBehaviour
 
     void Update()
     {
-        if (testTex != null)
-        {
-            deepLab.Invoke(testTex);
-        }
-        else
-        {
-            deepLab.Invoke(webcamTexture);
-        }
-        // Slow works on mobile
+        deepLab.Invoke(webcamTexture);
+        // Slow but works on mobile
         outputView.texture = deepLab.GetResultTexture2D();
 
         // Fast but errors on mobile. Need to be fixed 
