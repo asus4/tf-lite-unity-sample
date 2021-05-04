@@ -415,7 +415,9 @@ MonoBehaviour:
   fileName: meet/segm_lite_v509_128x128_float16_quant.tflite
   inputTex: {fileID: 2800000, guid: 4a858a587ad964c20b14f2f5fdc416c1, type: 3}
   outputImage: {fileID: 1821163632}
-  useBinding: 0
+  useBinding: 1
+  computeCPU: {fileID: 7200000, guid: 7caf47e738c50420faa9d0d839d98a1a, type: 3}
+  computeGPU: {fileID: 7200000, guid: 026a7589dce2b48f8b5971a1fb1a48c9, type: 3}
 --- !u!1 &1821163629
 GameObject:
   m_ObjectHideFlags: 0
