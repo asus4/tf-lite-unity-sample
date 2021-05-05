@@ -23,6 +23,9 @@ namespace TensorFlowLite
             output0 = new float[odim0[1], odim0[2], odim0[3]];
 
             this.compute = compute;
+            compute.SetInt("Width", width);
+            compute.SetInt("Height", height);
+
             labelTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             labelTex.enableRandomWrite = true;
             labelTex.Create();
@@ -61,7 +64,7 @@ namespace TensorFlowLite
             labelBuffer.SetData(output0);
             compute.SetBuffer(0, "LabelBuffer", labelBuffer);
             compute.SetTexture(0, "Result", labelTex);
-   
+
             compute.Dispatch(0, width / 8, height / 8, 1);
 
             return labelTex;
