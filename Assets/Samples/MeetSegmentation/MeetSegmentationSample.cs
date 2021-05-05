@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
-using TensorFlowLite;
 
 public class MeetSegmentationSample : MonoBehaviour
 {
