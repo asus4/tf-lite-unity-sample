@@ -116,7 +116,7 @@ namespace TensorFlowLite
         private static IGpuDelegate CreateGpuDelegate()
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            return new GlDelegate();
+            return new GpuDelegateV2();
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             return new MetalDelegate(new MetalDelegate.Options()
             {

@@ -21,27 +21,26 @@ using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
-
-    /// <summary>
-    /// the Mirror of TfLiteGpuDelegateOptionsV2
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Options
+    public class GpuDelegateV2 : IGpuDelegate
     {
-        int isPrecisionLossAllowed;
-        int inferencePreference;
-        int inferencePriority1;
-        int inferencePriority2;
-        int inferencePriority3;
-        long experimentalFlags;
-        int maxDelegatedPartitions;
-    };
+        /// <summary>
+        /// the Mirror of TfLiteGpuDelegateOptionsV2
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Options
+        {
+            int isPrecisionLossAllowed;
+            int inferencePreference;
+            int inferencePriority1;
+            int inferencePriority2;
+            int inferencePriority3;
+            long experimentalFlags;
+            int maxDelegatedPartitions;
+        };
 
-    public class GlDelegate : IGpuDelegate
-    {
         public TfLiteDelegate Delegate { get; private set; }
 
-        public GlDelegate()
+        public GpuDelegateV2()
         {
             Options options = TfLiteGpuDelegateOptionsV2Default();
             Delegate = TfLiteGpuDelegateV2Create(ref options);
@@ -55,9 +54,6 @@ namespace TensorFlowLite
 
         public bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
         {
-            Debug.Assert(buffer.IsValid());
-            Debug.Assert(Delegate != TfLiteDelegate.Zero);
-            // return TFLGpuDelegateBindMetalBufferToTensor(Delegate, tensorIndex, buffer.GetNativeBufferPtr());
             throw new System.NotImplementedException();
         }
 
@@ -72,6 +68,10 @@ namespace TensorFlowLite
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe void TfLiteGpuDelegateV2Delete(TfLiteDelegate gpuDelegate);
+
+        [DllImport(TensorFlowLibraryGPU)]
+        private static extern unsafe Interpreter.Status TfLiteGpuDelegateBindBufferToTensor(
+            TfLiteDelegate gpuDelegate, uint buffer, int tensor_index);
         #endregion // Externs
     }
 }
