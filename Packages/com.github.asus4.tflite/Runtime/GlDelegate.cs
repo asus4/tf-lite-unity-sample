@@ -13,13 +13,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-using System.Runtime.InteropServices;
+#if UNITY_ANDROID && !UNITY_EDITOR
 
+using System.Runtime.InteropServices;
+using UnityEngine;
 using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
-#if UNITY_ANDROID && !UNITY_EDITOR
 
     /// <summary>
     /// the Mirror of TfLiteGpuDelegateOptionsV2
@@ -52,7 +53,15 @@ namespace TensorFlowLite
             Delegate = TfLiteDelegate.Zero;
         }
 
-    #region Externs
+        public bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
+        {
+            Debug.Assert(buffer.IsValid());
+            Debug.Assert(Delegate != TfLiteDelegate.Zero);
+            // return TFLGpuDelegateBindMetalBufferToTensor(Delegate, tensorIndex, buffer.GetNativeBufferPtr());
+            throw new System.NotImplementedException();
+        }
+
+        #region Externs
         private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_delegate";
 
         [DllImport(TensorFlowLibraryGPU)]
@@ -63,7 +72,8 @@ namespace TensorFlowLite
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe void TfLiteGpuDelegateV2Delete(TfLiteDelegate gpuDelegate);
-    #endregion // Externs
+        #endregion // Externs
     }
-#endif // UNITY_ANDROID && !UNITY_EDITOR
 }
+#endif // UNITY_ANDROID && !UNITY_EDITOR
+

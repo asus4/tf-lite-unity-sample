@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 using System;
-
+using UnityEngine;
 using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
@@ -22,5 +22,6 @@ namespace TensorFlowLite
     public interface IGpuDelegate : IDisposable
     {
         TfLiteDelegate Delegate { get; }
+        bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer);
     }
 }

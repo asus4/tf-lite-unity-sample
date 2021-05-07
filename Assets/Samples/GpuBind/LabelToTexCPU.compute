@@ -13,3 +13,4 @@ void LabelToTex (uint2 tid : SV_DispatchThreadID)
     float2 label = LabelBuffer[gid];
     Result[tid] = float4(label.x, label.y, 0.0, 1.0);
 }
+

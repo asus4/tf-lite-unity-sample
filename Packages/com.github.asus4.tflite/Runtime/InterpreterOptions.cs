@@ -52,7 +52,7 @@ namespace TensorFlowLite
             {
                 _useNNAPI = value;
 #if UNITY_ANDROID && !UNITY_EDITOR
-                InterpreterExtension.TfLiteInterpreterOptionsSetUseNNAPI(nativePtr, value);
+                InterpreterExperimental.TfLiteInterpreterOptionsSetUseNNAPI(nativePtr, value);
 #endif // UNITY_ANDROID && !UNITY_EDITOR
             }
         }
