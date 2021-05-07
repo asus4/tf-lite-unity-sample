@@ -14,8 +14,8 @@ public class GpuBindSample : MonoBehaviour
     [SerializeField] Texture2D inputTex = null;
     [SerializeField] RawImage outputImage = null;
     [SerializeField] bool useBinding = false;
-    [SerializeField] ComputeShader computeCPU = null;
-    [SerializeField] ComputeShader computeGPU = null;
+    [SerializeField] ComputeShader computeNormal = null;
+    [SerializeField] ComputeShader computePadded = null;
 
     static readonly double msec = 1000.0 / Stopwatch.Frequency;
     Stopwatch stopwatch;
@@ -134,16 +134,16 @@ public class GpuBindSample : MonoBehaviour
             StopSW(sb, "Invoke");
 
             StartSW();
-            if (useBinding)
-            {
-                RenderToOutputTexture(computeGPU, outputBuffer, outputTex);
-            }
-            else
+            if (!useBinding)
             {
                 interpreter.GetOutputTensorData(0, outputs);
                 outputBuffer.SetData(outputs);
-                RenderToOutputTexture(computeCPU, outputBuffer, outputTex);
             }
+            var compute = (isMetal && useBinding)
+                ? computePadded
+                : computeNormal;
+            RenderToOutputTexture(compute, outputBuffer, outputTex);
+
             StopSW(sb, "Post Process");
         }
 
@@ -234,7 +234,16 @@ public class GpuBindSample : MonoBehaviour
     static IGpuDelegate CreateGpuDelegate(bool useBinding)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            return new GlDelegate();
+        var glOptions = GlDelegate.DefaultOptions;
+        if (useBinding)
+        {
+            var compileOptions = glOptions.compileOptions;
+            compileOptions.precisionLossAllowed = 1;
+            compileOptions.preferredGlObjectType = (int)GlDelegate.ObjectType.FASTEST;
+            compileOptions.dynamicBatchEnabled = 0;
+            compileOptions.inlineParameters = 1;
+        }
+        return new GlDelegate(glOptions);
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         return new MetalDelegate(new MetalDelegate.Options()
         {
