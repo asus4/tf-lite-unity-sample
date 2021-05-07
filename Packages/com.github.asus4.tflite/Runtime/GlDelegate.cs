@@ -76,7 +76,11 @@ namespace TensorFlowLite
 
         public bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(buffer.IsValid());
+            Debug.Assert(Delegate != TfLiteDelegate.Zero);
+            uint bufferID = (uint)buffer.GetNativeBufferPtr().ToInt32();
+            Debug.Log($"Gl delegate buffer ID : {bufferID}");
+            return TfLiteGpuDelegateBindBufferToTensor(Delegate, bufferID, tensorIndex) == Interpreter.Status.Ok;
         }
 
         #region Externs
@@ -93,7 +97,7 @@ namespace TensorFlowLite
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe Interpreter.Status TfLiteGpuDelegateBindBufferToTensor(
-            TfLiteDelegate gpuDelegate, uint buffer, int tensor_index);
+            TfLiteDelegate gpuDelegate, uint buffer, int tensorIndex);
         #endregion // Externs
     }
 }
