@@ -57,14 +57,20 @@ public class GpuBindSample : MonoBehaviour
 
         // Prepare
         StartSW();
-        IGpuDelegate gpuDelegate = CreateGpuDelegate(useBinding);
-        var options = new InterpreterOptions();
-        options.AddGpuDelegate(gpuDelegate);
-
-
         ComputeBuffer inputBuffer = null, outputBuffer = null;
-        using (var interpreter = new Interpreter(FileUtil.LoadFile(fileName), options))
+
+        // Manage gpu delegate manualy
+        using (IGpuDelegate gpuDelegate = CreateGpuDelegate(useBinding))
+        using (Interpreter interpreter = new Interpreter(FileUtil.LoadFile(fileName), new InterpreterOptions()))
         {
+            bool isMetal = Application.platform != RuntimePlatform.Android;
+            if (!useBinding || isMetal)
+            {
+                if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
+                {
+                    Debug.LogError("Failed to modify the graph with delegate");
+                }
+            }
             StopSW(sb, "Prepare interpreter");
 
             // Prepare inputs/outputs
@@ -82,9 +88,7 @@ public class GpuBindSample : MonoBehaviour
             if (useBinding)
             {
                 // On iOS GPU, input must be 4 channels, regardless of what model expects.
-                bool isMetal = Application.platform != RuntimePlatform.Android;
                 int gpuChannels = isMetal ? 4 : 3;
-
                 int inputTensorIndex0 = interpreter.GetInputTensorIndex(0);
                 int outputTensorIndex0 = interpreter.GetOutputTensorIndex(0);
                 sb.AppendLine($"Tensor Index = in0:{inputTensorIndex0} out0:{outputTensorIndex0}");
@@ -104,6 +108,14 @@ public class GpuBindSample : MonoBehaviour
                 if (!gpuDelegate.BindBufferToTensor(outputTensorIndex0, outputBuffer))
                 {
                     Debug.LogError("output is not binded");
+                }
+
+                if (!isMetal)
+                {
+                    if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
+                    {
+                        Debug.LogError("Failed to modify the graph with delegate");
+                    }
                 }
             }
             else
@@ -212,7 +224,6 @@ public class GpuBindSample : MonoBehaviour
             {
                 case GraphicsDeviceType.Metal:
                 case GraphicsDeviceType.OpenGLES3:
-                case GraphicsDeviceType.OpenGLES2:
                     return true;
             }
             return false;
@@ -223,7 +234,7 @@ public class GpuBindSample : MonoBehaviour
     static IGpuDelegate CreateGpuDelegate(bool useBinding)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            return new GlDelegate();
+            return new GpuDelegateV2();
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         return new MetalDelegate(new MetalDelegate.Options()
         {
