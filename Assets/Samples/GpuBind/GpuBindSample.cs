@@ -57,11 +57,12 @@ public class GpuBindSample : MonoBehaviour
         var metalDelegate = new MetalDelegate(new MetalDelegate.Options()
         {
             allowPrecisionLoss = false,
-            waitType = MetalDelegate.WaitType.Passive,
-            // This option might be broke Unity
-            // waitType = useBinding
-            //     ? MetalDelegate.WaitType.Active
-            //     : MetalDelegate.WaitType.Passive,
+            // waitType = MetalDelegate.WaitType.Passive,
+            // WaitType.Active might be broke Unity Editor
+            // So it is enabled only in iOS
+            waitType = useBinding && Application.platform == RuntimePlatform.IPhonePlayer
+                ? MetalDelegate.WaitType.Active
+                : MetalDelegate.WaitType.Passive,
             enableQuantization = true,
         });
         var options = new InterpreterOptions();
