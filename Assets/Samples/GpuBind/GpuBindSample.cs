@@ -101,6 +101,8 @@ public class GpuBindSample : MonoBehaviour
                     Debug.LogError("input is not binded");
                 }
 
+                // The buffer size is modified to the next multiple of 4 
+                // https://github.com/google/mediapipe/blob/ecb5b5f44ab23ea620ef97a479407c699e424aa7/mediapipe/calculators/tflite/tflite_inference_calculator.cc#L1046-L1047
                 outputBuffer = new ComputeBuffer(height * width * 4, sizeof(float));
                 outputBuffer.SetData(outputs);
                 interpreter.SetAllowBufferHandleOutput(true);
@@ -160,6 +162,11 @@ public class GpuBindSample : MonoBehaviour
 
     static void RenderToOutputTexture(ComputeShader compute, ComputeBuffer buffer, RenderTexture texture)
     {
+        Debug.Assert(texture.width % 8 == 0);
+        Debug.Assert(texture.height % 8 == 0);
+
+        compute.SetInt("Width", texture.width);
+        compute.SetInt("Height", texture.height);
         compute.SetBuffer(0, "LabelBuffer", buffer);
         compute.SetTexture(0, "Result", texture);
         compute.Dispatch(0, texture.width / 8, texture.height / 8, 1);
