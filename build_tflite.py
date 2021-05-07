@@ -73,8 +73,8 @@ def build_android(enable_xnnpack = False):
     copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_gl.so', 'Android')
     
     # NNAPI Delegate
-    run_cmd('bazel build -c opt --config=android_arm64 //tensorflow/lite/delegates/nnapi:nnapi_delegate')
-    copy('bazel-bin/tensorflow/lite/delegates/nnapi/libnnapi_delegate.so', 'Android')
+    # run_cmd('bazel build -c opt --config=android_arm64 //tensorflow/lite/delegates/nnapi:nnapi_delegate')
+    # copy('bazel-bin/tensorflow/lite/delegates/nnapi/libnnapi_delegate.so', 'Android')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Update TensorFlow Lite libraries for Unity')
