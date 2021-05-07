@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using TensorFlowLite;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 
@@ -23,6 +24,8 @@ public class GpuBindSample : MonoBehaviour
 
     IEnumerator Start()
     {
+        Debug.Assert(IsGpuBindingSupported);
+
         stopwatch = new Stopwatch();
         outputTex = new RenderTexture(inputTex.width, inputTex.height, 0, RenderTextureFormat.ARGB32);
         outputTex.enableRandomWrite = true;
@@ -78,13 +81,16 @@ public class GpuBindSample : MonoBehaviour
 
             if (useBinding)
             {
+                // On iOS GPU, input must be 4 channels, regardless of what model expects.
+                bool isMetal = Application.platform != RuntimePlatform.Android;
+                int gpuChannels = isMetal ? 4 : 3;
+
                 int inputTensorIndex0 = interpreter.GetInputTensorIndex(0);
                 int outputTensorIndex0 = interpreter.GetOutputTensorIndex(0);
                 sb.AppendLine($"Tensor Index = in0:{inputTensorIndex0} out0:{outputTensorIndex0}");
 
-                // On iOS GPU, input must be 4 channels, regardless of what model expects.
-                inputBuffer = new ComputeBuffer(height * width * 4, sizeof(float));
-                float[,,] inputs = new float[height, width, 4];
+                inputBuffer = new ComputeBuffer(height * width * gpuChannels, sizeof(float));
+                float[,,] inputs = new float[height, width, gpuChannels];
                 TextureToTensor(inputTex, inputs);
                 inputBuffer.SetData(inputs);
                 if (!gpuDelegate.BindBufferToTensor(inputTensorIndex0, inputBuffer))
@@ -92,9 +98,7 @@ public class GpuBindSample : MonoBehaviour
                     Debug.LogError("input is not binded");
                 }
 
-                // The buffer size is modified to the next multiple of 4 
-                // https://github.com/google/mediapipe/blob/ecb5b5f44ab23ea620ef97a479407c699e424aa7/mediapipe/calculators/tflite/tflite_inference_calculator.cc#L1046-L1047
-                outputBuffer = new ComputeBuffer(height * width * 4, sizeof(float));
+                outputBuffer = new ComputeBuffer(height * width * gpuChannels, sizeof(float));
                 outputBuffer.SetData(outputs);
                 interpreter.SetAllowBufferHandleOutput(true);
                 if (!gpuDelegate.BindBufferToTensor(outputTensorIndex0, outputBuffer))
@@ -200,8 +204,23 @@ public class GpuBindSample : MonoBehaviour
         }
     }
 
+    static bool IsGpuBindingSupported
+    {
+        get
+        {
+            switch (SystemInfo.graphicsDeviceType)
+            {
+                case GraphicsDeviceType.Metal:
+                case GraphicsDeviceType.OpenGLES3:
+                case GraphicsDeviceType.OpenGLES2:
+                    return true;
+            }
+            return false;
+        }
+    }
+
 #pragma warning disable CS0162 // Unreachable code detected 
-    private static IGpuDelegate CreateGpuDelegate(bool useBinding)
+    static IGpuDelegate CreateGpuDelegate(bool useBinding)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
             return new GlDelegate();
