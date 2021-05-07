@@ -54,19 +54,9 @@ public class GpuBindSample : MonoBehaviour
 
         // Prepare
         StartSW();
-        var metalDelegate = new MetalDelegate(new MetalDelegate.Options()
-        {
-            allowPrecisionLoss = false,
-            // waitType = MetalDelegate.WaitType.Passive,
-            // WaitType.Active might be broke Unity Editor
-            // So it is enabled only in iOS
-            waitType = useBinding && Application.platform == RuntimePlatform.IPhonePlayer
-                ? MetalDelegate.WaitType.Active
-                : MetalDelegate.WaitType.Passive,
-            enableQuantization = true,
-        });
+        IGpuDelegate gpuDelegate = CreateGpuDelegate(useBinding);
         var options = new InterpreterOptions();
-        options.AddGpuDelegate(metalDelegate);
+        options.AddGpuDelegate(gpuDelegate);
 
 
         ComputeBuffer inputBuffer = null, outputBuffer = null;
@@ -95,9 +85,9 @@ public class GpuBindSample : MonoBehaviour
                 // On iOS GPU, input must be 4 channels, regardless of what model expects.
                 inputBuffer = new ComputeBuffer(height * width * 4, sizeof(float));
                 float[,,] inputs = new float[height, width, 4];
-                TextureToTensorRGBA(inputTex, inputs);
+                TextureToTensor(inputTex, inputs);
                 inputBuffer.SetData(inputs);
-                if (!metalDelegate.BindBufferToTensor(inputTensorIndex0, inputBuffer))
+                if (!gpuDelegate.BindBufferToTensor(inputTensorIndex0, inputBuffer))
                 {
                     Debug.LogError("input is not binded");
                 }
@@ -107,7 +97,7 @@ public class GpuBindSample : MonoBehaviour
                 outputBuffer = new ComputeBuffer(height * width * 4, sizeof(float));
                 outputBuffer.SetData(outputs);
                 interpreter.SetAllowBufferHandleOutput(true);
-                if (!metalDelegate.BindBufferToTensor(outputTensorIndex0, outputBuffer))
+                if (!gpuDelegate.BindBufferToTensor(outputTensorIndex0, outputBuffer))
                 {
                     Debug.LogError("output is not binded");
                 }
@@ -115,7 +105,7 @@ public class GpuBindSample : MonoBehaviour
             else
             {
                 float[,,] inputs = new float[height, width, channels];
-                TextureToTensorRGB(inputTex, inputs);
+                TextureToTensor(inputTex, inputs);
                 interpreter.SetInputTensorData(0, inputs);
 
                 outputBuffer = new ComputeBuffer(height * width * 2, sizeof(float));
@@ -173,39 +163,64 @@ public class GpuBindSample : MonoBehaviour
         compute.Dispatch(0, texture.width / 8, texture.height / 8, 1);
     }
 
-    static void TextureToTensorRGB(Texture2D texture, float[,,] tensor)
+    static void TextureToTensor(Texture2D texture, float[,,] tensor)
     {
-        Debug.Assert(tensor.GetLength(2) == 3);
         Color32[] pixels = texture.GetPixels32();
         int width = texture.width;
         int height = texture.height - 1;
         const float scale = 255f;
-        for (int i = 0; i < pixels.Length; i++)
+        int channels = tensor.GetLength(2);
+
+        if (channels == 3)
         {
-            int y = height - i / width;
-            int x = i % width;
-            tensor[y, x, 0] = (float)(pixels[i].r) / scale;
-            tensor[y, x, 1] = (float)(pixels[i].g) / scale;
-            tensor[y, x, 2] = (float)(pixels[i].b) / scale;
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                int y = height - i / width;
+                int x = i % width;
+                tensor[y, x, 0] = (float)(pixels[i].r) / scale;
+                tensor[y, x, 1] = (float)(pixels[i].g) / scale;
+                tensor[y, x, 2] = (float)(pixels[i].b) / scale;
+            }
+        }
+        else if (channels == 4)
+        {
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                int y = height - i / width;
+                int x = i % width;
+                tensor[y, x, 0] = (float)(pixels[i].r) / scale;
+                tensor[y, x, 1] = (float)(pixels[i].g) / scale;
+                tensor[y, x, 2] = (float)(pixels[i].b) / scale;
+                tensor[y, x, 3] = 1f;
+            }
+        }
+        else
+        {
+            throw new System.NotSupportedException();
         }
     }
 
-    static void TextureToTensorRGBA(Texture2D texture, float[,,] tensor)
+#pragma warning disable CS0162 // Unreachable code detected 
+    private static IGpuDelegate CreateGpuDelegate(bool useBinding)
     {
-        Debug.Assert(tensor.GetLength(2) == 4);
-        Color32[] pixels = texture.GetPixels32();
-        int width = texture.width;
-        int height = texture.height - 1;
-        const float scale = 255f;
-        for (int i = 0; i < pixels.Length; i++)
+#if UNITY_ANDROID && !UNITY_EDITOR
+            return new GlDelegate();
+#elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+        return new MetalDelegate(new MetalDelegate.Options()
         {
-            int y = height - i / width;
-            int x = i % width;
-            tensor[y, x, 0] = (float)(pixels[i].r) / scale;
-            tensor[y, x, 1] = (float)(pixels[i].g) / scale;
-            tensor[y, x, 2] = (float)(pixels[i].b) / scale;
-            tensor[y, x, 3] = 1f;
-        }
+            allowPrecisionLoss = false,
+            // waitType = MetalDelegate.WaitType.Passive,
+            // WaitType.Active might be broke Unity Editor
+            // So it is enabled only in iOS
+            waitType = useBinding && Application.platform == RuntimePlatform.IPhonePlayer
+                ? MetalDelegate.WaitType.Active
+                : MetalDelegate.WaitType.Passive,
+            enableQuantization = true,
+        });
+#endif
+        throw new System.NotSupportedException();
+        return null;
     }
+#pragma warning restore CS0162 // Unreachable code detected    
 
 }
