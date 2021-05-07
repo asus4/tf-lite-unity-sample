@@ -234,7 +234,7 @@ public class GpuBindSample : MonoBehaviour
     static IGpuDelegate CreateGpuDelegate(bool useBinding)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            return new GpuDelegateV2();
+            return new GlDelegate();
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         return new MetalDelegate(new MetalDelegate.Options()
         {
