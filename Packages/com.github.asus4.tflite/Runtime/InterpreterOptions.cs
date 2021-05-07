@@ -17,9 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using TfLiteDelegate = System.IntPtr;
-using TfLiteInterpreter = System.IntPtr;
 using TfLiteInterpreterOptions = System.IntPtr;
-using TfLiteTensor = System.IntPtr;
 
 namespace TensorFlowLite
 {
@@ -62,7 +60,7 @@ namespace TensorFlowLite
             nativePtr = TfLiteInterpreterOptionsCreate();
             delegates = new List<IGpuDelegate>();
 
-            TfLiteInterpreterOptionsSetErrorReporter(nativePtr, OnErrorReporter, IntPtr.Zero);
+            ErrorReporter.ConfigureReporter(nativePtr);
         }
 
         public void Dispose()
@@ -88,28 +86,6 @@ namespace TensorFlowLite
         public void AddGpuDelegate()
         {
             AddGpuDelegate(CreateGpuDelegate());
-        }
-
-        [AOT.MonoPInvokeCallback(typeof(ErrorReporterDelegate))]
-        private static void OnErrorReporter(System.IntPtr userData, string format, IntPtr args)
-        {
-            // Marshalling va_list as args.
-            // refs:
-            // https://github.com/dotnet/runtime/issues/9316
-            // https://github.com/jeremyVignelles/va-list-interop-demo
-
-            string report;
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-            int formatLength = printf(format, args);
-            IntPtr buffer = Marshal.AllocHGlobal(formatLength);
-            sprintf(buffer, format, args);
-            report = Marshal.PtrToStringAnsi(buffer);
-            Marshal.FreeHGlobal(buffer);
-#else
-            // TODO: Support arglist for other platforms
-            report = format;
-#endif
-            UnityEngine.Debug.LogWarning($"Interperter Warning: {report}");
         }
 
 #pragma warning disable CS0162 // Unreachable code detected 
@@ -150,28 +126,6 @@ namespace TensorFlowLite
         private static extern unsafe void TfLiteInterpreterOptionsAddDelegate(
             TfLiteInterpreterOptions options,
             TfLiteDelegate _delegate);
-
-        [DllImport(TensorFlowLibrary, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void TfLiteInterpreterOptionsSetErrorReporter(
-            TfLiteInterpreterOptions options,
-            ErrorReporterDelegate errorReporter,
-            IntPtr user_data);
-
-
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-        private const string LibCLibrary = "libc";
-
-        [DllImport(LibCLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        extern static int printf(
-            [In][MarshalAs(UnmanagedType.LPStr)] string format,
-            IntPtr args);
-
-        [DllImport(LibCLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        extern static int sprintf(
-            IntPtr buffer,
-            [In][MarshalAs(UnmanagedType.LPStr)] string format,
-            IntPtr args);
-#endif // UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
 
         #endregion // Externs
     }
