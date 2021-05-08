@@ -32,7 +32,7 @@ namespace TensorFlowLite
         }
 
         [AOT.MonoPInvokeCallback(typeof(ErrorReporterDelegate))]
-        internal static void OnErrorReporter(System.IntPtr userData, string format, IntPtr vaList)
+        internal static void OnErrorReporter(IntPtr userData, string format, IntPtr vaList)
         {
             // Marshalling va_list as args.
             // refs:
@@ -46,6 +46,8 @@ namespace TensorFlowLite
             sprintf(buffer, format, vaList);
             report = Marshal.PtrToStringAnsi(buffer);
             Marshal.FreeHGlobal(buffer);
+#elif UNITY_ANDROID && !UNITY_EDITOR
+            report = UnityTFLiteStringFormat(format, vaList);
 #else
             // TODO: Support arglist for other platforms
             report = format;
@@ -78,6 +80,13 @@ namespace TensorFlowLite
             [In][MarshalAs(UnmanagedType.LPStr)] string format,
             IntPtr args);
 #endif // UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    private const string HelperLibrary = "__Internal";
+
+    [DllImport(HelperLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+    private extern static string UnityTFLiteStringFormat(string format, IntPtr vaList);
+#endif
 
         #endregion // Externs
     }
