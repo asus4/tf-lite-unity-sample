@@ -79,8 +79,9 @@ namespace TensorFlowLite
             Debug.Assert(buffer.IsValid());
             Debug.Assert(Delegate != TfLiteDelegate.Zero);
             uint bufferID = (uint)buffer.GetNativeBufferPtr().ToInt32();
-            Debug.Log($"Gl delegate buffer ID : {bufferID}");
-            return TfLiteGpuDelegateBindBufferToTensor(Delegate, bufferID, tensorIndex) == Interpreter.Status.Ok;
+            Debug.Log($"Gl delegate buffer SSBO ID : {bufferID}");
+            var status = TfLiteGpuDelegateBindBufferToTensor(Delegate, bufferID, tensorIndex);
+            return status == Interpreter.Status.Ok;
         }
 
         #region Externs

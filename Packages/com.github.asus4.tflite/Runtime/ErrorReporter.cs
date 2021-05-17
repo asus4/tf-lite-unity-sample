@@ -32,7 +32,7 @@ namespace TensorFlowLite
         }
 
         [AOT.MonoPInvokeCallback(typeof(ErrorReporterDelegate))]
-        internal static void OnErrorReporter(IntPtr userData, string format, IntPtr vaList)
+        private static void OnErrorReporter(IntPtr userData, string format, IntPtr vaList)
         {
             // Marshalling va_list as args.
             // refs:
@@ -53,7 +53,7 @@ namespace TensorFlowLite
             report = format;
 #endif
             // Debug.LogWarning($"raw format: {format}");
-            Debug.LogWarning($"Interperter Warning: {report}");
+            Debug.LogWarning($"TFLite Warning: {report}");
         }
 
         #region Externs

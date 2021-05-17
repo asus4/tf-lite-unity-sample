@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using TensorFlowLite;
@@ -88,27 +87,31 @@ public class GpuBindSample : MonoBehaviour
             if (useBinding)
             {
                 // On iOS GPU, input must be 4 channels, regardless of what model expects.
-                int gpuChannels = isMetal ? 4 : 3;
+                int gpuInputChannels = isMetal ? 4 : 3;
+                int gpuOutputChannels = isMetal ? 4 : 2;
+
                 int inputTensorIndex0 = interpreter.GetInputTensorIndex(0);
                 int outputTensorIndex0 = interpreter.GetOutputTensorIndex(0);
-                sb.AppendLine($"Tensor Index = in0:{inputTensorIndex0} out0:{outputTensorIndex0}");
+                Debug.Log($"Tensor Index = in0:{inputTensorIndex0} out0:{outputTensorIndex0}");
 
-                inputBuffer = new ComputeBuffer(height * width * gpuChannels, sizeof(float));
-                float[,,] inputs = new float[height, width, gpuChannels];
+                inputBuffer = new ComputeBuffer(height * width * gpuInputChannels, sizeof(float), ComputeBufferType.Structured);
+                float[,,] inputs = new float[height, width, gpuInputChannels];
                 TextureToTensor(inputTex, inputs);
                 inputBuffer.SetData(inputs);
                 if (!gpuDelegate.BindBufferToTensor(inputTensorIndex0, inputBuffer))
                 {
                     Debug.LogError("input is not binded");
                 }
+                Debug.Log($"input size: {inputBuffer.count} channels:{gpuInputChannels}");
 
-                outputBuffer = new ComputeBuffer(height * width * gpuChannels, sizeof(float));
+                outputBuffer = new ComputeBuffer(height * width * gpuOutputChannels, sizeof(float), ComputeBufferType.Structured);
                 outputBuffer.SetData(outputs);
                 interpreter.SetAllowBufferHandleOutput(true);
                 if (!gpuDelegate.BindBufferToTensor(outputTensorIndex0, outputBuffer))
                 {
                     Debug.LogError("output is not binded");
                 }
+                Debug.Log($"output size: {outputBuffer.count} channels:{gpuOutputChannels}");
 
                 if (!isMetal)
                 {
@@ -116,6 +119,7 @@ public class GpuBindSample : MonoBehaviour
                     {
                         Debug.LogError("Failed to modify the graph with delegate");
                     }
+                    Debug.Log("modified android graph");
                 }
             }
             else
@@ -139,9 +143,9 @@ public class GpuBindSample : MonoBehaviour
                 interpreter.GetOutputTensorData(0, outputs);
                 outputBuffer.SetData(outputs);
             }
-            var compute = (isMetal && useBinding)
-                ? computePadded
-                : computeNormal;
+            var compute = (isMetal && useBinding) ? computePadded : computeNormal;
+            // var compute = (useBinding) ? computePadded : computeNormal;
+
             RenderToOutputTexture(compute, outputBuffer, outputTex);
 
             StopSW(sb, "Post Process");
@@ -210,6 +214,21 @@ public class GpuBindSample : MonoBehaviour
                 tensor[y, x, 3] = 1f;
             }
         }
+        else if (channels > 4)
+        {
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                int y = height - i / width;
+                int x = i % width;
+                tensor[y, x, 0] = (float)(pixels[i].r) / scale;
+                tensor[y, x, 1] = (float)(pixels[i].g) / scale;
+                tensor[y, x, 2] = (float)(pixels[i].b) / scale;
+                for (int c = 3; c < channels; c++)
+                {
+                    tensor[y, x, c] = 1f;
+                }
+            }
+        }
         else
         {
             throw new System.NotSupportedException();
@@ -242,6 +261,8 @@ public class GpuBindSample : MonoBehaviour
             compileOptions.preferredGlObjectType = (int)GlDelegate.ObjectType.FASTEST;
             compileOptions.dynamicBatchEnabled = 0;
             compileOptions.inlineParameters = 1;
+
+            glOptions.compileOptions = compileOptions;
         }
         return new GlDelegate(glOptions);
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
