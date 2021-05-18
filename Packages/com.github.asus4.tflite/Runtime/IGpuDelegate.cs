@@ -22,6 +22,11 @@ namespace TensorFlowLite
     public interface IGpuDelegate : IDisposable
     {
         TfLiteDelegate Delegate { get; }
-        bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer);
+    }
+
+    public interface IBindableDelegate : IGpuDelegate
+    {
+        bool BindBufferToInputTensor(Interpreter interpreter, int index, ComputeBuffer buffer);
+        bool BindBufferToOutputTensor(Interpreter interpreter, int index, ComputeBuffer buffer);
     }
 }

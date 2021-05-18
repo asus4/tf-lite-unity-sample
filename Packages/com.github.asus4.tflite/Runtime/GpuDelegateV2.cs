@@ -21,28 +21,77 @@ using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
-    public class GpuDelegateV2 : IGpuDelegate
+    public class GpuDelegateV2 : IBindableDelegate
     {
+
+        /// <summary>
+        /// TfLiteGpuInferenceUsage
+        /// Encapsulated compilation/runtime tradeoffs.
+        /// </summary>
+        public enum Usage
+        {
+            // Delegate will be used only once, therefore, bootstrap/init time should
+            // be taken into account.
+            FastSingleAnswer = 0,
+
+            // Prefer maximizing the throughput. Same delegate will be used repeatedly on
+            // multiple inputs.
+            SustainedSpeed = 1,
+        }
+
+        /// <summary>
+        /// TfLiteGpuInferencePriority
+        /// </summary>
+        public enum InferencePriority
+        {
+            Auto = 0,
+            MaxPrecision = 1,
+            MinLatency = 2,
+            MinMemoryUsage = 3,
+        }
+
+        /// <summary>
+        /// TfLiteGpuExperimentalFlags
+        /// </summary>
+        [System.Flags]
+        public enum ExperimentalFlags
+        {
+            None = 0,
+            // Enables inference on quantized models with the delegate.
+            // NOTE: This is enabled in TfLiteGpuDelegateOptionsV2Default.
+            EnableQuant = 1 << 0,
+            // Enforces execution with the provided backend.
+            ClOnly = 1 << 1,
+            GlOnly = 1 << 2
+        }
+
         /// <summary>
         /// the Mirror of TfLiteGpuDelegateOptionsV2
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
         public struct Options
         {
-            int isPrecisionLossAllowed;
-            int inferencePreference;
-            int inferencePriority1;
-            int inferencePriority2;
-            int inferencePriority3;
-            long experimentalFlags;
-            int maxDelegatedPartitions;
+            public int isPrecisionLossAllowed;
+            public int inferencePreference;
+            public int inferencePriority1;
+            public int inferencePriority2;
+            public int inferencePriority3;
+            public long experimentalFlags;
+            public int maxDelegatedPartitions;
         };
 
         public TfLiteDelegate Delegate { get; private set; }
 
+        public static Options DefaultOptions => TfLiteGpuDelegateOptionsV2Default();
+
         public GpuDelegateV2()
         {
-            Options options = TfLiteGpuDelegateOptionsV2Default();
+            Options options = DefaultOptions;
+            Delegate = TfLiteGpuDelegateV2Create(ref options);
+        }
+
+        public GpuDelegateV2(Options options)
+        {
             Delegate = TfLiteGpuDelegateV2Create(ref options);
         }
 
@@ -52,12 +101,21 @@ namespace TensorFlowLite
             Delegate = TfLiteDelegate.Zero;
         }
 
-        public bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
+        public bool BindBufferToInputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
         {
-            throw new System.NotImplementedException();
+            uint bufferID = (uint)buffer.GetNativeBufferPtr().ToInt32();
+            var status = TfLiteGpuDelegateV2DeleteBindInputBuffer(Delegate, index, bufferID);
+            return status == Interpreter.Status.Ok;
         }
 
-        #region Externs
+        public bool BindBufferToOutputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
+        {
+            uint bufferID = (uint)buffer.GetNativeBufferPtr().ToInt32();
+            var status = TfLiteGpuDelegateV2DeleteBindOutputBuffer(Delegate, index, bufferID);
+            return status == Interpreter.Status.Ok;
+        }
+
+#region Externs
         private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_delegate";
 
         [DllImport(TensorFlowLibraryGPU)]
@@ -72,7 +130,16 @@ namespace TensorFlowLite
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe Interpreter.Status TfLiteGpuDelegateBindBufferToTensor(
             TfLiteDelegate gpuDelegate, uint buffer, int tensor_index);
-        #endregion // Externs
+
+        [DllImport(TensorFlowLibraryGPU)]
+        private static extern unsafe Interpreter.Status TfLiteGpuDelegateV2DeleteBindInputBuffer(
+            TfLiteDelegate gpuDelegatee, int index, uint buffer);
+
+        [DllImport(TensorFlowLibraryGPU)]
+        private static extern unsafe Interpreter.Status TfLiteGpuDelegateV2DeleteBindOutputBuffer(
+            TfLiteDelegate gpuDelegate, int index, uint buffer);
+
+#endregion // Externs
     }
 }
 #endif // UNITY_ANDROID && !UNITY_EDITOR

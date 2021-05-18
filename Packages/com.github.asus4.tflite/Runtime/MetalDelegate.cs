@@ -26,7 +26,7 @@ namespace TensorFlowLite
     /// Metal GPU Delegate
     /// Available on iOS or macOS
     /// </summary>
-    public class MetalDelegate : IGpuDelegate
+    public class MetalDelegate : IBindableDelegate
     {
         public enum WaitType
         {
@@ -57,7 +57,19 @@ namespace TensorFlowLite
             Delegate = TfLiteDelegate.Zero;
         }
 
-        public bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
+        public bool BindBufferToInputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
+        {
+            int tensorIndex = interpreter.GetInputTensorIndex(index);
+            return BindBufferToTensor(tensorIndex, buffer);
+        }
+
+        public bool BindBufferToOutputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
+        {
+            int tensorIndex = interpreter.GetOutputTensorIndex(index);
+            return BindBufferToTensor(tensorIndex, buffer);
+        }
+
+        private bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
         {
             Debug.Assert(buffer.IsValid());
             Debug.Assert(Delegate != TfLiteDelegate.Zero);

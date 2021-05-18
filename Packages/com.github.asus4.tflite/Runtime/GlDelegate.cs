@@ -22,7 +22,7 @@ using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
-    public class GlDelegate : IGpuDelegate
+    public class GlDelegate : IBindableDelegate
     {
         public enum ObjectType
         {
@@ -74,17 +74,28 @@ namespace TensorFlowLite
             Delegate = TfLiteDelegate.Zero;
         }
 
-        public bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
+        public bool BindBufferToInputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
+        {
+            int tensorIndex = interpreter.GetInputTensorIndex(index);
+            return BindBufferToTensor(tensorIndex, buffer);
+        }
+
+        public bool BindBufferToOutputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
+        {
+            int tensorIndex = interpreter.GetOutputTensorIndex(index);
+            return BindBufferToTensor(tensorIndex, buffer);
+        }
+
+        private bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
         {
             Debug.Assert(buffer.IsValid());
             Debug.Assert(Delegate != TfLiteDelegate.Zero);
             uint bufferID = (uint)buffer.GetNativeBufferPtr().ToInt32();
-            Debug.Log($"Gl delegate buffer SSBO ID : {bufferID}");
             var status = TfLiteGpuDelegateBindBufferToTensor(Delegate, bufferID, tensorIndex);
             return status == Interpreter.Status.Ok;
         }
 
-        #region Externs
+#region Externs
         private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_gl";
 
         [DllImport(TensorFlowLibraryGPU)]
@@ -99,7 +110,7 @@ namespace TensorFlowLite
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe Interpreter.Status TfLiteGpuDelegateBindBufferToTensor(
             TfLiteDelegate gpuDelegate, uint buffer, int tensorIndex);
-        #endregion // Externs
+#endregion // Externs
     }
 }
 #endif // UNITY_ANDROID && !UNITY_EDITOR

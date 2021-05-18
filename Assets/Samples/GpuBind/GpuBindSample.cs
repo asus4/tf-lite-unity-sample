@@ -59,7 +59,7 @@ public class GpuBindSample : MonoBehaviour
         ComputeBuffer inputBuffer = null, outputBuffer = null;
 
         // Manage gpu delegate manualy
-        using (IGpuDelegate gpuDelegate = CreateGpuDelegate(useBinding))
+        using (IBindableDelegate gpuDelegate = CreateGpuDelegate(useBinding))
         using (Interpreter interpreter = new Interpreter(FileUtil.LoadFile(fileName), new InterpreterOptions()))
         {
             bool isMetal = Application.platform != RuntimePlatform.Android;
@@ -90,15 +90,11 @@ public class GpuBindSample : MonoBehaviour
                 int gpuInputChannels = isMetal ? 4 : 3;
                 int gpuOutputChannels = isMetal ? 4 : 2;
 
-                int inputTensorIndex0 = interpreter.GetInputTensorIndex(0);
-                int outputTensorIndex0 = interpreter.GetOutputTensorIndex(0);
-                Debug.Log($"Tensor Index = in0:{inputTensorIndex0} out0:{outputTensorIndex0}");
-
                 inputBuffer = new ComputeBuffer(height * width * gpuInputChannels, sizeof(float), ComputeBufferType.Structured);
                 float[,,] inputs = new float[height, width, gpuInputChannels];
                 TextureToTensor(inputTex, inputs);
                 inputBuffer.SetData(inputs);
-                if (!gpuDelegate.BindBufferToTensor(inputTensorIndex0, inputBuffer))
+                if (!gpuDelegate.BindBufferToInputTensor(interpreter, 0, inputBuffer))
                 {
                     Debug.LogError("input is not binded");
                 }
@@ -107,7 +103,7 @@ public class GpuBindSample : MonoBehaviour
                 outputBuffer = new ComputeBuffer(height * width * gpuOutputChannels, sizeof(float), ComputeBufferType.Structured);
                 outputBuffer.SetData(outputs);
                 interpreter.SetAllowBufferHandleOutput(true);
-                if (!gpuDelegate.BindBufferToTensor(outputTensorIndex0, outputBuffer))
+                if (!gpuDelegate.BindBufferToOutputTensor(interpreter, 0, outputBuffer))
                 {
                     Debug.LogError("output is not binded");
                 }
@@ -250,21 +246,19 @@ public class GpuBindSample : MonoBehaviour
     }
 
 #pragma warning disable CS0162 // Unreachable code detected 
-    static IGpuDelegate CreateGpuDelegate(bool useBinding)
+    static IBindableDelegate CreateGpuDelegate(bool useBinding)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        var glOptions = GlDelegate.DefaultOptions;
+        var glOptions = GpuDelegateV2.DefaultOptions;
         if (useBinding)
         {
-            var compileOptions = glOptions.compileOptions;
-            compileOptions.precisionLossAllowed = 1;
-            compileOptions.preferredGlObjectType = (int)GlDelegate.ObjectType.FASTEST;
-            compileOptions.dynamicBatchEnabled = 0;
-            compileOptions.inlineParameters = 1;
-
-            glOptions.compileOptions = compileOptions;
+            glOptions.isPrecisionLossAllowed = 1;
+            glOptions.inferencePreference = (int)GpuDelegateV2.Usage.SustainedSpeed;
+            glOptions.inferencePriority1 = (int)GpuDelegateV2.InferencePriority.MinLatency;
+            glOptions.inferencePriority2 = (int)GpuDelegateV2.InferencePriority.Auto;
+            glOptions.inferencePriority3 = (int)GpuDelegateV2.InferencePriority.Auto;
         }
-        return new GlDelegate(glOptions);
+        return new GpuDelegateV2(glOptions);
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         return new MetalDelegate(new MetalDelegate.Options()
         {
