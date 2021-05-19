@@ -16,7 +16,6 @@ using System;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using TfLiteDelegate = System.IntPtr;
 using TfLiteInterpreter = System.IntPtr;
 using TfLiteInterpreterOptions = System.IntPtr;
 using TfLiteModel = System.IntPtr;
@@ -61,7 +60,7 @@ namespace TensorFlowLite
             model = TfLiteModelCreate(modelDataPtr, modelData.Length);
             if (model == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Model");
 
-            this.options = options;
+            this.options = options ?? new InterpreterOptions();
 
             interpreter = TfLiteInterpreterCreate(model, options.nativePtr);
             if (interpreter == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Interpreter");

@@ -12,9 +12,12 @@ public class GpuBindSample : MonoBehaviour
     [SerializeField] Texture2D inputTex = null;
     [SerializeField] RawImage outputImage = null;
     [SerializeField] bool useBinding = false;
-    [SerializeField] ComputeShader computeNormal = null;
-    [SerializeField] ComputeShader computePadded = null;
 
+    [SerializeField] ComputeShader computePreProcessNormal = null;
+    [SerializeField] ComputeShader computePreProcessPadded = null;
+
+    [SerializeField] ComputeShader computePostProcessNormal = null;
+    [SerializeField] ComputeShader computePostProcessPadded = null;
 
     static bool IsMetal => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal;
     static bool IsOpenGLES3 => SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3;
@@ -23,7 +26,7 @@ public class GpuBindSample : MonoBehaviour
     IBindableDelegate gpuDelegate;
     Interpreter interpreter;
 
-
+    CommandBuffer preprocessCommand;
     float[,,] inputs;
     float[,,] outputs;
     ComputeBuffer inputBuffer;
@@ -42,6 +45,11 @@ public class GpuBindSample : MonoBehaviour
         // Need to wait 1 frame to wait GPU startup
         yield return new WaitForEndOfFrame();
 
+        preprocessCommand = new CommandBuffer()
+        {
+            name = "preprocess",
+        };
+
         if (useBinding)
         {
             PrepareBindingOn();
@@ -50,7 +58,8 @@ public class GpuBindSample : MonoBehaviour
         {
             PrepareBindingOff();
         }
-        Invoke(useBinding);
+
+        StartCoroutine(Invoke(inputTex, useBinding));
     }
 
     private void OnDestroy()
@@ -60,6 +69,8 @@ public class GpuBindSample : MonoBehaviour
 
         inputBuffer?.Release();
         outputBuffer?.Release();
+
+        preprocessCommand?.Release();
 
         if (outputTex != null)
         {
@@ -85,37 +96,33 @@ public class GpuBindSample : MonoBehaviour
         var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
         int height = inputShape0[1];
         int width = inputShape0[2];
-        int channels = inputShape0[3];
+        // int channels = inputShape0[3];
 
         // On iOS GPU, input must be 4 channels, regardless of what model expects.
         int gpuInputChannels = isMetal ? 4 : 3;
         int gpuOutputChannels = isMetal ? 4 : 2;
 
-        inputBuffer = new ComputeBuffer(height * width * gpuInputChannels, sizeof(float), ComputeBufferType.Structured);
+        inputBuffer = new ComputeBuffer(height * width * gpuInputChannels, sizeof(float));
         inputs = new float[height, width, gpuInputChannels];
-        TextureToTensor(inputTex, inputs);
-        inputBuffer.SetData(inputs);
         if (!gpuDelegate.BindBufferToInputTensor(interpreter, 0, inputBuffer))
         {
             Debug.LogError("input is not binded");
         }
-        Debug.Log($"input size: {inputBuffer.count} channels:{gpuInputChannels}");
 
-        outputBuffer = new ComputeBuffer(height * width * gpuOutputChannels, sizeof(float), ComputeBufferType.Structured);
+        outputBuffer = new ComputeBuffer(height * width * gpuOutputChannels, sizeof(float));
         interpreter.SetAllowBufferHandleOutput(true);
         if (!gpuDelegate.BindBufferToOutputTensor(interpreter, 0, outputBuffer))
         {
             Debug.LogError("output is not binded");
         }
-        Debug.Log($"output size: {outputBuffer.count} channels:{gpuOutputChannels}");
 
-        if (!isMetal)
+        // GLES3: Call ModifyGraphWithDelegate at last  
+        if (IsOpenGLES3)
         {
             if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
             {
                 Debug.LogError("Failed to modify the graph with delegate");
             }
-            Debug.Log("modified android graph");
         }
     }
 
@@ -133,14 +140,34 @@ public class GpuBindSample : MonoBehaviour
         inputs = new float[height, width, channels];
         outputs = new float[height, width, 2];
 
-        TextureToTensor(inputTex, inputs);
-        interpreter.SetInputTensorData(0, inputs);
-
         outputBuffer = new ComputeBuffer(height * width * 2, sizeof(float));
     }
 
-    void Invoke(bool useBinding)
+    public bool waitPreprocess = true;
+    IEnumerator Invoke(Texture2D inputTex, bool useBinding)
     {
+        CommandBuffer cmd = new CommandBuffer();
+        bool usePadded = IsMetal && useBinding;
+        Debug.Log($"usePadded: {usePadded}");
+
+        if (useBinding)
+        {
+            var computePreProcess = usePadded ? computePreProcessPadded : computePreProcessNormal;
+            TextureToTensor(inputTex, computePreProcess, inputBuffer);
+
+            if (waitPreprocess)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            // TextureToTensor(inputTex, inputs);
+            // inputBuffer.SetData(inputs);
+        }
+        else
+        {
+            TextureToTensor(inputTex, inputs);
+            interpreter.SetInputTensorData(0, inputs);
+        }
+
         Profiler.BeginSample("Invoke");
         interpreter.Invoke();
         Profiler.EndSample();
@@ -151,8 +178,8 @@ public class GpuBindSample : MonoBehaviour
             interpreter.GetOutputTensorData(0, outputs);
             outputBuffer.SetData(outputs);
         }
-        var compute = (IsMetal && useBinding) ? computePadded : computeNormal;
-        RenderToOutputTexture(compute, outputBuffer, outputTex);
+        var computePostProcess = usePadded ? computePostProcessPadded : computePostProcessNormal;
+        RenderToOutputTexture(computePostProcess, outputBuffer, outputTex);
         Profiler.EndSample();
     }
 
@@ -166,6 +193,34 @@ public class GpuBindSample : MonoBehaviour
         compute.SetBuffer(0, "LabelBuffer", buffer);
         compute.SetTexture(0, "Result", texture);
         compute.Dispatch(0, texture.width / 8, texture.height / 8, 1);
+    }
+
+    void TextureToTensor(Texture2D texture, ComputeShader compute, ComputeBuffer tensor)
+    {
+        Debug.Assert(texture.width % 8 == 0);
+        Debug.Assert(texture.height % 8 == 0);
+
+        // compute.SetInt("Width", texture.width);
+        // compute.SetInt("Height", texture.height);
+        // compute.SetTexture(0, "InputTexture", texture);
+        // compute.SetBuffer(0, "OutputTensor", tensor);
+        // compute.Dispatch(0, texture.width / 8, texture.height / 8, 1);
+
+        preprocessCommand.Clear();
+        preprocessCommand.SetExecutionFlags(CommandBufferExecutionFlags.None);
+        var fence = preprocessCommand.CreateGraphicsFence(GraphicsFenceType.CPUSynchronisation, SynchronisationStageFlags.AllGPUOperations);
+
+        preprocessCommand.SetComputeIntParam(compute, "Width", texture.width);
+        preprocessCommand.SetComputeIntParam(compute, "Height", texture.height);
+        preprocessCommand.SetComputeTextureParam(compute, 0, "InputTexture", texture);
+        preprocessCommand.SetComputeBufferParam(compute, 0, "OutputTensor", tensor);
+        preprocessCommand.DispatchCompute(compute, 0, texture.width / 8, texture.height / 8, 1);
+
+        // Graphics.ExecuteCommandBufferAsync(preprocessCommand, ComputeQueueType.Urgent);
+        Graphics.ExecuteCommandBuffer(preprocessCommand);
+        Graphics.WaitOnAsyncGraphicsFence(fence);
+        Debug.Log($"supportCraphicsFence: {SystemInfo.supportsGraphicsFence}, supportsAsyncCompute: {SystemInfo.supportsAsyncCompute}");
+
     }
 
     static void TextureToTensor(Texture2D texture, float[,,] tensor)
