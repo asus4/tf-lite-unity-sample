@@ -1,8 +1,7 @@
 ﻿using System.Collections;
-using System.Diagnostics;
-using System.Text;
 using TensorFlowLite;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
@@ -16,155 +15,145 @@ public class GpuBindSample : MonoBehaviour
     [SerializeField] ComputeShader computeNormal = null;
     [SerializeField] ComputeShader computePadded = null;
 
-    static readonly double msec = 1000.0 / Stopwatch.Frequency;
-    Stopwatch stopwatch;
+
+    static bool IsMetal => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal;
+    static bool IsOpenGLES3 => SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3;
+
+
+    IBindableDelegate gpuDelegate;
+    Interpreter interpreter;
+
+
+    float[,,] inputs;
+    float[,,] outputs;
+    ComputeBuffer inputBuffer;
+    ComputeBuffer outputBuffer;
     RenderTexture outputTex;
-    Color32[] textureBuffer;
 
     IEnumerator Start()
     {
         Debug.Assert(IsGpuBindingSupported);
 
-        stopwatch = new Stopwatch();
         outputTex = new RenderTexture(inputTex.width, inputTex.height, 0, RenderTextureFormat.ARGB32);
         outputTex.enableRandomWrite = true;
         outputTex.Create();
         outputImage.texture = outputTex;
-        textureBuffer = new Color32[inputTex.width * inputTex.height];
 
-        // bool useBinding = false;
-        for (int i = 0; i < 10; i++)
+        // Need to wait 1 frame to wait GPU startup
+        yield return new WaitForEndOfFrame();
+
+        if (useBinding)
         {
-            yield return new WaitForEndOfFrame();
-            RunInterpreter(useBinding);
-            // useBinding = !useBinding;
+            PrepareBindingOn();
         }
+        else
+        {
+            PrepareBindingOff();
+        }
+        Invoke(useBinding);
     }
 
     private void OnDestroy()
     {
+        interpreter?.Dispose();
+        gpuDelegate?.Dispose();
+
+        inputBuffer?.Release();
+        outputBuffer?.Release();
+
         if (outputTex != null)
         {
             Destroy(outputTex);
         }
     }
 
-    void RunInterpreter(bool useBinding)
+    void PrepareBindingOn()
     {
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine(useBinding ? "Binding On" : "Binding Off");
+        gpuDelegate = CreateGpuDelegate(true);
+        interpreter = new Interpreter(FileUtil.LoadFile(fileName), new InterpreterOptions());
 
-        // Prepare
-        StartSW();
-        ComputeBuffer inputBuffer = null, outputBuffer = null;
-
-        // Manage gpu delegate manualy
-        using (IBindableDelegate gpuDelegate = CreateGpuDelegate(useBinding))
-        using (Interpreter interpreter = new Interpreter(FileUtil.LoadFile(fileName), new InterpreterOptions()))
+        bool isMetal = IsMetal;
+        // Metal: Call ModifyGraphWithDelegate at beginning
+        if (isMetal)
         {
-            bool isMetal = Application.platform != RuntimePlatform.Android;
-            if (!useBinding || isMetal)
+            if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
             {
-                if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
-                {
-                    Debug.LogError("Failed to modify the graph with delegate");
-                }
+                Debug.LogError("Failed to modify the graph with delegate");
             }
-            StopSW(sb, "Prepare interpreter");
-
-            // Prepare inputs/outputs
-            StartSW();
-            var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
-            int height = inputShape0[1];
-            int width = inputShape0[2];
-            int channels = inputShape0[3];
-
-            Debug.Assert(width == inputTex.width, $"{inputTex.width}");
-            Debug.Assert(height == inputTex.height, $"{inputTex.height}");
-
-            float[,,] outputs = new float[height, width, 2];
-
-            if (useBinding)
-            {
-                // On iOS GPU, input must be 4 channels, regardless of what model expects.
-                int gpuInputChannels = isMetal ? 4 : 3;
-                int gpuOutputChannels = isMetal ? 4 : 2;
-
-                inputBuffer = new ComputeBuffer(height * width * gpuInputChannels, sizeof(float), ComputeBufferType.Structured);
-                float[,,] inputs = new float[height, width, gpuInputChannels];
-                TextureToTensor(inputTex, inputs);
-                inputBuffer.SetData(inputs);
-                if (!gpuDelegate.BindBufferToInputTensor(interpreter, 0, inputBuffer))
-                {
-                    Debug.LogError("input is not binded");
-                }
-                Debug.Log($"input size: {inputBuffer.count} channels:{gpuInputChannels}");
-
-                outputBuffer = new ComputeBuffer(height * width * gpuOutputChannels, sizeof(float), ComputeBufferType.Structured);
-                outputBuffer.SetData(outputs);
-                interpreter.SetAllowBufferHandleOutput(true);
-                if (!gpuDelegate.BindBufferToOutputTensor(interpreter, 0, outputBuffer))
-                {
-                    Debug.LogError("output is not binded");
-                }
-                Debug.Log($"output size: {outputBuffer.count} channels:{gpuOutputChannels}");
-
-                if (!isMetal)
-                {
-                    if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
-                    {
-                        Debug.LogError("Failed to modify the graph with delegate");
-                    }
-                    Debug.Log("modified android graph");
-                }
-            }
-            else
-            {
-                float[,,] inputs = new float[height, width, channels];
-                TextureToTensor(inputTex, inputs);
-                interpreter.SetInputTensorData(0, inputs);
-
-                outputBuffer = new ComputeBuffer(height * width * 2, sizeof(float));
-            }
-            StopSW(sb, "Prepare inputs/outputs");
-
-            // Invoke
-            StartSW();
-            interpreter.Invoke();
-            StopSW(sb, "Invoke");
-
-            StartSW();
-            if (!useBinding)
-            {
-                interpreter.GetOutputTensorData(0, outputs);
-                outputBuffer.SetData(outputs);
-            }
-            var compute = (isMetal && useBinding) ? computePadded : computeNormal;
-            // var compute = (useBinding) ? computePadded : computeNormal;
-
-            RenderToOutputTexture(compute, outputBuffer, outputTex);
-
-            StopSW(sb, "Post Process");
         }
 
-        // Cleanup
-        inputBuffer?.Release();
-        inputBuffer?.Dispose();
-        outputBuffer?.Release();
-        outputBuffer?.Dispose();
+        var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
+        int height = inputShape0[1];
+        int width = inputShape0[2];
+        int channels = inputShape0[3];
 
-        Debug.Log(sb.ToString());
+        // On iOS GPU, input must be 4 channels, regardless of what model expects.
+        int gpuInputChannels = isMetal ? 4 : 3;
+        int gpuOutputChannels = isMetal ? 4 : 2;
+
+        inputBuffer = new ComputeBuffer(height * width * gpuInputChannels, sizeof(float), ComputeBufferType.Structured);
+        inputs = new float[height, width, gpuInputChannels];
+        TextureToTensor(inputTex, inputs);
+        inputBuffer.SetData(inputs);
+        if (!gpuDelegate.BindBufferToInputTensor(interpreter, 0, inputBuffer))
+        {
+            Debug.LogError("input is not binded");
+        }
+        Debug.Log($"input size: {inputBuffer.count} channels:{gpuInputChannels}");
+
+        outputBuffer = new ComputeBuffer(height * width * gpuOutputChannels, sizeof(float), ComputeBufferType.Structured);
+        interpreter.SetAllowBufferHandleOutput(true);
+        if (!gpuDelegate.BindBufferToOutputTensor(interpreter, 0, outputBuffer))
+        {
+            Debug.LogError("output is not binded");
+        }
+        Debug.Log($"output size: {outputBuffer.count} channels:{gpuOutputChannels}");
+
+        if (!isMetal)
+        {
+            if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
+            {
+                Debug.LogError("Failed to modify the graph with delegate");
+            }
+            Debug.Log("modified android graph");
+        }
     }
 
-    void StartSW()
+    void PrepareBindingOff()
     {
-        stopwatch.Restart();
+        var options = new InterpreterOptions();
+        options.AddGpuDelegate();
+        interpreter = new Interpreter(FileUtil.LoadFile(fileName), options);
+
+        var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
+        int height = inputShape0[1];
+        int width = inputShape0[2];
+        int channels = inputShape0[3];
+
+        inputs = new float[height, width, channels];
+        outputs = new float[height, width, 2];
+
+        TextureToTensor(inputTex, inputs);
+        interpreter.SetInputTensorData(0, inputs);
+
+        outputBuffer = new ComputeBuffer(height * width * 2, sizeof(float));
     }
 
-    void StopSW(StringBuilder sb, string message)
+    void Invoke(bool useBinding)
     {
-        stopwatch.Stop();
-        sb.AppendLine($"{message}: {stopwatch.ElapsedTicks * msec:0.00} ms");
+        Profiler.BeginSample("Invoke");
+        interpreter.Invoke();
+        Profiler.EndSample();
+
+        Profiler.BeginSample("Post process");
+        if (!useBinding)
+        {
+            interpreter.GetOutputTensorData(0, outputs);
+            outputBuffer.SetData(outputs);
+        }
+        var compute = (IsMetal && useBinding) ? computePadded : computeNormal;
+        RenderToOutputTexture(compute, outputBuffer, outputTex);
+        Profiler.EndSample();
     }
 
     static void RenderToOutputTexture(ComputeShader compute, ComputeBuffer buffer, RenderTexture texture)
