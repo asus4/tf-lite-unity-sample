@@ -104,14 +104,14 @@ namespace TensorFlowLite
         public bool BindBufferToInputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
         {
             uint bufferID = (uint)buffer.GetNativeBufferPtr().ToInt32();
-            var status = TfLiteGpuDelegateV2DeleteBindInputBuffer(Delegate, index, bufferID);
+            var status = TfLiteGpuDelegateV2BindInputBuffer(Delegate, index, bufferID);
             return status == Interpreter.Status.Ok;
         }
 
         public bool BindBufferToOutputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
         {
             uint bufferID = (uint)buffer.GetNativeBufferPtr().ToInt32();
-            var status = TfLiteGpuDelegateV2DeleteBindOutputBuffer(Delegate, index, bufferID);
+            var status = TfLiteGpuDelegateV2BindOutputBuffer(Delegate, index, bufferID);
             return status == Interpreter.Status.Ok;
         }
 
@@ -132,11 +132,11 @@ namespace TensorFlowLite
             TfLiteDelegate gpuDelegate, uint buffer, int tensor_index);
 
         [DllImport(TensorFlowLibraryGPU)]
-        private static extern unsafe Interpreter.Status TfLiteGpuDelegateV2DeleteBindInputBuffer(
+        private static extern unsafe Interpreter.Status TfLiteGpuDelegateV2BindInputBuffer(
             TfLiteDelegate gpuDelegatee, int index, uint buffer);
 
         [DllImport(TensorFlowLibraryGPU)]
-        private static extern unsafe Interpreter.Status TfLiteGpuDelegateV2DeleteBindOutputBuffer(
+        private static extern unsafe Interpreter.Status TfLiteGpuDelegateV2BindOutputBuffer(
             TfLiteDelegate gpuDelegate, int index, uint buffer);
 
 #endregion // Externs
