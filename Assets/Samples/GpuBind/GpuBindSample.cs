@@ -11,6 +11,8 @@ public class GpuBindSample : MonoBehaviour
     [SerializeField, FilePopup("*.tflite")] string fileName = "meet/segm_lite_v509_128x128_float16_quant.tflite";
     [SerializeField] Texture2D inputTex = null;
     [SerializeField] RawImage outputImage = null;
+    [SerializeField] Text infoLabel = null;
+
     [SerializeField] bool useBinding = false;
 
     [SerializeField] ComputeShader computePreProcessNormal = null;
@@ -22,11 +24,10 @@ public class GpuBindSample : MonoBehaviour
     static bool IsMetal => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal;
     static bool IsOpenGLES3 => SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3;
 
-
     IBindableDelegate gpuDelegate;
     Interpreter interpreter;
 
-    CommandBuffer preprocessCommand;
+    CommandBuffer commandBuffer;
     float[,,] inputs;
     float[,,] outputs;
     ComputeBuffer inputBuffer;
@@ -37,6 +38,8 @@ public class GpuBindSample : MonoBehaviour
     {
         Debug.Assert(IsGpuBindingSupported);
 
+        infoLabel.text = useBinding ? "Binding: On" : "Binding Off";
+
         outputTex = new RenderTexture(inputTex.width, inputTex.height, 0, RenderTextureFormat.ARGB32);
         outputTex.enableRandomWrite = true;
         outputTex.Create();
@@ -45,7 +48,7 @@ public class GpuBindSample : MonoBehaviour
         // Need to wait 1 frame to wait GPU startup
         yield return new WaitForEndOfFrame();
 
-        preprocessCommand = new CommandBuffer()
+        commandBuffer = new CommandBuffer()
         {
             name = "preprocess",
         };
@@ -59,18 +62,20 @@ public class GpuBindSample : MonoBehaviour
             PrepareBindingOff();
         }
 
-        StartCoroutine(Invoke(inputTex, useBinding));
+        StartCoroutine(InvokeLoop());
     }
 
     private void OnDestroy()
     {
+        StopAllCoroutines();
+
         interpreter?.Dispose();
         gpuDelegate?.Dispose();
 
         inputBuffer?.Release();
         outputBuffer?.Release();
 
-        preprocessCommand?.Release();
+        commandBuffer?.Release();
 
         if (outputTex != null)
         {
@@ -78,13 +83,14 @@ public class GpuBindSample : MonoBehaviour
         }
     }
 
+
     void PrepareBindingOn()
     {
         gpuDelegate = CreateGpuDelegate(true);
         interpreter = new Interpreter(FileUtil.LoadFile(fileName), new InterpreterOptions());
 
         bool isMetal = IsMetal;
-        // Metal: Call ModifyGraphWithDelegate at beginning
+        // [Metal] must be called ModifyGraphWithDelegate at beginning
         if (isMetal)
         {
             if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
@@ -116,7 +122,7 @@ public class GpuBindSample : MonoBehaviour
             Debug.LogError("output is not binded");
         }
 
-        // GLES3: Call ModifyGraphWithDelegate at last  
+        // [OpenGLGLES] must be called ModifyGraphWithDelegate at last  
         if (IsOpenGLES3)
         {
             if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
@@ -143,44 +149,56 @@ public class GpuBindSample : MonoBehaviour
         outputBuffer = new ComputeBuffer(height * width * 2, sizeof(float));
     }
 
-    public bool waitPreprocess = true;
-    IEnumerator Invoke(Texture2D inputTex, bool useBinding)
+
+    IEnumerator InvokeLoop()
     {
-        CommandBuffer cmd = new CommandBuffer();
-        bool usePadded = IsMetal && useBinding;
-        Debug.Log($"usePadded: {usePadded}");
-
-        if (useBinding)
+        while (Application.isPlaying)
         {
-            var computePreProcess = usePadded ? computePreProcessPadded : computePreProcessNormal;
-            TextureToTensor(inputTex, computePreProcess, inputBuffer);
-
-            if (waitPreprocess)
+            if (useBinding)
             {
-                yield return new WaitForFixedUpdate();
+                InvokeBindingOn(inputTex);
             }
-            // TextureToTensor(inputTex, inputs);
-            // inputBuffer.SetData(inputs);
+            else
+            {
+                InvokeBindingOff(inputTex);
+            }
+            yield return new WaitForEndOfFrame();
         }
-        else
-        {
-            TextureToTensor(inputTex, inputs);
-            interpreter.SetInputTensorData(0, inputs);
-        }
+    }
+
+    void InvokeBindingOn(Texture2D inputTex)
+    {
+        bool usePadded = IsMetal;
+
+        var computePreProcess = usePadded ? computePreProcessPadded : computePreProcessNormal;
+        TextureToTensor(inputTex, computePreProcess, inputBuffer);
+
 
         Profiler.BeginSample("Invoke");
         interpreter.Invoke();
         Profiler.EndSample();
 
         Profiler.BeginSample("Post process");
-        if (!useBinding)
-        {
-            interpreter.GetOutputTensorData(0, outputs);
-            outputBuffer.SetData(outputs);
-        }
         var computePostProcess = usePadded ? computePostProcessPadded : computePostProcessNormal;
         RenderToOutputTexture(computePostProcess, outputBuffer, outputTex);
         Profiler.EndSample();
+    }
+
+    void InvokeBindingOff(Texture2D inputTex)
+    {
+        TextureToTensor(inputTex, inputs);
+        interpreter.SetInputTensorData(0, inputs);
+
+        Profiler.BeginSample("Invoke");
+        interpreter.Invoke();
+        Profiler.EndSample();
+
+        Profiler.BeginSample("Post process");
+        interpreter.GetOutputTensorData(0, outputs);
+        outputBuffer.SetData(outputs);
+        RenderToOutputTexture(computePostProcessNormal, outputBuffer, outputTex);
+        Profiler.EndSample();
+
     }
 
     static void RenderToOutputTexture(ComputeShader compute, ComputeBuffer buffer, RenderTexture texture)
@@ -206,21 +224,20 @@ public class GpuBindSample : MonoBehaviour
         // compute.SetBuffer(0, "OutputTensor", tensor);
         // compute.Dispatch(0, texture.width / 8, texture.height / 8, 1);
 
-        preprocessCommand.Clear();
-        preprocessCommand.SetExecutionFlags(CommandBufferExecutionFlags.None);
-        var fence = preprocessCommand.CreateGraphicsFence(GraphicsFenceType.CPUSynchronisation, SynchronisationStageFlags.AllGPUOperations);
+        commandBuffer.Clear();
+        commandBuffer.SetExecutionFlags(CommandBufferExecutionFlags.None);
+        var fence = commandBuffer.CreateGraphicsFence(GraphicsFenceType.CPUSynchronisation, SynchronisationStageFlags.AllGPUOperations);
 
-        preprocessCommand.SetComputeIntParam(compute, "Width", texture.width);
-        preprocessCommand.SetComputeIntParam(compute, "Height", texture.height);
-        preprocessCommand.SetComputeTextureParam(compute, 0, "InputTexture", texture);
-        preprocessCommand.SetComputeBufferParam(compute, 0, "OutputTensor", tensor);
-        preprocessCommand.DispatchCompute(compute, 0, texture.width / 8, texture.height / 8, 1);
+        commandBuffer.SetComputeIntParam(compute, "Width", texture.width);
+        commandBuffer.SetComputeIntParam(compute, "Height", texture.height);
+        commandBuffer.SetComputeTextureParam(compute, 0, "InputTexture", texture);
+        commandBuffer.SetComputeBufferParam(compute, 0, "OutputTensor", tensor);
+        commandBuffer.DispatchCompute(compute, 0, texture.width / 8, texture.height / 8, 1);
 
         // Graphics.ExecuteCommandBufferAsync(preprocessCommand, ComputeQueueType.Urgent);
-        Graphics.ExecuteCommandBuffer(preprocessCommand);
+        Graphics.ExecuteCommandBuffer(commandBuffer);
         Graphics.WaitOnAsyncGraphicsFence(fence);
-        Debug.Log($"supportCraphicsFence: {SystemInfo.supportsGraphicsFence}, supportsAsyncCompute: {SystemInfo.supportsAsyncCompute}");
-
+        // Debug.Log($"supportCraphicsFence: {SystemInfo.supportsGraphicsFence}, supportsAsyncCompute: {SystemInfo.supportsAsyncCompute}");
     }
 
     static void TextureToTensor(Texture2D texture, float[,,] tensor)
@@ -307,10 +324,7 @@ public class GpuBindSample : MonoBehaviour
         return new MetalDelegate(new MetalDelegate.Options()
         {
             allowPrecisionLoss = false,
-            // waitType = MetalDelegate.WaitType.Passive,
-            // WaitType.Active might be broke Unity Editor
-            // So it is enabled only in iOS
-            waitType = useBinding && Application.platform == RuntimePlatform.IPhonePlayer
+            waitType = useBinding
                 ? MetalDelegate.WaitType.Active
                 : MetalDelegate.WaitType.Passive,
             enableQuantization = true,
