@@ -13,57 +13,105 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-using System.Runtime.InteropServices;
 
+#if UNITY_ANDROID && !UNITY_EDITOR
+
+using System.Runtime.InteropServices;
+using UnityEngine;
 using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
-#if UNITY_ANDROID && !UNITY_EDITOR
-
-    /// <summary>
-    /// the Mirror of TfLiteGpuDelegateOptionsV2
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Options
+    public class GlDelegate : IBindableDelegate
     {
-        int isPrecisionLossAllowed;
-        int inferencePreference;
-        int inferencePriority1;
-        int inferencePriority2;
-        int inferencePriority3;
-        long experimentalFlags;
-        int maxDelegatedPartitions;
-    };
+        public enum ObjectType
+        {
+            FASTEST = 0,
+            TEXTURE = 1,
+            BUFFER = 2,
+        }
 
-    public class GlDelegate : IGpuDelegate
-    {
+        /// <summary>
+        /// The Mirror of TfLiteGlCompileOptions
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct CompileOptions
+        {
+            public int precisionLossAllowed;
+            public int preferredGlObjectType;
+            public int dynamicBatchEnabled;
+            public int inlineParameters;
+        }
+
+        /// <summary>
+        /// The Mirror of TfLiteGpuDelegateOptions
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Options
+        {
+            unsafe byte* metadata;
+            public CompileOptions compileOptions;
+        };
+
         public TfLiteDelegate Delegate { get; private set; }
+
+        public static Options DefaultOptions => TfLiteGpuDelegateOptionsDefault();
+
+        public GlDelegate(Options options)
+        {
+            Delegate = TfLiteGpuDelegateCreate(ref options);
+        }
 
         public GlDelegate()
         {
-            Options options = TfLiteGpuDelegateOptionsV2Default();
-            Delegate = TfLiteGpuDelegateV2Create(ref options);
+            Options options = DefaultOptions;
+            Delegate = TfLiteGpuDelegateCreate(ref options);
         }
 
         public void Dispose()
         {
-            TfLiteGpuDelegateV2Delete(Delegate);
+            TfLiteGpuDelegateDelete(Delegate);
             Delegate = TfLiteDelegate.Zero;
         }
 
-    #region Externs
-        private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_delegate";
+        public bool BindBufferToInputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
+        {
+            int tensorIndex = interpreter.GetInputTensorIndex(index);
+            return BindBufferToTensor(tensorIndex, buffer);
+        }
+
+        public bool BindBufferToOutputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
+        {
+            int tensorIndex = interpreter.GetOutputTensorIndex(index);
+            return BindBufferToTensor(tensorIndex, buffer);
+        }
+
+        private bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
+        {
+            Debug.Assert(buffer.IsValid());
+            Debug.Assert(Delegate != TfLiteDelegate.Zero);
+            uint bufferID = (uint)buffer.GetNativeBufferPtr().ToInt32();
+            var status = TfLiteGpuDelegateBindBufferToTensor(Delegate, bufferID, tensorIndex);
+            return status == Interpreter.Status.Ok;
+        }
+
+#region Externs
+        private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_gl";
 
         [DllImport(TensorFlowLibraryGPU)]
-        private static extern unsafe Options TfLiteGpuDelegateOptionsV2Default();
+        private static extern unsafe Options TfLiteGpuDelegateOptionsDefault();
 
         [DllImport(TensorFlowLibraryGPU)]
-        private static extern unsafe TfLiteDelegate TfLiteGpuDelegateV2Create(ref Options options);
+        private static extern unsafe TfLiteDelegate TfLiteGpuDelegateCreate(ref Options options);
 
         [DllImport(TensorFlowLibraryGPU)]
-        private static extern unsafe void TfLiteGpuDelegateV2Delete(TfLiteDelegate gpuDelegate);
-    #endregion // Externs
+        private static extern unsafe void TfLiteGpuDelegateDelete(TfLiteDelegate gpuDelegate);
+
+        [DllImport(TensorFlowLibraryGPU)]
+        private static extern unsafe Interpreter.Status TfLiteGpuDelegateBindBufferToTensor(
+            TfLiteDelegate gpuDelegate, uint buffer, int tensorIndex);
+#endregion // Externs
     }
-#endif // UNITY_ANDROID && !UNITY_EDITOR
 }
+#endif // UNITY_ANDROID && !UNITY_EDITOR
+

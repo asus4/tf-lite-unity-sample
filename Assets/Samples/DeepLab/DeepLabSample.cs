@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
-using TensorFlowLite;
 
 public class DeepLabSample : MonoBehaviour
 {
@@ -38,7 +38,7 @@ public class DeepLabSample : MonoBehaviour
     void Update()
     {
         deepLab.Invoke(webcamTexture);
-        // Slow works on mobile
+        // Slow but works on mobile
         outputView.texture = deepLab.GetResultTexture2D();
 
         // Fast but errors on mobile. Need to be fixed 

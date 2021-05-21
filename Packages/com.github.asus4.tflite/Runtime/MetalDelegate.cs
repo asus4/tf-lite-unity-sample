@@ -14,7 +14,9 @@ limitations under the License.
 ==============================================================================*/
 
 using System.Runtime.InteropServices;
-
+using UnityEngine;
+using Debug = UnityEngine.Debug;
+using MTLBuffer = System.IntPtr;
 using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
@@ -24,7 +26,7 @@ namespace TensorFlowLite
     /// Metal GPU Delegate
     /// Available on iOS or macOS
     /// </summary>
-    public class MetalDelegate : IGpuDelegate
+    public class MetalDelegate : IBindableDelegate
     {
         public enum WaitType
         {
@@ -55,6 +57,25 @@ namespace TensorFlowLite
             Delegate = TfLiteDelegate.Zero;
         }
 
+        public bool BindBufferToInputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
+        {
+            int tensorIndex = interpreter.GetInputTensorIndex(index);
+            return BindBufferToTensor(tensorIndex, buffer);
+        }
+
+        public bool BindBufferToOutputTensor(Interpreter interpreter, int index, ComputeBuffer buffer)
+        {
+            int tensorIndex = interpreter.GetOutputTensorIndex(index);
+            return BindBufferToTensor(tensorIndex, buffer);
+        }
+
+        private bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
+        {
+            Debug.Assert(buffer.IsValid());
+            Debug.Assert(Delegate != TfLiteDelegate.Zero);
+            return TFLGpuDelegateBindMetalBufferToTensor(Delegate, tensorIndex, buffer.GetNativeBufferPtr());
+        }
+
         #region Externs
 
 #if UNITY_IOS && !UNITY_EDITOR
@@ -69,6 +90,8 @@ namespace TensorFlowLite
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe void TFLGpuDelegateDelete(TfLiteDelegate gpuDelegate);
 
+        [DllImport(TensorFlowLibraryGPU)]
+        private static extern bool TFLGpuDelegateBindMetalBufferToTensor(TfLiteDelegate gpuDelegate, int tensorIndex, MTLBuffer metalBuffer);
         #endregion
     }
 #endif // UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
