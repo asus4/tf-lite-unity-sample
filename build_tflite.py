@@ -20,6 +20,13 @@ def copy(from_tf, to_unity):
 def unzip(from_tf, to_unity):
     subprocess.call(['unzip', '-o', f'{TENSORFLOW_PATH}/{from_tf}', '-d' f'{PLUGIN_PATH}/{to_unity}'])
 
+def patch(file_path, target_str, patched_str):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        source = file.read()
+    source = source.replace(target_str, patched_str)
+    with open(file_path, 'w', encoding='utf-8') as file:
+        file.write(source)
+
 def build_mac(enable_xnnpack = False):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
@@ -27,10 +34,18 @@ def build_mac(enable_xnnpack = False):
     copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.dylib', 'macOS/libtensorflowlite_c.dylib')
 
     # Metal Delegate
-    # v2.3.0 or later will throw error. Apply following changes to fix this
+    # v2.3.0 or later, Need to apply the following patch to build metal delegate
+    # For further info
     # https://github.com/tensorflow/tensorflow/issues/41039#issuecomment-664701908
-    # run_cmd('bazel build --config=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always --apple_platform_type=macos //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
-    # copy('bazel-bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib', 'macOS/libtensorflowlite_metal_delegate.dylib')
+    cpuinfo_file = f'{TENSORFLOW_PATH}/third_party/cpuinfo/BUILD.bazel'
+    original = '"cpu": "darwin",'
+    patched = '"cpu": "darwin_x86_64",'
+    patch(cpuinfo_file, original, patched)
+    # Build Metal Delegate
+    run_cmd('bazel build --config=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always --apple_platform_type=macos //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    copy('bazel-bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib', 'macOS/libtensorflowlite_metal_delegate.dylib')
+    # Restore it
+    patch(cpuinfo_file, patched, original)
 
 def build_windows(enable_xnnpack = False):
     # Main
