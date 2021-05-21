@@ -43,7 +43,7 @@ Included prebuilt libraries
 ## Install TensorFlow Lite for Unity
 
 - Clone this repository with examples
-  - Need [Git-LFS](https://git-lfs.github.com/) to build for iOS
+  - Requires installing [Git-LFS](https://git-lfs.github.com/)
 - The TFLite core library is available on:
   - [OpenUPM](https://openupm.com/packages/com.github.asus4.tflite/)  
   Run `openupm add com.github.asus4.tflite` from the command line.
