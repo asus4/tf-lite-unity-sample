@@ -1,9 +1,12 @@
+# macOS
+*.dylib filter=lfs diff=lfs merge=lfs -text
+
+# Android / Linux
+*.so filter=lfs diff=lfs merge=lfs -text
 # iOS frameworks
 **/TensorFlowLiteC.framework/TensorFlowLiteC filter=lfs diff=lfs merge=lfs -text
 **/TensorFlowLiteCMetal.framework/TensorFlowLiteCMetal filter=lfs diff=lfs merge=lfs -text
 **/TensorFlowLiteCCoreML.framework/TensorFlowLiteCCoreML filter=lfs diff=lfs merge=lfs -text
-
 # Big TFLite models
-Assets/StreamingAssets/mobilebert_float.tflite filter=lfs diff=lfs merge=lfs -text
+Assets/StreamingAssets/*.tflite filter=lfs diff=lfs merge=lfs -text
 *.tflite filter=lfs diff=lfs merge=lfs -text
-*.so filter=lfs diff=lfs merge=lfs -text
