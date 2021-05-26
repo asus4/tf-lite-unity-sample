@@ -14,8 +14,8 @@ namespace TensorFlowLite
         public class Result
         {
             public float score;
-            public Vector3[] joints;
-            public float[] visibilities;
+            // x, y, z, w = visibility
+            public Vector4[] joints;
         }
 
         public abstract int JointCount { get; }
@@ -63,8 +63,7 @@ namespace TensorFlowLite
             result = new Result()
             {
                 score = 0,
-                joints = new Vector3[JointCount],
-                visibilities = new float[JointCount],
+                joints = new Vector4[JointCount],
             };
 
             // Init filters
@@ -146,13 +145,13 @@ namespace TensorFlowLite
 
             for (int i = 0; i < JointCount; i++)
             {
-                Vector3 p = mtx.MultiplyPoint3x4(new Vector3(
+                Vector4 p = mtx.MultiplyPoint3x4(new Vector3(
                     output0[i * dimensions] * SCALE,
                     1f - output0[i * dimensions + 1] * SCALE,
                     output0[i * dimensions + 2] * SCALE
                 ));
+                p.w = output0[i * dimensions + 3];
                 result.joints[i] = p;
-                result.visibilities[i] = output0[i * 4 + 3];
 
                 if (p.x < min.x) { min.x = p.x; }
                 if (p.x > max.x) { max.x = p.x; }
@@ -168,8 +167,10 @@ namespace TensorFlowLite
                 float valueScale = 1f / ((size.x + size.y) / 2);
                 for (int i = 0; i < JointCount; i++)
                 {
-                    Vector3 p = result.joints[i];
-                    result.joints[i] = filters[i].Apply(timestamp, valueScale, p);
+                    Vector4 joint = result.joints[i];
+                    Vector4 filterd = filters[i].Apply(timestamp, valueScale, (Vector3)joint);
+                    filterd.w = joint.w;
+                    result.joints[i] = filterd;
                 }
             }
 
