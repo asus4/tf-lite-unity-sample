@@ -6,10 +6,12 @@ using UnityEngine;
 namespace TensorFlowLite
 {
     /// <summary>
+    /// https://google.github.io/mediapipe/solutions/pose.html
+    /// 
     /// pose_landmark_upper_body_topology
     /// https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_landmark_upper_body_topology.svg
     /// </summary>
-    public abstract class PoseLandmarkDetect : BaseImagePredictor<float>
+    public sealed class PoseLandmarkDetect : BaseImagePredictor<float>
     {
         public class Result
         {
@@ -18,20 +20,28 @@ namespace TensorFlowLite
             public Vector4[] joints;
         }
 
-        public abstract int JointCount { get; }
+        public const int JointCount = 33;
         // A pair of indexes
-        public abstract int[] Connections { get; }
+        public static readonly int[] Connections = new int[]
+        {
+            // the same as Upper Body 
+            0, 1, 1, 2, 2, 3, 3, 7, 0, 4, 4, 5, 5, 6, 6, 8, 9, 10, 11, 12, 11, 13, 13, 15, 15, 17, 15, 19, 15, 21, 17, 19, 12, 14, 14, 16, 16, 18, 16, 20, 16, 22, 18, 20, 11, 23, 12, 24, 23, 24,
+            // left leg
+            24, 26, 26, 28, 28, 32, 32, 30, 30, 28,
+            // right leg
+            23, 25, 25, 27, 27, 31, 31, 29, 29, 27,
+        };
 
         // ld_3d
-        protected float[] output0;
+        private float[] output0 = new float[195];
         // output_poseflag
         private float[] output1 = new float[1];
         // output_segmentation, not in use
         // private float[,] output2 = new float[128, 128]; 
         // output_heatmap, not in use
         // private float[,,] output3 = new float[64, 64, 39];
-        // world_3d
-        private float[] output4 = new float[117];
+        // world_3d, not in use
+        // private float[] output4 = new float[117];
 
         private Result result;
         private Matrix4x4 cropMatrix;
@@ -101,7 +111,6 @@ namespace TensorFlowLite
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
-
             // interpreter.GetOutputTensorData(2, output2);// not in use
         }
 
@@ -136,6 +145,12 @@ namespace TensorFlowLite
             const float SCALE = 1f / 255f;
             var mtx = cropMatrix.inverse;
 
+            // https://google.github.io/mediapipe/solutions/pose.html#output
+            // The magnitude of z uses roughly the same scale as x.
+            float xScale = Mathf.Abs(mtx.lossyScale.x);
+            float zScale = SCALE * xScale * xScale;
+            // float zScale = SCALE;
+
             result.score = output1[0];
 
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
@@ -148,7 +163,7 @@ namespace TensorFlowLite
                 Vector4 p = mtx.MultiplyPoint3x4(new Vector3(
                     output0[i * dimensions] * SCALE,
                     1f - output0[i * dimensions + 1] * SCALE,
-                    output0[i * dimensions + 2] * SCALE
+                    output0[i * dimensions + 2] * zScale
                 ));
                 p.w = output0[i * dimensions + 3];
                 result.joints[i] = p;
@@ -177,7 +192,7 @@ namespace TensorFlowLite
             return result;
         }
 
-        protected static Rect AlignmentPointsToRect(in Vector2 center, in Vector2 scale)
+        private static Rect AlignmentPointsToRect(in Vector2 center, in Vector2 scale)
         {
             float boxSize = Mathf.Sqrt(
                 (scale.x - center.x) * (scale.x - center.x)
@@ -190,14 +205,28 @@ namespace TensorFlowLite
                 boxSize);
         }
 
-        protected static float CalcRotationDegree(in Vector2 a, in Vector2 b)
+        private static float CalcRotationDegree(in Vector2 a, in Vector2 b)
         {
             const float RAD_90 = 90f * Mathf.PI / 180f;
             var vec = a - b;
             return -(RAD_90 + Mathf.Atan2(vec.y, vec.x)) * Mathf.Rad2Deg;
         }
 
-        protected abstract Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options);
+        private Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options)
+        {
+            float rotation = CalcRotationDegree(pose.keypoints[0], pose.keypoints[1]);
+            var rect = AlignmentPointsToRect(pose.keypoints[0], pose.keypoints[1]);
+            return RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
+            {
+                rect = rect,
+                rotationDegree = rotation,
+                shift = PoseShift,
+                scale = PoseScale,
+                cameraRotationDegree = -options.rotationDegree,
+                mirrorHorizontal = options.mirrorHorizontal,
+                mirrorVertiacal = options.mirrorVertical,
+            });
+        }
 
         public static PoseDetect.Result LandmarkToDetection(Result result)
         {
@@ -213,44 +242,6 @@ namespace TensorFlowLite
                 score = result.score,
                 keypoints = new Vector2[] { hip, aboveHead },
             };
-        }
-    }
-
-    public sealed class PoseLandmarkDetectFullBody : PoseLandmarkDetect
-    {
-        public override int JointCount => 33;
-        public override int[] Connections => CONNECTIONS;
-
-        // https://google.github.io/mediapipe/solutions/pose.html
-        private static readonly int[] CONNECTIONS = new int[] {
-            // the same as Upper Body 
-            0, 1, 1, 2, 2, 3, 3, 7, 0, 4, 4, 5, 5, 6, 6, 8, 9, 10, 11, 12, 11, 13, 13, 15, 15, 17, 15, 19, 15, 21, 17, 19, 12, 14, 14, 16, 16, 18, 16, 20, 16, 22, 18, 20, 11, 23, 12, 24, 23, 24,
-            // left leg
-            24, 26, 26, 28, 28, 32, 32, 30, 30, 28,
-            // right leg
-            23, 25, 25, 27, 27, 31, 31, 29, 29, 27,
-         };
-        public PoseLandmarkDetectFullBody(string modelPath) : base(modelPath)
-        {
-            output0 = new float[195]; // ld_3d
-            PoseShift = new Vector2(0, 0f);
-            PoseScale = new Vector2(1.5f, 1.5f);
-        }
-
-        protected override Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options)
-        {
-            float rotation = CalcRotationDegree(pose.keypoints[0], pose.keypoints[1]);
-            var rect = AlignmentPointsToRect(pose.keypoints[0], pose.keypoints[1]);
-            return RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
-            {
-                rect = rect,
-                rotationDegree = rotation,
-                shift = PoseShift,
-                scale = PoseScale,
-                cameraRotationDegree = -options.rotationDegree,
-                mirrorHorizontal = options.mirrorHorizontal,
-                mirrorVertiacal = options.mirrorVertical,
-            });
         }
     }
 }
