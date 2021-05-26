@@ -198,6 +198,22 @@ namespace TensorFlowLite
         }
 
         protected abstract Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options);
+
+        public static PoseDetect.Result LandmarkToDetection(Result result)
+        {
+            Vector2 hip = (result.joints[24] + result.joints[23]) / 2f;
+            Vector2 nose = result.joints[0];
+            Vector2 aboveHead = hip + (nose - hip) * 1.2f;
+            // Y Flipping
+            hip.y = 1f - hip.y;
+            aboveHead.y = 1f - aboveHead.y;
+
+            return new PoseDetect.Result()
+            {
+                score = result.score,
+                keypoints = new Vector2[] { hip, aboveHead },
+            };
+        }
     }
 
     public sealed class PoseLandmarkDetectFullBody : PoseLandmarkDetect
