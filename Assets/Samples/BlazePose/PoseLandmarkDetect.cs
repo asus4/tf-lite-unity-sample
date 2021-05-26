@@ -145,6 +145,11 @@ namespace TensorFlowLite
             const float SCALE = 1f / 255f;
             var mtx = cropMatrix.inverse;
 
+            // https://google.github.io/mediapipe/solutions/pose.html#output
+            // The magnitude of z uses roughly the same scale as x.
+            const float ZGLOBAL_SCALE = 0.4f; // Need to be fix
+            float zScale = SCALE * Mathf.Abs(mtx.lossyScale.x) * ZGLOBAL_SCALE;
+
             result.score = output1[0];
 
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
@@ -157,7 +162,7 @@ namespace TensorFlowLite
                 Vector4 p = mtx.MultiplyPoint3x4(new Vector3(
                     output0[i * dimensions] * SCALE,
                     1f - output0[i * dimensions + 1] * SCALE,
-                    output0[i * dimensions + 2] * SCALE
+                    output0[i * dimensions + 2] * zScale
                 ));
                 p.w = output0[i * dimensions + 3];
                 result.joints[i] = p;
