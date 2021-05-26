@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace TensorFlowLite
@@ -228,10 +226,9 @@ namespace TensorFlowLite
                 return false;
             }
             mtx = Matrix4x4.TRS(
-               (end + start) / 2,
-               Quaternion.Euler(0, 0, Mathf.Atan2(vec.y, vec.x) * Mathf.Rad2Deg),
-               new Vector3(length, thickness, thickness));
-
+                (end + start) / 2,
+                Quaternion.LookRotation(vec, Vector3.forward),
+                new Vector3(thickness, thickness, length));
             return true;
         }
 
