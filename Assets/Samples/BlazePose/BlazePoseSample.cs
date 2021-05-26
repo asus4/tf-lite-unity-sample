@@ -129,6 +129,8 @@ public sealed class BlazePoseSample : MonoBehaviour
 
     void DrawJoints(Vector4[] joints)
     {
+        draw.color = Color.blue;
+
         // Apply webcam rotation to draw landmarks correctly
         Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
         Vector3 min = rtCorners[0];
@@ -136,8 +138,6 @@ public sealed class BlazePoseSample : MonoBehaviour
 
         // TODO: calculate z-scale
         float zScale = max.x - min.x;
-
-        draw.color = Color.blue;
 
         // Update world joints
         for (int i = 0; i < joints.Length; i++)
