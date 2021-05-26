@@ -471,11 +471,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   poseDetectionModelFile: mediapipe/pose_detection.tflite
   poseLandmarkModelFile: mediapipe/pose_landmark_lite.tflite
-  mode: 1
   cameraView: {fileID: 2074584278}
   debugView: {fileID: 1302103928}
   useLandmarkFilter: 1
-  filterVelocityScale: 10
+  filterVelocityScale: {x: 10, y: 10, z: 2}
   runBackground: 0
 --- !u!4 &1453601107
 Transform:
