@@ -218,7 +218,7 @@ namespace TensorFlowLite
         {
             output0 = new float[195]; // ld_3d
             PoseShift = new Vector2(0, 0f);
-            PoseScale = new Vector2(1.8f, 1.8f);
+            PoseScale = new Vector2(1.5f, 1.5f);
         }
 
         protected override Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options)
