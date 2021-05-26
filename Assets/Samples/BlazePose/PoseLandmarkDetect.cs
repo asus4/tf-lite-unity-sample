@@ -147,8 +147,9 @@ namespace TensorFlowLite
 
             // https://google.github.io/mediapipe/solutions/pose.html#output
             // The magnitude of z uses roughly the same scale as x.
-            const float ZGLOBAL_SCALE = 0.4f; // Need to be fix
-            float zScale = SCALE * Mathf.Abs(mtx.lossyScale.x) * ZGLOBAL_SCALE;
+            float xScale = Mathf.Abs(mtx.lossyScale.x);
+            float zScale = SCALE * xScale * xScale;
+            // float zScale = SCALE;
 
             result.score = output1[0];
 

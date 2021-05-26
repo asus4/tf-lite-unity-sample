@@ -79,6 +79,7 @@ namespace TensorFlowLite
             material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
             material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
             material.SetInt("_ZWrite", 0);
+            material.SetInt("_ZTest", 6); //always
             material.enableInstancing = true;
 
             mpb = new MaterialPropertyBlock();

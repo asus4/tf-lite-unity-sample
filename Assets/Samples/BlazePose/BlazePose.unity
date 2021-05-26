@@ -170,9 +170,9 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: -100
+  near clip plane: 0.01
   far clip plane: 100
-  field of view: 60
+  field of view: 50
   orthographic: 1
   orthographic size: 5
   m_Depth: -1
@@ -339,7 +339,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 32141216}
-  m_PlaneDistance: 0
+  m_PlaneDistance: 6
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -473,6 +473,7 @@ MonoBehaviour:
   poseLandmarkModelFile: mediapipe/pose_landmark_lite.tflite
   cameraView: {fileID: 2074584278}
   debugView: {fileID: 1302103928}
+  canvas: {fileID: 1051232097}
   useLandmarkFilter: 1
   filterVelocityScale: {x: 10, y: 10, z: 2}
   runBackground: 0
