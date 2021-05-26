@@ -41,7 +41,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     {
         // Init model
         poseDetect = new PoseDetect(poseDetectionModelFile);
-        poseLandmark = new PoseLandmarkDetectFullBody(poseLandmarkModelFile);
+        poseLandmark = new PoseLandmarkDetect(poseLandmarkModelFile);
 
         // Init camera 
         string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
@@ -55,7 +55,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         Debug.Log($"Starting camera: {cameraName}");
 
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
-        worldJoints = new Vector4[poseLandmark.JointCount];
+        worldJoints = new Vector4[PoseLandmarkDetect.JointCount];
 
         cancellationToken = this.GetCancellationTokenOnDestroy();
     }
@@ -135,7 +135,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         Vector3 max = rtCorners[2];
 
         // TODO: calculate z-scale
-        float zScale = (max.x - min.x);
+        float zScale = max.x - min.x;
 
         draw.color = Color.blue;
 
@@ -160,7 +160,7 @@ public sealed class BlazePoseSample : MonoBehaviour
                 draw.Cube(p, 0.2f);
             }
         }
-        var connections = poseLandmark.Connections;
+        var connections = PoseLandmarkDetect.Connections;
         for (int i = 0; i < connections.Length; i += 2)
         {
             var a = worldJoints[connections[i]];

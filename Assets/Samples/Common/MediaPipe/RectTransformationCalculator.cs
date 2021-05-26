@@ -34,27 +34,9 @@ namespace TensorFlowLite
 
         public static Matrix4x4 CalcMatrix(Options options)
         {
-
             Quaternion rotation = Quaternion.Euler(0, 0, options.rotationDegree);
             Vector2 size = Vector2.Scale(options.rect.size, options.scale);
-            // if (options.mirrorHorizontal)
-            // {
-            //     size.x *= -1;
-            // }
-            // if (options.mirrorVertiacal)
-            // {
-            //     size.y *= -1;
-            // }
-
             Vector2 shift = options.shift;
-            // if (options.mirrorHorizontal)
-            // {
-            //     shift.x *= 1;
-            // }
-            // if (options.mirrorVertiacal)
-            // {
-            //     shift.y *= 1;
-            // }
 
             // Calc center position
             Vector2 center = options.rect.center + new Vector2(-0.5f, -0.5f);
@@ -84,5 +66,4 @@ namespace TensorFlowLite
             return POP_MATRIX * trs * cameraMtx * PUSH_MATRIX;
         }
     }
-
 }
