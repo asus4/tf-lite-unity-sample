@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Threading;
+﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 using TensorFlowLite;
 using UnityEngine;
@@ -12,15 +11,9 @@ using UnityEngine.UI;
 /// </summary>
 public sealed class BlazePoseSample : MonoBehaviour
 {
-    public enum Mode
-    {
-        UpperBody,
-        FullBody,
-    }
 
     [SerializeField, FilePopup("*.tflite")] string poseDetectionModelFile = "coco_ssd_mobilenet_quant.tflite";
     [SerializeField, FilePopup("*.tflite")] string poseLandmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
-    [SerializeField] Mode mode = Mode.UpperBody;
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage debugView = null;
     [SerializeField] bool useLandmarkFilter = true;
@@ -43,21 +36,8 @@ public sealed class BlazePoseSample : MonoBehaviour
     void Start()
     {
         // Init model
-        string detectionPath = Path.Combine(Application.streamingAssetsPath, poseDetectionModelFile);
-        string landmarkPath = Path.Combine(Application.streamingAssetsPath, poseLandmarkModelFile);
-
-        poseDetect = new PoseDetect(detectionPath);
-        switch (mode)
-        {
-            case Mode.UpperBody:
-                poseLandmark = new PoseLandmarkDetectUpperBody(landmarkPath);
-                break;
-            case Mode.FullBody:
-                poseLandmark = new PoseLandmarkDetectFullBody(landmarkPath);
-                break;
-            default:
-                throw new System.NotSupportedException($"Mode: {mode} is not supported");
-        }
+        poseDetect = new PoseDetect(poseDetectionModelFile);
+        poseLandmark = new PoseLandmarkDetectFullBody(poseLandmarkModelFile);
 
         // Init camera 
         string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()

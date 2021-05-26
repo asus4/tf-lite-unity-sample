@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
-using UnityEngine;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace TensorFlowLite
 {
@@ -17,15 +15,24 @@ namespace TensorFlowLite
         {
             public float score;
             public Vector3[] joints;
+            public float[] visibilities;
         }
 
         public abstract int JointCount { get; }
         // A pair of indexes
         public abstract int[] Connections { get; }
 
-        protected float[] output0; // ld_3d
-        private float[] output1 = new float[1]; // output_poseflag
-        // private float[,] output2 = new float[128, 128]; // output_segmentation, not in use
+        // ld_3d
+        protected float[] output0;
+        // output_poseflag
+        private float[] output1 = new float[1];
+        // output_segmentation, not in use
+        // private float[,] output2 = new float[128, 128]; 
+        // output_heatmap, not in use
+        // private float[,,] output3 = new float[64, 64, 39];
+        // world_3d
+        private float[] output4 = new float[117];
+
         private Result result;
         private Matrix4x4 cropMatrix;
         private Stopwatch stopwatch;
@@ -57,6 +64,7 @@ namespace TensorFlowLite
             {
                 score = 0,
                 joints = new Vector3[JointCount],
+                visibilities = new float[JointCount],
             };
 
             // Init filters
@@ -134,14 +142,17 @@ namespace TensorFlowLite
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
             Vector2 max = new Vector2(float.MinValue, float.MinValue);
 
+            int dimensions = output0.Length / JointCount;
+
             for (int i = 0; i < JointCount; i++)
             {
                 Vector3 p = mtx.MultiplyPoint3x4(new Vector3(
-                    output0[i * 4] * SCALE,
-                    1f - output0[i * 4 + 1] * SCALE,
-                    output0[i * 4 + 2] * SCALE
+                    output0[i * dimensions] * SCALE,
+                    1f - output0[i * dimensions + 1] * SCALE,
+                    output0[i * dimensions + 2] * SCALE
                 ));
                 result.joints[i] = p;
+                result.visibilities[i] = output0[i * 4 + 3];
 
                 if (p.x < min.x) { min.x = p.x; }
                 if (p.x > max.x) { max.x = p.x; }
@@ -189,44 +200,12 @@ namespace TensorFlowLite
         protected abstract Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options);
     }
 
-    public sealed class PoseLandmarkDetectUpperBody : PoseLandmarkDetect
-    {
-        public override int JointCount => 25;
-        public override int[] Connections => CONNECTIONS;
-
-        // https://google.github.io/mediapipe/solutions/pose
-        private static readonly int[] CONNECTIONS = new int[] { 0, 1, 1, 2, 2, 3, 3, 7, 0, 4, 4, 5, 5, 6, 6, 8, 9, 10, 11, 12, 11, 13, 13, 15, 15, 17, 15, 19, 15, 21, 17, 19, 12, 14, 14, 16, 16, 18, 16, 20, 16, 22, 18, 20, 11, 23, 12, 24, 23, 24, };
-
-        public PoseLandmarkDetectUpperBody(string modelPath) : base(modelPath)
-        {
-            output0 = new float[124]; // ld_3d
-            PoseShift = new Vector2(0, 0);
-            PoseScale = new Vector2(1.5f, 1.5f);
-        }
-
-        protected override Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options)
-        {
-            float rotation = CalcRotationDegree(pose.keypoints[2], pose.keypoints[3]);
-            var rect = AlignmentPointsToRect(pose.keypoints[2], pose.keypoints[3]);
-            return RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
-            {
-                rect = rect,
-                rotationDegree = rotation,
-                shift = PoseShift,
-                scale = PoseScale,
-                cameraRotationDegree = -options.rotationDegree,
-                mirrorHorizontal = options.mirrorHorizontal,
-                mirrorVertiacal = options.mirrorVertical,
-            });
-        }
-    }
-
     public sealed class PoseLandmarkDetectFullBody : PoseLandmarkDetect
     {
         public override int JointCount => 33;
         public override int[] Connections => CONNECTIONS;
 
-        // https://developers.google.com/ml-kit/vision/pose-detection
+        // https://google.github.io/mediapipe/solutions/pose.html
         private static readonly int[] CONNECTIONS = new int[] {
             // the same as Upper Body 
             0, 1, 1, 2, 2, 3, 3, 7, 0, 4, 4, 5, 5, 6, 6, 8, 9, 10, 11, 12, 11, 13, 13, 15, 15, 17, 15, 19, 15, 21, 17, 19, 12, 14, 14, 16, 16, 18, 16, 20, 16, 22, 18, 20, 11, 23, 12, 24, 23, 24,
@@ -237,7 +216,7 @@ namespace TensorFlowLite
          };
         public PoseLandmarkDetectFullBody(string modelPath) : base(modelPath)
         {
-            output0 = new float[156]; // ld_3d
+            output0 = new float[195]; // ld_3d
             PoseShift = new Vector2(0, 0f);
             PoseScale = new Vector2(1.8f, 1.8f);
         }
