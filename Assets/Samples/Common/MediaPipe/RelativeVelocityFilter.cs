@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -139,13 +138,18 @@ namespace TensorFlowLite
         private RelativeVelocityFilter x;
         private RelativeVelocityFilter y;
 
-        public float VelocityScale
+        public Vector2 VelocityScale
         {
-            get => x.VelocitySacle;
+            get
+            {
+                return new Vector2(
+                    x.VelocitySacle,
+                    y.VelocitySacle);
+            }
             set
             {
-                x.VelocitySacle = value;
-                y.VelocitySacle = value;
+                x.VelocitySacle = value.x;
+                y.VelocitySacle = value.y;
             }
         }
 
@@ -173,14 +177,20 @@ namespace TensorFlowLite
         private RelativeVelocityFilter y;
         private RelativeVelocityFilter z;
 
-        public float VelocityScale
+        public Vector3 VelocityScale
         {
-            get => x.VelocitySacle;
+            get
+            {
+                return new Vector3(
+                    x.VelocitySacle,
+                    y.VelocitySacle,
+                    z.VelocitySacle);
+            }
             set
             {
-                x.VelocitySacle = value;
-                y.VelocitySacle = value;
-                z.VelocitySacle = value;
+                x.VelocitySacle = value.x;
+                y.VelocitySacle = value.y;
+                z.VelocitySacle = value.z;
             }
         }
 
