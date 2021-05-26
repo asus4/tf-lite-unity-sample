@@ -17,7 +17,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage debugView = null;
     [SerializeField] bool useLandmarkFilter = true;
-    [SerializeField, Range(2f, 30f)] float filterVelocityScale = 10;
+    [SerializeField] Vector3 filterVelocityScale = Vector3.one * 10;
     [SerializeField] bool runBackground;
 
     WebCamTexture webcamTexture;

@@ -36,12 +36,12 @@ namespace TensorFlowLite
         private Result result;
         private Matrix4x4 cropMatrix;
         private Stopwatch stopwatch;
-        private RelativeVelocityFilter2D[] filters;
+        private RelativeVelocityFilter3D[] filters;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
         public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
         public Vector2 PoseScale { get; set; } = new Vector2(1.5f, 1.5f);
-        public float FilterVelocityScale
+        public Vector3 FilterVelocityScale
         {
             get
             {
@@ -68,13 +68,13 @@ namespace TensorFlowLite
             };
 
             // Init filters
-            filters = new RelativeVelocityFilter2D[JointCount];
+            filters = new RelativeVelocityFilter3D[JointCount];
             const int windowSize = 5;
             const float velocityScale = 10;
             const RelativeVelocityFilter.DistanceEstimationMode mode = RelativeVelocityFilter.DistanceEstimationMode.LegacyTransition;
             for (int i = 0; i < JointCount; i++)
             {
-                filters[i] = new RelativeVelocityFilter2D(windowSize, velocityScale, mode);
+                filters[i] = new RelativeVelocityFilter3D(windowSize, velocityScale, mode);
             }
             stopwatch = Stopwatch.StartNew();
         }
@@ -169,8 +169,7 @@ namespace TensorFlowLite
                 for (int i = 0; i < JointCount; i++)
                 {
                     Vector3 p = result.joints[i];
-                    Vector2 filtered = filters[i].Apply(timestamp, valueScale, p);
-                    result.joints[i] = new Vector3(filtered.x, filtered.y, p.z);
+                    result.joints[i] = filters[i].Apply(timestamp, valueScale, p);
                 }
             }
 
