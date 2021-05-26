@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.3731193, g: 0.38073996, b: 0.35872698, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -469,13 +469,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac6c2ecddc84d4bfb931c1f8ad12eac7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poseDetectionModelFile: mlkit/posedetector.tflite
-  poseLandmarkModelFile: mlkit/pose_39kp_lite.tflite
+  poseDetectionModelFile: mediapipe/pose_detection.tflite
+  poseLandmarkModelFile: mediapipe/pose_landmark_lite.tflite
   mode: 1
   cameraView: {fileID: 2074584278}
   debugView: {fileID: 1302103928}
   useLandmarkFilter: 1
   filterVelocityScale: 10
+  runBackground: 0
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0
