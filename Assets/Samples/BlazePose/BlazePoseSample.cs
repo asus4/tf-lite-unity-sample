@@ -19,13 +19,16 @@ public sealed class BlazePoseSample : MonoBehaviour
     [SerializeField] bool useLandmarkFilter = true;
     [SerializeField] Vector3 filterVelocityScale = Vector3.one * 10;
     [SerializeField] bool runBackground;
+    [SerializeField, Range(0f, 1f)] float visibilityThreshold = 0.5f;
+
 
     WebCamTexture webcamTexture;
     PoseDetect poseDetect;
     PoseLandmarkDetect poseLandmark;
 
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
-    Vector3[] worldJoints;
+    // [SerializeField] // for debug raw data
+    Vector4[] worldJoints;
     PrimitiveDraw draw;
     PoseDetect.Result poseResult;
     PoseLandmarkDetect.Result landmarkResult;
@@ -51,7 +54,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         Debug.Log($"Starting camera: {cameraName}");
 
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
-        worldJoints = new Vector3[poseLandmark.JointCount];
+        worldJoints = new Vector4[poseLandmark.JointCount];
 
         cancellationToken = this.GetCancellationTokenOnDestroy();
     }
@@ -84,7 +87,6 @@ public sealed class BlazePoseSample : MonoBehaviour
         if (landmarkResult == null || landmarkResult.score < 0.2f) return;
         DrawCropMatrix(poseLandmark.CropMatrix);
         DrawJoints(landmarkResult.joints);
-
     }
 
     void DrawFrame(PoseDetect.Result pose)
@@ -120,38 +122,46 @@ public sealed class BlazePoseSample : MonoBehaviour
         draw.Apply();
     }
 
-    void DrawJoints(Vector3[] joints)
+    void DrawJoints(Vector4[] joints)
     {
         // Apply webcam rotation to draw landmarks correctly
         Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
-        float zScale = max.x - min.x;
+        float zScale = (max.x - min.x);
 
         draw.color = Color.blue;
 
         // Update world joints
         for (int i = 0; i < joints.Length; i++)
         {
-            var p = mtx.MultiplyPoint3x4(joints[i]);
+            Vector4 p = mtx.MultiplyPoint3x4(joints[i]);
             float z = p.z * zScale;
             p = MathTF.Lerp(min, max, p);
             p.z += z;
+            p.w = joints[i].w;
             worldJoints[i] = p;
         }
+
 
         // Draw
         for (int i = 0; i < worldJoints.Length; i++)
         {
-            draw.Cube(worldJoints[i], 0.2f);
+            Vector4 p = worldJoints[i];
+            if (p.w > visibilityThreshold)
+            {
+                draw.Cube(p, 0.2f);
+            }
         }
         var connections = poseLandmark.Connections;
         for (int i = 0; i < connections.Length; i += 2)
         {
-            draw.Line3D(
-                worldJoints[connections[i]],
-                worldJoints[connections[i + 1]],
-                0.05f);
+            var a = worldJoints[connections[i]];
+            var b = worldJoints[connections[i + 1]];
+            if (a.w > visibilityThreshold || b.w > visibilityThreshold)
+            {
+                draw.Line3D(a, b, 0.05f);
+            }
         }
         draw.Apply();
     }
