@@ -35,6 +35,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     UniTask<bool> task;
     CancellationToken cancellationToken;
 
+    bool NeedsDetectionUpdate => poseResult == null || poseResult.score < 0.5f;
 
     void Start()
     {
@@ -81,12 +82,16 @@ public sealed class BlazePoseSample : MonoBehaviour
             Invoke();
         }
 
-        if (poseResult == null || poseResult.score < 0f) return;
-        DrawFrame(poseResult);
+        if (poseResult != null && poseResult.score > 0f)
+        {
+            DrawFrame(poseResult);
+        }
 
-        if (landmarkResult == null || landmarkResult.score < 0.2f) return;
-        DrawCropMatrix(poseLandmark.CropMatrix);
-        DrawJoints(landmarkResult.joints);
+        if (landmarkResult != null && landmarkResult.score > 0.2f)
+        {
+            DrawCropMatrix(poseLandmark.CropMatrix);
+            DrawJoints(landmarkResult.joints);
+        }
     }
 
     void DrawFrame(PoseDetect.Result pose)
@@ -168,13 +173,19 @@ public sealed class BlazePoseSample : MonoBehaviour
 
     void Invoke()
     {
-        poseDetect.Invoke(webcamTexture);
-        cameraView.material = poseDetect.transformMat;
-        cameraView.rectTransform.GetWorldCorners(rtCorners);
-
-        poseResult = poseDetect.GetResults(0.7f, 0.3f);
-        if (poseResult.score < 0) return;
-
+        if (NeedsDetectionUpdate)
+        {
+            poseDetect.Invoke(webcamTexture);
+            cameraView.material = poseDetect.transformMat;
+            cameraView.rectTransform.GetWorldCorners(rtCorners);
+            poseResult = poseDetect.GetResults(0.7f, 0.3f);
+        }
+        if (poseResult.score < 0)
+        {
+            poseResult = null;
+            landmarkResult = null;
+            return;
+        }
         poseLandmark.Invoke(webcamTexture, poseResult);
         debugView.texture = poseLandmark.inputTex;
 
@@ -183,14 +194,30 @@ public sealed class BlazePoseSample : MonoBehaviour
             poseLandmark.FilterVelocityScale = filterVelocityScale;
         }
         landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
+
+        if (landmarkResult.score < 0.3f)
+        {
+            poseResult.score = landmarkResult.score;
+        }
+        else
+        {
+            poseResult = PoseLandmarkDetect.LandmarkToDetection(landmarkResult);
+        }
     }
 
     async UniTask<bool> InvokeAsync()
     {
-        // Note: `await` changes PlayerLoopTiming from Update to FixedUpdate.
-        poseResult = await poseDetect.InvokeAsync(webcamTexture, cancellationToken, PlayerLoopTiming.FixedUpdate);
-
-        if (poseResult.score < 0) return false;
+        if (NeedsDetectionUpdate)
+        {
+            // Note: `await` changes PlayerLoopTiming from Update to FixedUpdate.
+            poseResult = await poseDetect.InvokeAsync(webcamTexture, cancellationToken, PlayerLoopTiming.FixedUpdate);
+        }
+        if (poseResult.score < 0)
+        {
+            poseResult = null;
+            landmarkResult = null;
+            return false;
+        }
 
         if (useLandmarkFilter)
         {
@@ -207,6 +234,16 @@ public sealed class BlazePoseSample : MonoBehaviour
         if (debugView != null)
         {
             debugView.texture = poseLandmark.inputTex;
+        }
+
+        // Generate poseResult from landmarkResult
+        if (landmarkResult.score < 0.3f)
+        {
+            poseResult.score = landmarkResult.score;
+        }
+        else
+        {
+            poseResult = PoseLandmarkDetect.LandmarkToDetection(landmarkResult);
         }
 
         return true;
