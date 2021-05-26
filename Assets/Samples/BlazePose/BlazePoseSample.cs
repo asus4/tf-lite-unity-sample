@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.IO;
 using System.Threading;
-using System.IO;
+using Cysharp.Threading.Tasks;
+using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
-using TensorFlowLite;
-using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// BlazePose form MediaPipe
@@ -47,14 +45,14 @@ public sealed class BlazePoseSample : MonoBehaviour
         // Init model
         string detectionPath = Path.Combine(Application.streamingAssetsPath, poseDetectionModelFile);
         string landmarkPath = Path.Combine(Application.streamingAssetsPath, poseLandmarkModelFile);
+
+        poseDetect = new PoseDetect(detectionPath);
         switch (mode)
         {
             case Mode.UpperBody:
-                poseDetect = new PoseDetectUpperBody(detectionPath);
                 poseLandmark = new PoseLandmarkDetectUpperBody(landmarkPath);
                 break;
             case Mode.FullBody:
-                poseDetect = new PoseDetectFullBody(detectionPath);
                 poseLandmark = new PoseLandmarkDetectFullBody(landmarkPath);
                 break;
             default:

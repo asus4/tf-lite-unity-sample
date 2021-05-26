@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using UnityEngine;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace TensorFlowLite
 {
-    public abstract class PoseDetect : BaseImagePredictor<float>
+    public sealed class PoseDetect : BaseImagePredictor<float>
     {
 
         public class Result : System.IComparable<Result>
@@ -24,25 +24,26 @@ namespace TensorFlowLite
         }
 
         const int MAX_POSE_NUM = 100;
+        const int ANCHOR_LENGTH = 2254;
         public int KeypointsCount { get; private set; }
 
         // regressors / points
-        protected float[,] output0;
+        // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
+        // 4 - 11 are 4 keypoints x and y coordinates: x0,y0,x1,y1,x2,y2,x3,y3
+        private float[,] output0 = new float[ANCHOR_LENGTH, 12];
 
         // classificators / scores
-        protected float[] output1 = new float[896];
+        private float[] output1 = new float[ANCHOR_LENGTH];
 
         private SsdAnchor[] anchors;
-        // private List<Result> results = new List<Result>();
         private SortedSet<Result> results = new SortedSet<Result>();
-
 
         public PoseDetect(string modelPath) : base(modelPath, true)
         {
             var options = new SsdAnchorsCalculator.Options()
             {
-                inputSizeWidth = 128,
-                inputSizeHeight = 128,
+                inputSizeWidth = width,
+                inputSizeHeight = height,
 
                 minScale = 0.1484375f,
                 maxScale = 0.75f,
@@ -50,10 +51,10 @@ namespace TensorFlowLite
                 anchorOffsetX = 0.5f,
                 anchorOffsetY = 0.5f,
 
-                numLayers = 4,
+                numLayers = 5,
                 featureMapWidth = new int[0],
                 featureMapHeight = new int[0],
-                strides = new int[] { 8, 16, 16, 16 },
+                strides = new int[] { 8, 16, 32, 32, 32 },
 
                 aspectRatios = new float[] { 1.0f },
 
@@ -63,7 +64,9 @@ namespace TensorFlowLite
             };
 
             anchors = SsdAnchorsCalculator.Generate(options);
-            UnityEngine.Debug.AssertFormat(anchors.Length == 896, $"Anchors count must be 896, but was {anchors.Length}");
+            UnityEngine.Debug.AssertFormat(
+                anchors.Length == ANCHOR_LENGTH,
+                $"Anchors count must be {ANCHOR_LENGTH}, but was {anchors.Length}");
 
             // Get Keypoint Mode
             var odim0 = interpreter.GetOutputTensorInfo(0).shape;
@@ -186,26 +189,6 @@ namespace TensorFlowLite
             }
 
             return filtered;
-        }
-    }
-
-    public sealed class PoseDetectUpperBody : PoseDetect
-    {
-        public PoseDetectUpperBody(string modelPath) : base(modelPath)
-        {
-            // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
-            // 4 - 11 are 4 keypoints x and y coordinates: x0,y0,x1,y1,x2,y2,x3,y3
-            output0 = new float[896, 12];
-        }
-    }
-
-    public sealed class PoseDetectFullBody : PoseDetect
-    {
-        public PoseDetectFullBody(string modelPath) : base(modelPath)
-        {
-            // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
-            // 4 - 11 are 2 keypoints x and y coordinates: x0,y0,x1,y1
-            output0 = new float[896, 8];
         }
     }
 }
