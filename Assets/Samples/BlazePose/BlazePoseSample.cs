@@ -133,6 +133,8 @@ public sealed class BlazePoseSample : MonoBehaviour
         Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
+
+        // TODO: calculate z-scale
         float zScale = (max.x - min.x);
 
         draw.color = Color.blue;
