@@ -87,7 +87,7 @@ namespace TensorFlowLite
 
         private static SsdAnchor[] LoadTestData(string testFile)
         {
-            const string testDataPath = "Packages/com.github.asus4.tflite.common/Editor/TestData";
+            const string testDataPath = "Packages/com.github.asus4.mediapipe/Editor/TestData";
             string path = Path.GetFullPath(Path.Combine(testDataPath, testFile));
             Assert.IsTrue(File.Exists(path));
 

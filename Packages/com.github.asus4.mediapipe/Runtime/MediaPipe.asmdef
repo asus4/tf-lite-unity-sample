@@ -1,0 +1,16 @@
+{
+    "name": "MediaPipe",
+    "references": [
+        "GUID:6e1d47a1424c040aca79d8b6a2710888",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
