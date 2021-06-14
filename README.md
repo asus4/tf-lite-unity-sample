@@ -20,6 +20,7 @@ Samples
   - Style Transfer
   - Text Classification
   - Bert Question and Answer
+  - Super Resolution
 - MediaPipe
   - Hand Tracking
   - Blaze Face
