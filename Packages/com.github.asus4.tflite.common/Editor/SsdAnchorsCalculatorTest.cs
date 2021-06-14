@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using UnityEngine;
-using UnityEditor;
+using System.Linq;
 using NUnit.Framework;
+using UnityEditor;
+using UnityEngine;
 
 namespace TensorFlowLite
 {
@@ -87,7 +87,8 @@ namespace TensorFlowLite
 
         private static SsdAnchor[] LoadTestData(string testFile)
         {
-            string path = Path.Combine(Application.dataPath, "Samples/Editor/TestData", testFile);
+            const string testDataPath = "Packages/com.github.asus4.tflite.common/Editor/TestData";
+            string path = Path.GetFullPath(Path.Combine(testDataPath, testFile));
             Assert.IsTrue(File.Exists(path));
 
             var anchors = new List<SsdAnchor>();
