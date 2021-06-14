@@ -1,0 +1,15 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+uint Width;
+uint Height;
+StructuredBuffer<float3> InputBuffer;
+RWTexture2D<float4> OutputImage;
+
+[numthreads(8,8,1)]
+void CSMain (uint2 tid : SV_DispatchThreadID)
+{
+    uint gid = (Height - 1 - tid.y) * Width + tid.x;
+    float3 rgb = InputBuffer[gid] / 255.0;
+    OutputImage[tid.xy] = saturate(float4(rgb.r, rgb.g, rgb.b, 1.0));
+}
