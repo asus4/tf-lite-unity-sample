@@ -1,0 +1,19 @@
+{
+  "name": "com.github.asus4.mediapipe",
+  "displayName": "MediaPipe",
+  "author": "Koki Ibukuro",
+  "description": "MediaPipe for Unity",
+  "keywords": [
+    "unity"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "unity": "2019.3",
+  "unityRelease": "0f1",
+  "version": "2.4.1",
+  "type": "library",
+  "hideInEditor": false,
+  "dependencies": {
+    "com.github.asus4.tflite": "2.4.1",
+    "com.github.asus4.tflite.common": "2.4.1"
+  }
+}
