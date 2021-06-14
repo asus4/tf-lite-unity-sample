@@ -1,0 +1,19 @@
+{
+    "name": "TensorFlowLite.Common.Editor",
+    "references": [
+        "GUID:0acc523941302664db1f4e527237feb3",
+        "GUID:6e1d47a1424c040aca79d8b6a2710888",
+        "GUID:bf0184192290e4dbd82dadbbe75162b1"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

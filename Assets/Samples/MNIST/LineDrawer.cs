@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -19,7 +18,7 @@ public class LineDrawer : MonoBehaviour, IDragHandler
     [SerializeField] Vector2Int imageDimention = new Vector2Int(28, 28);
     [SerializeField] Color paintColor = Color.white;
     [SerializeField] RenderTextureFormat format = RenderTextureFormat.R8;
-
+    [SerializeField] Shader shader;
     [SerializeField] DrawEvent OnDraw = new DrawEvent();
 
 
@@ -39,7 +38,7 @@ public class LineDrawer : MonoBehaviour, IDragHandler
         lineMesh.MarkDynamic();
         lineMesh.vertices = new Vector3[2];
         lineMesh.SetIndices(new[] { 0, 1 }, MeshTopology.Lines, 0);
-        lineMaterial = new Material(Shader.Find("Hidden/LineShader"));
+        lineMaterial = new Material(shader);
         lineMaterial.SetColor("_Color", paintColor);
 
         texture = new RenderTexture(imageDimention.x, imageDimention.y, 0, format);
