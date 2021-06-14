@@ -1,0 +1,17 @@
+{
+    "name": "TensorFlowLite.Common",
+    "references": [
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:6e1d47a1424c040aca79d8b6a2710888",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

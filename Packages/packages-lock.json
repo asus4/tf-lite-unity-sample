@@ -13,6 +13,14 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.github.asus4.tflite.common": {
+      "version": "file:com.github.asus4.tflite.common",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.github.asus4.tflite": "2.4.1"
+      }
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
