@@ -7,6 +7,15 @@
       "dependencies": {},
       "hash": "72e620d169841f32bc6110ad0e12ee9eae6f1aaf"
     },
+    "com.github.asus4.mediapipe": {
+      "version": "file:com.github.asus4.mediapipe",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.github.asus4.tflite": "2.4.1",
+        "com.github.asus4.tflite.common": "2.4.1"
+      }
+    },
     "com.github.asus4.tflite": {
       "version": "file:com.github.asus4.tflite",
       "depth": 0,
