@@ -790,6 +790,7 @@ MonoBehaviour:
   imageDimention: {x: 28, y: 28}
   paintColor: {r: 1, g: 1, b: 1, a: 1}
   format: 14
+  shader: {fileID: 4800000, guid: d49543348ace948b0ba295313eeac752, type: 3}
   OnDraw:
     m_PersistentCalls:
       m_Calls:
