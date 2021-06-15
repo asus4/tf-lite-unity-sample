@@ -44,7 +44,16 @@ namespace TensorFlowLite
                 options.threads = SystemInfo.processorCount;
             }
 
-            interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
+            try
+            {
+                interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
+            }
+            catch (System.Exception e)
+            {
+                interpreter?.Dispose();
+                throw e;
+            }
+
             interpreter.LogIOInfo();
             InitInputs();
 
