@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
-using TensorFlowLite;
 
 /// <summary>
 /// BlazeFace from MediaPile
@@ -26,11 +25,7 @@ public class FaceDetectionSample : MonoBehaviour
         string detectionPath = Path.Combine(Application.streamingAssetsPath, faceModelFile);
         faceDetect = new FaceDetect(detectionPath);
 
-        string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
-        {
-            isFrontFacing = false,
-            kind = WebCamKind.WideAngle,
-        });
+        string cameraName = WebCamUtil.FindName(WebCamKind.WideAngle, false);
         webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
         cameraView.texture = webcamTexture;
         webcamTexture.Play();
