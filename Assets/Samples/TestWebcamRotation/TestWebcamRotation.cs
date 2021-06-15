@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
+using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
-using TensorFlowLite;
 
 public class TestWebcamRotation : MonoBehaviour
 {
@@ -24,11 +22,7 @@ public class TestWebcamRotation : MonoBehaviour
 
     void Start()
     {
-        string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
-        {
-            isFrontFacing = false,
-            kind = WebCamKind.WideAngle,
-        });
+        string cameraName = WebCamUtil.FindName(WebCamKind.WideAngle, false);
         webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
         webcamTexture.Play();
         rawInputView.texture = webcamTexture;
