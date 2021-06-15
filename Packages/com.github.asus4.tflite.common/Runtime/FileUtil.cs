@@ -17,13 +17,14 @@ namespace TensorFlowLite
             {
                 path = "file://" + path;
             }
-
-            var request = UnityWebRequest.Get(path);
-            request.SendWebRequest();
-            while (!request.isDone)
+            using (var request = UnityWebRequest.Get(path))
             {
+                request.SendWebRequest();
+                while (!request.isDone)
+                {
+                }
+                return request.downloadHandler.data;
             }
-            return request.downloadHandler.data;
         }
 
         static bool IsPathRooted(string path)
