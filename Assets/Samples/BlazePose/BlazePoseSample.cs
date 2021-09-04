@@ -45,11 +45,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         poseLandmark = new PoseLandmarkDetect(poseLandmarkModelFile);
 
         // Init camera 
-        string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
-        {
-            isFrontFacing = false,
-            kind = WebCamKind.WideAngle,
-        });
+        string cameraName = WebCamUtil.FindName(WebCamKind.WideAngle, false);
         webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
         cameraView.texture = webcamTexture;
         webcamTexture.Play();

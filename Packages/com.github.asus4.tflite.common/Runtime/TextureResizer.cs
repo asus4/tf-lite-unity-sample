@@ -7,13 +7,6 @@ namespace TensorFlowLite
     /// </summary>
     public class TextureResizer : System.IDisposable
     {
-        public enum AspectMode
-        {
-            None,
-            Fit,
-            Fill,
-        }
-
         public struct ResizeOptions
         {
             public int width;
@@ -138,7 +131,7 @@ namespace TensorFlowLite
             return resizeTexture;
         }
 
-        private static Vector4 GetTextureST(float srcAspect, float dstAspect, AspectMode mode)
+        public static Vector4 GetTextureST(float srcAspect, float dstAspect, AspectMode mode)
         {
             switch (mode)
             {
@@ -180,7 +173,7 @@ namespace TensorFlowLite
 
         private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
         private static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
-        private static Matrix4x4 GetVertTransform(float rotation, bool mirrorHorizontal, bool mirrorVertical)
+        internal static Matrix4x4 GetVertTransform(float rotation, bool mirrorHorizontal, bool mirrorVertical)
         {
             Vector3 scale = new Vector3(
                 mirrorHorizontal ? -1 : 1,
