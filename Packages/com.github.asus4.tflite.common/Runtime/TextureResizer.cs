@@ -7,13 +7,6 @@ namespace TensorFlowLite
     /// </summary>
     public class TextureResizer : System.IDisposable
     {
-        public enum AspectMode
-        {
-            None,
-            Fit,
-            Fill,
-        }
-
         public struct ResizeOptions
         {
             public int width;
