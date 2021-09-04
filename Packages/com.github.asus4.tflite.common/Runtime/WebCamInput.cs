@@ -8,6 +8,12 @@ namespace TensorFlowLite
     /// </summary>
     public sealed class WebCamInput : MonoBehaviour
     {
+        public enum Mode
+        {
+            KeepTextureAspect,
+            ScreenAspect,
+        }
+
         [System.Serializable]
         public class TextureUpdateEvent : UnityEvent<Texture>
         {
@@ -86,12 +92,12 @@ namespace TensorFlowLite
             if (isPortrait)
             {
                 mtx = TextureResizer.GetVertTransform(rotation, texture.videoVerticallyMirrored, isFrontFacing);
-                uvRect = TextureResizer.GetTextureST(targetAspect, cameraAspect, TextureResizer.AspectMode.Fill);
+                uvRect = TextureResizer.GetTextureST(targetAspect, cameraAspect, AspectMode.Fill);
             }
             else
             {
                 mtx = TextureResizer.GetVertTransform(rotation, isFrontFacing, texture.videoVerticallyMirrored);
-                uvRect = TextureResizer.GetTextureST(cameraAspect, targetAspect, TextureResizer.AspectMode.Fill);
+                uvRect = TextureResizer.GetTextureST(cameraAspect, targetAspect, AspectMode.Fill);
             }
 
             // Debug.Log($"camera: rotation:{texture.videoRotationAngle} flip:{texture.videoVerticallyMirrored}");

@@ -30,7 +30,7 @@ public class TestWebcamRotation : MonoBehaviour
         resizer = new TextureResizer();
         resizeOptions = new TextureResizer.ResizeOptions()
         {
-            aspectMode = TextureResizer.AspectMode.Fill,
+            aspectMode = AspectMode.Fill,
             rotationDegree = 0,
             mirrorHorizontal = false,
             mirrorVertical = false,
@@ -41,13 +41,13 @@ public class TestWebcamRotation : MonoBehaviour
         // Setup UIs
 
         // Dropdown
-        var modes = Enum.GetValues(typeof(TextureResizer.AspectMode)).Cast<TextureResizer.AspectMode>();
+        var modes = Enum.GetValues(typeof(AspectMode)).Cast<AspectMode>();
         aspectModeDropdown.ClearOptions();
         aspectModeDropdown.AddOptions(modes.Select(m => new Dropdown.OptionData(m.ToString())).ToList());
         aspectModeDropdown.SetValueWithoutNotify((int)resizeOptions.aspectMode);
         aspectModeDropdown.onValueChanged.AddListener((int index) =>
         {
-            resizeOptions.aspectMode = (TextureResizer.AspectMode)index;
+            resizeOptions.aspectMode = (AspectMode)index;
         });
 
         // Mirror
