@@ -7,8 +7,14 @@ namespace TensorFlowLite
     {
         public struct PreferSpec
         {
-            public bool isFrontFacing;
-            public WebCamKind kind;
+            public readonly WebCamKind kind;
+            public readonly bool isFrontFacing;
+
+            public PreferSpec(WebCamKind kind, bool isFrontFacing)
+            {
+                this.kind = kind;
+                this.isFrontFacing = isFrontFacing;
+            }
 
             public int GetScore(in WebCamDevice device)
             {
@@ -19,11 +25,7 @@ namespace TensorFlowLite
             }
         }
 
-        public static readonly PreferSpec DefaultPreferSpec = new PreferSpec()
-        {
-            isFrontFacing = false,
-            kind = WebCamKind.WideAngle,
-        };
+        public static readonly PreferSpec DefaultPreferSpec = new PreferSpec(WebCamKind.WideAngle, false);
 
         public static string FindName(PreferSpec spec = default(PreferSpec))
         {
@@ -34,6 +36,11 @@ namespace TensorFlowLite
                 return prefers.First().name;
             }
             return devices.First().name;
+        }
+
+        public static string FindName(WebCamKind kind, bool isFrontFacing)
+        {
+            return FindName(new PreferSpec(kind, isFrontFacing));
         }
 
         private static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));

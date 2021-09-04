@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
+using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
-using TensorFlowLite;
 
 public class TestWebcamRotation : MonoBehaviour
 {
@@ -24,11 +22,7 @@ public class TestWebcamRotation : MonoBehaviour
 
     void Start()
     {
-        string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
-        {
-            isFrontFacing = false,
-            kind = WebCamKind.WideAngle,
-        });
+        string cameraName = WebCamUtil.FindName(WebCamKind.WideAngle, false);
         webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
         webcamTexture.Play();
         rawInputView.texture = webcamTexture;
@@ -36,7 +30,7 @@ public class TestWebcamRotation : MonoBehaviour
         resizer = new TextureResizer();
         resizeOptions = new TextureResizer.ResizeOptions()
         {
-            aspectMode = TextureResizer.AspectMode.Fill,
+            aspectMode = AspectMode.Fill,
             rotationDegree = 0,
             mirrorHorizontal = false,
             mirrorVertical = false,
@@ -47,13 +41,13 @@ public class TestWebcamRotation : MonoBehaviour
         // Setup UIs
 
         // Dropdown
-        var modes = Enum.GetValues(typeof(TextureResizer.AspectMode)).Cast<TextureResizer.AspectMode>();
+        var modes = Enum.GetValues(typeof(AspectMode)).Cast<AspectMode>();
         aspectModeDropdown.ClearOptions();
         aspectModeDropdown.AddOptions(modes.Select(m => new Dropdown.OptionData(m.ToString())).ToList());
         aspectModeDropdown.SetValueWithoutNotify((int)resizeOptions.aspectMode);
         aspectModeDropdown.onValueChanged.AddListener((int index) =>
         {
-            resizeOptions.aspectMode = (TextureResizer.AspectMode)index;
+            resizeOptions.aspectMode = (AspectMode)index;
         });
 
         // Mirror

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
 using System.IO;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
-using TensorFlowLite;
-using Cysharp.Threading.Tasks;
 
 public class HandTrackingSample : MonoBehaviour
 {
@@ -39,11 +39,7 @@ public class HandTrackingSample : MonoBehaviour
         landmarkDetect = new HandLandmarkDetect(landmarkPath);
         Debug.Log($"landmark dimension: {landmarkDetect.Dim}");
 
-        string cameraName = WebCamUtil.FindName(new WebCamUtil.PreferSpec()
-        {
-            isFrontFacing = false,
-            kind = WebCamKind.WideAngle,
-        });
+        string cameraName = WebCamUtil.FindName(WebCamKind.WideAngle, false);
         webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
         cameraView.texture = webcamTexture;
         webcamTexture.Play();

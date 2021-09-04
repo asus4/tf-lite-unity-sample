@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
-using TensorFlowLite;
 
+[RequireComponent(typeof(WebCamInput))]
 public class SsdSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")] string fileName = "coco_ssd_mobilenet_quant.tflite";
@@ -13,25 +11,13 @@ public class SsdSample : MonoBehaviour
     [SerializeField, Range(0f, 1f)] float scoreThreshold = 0.5f;
     [SerializeField] TextAsset labelMap = null;
 
-    WebCamTexture webcamTexture;
     SSD ssd;
-
     Text[] frames;
-
-    public string[] labels;
+    string[] labels;
 
     void Start()
     {
-
-        string path = Path.Combine(Application.streamingAssetsPath, fileName);
-        ssd = new SSD(path);
-
-        // Init camera
-        string cameraName = WebCamUtil.FindName();
-        webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
-        cameraView.texture = webcamTexture;
-        webcamTexture.Play();
-        Debug.Log($"Starting camera: {cameraName}");
+        ssd = new SSD(fileName);
 
         // Init frames
         frames = new Text[10];
@@ -39,24 +25,24 @@ public class SsdSample : MonoBehaviour
         for (int i = 0; i < frames.Length; i++)
         {
             frames[i] = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, parent);
+            frames[i].transform.localPosition = Vector3.zero;
         }
 
         // Labels
         labels = labelMap.text.Split('\n');
 
-
+        GetComponent<WebCamInput>().OnTextureUpdate.AddListener(Invoke);
     }
 
     void OnDestroy()
     {
-        webcamTexture?.Stop();
+        GetComponent<WebCamInput>().OnTextureUpdate.RemoveListener(Invoke);
         ssd?.Dispose();
     }
 
-    void Update()
+    void Invoke(Texture texture)
     {
-        ssd.Invoke(webcamTexture);
-
+        ssd.Invoke(texture);
         var results = ssd.GetResults();
 
         var size = cameraView.rectTransform.rect.size;
@@ -66,7 +52,6 @@ public class SsdSample : MonoBehaviour
         }
 
         cameraView.material = ssd.transformMat;
-        // cameraView.texture = ssd.inputTex;
     }
 
     void SetFrame(Text frame, SSD.Result result, Vector2 size)
