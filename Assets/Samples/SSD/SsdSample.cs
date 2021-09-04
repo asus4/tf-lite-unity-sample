@@ -31,12 +31,12 @@ public class SsdSample : MonoBehaviour
         // Labels
         labels = labelMap.text.Split('\n');
 
-        GetComponent<WebCamInput>().onTextureUpdate.AddListener(Invoke);
+        GetComponent<WebCamInput>().OnTextureUpdate.AddListener(Invoke);
     }
 
     void OnDestroy()
     {
-        GetComponent<WebCamInput>().onTextureUpdate.RemoveListener(Invoke);
+        GetComponent<WebCamInput>().OnTextureUpdate.RemoveListener(Invoke);
         ssd?.Dispose();
     }
 

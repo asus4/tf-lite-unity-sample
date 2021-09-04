@@ -8,10 +8,27 @@ namespace TensorFlowLite
     /// </summary>
     public sealed class WebCamInput : MonoBehaviour
     {
+        [System.Flags]
         public enum Mode
         {
-            KeepTextureAspect,
-            ScreenAspect,
+            MirrorFrontFacing = 0,
+            ScreenAspect = 1 << 0,
+        }
+
+        [System.Flags]
+        public enum Kind
+        {
+            WideAngle = 0,
+            Telephoto = 1 << 0,
+            ColorAndDepth = 1 << 1,
+            UltraWideAngle = 1 << 2,
+        }
+
+        [System.Flags]
+        public enum Facing
+        {
+            Front = 0,
+            Back = 1,
         }
 
         [System.Serializable]
@@ -24,19 +41,22 @@ namespace TensorFlowLite
         [SerializeField] private bool isFrontFacing = false;
         [SerializeField] private int width = 1280;
         [SerializeField] private int height = 720;
-        public TextureUpdateEvent onTextureUpdate;
+        [SerializeField] private int fps = 60;
+        [SerializeField] private Mode mode;
+        public TextureUpdateEvent OnTextureUpdate = new TextureUpdateEvent();
 
         private TextureResizer resizer;
         private WebCamTexture webCamTexture;
+        private WebCamDevice[] devices;
 
         private void Start()
         {
             resizer = new TextureResizer();
+            devices = WebCamTexture.devices;
             string cameraName = Application.isEditor
                 ? editorCameraName
                 : WebCamUtil.FindName(preferKind, isFrontFacing);
-
-            webCamTexture = new WebCamTexture(cameraName, width, height, 60);
+            webCamTexture = new WebCamTexture(cameraName, width, height, fps);
             webCamTexture.Play();
         }
 
@@ -51,7 +71,7 @@ namespace TensorFlowLite
             if (!webCamTexture.didUpdateThisFrame) return;
 
             var tex = NormalizeWebcam(webCamTexture, Screen.width, Screen.height, isFrontFacing);
-            onTextureUpdate.Invoke(tex);
+            OnTextureUpdate.Invoke(tex);
         }
 
         private RenderTexture NormalizeWebcam(WebCamTexture texture, int width, int height, bool isFrontFacing)

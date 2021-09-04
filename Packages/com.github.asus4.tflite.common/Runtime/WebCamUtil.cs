@@ -35,7 +35,7 @@ namespace TensorFlowLite
                 var prefers = devices.OrderByDescending(d => spec.GetScore(d));
                 return prefers.First().name;
             }
-            return devices[1].name;
+            return devices.First().name;
         }
 
         public static string FindName(WebCamKind kind, bool isFrontFacing)
