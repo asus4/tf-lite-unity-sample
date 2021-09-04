@@ -70,7 +70,10 @@ public class GpuBindSample : MonoBehaviour
         StopAllCoroutines();
 
         interpreter?.Dispose();
-        gpuDelegate?.Dispose();
+        if(!IsMetal)
+        {
+            gpuDelegate?.Dispose();
+        }
 
         inputBuffer?.Release();
         outputBuffer?.Release();
@@ -86,18 +89,18 @@ public class GpuBindSample : MonoBehaviour
 
     void PrepareBindingOn()
     {
-        gpuDelegate = CreateGpuDelegate(true);
-        interpreter = new Interpreter(FileUtil.LoadFile(fileName), new InterpreterOptions());
-
         bool isMetal = IsMetal;
+
+        gpuDelegate = CreateGpuDelegate(true);
+        var options = new InterpreterOptions();
         // [Metal] must be called ModifyGraphWithDelegate at beginning
         if (isMetal)
         {
-            if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
-            {
-                Debug.LogError("Failed to modify the graph with delegate");
-            }
+            options.AddGpuDelegate(gpuDelegate);
         }
+        interpreter = new Interpreter(FileUtil.LoadFile(fileName), options);
+
+        
 
         var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
         int height = inputShape0[1];
