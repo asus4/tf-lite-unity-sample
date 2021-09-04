@@ -495,12 +495,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f81f0d43e2d14fbbb064a205095507c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorCameraName: HD Pro Webcam C920
+  editorCameraName: FaceTime HD Camera (Built-in)
   preferKind: 1
   isFrontFacing: 0
   width: 1280
   height: 720
-  onTextureUpdate:
+  fps: 60
+  mode: 0
+  OnTextureUpdate:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2074584278}
