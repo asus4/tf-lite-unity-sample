@@ -17,11 +17,9 @@ public sealed class BlazePoseSample : MonoBehaviour
     [SerializeField] RawImage cameraView = null;
     [SerializeField] RawImage debugView = null;
     [SerializeField] Canvas canvas = null;
-    [SerializeField] bool useLandmarkFilter = true;
-    [SerializeField] Vector3 filterVelocityScale = Vector3.one * 10;
     [SerializeField] bool runBackground;
     [SerializeField, Range(0f, 1f)] float visibilityThreshold = 0.5f;
-
+    [SerializeField] PoseLandmarkDetect.Options landmarkOptions = new PoseLandmarkDetect.Options();
 
     WebCamTexture webcamTexture;
     PoseDetect poseDetect;
@@ -42,7 +40,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     {
         // Init model
         poseDetect = new PoseDetect(poseDetectionModelFile);
-        poseLandmark = new PoseLandmarkDetect(poseLandmarkModelFile);
+        poseLandmark = new PoseLandmarkDetect(poseLandmarkModelFile, landmarkOptions);
 
         // Init camera 
         string cameraName = WebCamUtil.FindName(WebCamKind.WideAngle, false);
@@ -203,11 +201,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         poseLandmark.Invoke(webcamTexture, poseResult);
         debugView.texture = poseLandmark.inputTex;
 
-        if (useLandmarkFilter)
-        {
-            poseLandmark.FilterVelocityScale = filterVelocityScale;
-        }
-        landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
+        landmarkResult = poseLandmark.GetResult();
 
         if (landmarkResult.score < 0.3f)
         {
@@ -233,11 +227,7 @@ public sealed class BlazePoseSample : MonoBehaviour
             return false;
         }
 
-        if (useLandmarkFilter)
-        {
-            poseLandmark.FilterVelocityScale = filterVelocityScale;
-        }
-        landmarkResult = await poseLandmark.InvokeAsync(webcamTexture, poseResult, useLandmarkFilter, cancellationToken, PlayerLoopTiming.Update);
+        landmarkResult = await poseLandmark.InvokeAsync(webcamTexture, poseResult, cancellationToken, PlayerLoopTiming.Update);
 
         // Back to the update timing from now on 
         if (cameraView != null)
