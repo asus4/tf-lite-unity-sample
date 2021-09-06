@@ -28,8 +28,8 @@ public sealed class BlazePoseSample : MonoBehaviour
     PoseLandmarkDetect poseLandmark;
 
     Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
-    // [SerializeField] // for debug raw data
-    Vector4[] worldJoints;
+
+    Vector4[] worldLandmarks;
     PrimitiveDraw draw;
     PoseDetect.Result poseResult;
     PoseLandmarkDetect.Result landmarkResult;
@@ -52,7 +52,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         Debug.Log($"Starting camera: {cameraName}");
 
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
-        worldJoints = new Vector4[PoseLandmarkDetect.JointCount];
+        worldLandmarks = new Vector4[PoseLandmarkDetect.LandmarkCount];
 
         cancellationToken = this.GetCancellationTokenOnDestroy();
     }
@@ -87,7 +87,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         if (landmarkResult != null && landmarkResult.score > 0.2f)
         {
             DrawCropMatrix(poseLandmark.CropMatrix);
-            DrawJoints(landmarkResult.joints);
+            DrawLandmarks(landmarkResult.viewportLandmarks);
         }
     }
 
@@ -124,7 +124,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         draw.Apply();
     }
 
-    void DrawJoints(Vector4[] joints)
+    void DrawLandmarks(Vector4[] landmarks)
     {
         draw.color = Color.blue;
 
@@ -153,20 +153,20 @@ public sealed class BlazePoseSample : MonoBehaviour
 
         // Update world joints
         var camera = canvas.worldCamera;
-        for (int i = 0; i < joints.Length; i++)
+        for (int i = 0; i < landmarks.Length; i++)
         {
-            Vector3 p = mtx.MultiplyPoint3x4((Vector3)joints[i]);
+            Vector3 p = mtx.MultiplyPoint3x4((Vector3)landmarks[i]);
             p = Vector3.Scale(p, scale) + offset;
             p = camera.ViewportToWorldPoint(p);
 
             // w is visibility
-            worldJoints[i] = new Vector4(p.x, p.y, p.z, joints[i].w);
+            worldLandmarks[i] = new Vector4(p.x, p.y, p.z, landmarks[i].w);
         }
 
         // Draw
-        for (int i = 0; i < worldJoints.Length; i++)
+        for (int i = 0; i < worldLandmarks.Length; i++)
         {
-            Vector4 p = worldJoints[i];
+            Vector4 p = worldLandmarks[i];
             if (p.w > visibilityThreshold)
             {
                 draw.Cube(p, 0.2f);
@@ -175,8 +175,8 @@ public sealed class BlazePoseSample : MonoBehaviour
         var connections = PoseLandmarkDetect.Connections;
         for (int i = 0; i < connections.Length; i += 2)
         {
-            var a = worldJoints[connections[i]];
-            var b = worldJoints[connections[i + 1]];
+            var a = worldLandmarks[connections[i]];
+            var b = worldLandmarks[connections[i + 1]];
             if (a.w > visibilityThreshold || b.w > visibilityThreshold)
             {
                 draw.Line3D(a, b, 0.05f);
