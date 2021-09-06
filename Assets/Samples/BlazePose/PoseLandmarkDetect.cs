@@ -17,10 +17,16 @@ namespace TensorFlowLite
         {
             public float score;
             // x, y, z, w = visibility
-            public Vector4[] joints;
+            public Vector4[] viewportLandmarks;
         }
 
-        public const int JointCount = 33;
+        [System.Serializable]
+        public class Options
+        {
+            public bool useFilter = true;
+        }
+
+        public const int LandmarkCount = 33;
         // A pair of indexes
         public static readonly int[] Connections = new int[]
         {
@@ -33,9 +39,9 @@ namespace TensorFlowLite
         };
 
         // ld_3d
-        private float[] output0 = new float[195];
+        private readonly float[] output0 = new float[195];
         // output_poseflag
-        private float[] output1 = new float[1];
+        private readonly float[] output1 = new float[1];
         // output_segmentation, not in use
         // private float[,] output2 = new float[128, 128]; 
         // output_heatmap, not in use
@@ -43,10 +49,10 @@ namespace TensorFlowLite
         // world_3d, not in use
         // private float[] output4 = new float[117];
 
-        private Result result;
+        private readonly Result result;
+        private readonly Stopwatch stopwatch;
+        private readonly RelativeVelocityFilter3D[] filters;
         private Matrix4x4 cropMatrix;
-        private Stopwatch stopwatch;
-        private RelativeVelocityFilter3D[] filters;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
         public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
@@ -73,15 +79,15 @@ namespace TensorFlowLite
             result = new Result()
             {
                 score = 0,
-                joints = new Vector4[JointCount],
+                viewportLandmarks = new Vector4[LandmarkCount],
             };
 
             // Init filters
-            filters = new RelativeVelocityFilter3D[JointCount];
+            filters = new RelativeVelocityFilter3D[LandmarkCount];
             const int windowSize = 5;
             const float velocityScale = 10;
             const RelativeVelocityFilter.DistanceEstimationMode mode = RelativeVelocityFilter.DistanceEstimationMode.LegacyTransition;
-            for (int i = 0; i < JointCount; i++)
+            for (int i = 0; i < LandmarkCount; i++)
             {
                 filters[i] = new RelativeVelocityFilter3D(windowSize, velocityScale, mode);
             }
@@ -149,16 +155,15 @@ namespace TensorFlowLite
             // The magnitude of z uses roughly the same scale as x.
             float xScale = Mathf.Abs(mtx.lossyScale.x);
             float zScale = SCALE * xScale * xScale;
-            // float zScale = SCALE;
 
             result.score = output1[0];
 
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
             Vector2 max = new Vector2(float.MinValue, float.MinValue);
 
-            int dimensions = output0.Length / JointCount;
+            int dimensions = output0.Length / LandmarkCount;
 
-            for (int i = 0; i < JointCount; i++)
+            for (int i = 0; i < LandmarkCount; i++)
             {
                 Vector4 p = mtx.MultiplyPoint3x4(new Vector3(
                     output0[i * dimensions] * SCALE,
@@ -166,7 +171,7 @@ namespace TensorFlowLite
                     output0[i * dimensions + 2] * zScale
                 ));
                 p.w = output0[i * dimensions + 3];
-                result.joints[i] = p;
+                result.viewportLandmarks[i] = p;
 
                 if (p.x < min.x) { min.x = p.x; }
                 if (p.x > max.x) { max.x = p.x; }
@@ -180,12 +185,12 @@ namespace TensorFlowLite
                 double timestamp = stopwatch.Elapsed.TotalSeconds;
                 Vector2 size = max - min;
                 float valueScale = 1f / ((size.x + size.y) / 2);
-                for (int i = 0; i < JointCount; i++)
+                for (int i = 0; i < LandmarkCount; i++)
                 {
-                    Vector4 joint = result.joints[i];
+                    Vector4 joint = result.viewportLandmarks[i];
                     Vector4 filterd = filters[i].Apply(timestamp, valueScale, (Vector3)joint);
                     filterd.w = joint.w;
-                    result.joints[i] = filterd;
+                    result.viewportLandmarks[i] = filterd;
                 }
             }
 
@@ -230,8 +235,8 @@ namespace TensorFlowLite
 
         public static PoseDetect.Result LandmarkToDetection(Result result)
         {
-            Vector2 hip = (result.joints[24] + result.joints[23]) / 2f;
-            Vector2 nose = result.joints[0];
+            Vector2 hip = (result.viewportLandmarks[24] + result.viewportLandmarks[23]) / 2f;
+            Vector2 nose = result.viewportLandmarks[0];
             Vector2 aboveHead = hip + (nose - hip) * 1.2f;
             // Y Flipping
             hip.y = 1f - hip.y;
