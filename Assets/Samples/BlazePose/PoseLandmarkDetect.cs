@@ -226,7 +226,7 @@ namespace TensorFlowLite
             {
                 result.worldLandmarks[i] = new Vector4(
                     output4[i * dimensions],
-                    output4[i * dimensions + 1],
+                    -output4[i * dimensions + 1],
                     output4[i * dimensions + 2],
                     result.viewportLandmarks[i].w
                 );
