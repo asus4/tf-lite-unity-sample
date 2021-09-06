@@ -35,7 +35,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     private PoseDetect poseDetect;
     private PoseLandmarkDetect poseLandmark;
 
-    private Vector4[] worldLandmarks;
+    private Vector4[] viewportLandmarks;
     private PrimitiveDraw draw;
     private PoseDetect.Result poseResult;
     private PoseLandmarkDetect.Result landmarkResult;
@@ -58,7 +58,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         Debug.Log($"Starting camera: {cameraName}");
 
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
-        worldLandmarks = new Vector4[PoseLandmarkDetect.LandmarkCount];
+        viewportLandmarks = new Vector4[PoseLandmarkDetect.LandmarkCount];
 
         cancellationToken = this.GetCancellationTokenOnDestroy();
     }
@@ -94,6 +94,10 @@ public sealed class BlazePoseSample : MonoBehaviour
         {
             DrawCropMatrix(poseLandmark.CropMatrix);
             DrawViewportLandmarks(landmarkResult.viewportLandmarks);
+            if (landmarkOptions.useWorldLandmarks)
+            {
+                DrawWorldLandmarks(landmarkResult.worldLandmarks);
+            }
         }
     }
 
@@ -162,13 +166,13 @@ public sealed class BlazePoseSample : MonoBehaviour
             p = camera.ViewportToWorldPoint(p);
 
             // w is visibility
-            worldLandmarks[i] = new Vector4(p.x, p.y, p.z, landmarks[i].w);
+            viewportLandmarks[i] = new Vector4(p.x, p.y, p.z, landmarks[i].w);
         }
 
         // Draw
-        for (int i = 0; i < worldLandmarks.Length; i++)
+        for (int i = 0; i < viewportLandmarks.Length; i++)
         {
-            Vector4 p = worldLandmarks[i];
+            Vector4 p = viewportLandmarks[i];
             if (p.w > visibilityThreshold)
             {
                 draw.Cube(p, 0.2f);
@@ -177,13 +181,39 @@ public sealed class BlazePoseSample : MonoBehaviour
         var connections = PoseLandmarkDetect.Connections;
         for (int i = 0; i < connections.Length; i += 2)
         {
-            var a = worldLandmarks[connections[i]];
-            var b = worldLandmarks[connections[i + 1]];
+            var a = viewportLandmarks[connections[i]];
+            var b = viewportLandmarks[connections[i + 1]];
             if (a.w > visibilityThreshold || b.w > visibilityThreshold)
             {
                 draw.Line3D(a, b, 0.05f);
             }
         }
+        draw.Apply();
+    }
+
+    private void DrawWorldLandmarks(Vector4[] landmarks)
+    {
+        draw.color = Color.cyan;
+
+        for (int i = 0; i < landmarks.Length; i++)
+        {
+            Vector4 p = landmarks[i];
+            if (p.w > visibilityThreshold)
+            {
+                draw.Cube(p, 0.02f);
+            }
+        }
+        var connections = PoseLandmarkDetect.Connections;
+        for (int i = 0; i < connections.Length; i += 2)
+        {
+            var a = landmarks[connections[i]];
+            var b = landmarks[connections[i + 1]];
+            if (a.w > visibilityThreshold || b.w > visibilityThreshold)
+            {
+                draw.Line3D(a, b, 0.005f);
+            }
+        }
+
         draw.Apply();
     }
 
