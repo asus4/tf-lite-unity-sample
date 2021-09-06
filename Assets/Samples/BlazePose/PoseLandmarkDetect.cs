@@ -17,10 +17,28 @@ namespace TensorFlowLite
         {
             public float score;
             // x, y, z, w = visibility
-            public Vector4[] joints;
+            public Vector4[] viewportLandmarks;
+            public Vector4[] worldLandmarks;
         }
 
-        public const int JointCount = 33;
+        [System.Serializable]
+        public class Options
+        {
+            public bool useWorldLandmarks = true;
+            public bool useFilter = true;
+            public Vector3 filterVelocityScale = new Vector3(10, 10, 2);
+
+            private Vector3 cachedFilterVelocityScale;
+
+            public bool CheckFilterUpdated()
+            {
+                bool isUpdated = cachedFilterVelocityScale != filterVelocityScale;
+                cachedFilterVelocityScale = filterVelocityScale;
+                return isUpdated;
+            }
+        }
+
+        public const int LandmarkCount = 33;
         // A pair of indexes
         public static readonly int[] Connections = new int[]
         {
@@ -33,58 +51,49 @@ namespace TensorFlowLite
         };
 
         // ld_3d
-        private float[] output0 = new float[195];
+        private readonly float[] output0 = new float[195];
         // output_poseflag
-        private float[] output1 = new float[1];
+        private readonly float[] output1 = new float[1];
         // output_segmentation, not in use
         // private float[,] output2 = new float[128, 128]; 
-        // output_heatmap, not in use
-        // private float[,,] output3 = new float[64, 64, 39];
-        // world_3d, not in use
-        // private float[] output4 = new float[117];
+        // output_heatmap
+        private readonly float[,,] output3 = new float[64, 64, 39];
+        // world_3d
+        private readonly float[] output4 = new float[117];
 
-        private Result result;
+        private readonly Result result;
+        private readonly Stopwatch stopwatch;
+        private readonly RelativeVelocityFilter3D[] filters;
+        private readonly Options options;
         private Matrix4x4 cropMatrix;
-        private Stopwatch stopwatch;
-        private RelativeVelocityFilter3D[] filters;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
         public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
         public Vector2 PoseScale { get; set; } = new Vector2(1.5f, 1.5f);
-        public Vector3 FilterVelocityScale
-        {
-            get
-            {
-                return filters[0].VelocityScale;
-            }
-            set
-            {
-                foreach (var f in filters)
-                {
-                    f.VelocityScale = value;
-                }
-            }
-        }
-
         public Matrix4x4 CropMatrix => cropMatrix;
 
-        public PoseLandmarkDetect(string modelPath) : base(modelPath, true)
+
+        public PoseLandmarkDetect(string modelPath, Options options) : base(modelPath, true)
         {
             result = new Result()
             {
                 score = 0,
-                joints = new Vector4[JointCount],
+                viewportLandmarks = new Vector4[LandmarkCount],
+                worldLandmarks = new Vector4[LandmarkCount],
             };
 
+            this.options = options ?? new Options();
+
             // Init filters
-            filters = new RelativeVelocityFilter3D[JointCount];
+            filters = new RelativeVelocityFilter3D[LandmarkCount];
             const int windowSize = 5;
             const float velocityScale = 10;
             const RelativeVelocityFilter.DistanceEstimationMode mode = RelativeVelocityFilter.DistanceEstimationMode.LegacyTransition;
-            for (int i = 0; i < JointCount; i++)
+            for (int i = 0; i < LandmarkCount; i++)
             {
                 filters[i] = new RelativeVelocityFilter3D(windowSize, velocityScale, mode);
             }
+            UpdateFilterScale(options.filterVelocityScale);
             stopwatch = Stopwatch.StartNew();
         }
 
@@ -95,16 +104,16 @@ namespace TensorFlowLite
 
         public void Invoke(Texture inputTex, PoseDetect.Result pose)
         {
-            var options = (inputTex is WebCamTexture)
-                ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
-                : resizeOptions;
+            var resizeOptions = (inputTex is WebCamTexture)
+                ? this.resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
+                : this.resizeOptions;
 
-            cropMatrix = CalcCropMatrix(ref pose, ref options);
+            cropMatrix = CalcCropMatrix(ref pose, ref resizeOptions);
 
             RenderTexture rt = resizer.Resize(
-               inputTex, options.width, options.height, true,
+               inputTex, resizeOptions.width, resizeOptions.height, true,
                cropMatrix,
-               TextureResizer.GetTextureST(inputTex, options));
+               TextureResizer.GetTextureST(inputTex, resizeOptions));
             ToTensor(rt, input0, false);
 
             interpreter.SetInputTensorData(0, input0);
@@ -112,19 +121,24 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
             // interpreter.GetOutputTensorData(2, output2);// not in use
+            if (options.useWorldLandmarks)
+            {
+                interpreter.GetOutputTensorData(3, output3);
+                interpreter.GetOutputTensorData(4, output4);
+            }
         }
 
-        public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, bool useFilter, CancellationToken cancellationToken, PlayerLoopTiming timing)
+        public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, CancellationToken cancellationToken, PlayerLoopTiming timing)
         {
-            var options = (inputTex is WebCamTexture)
-                ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
-                : resizeOptions;
+            var resizeOptions = (inputTex is WebCamTexture)
+                ? base.resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
+                : base.resizeOptions;
 
-            cropMatrix = CalcCropMatrix(ref pose, ref options);
+            cropMatrix = CalcCropMatrix(ref pose, ref resizeOptions);
             RenderTexture rt = resizer.Resize(
-              inputTex, options.width, options.height, true,
+              inputTex, resizeOptions.width, resizeOptions.height, true,
               cropMatrix,
-              TextureResizer.GetTextureST(inputTex, options));
+              TextureResizer.GetTextureST(inputTex, resizeOptions));
             await ToTensorAsync(rt, input0, false, cancellationToken);
             await UniTask.SwitchToThreadPool();
 
@@ -132,14 +146,18 @@ namespace TensorFlowLite
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
-
-            var result = GetResult(useFilter);
+            if (options.useWorldLandmarks)
+            {
+                interpreter.GetOutputTensorData(3, output3);
+                interpreter.GetOutputTensorData(4, output4);
+            }
+            var result = GetResult();
             await UniTask.SwitchToMainThread(timing, cancellationToken);
 
             return result;
         }
 
-        public Result GetResult(bool useFilter = true)
+        public Result GetResult()
         {
             // Normalize 0 ~ 255 => 0.0 ~ 1.0
             const float SCALE = 1f / 255f;
@@ -149,16 +167,15 @@ namespace TensorFlowLite
             // The magnitude of z uses roughly the same scale as x.
             float xScale = Mathf.Abs(mtx.lossyScale.x);
             float zScale = SCALE * xScale * xScale;
-            // float zScale = SCALE;
 
             result.score = output1[0];
 
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
             Vector2 max = new Vector2(float.MinValue, float.MinValue);
 
-            int dimensions = output0.Length / JointCount;
+            int dimensions = output0.Length / LandmarkCount;
 
-            for (int i = 0; i < JointCount; i++)
+            for (int i = 0; i < LandmarkCount; i++)
             {
                 Vector4 p = mtx.MultiplyPoint3x4(new Vector3(
                     output0[i * dimensions] * SCALE,
@@ -166,7 +183,7 @@ namespace TensorFlowLite
                     output0[i * dimensions + 2] * zScale
                 ));
                 p.w = output0[i * dimensions + 3];
-                result.joints[i] = p;
+                result.viewportLandmarks[i] = p;
 
                 if (p.x < min.x) { min.x = p.x; }
                 if (p.x > max.x) { max.x = p.x; }
@@ -174,22 +191,46 @@ namespace TensorFlowLite
                 if (p.y > max.y) { max.y = p.y; }
             }
 
-            if (useFilter)
+            if (options.useFilter)
             {
+                if (options.CheckFilterUpdated())
+                {
+                    UpdateFilterScale(options.filterVelocityScale);
+                }
+
                 // Apply filters
                 double timestamp = stopwatch.Elapsed.TotalSeconds;
                 Vector2 size = max - min;
                 float valueScale = 1f / ((size.x + size.y) / 2);
-                for (int i = 0; i < JointCount; i++)
+                for (int i = 0; i < LandmarkCount; i++)
                 {
-                    Vector4 joint = result.joints[i];
+                    Vector4 joint = result.viewportLandmarks[i];
                     Vector4 filterd = filters[i].Apply(timestamp, valueScale, (Vector3)joint);
                     filterd.w = joint.w;
-                    result.joints[i] = filterd;
+                    result.viewportLandmarks[i] = filterd;
                 }
             }
 
+            if (options.useWorldLandmarks)
+            {
+                CalcWorldLandmarks(result);
+            }
+
             return result;
+        }
+
+        private void CalcWorldLandmarks(Result result)
+        {
+            int dimensions = output4.Length / LandmarkCount;
+            for (int i = 0; i < LandmarkCount; i++)
+            {
+                result.worldLandmarks[i] = new Vector4(
+                    output4[i * dimensions],
+                    -output4[i * dimensions + 1],
+                    output4[i * dimensions + 2],
+                    result.viewportLandmarks[i].w
+                );
+            }
         }
 
         private static Rect AlignmentPointsToRect(in Vector2 center, in Vector2 scale)
@@ -212,6 +253,14 @@ namespace TensorFlowLite
             return -(RAD_90 + Mathf.Atan2(vec.y, vec.x)) * Mathf.Rad2Deg;
         }
 
+        private void UpdateFilterScale(Vector3 scale)
+        {
+            foreach (var f in filters)
+            {
+                f.VelocityScale = scale;
+            }
+        }
+
         private Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options)
         {
             float rotation = CalcRotationDegree(pose.keypoints[0], pose.keypoints[1]);
@@ -230,8 +279,8 @@ namespace TensorFlowLite
 
         public static PoseDetect.Result LandmarkToDetection(Result result)
         {
-            Vector2 hip = (result.joints[24] + result.joints[23]) / 2f;
-            Vector2 nose = result.joints[0];
+            Vector2 hip = (result.viewportLandmarks[24] + result.viewportLandmarks[23]) / 2f;
+            Vector2 nose = result.viewportLandmarks[0];
             Vector2 aboveHead = hip + (nose - hip) * 1.2f;
             // Y Flipping
             hip.y = 1f - hip.y;
