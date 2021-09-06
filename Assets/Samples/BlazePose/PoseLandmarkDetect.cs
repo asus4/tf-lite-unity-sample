@@ -24,6 +24,16 @@ namespace TensorFlowLite
         public class Options
         {
             public bool useFilter = true;
+            public Vector3 filterVelocityScale = new Vector3(10, 10, 2);
+
+            private Vector3 cachedFilterVelocityScale;
+
+            public bool CheckFilterUpdated()
+            {
+                bool isUpdated = cachedFilterVelocityScale != filterVelocityScale;
+                cachedFilterVelocityScale = filterVelocityScale;
+                return isUpdated;
+            }
         }
 
         public const int LandmarkCount = 33;
@@ -52,35 +62,25 @@ namespace TensorFlowLite
         private readonly Result result;
         private readonly Stopwatch stopwatch;
         private readonly RelativeVelocityFilter3D[] filters;
+        private readonly Options options;
         private Matrix4x4 cropMatrix;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
         public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
         public Vector2 PoseScale { get; set; } = new Vector2(1.5f, 1.5f);
-        public Vector3 FilterVelocityScale
-        {
-            get
-            {
-                return filters[0].VelocityScale;
-            }
-            set
-            {
-                foreach (var f in filters)
-                {
-                    f.VelocityScale = value;
-                }
-            }
-        }
-
         public Matrix4x4 CropMatrix => cropMatrix;
 
-        public PoseLandmarkDetect(string modelPath) : base(modelPath, true)
+
+        public PoseLandmarkDetect(string modelPath, Options options) : base(modelPath, true)
         {
             result = new Result()
             {
                 score = 0,
                 viewportLandmarks = new Vector4[LandmarkCount],
+                worldLandmarks = new Vector4[LandmarkCount],
             };
+
+            this.options = options ?? new Options();
 
             // Init filters
             filters = new RelativeVelocityFilter3D[LandmarkCount];
@@ -91,6 +91,7 @@ namespace TensorFlowLite
             {
                 filters[i] = new RelativeVelocityFilter3D(windowSize, velocityScale, mode);
             }
+            UpdateFilterScale(options.filterVelocityScale);
             stopwatch = Stopwatch.StartNew();
         }
 
@@ -120,7 +121,7 @@ namespace TensorFlowLite
             // interpreter.GetOutputTensorData(2, output2);// not in use
         }
 
-        public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, bool useFilter, CancellationToken cancellationToken, PlayerLoopTiming timing)
+        public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, CancellationToken cancellationToken, PlayerLoopTiming timing)
         {
             var options = (inputTex is WebCamTexture)
                 ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
@@ -139,13 +140,13 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
 
-            var result = GetResult(useFilter);
+            var result = GetResult();
             await UniTask.SwitchToMainThread(timing, cancellationToken);
 
             return result;
         }
 
-        public Result GetResult(bool useFilter = true)
+        public Result GetResult()
         {
             // Normalize 0 ~ 255 => 0.0 ~ 1.0
             const float SCALE = 1f / 255f;
@@ -179,8 +180,13 @@ namespace TensorFlowLite
                 if (p.y > max.y) { max.y = p.y; }
             }
 
-            if (useFilter)
+            if (options.useFilter)
             {
+                if (options.CheckFilterUpdated())
+                {
+                    UpdateFilterScale(options.filterVelocityScale);
+                }
+
                 // Apply filters
                 double timestamp = stopwatch.Elapsed.TotalSeconds;
                 Vector2 size = max - min;
@@ -215,6 +221,14 @@ namespace TensorFlowLite
             const float RAD_90 = 90f * Mathf.PI / 180f;
             var vec = a - b;
             return -(RAD_90 + Mathf.Atan2(vec.y, vec.x)) * Mathf.Rad2Deg;
+        }
+
+        private void UpdateFilterScale(Vector3 scale)
+        {
+            foreach (var f in filters)
+            {
+                f.VelocityScale = scale;
+            }
         }
 
         private Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options)
