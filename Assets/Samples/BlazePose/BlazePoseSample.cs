@@ -12,37 +12,43 @@ using UnityEngine.UI;
 public sealed class BlazePoseSample : MonoBehaviour
 {
 
-    [SerializeField, FilePopup("*.tflite")] string poseDetectionModelFile = "coco_ssd_mobilenet_quant.tflite";
-    [SerializeField, FilePopup("*.tflite")] string poseLandmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
-    [SerializeField] RawImage cameraView = null;
-    [SerializeField] RawImage debugView = null;
-    [SerializeField] Canvas canvas = null;
-    [SerializeField] bool useLandmarkFilter = true;
-    [SerializeField] Vector3 filterVelocityScale = Vector3.one * 10;
-    [SerializeField] bool runBackground;
-    [SerializeField, Range(0f, 1f)] float visibilityThreshold = 0.5f;
+    [SerializeField, FilePopup("*.tflite")]
+    private string poseDetectionModelFile = "coco_ssd_mobilenet_quant.tflite";
+    [SerializeField, FilePopup("*.tflite")]
+    private string poseLandmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
+    [SerializeField]
+    private RawImage cameraView = null;
+    [SerializeField]
+    private RawImage debugView = null;
+    [SerializeField]
+    private Canvas canvas = null;
+    [SerializeField]
+    private bool runBackground;
+    [SerializeField, Range(0f, 1f)]
+    private float visibilityThreshold = 0.5f;
+    [SerializeField]
+    private PoseLandmarkDetect.Options landmarkOptions = new PoseLandmarkDetect.Options();
 
+    private readonly Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
 
-    WebCamTexture webcamTexture;
-    PoseDetect poseDetect;
-    PoseLandmarkDetect poseLandmark;
+    private WebCamTexture webcamTexture;
+    private PoseDetect poseDetect;
+    private PoseLandmarkDetect poseLandmark;
 
-    Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
-    // [SerializeField] // for debug raw data
-    Vector4[] worldJoints;
-    PrimitiveDraw draw;
-    PoseDetect.Result poseResult;
-    PoseLandmarkDetect.Result landmarkResult;
-    UniTask<bool> task;
-    CancellationToken cancellationToken;
+    private Vector4[] viewportLandmarks;
+    private PrimitiveDraw draw;
+    private PoseDetect.Result poseResult;
+    private PoseLandmarkDetect.Result landmarkResult;
+    private UniTask<bool> task;
+    private CancellationToken cancellationToken;
 
-    bool NeedsDetectionUpdate => poseResult == null || poseResult.score < 0.5f;
+    private bool NeedsDetectionUpdate => poseResult == null || poseResult.score < 0.5f;
 
-    void Start()
+    private void Start()
     {
         // Init model
         poseDetect = new PoseDetect(poseDetectionModelFile);
-        poseLandmark = new PoseLandmarkDetect(poseLandmarkModelFile);
+        poseLandmark = new PoseLandmarkDetect(poseLandmarkModelFile, landmarkOptions);
 
         // Init camera 
         string cameraName = WebCamUtil.FindName(WebCamKind.WideAngle, false);
@@ -52,12 +58,12 @@ public sealed class BlazePoseSample : MonoBehaviour
         Debug.Log($"Starting camera: {cameraName}");
 
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
-        worldJoints = new Vector4[PoseLandmarkDetect.JointCount];
+        viewportLandmarks = new Vector4[PoseLandmarkDetect.LandmarkCount];
 
         cancellationToken = this.GetCancellationTokenOnDestroy();
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         webcamTexture?.Stop();
         poseDetect?.Dispose();
@@ -65,7 +71,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         draw?.Dispose();
     }
 
-    void Update()
+    private void Update()
     {
         if (runBackground)
         {
@@ -87,7 +93,11 @@ public sealed class BlazePoseSample : MonoBehaviour
         if (landmarkResult != null && landmarkResult.score > 0.2f)
         {
             DrawCropMatrix(poseLandmark.CropMatrix);
-            DrawJoints(landmarkResult.joints);
+            DrawViewportLandmarks(landmarkResult.viewportLandmarks);
+            if (landmarkOptions.useWorldLandmarks)
+            {
+                DrawWorldLandmarks(landmarkResult.worldLandmarks);
+            }
         }
     }
 
@@ -106,7 +116,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         draw.Apply();
     }
 
-    void DrawCropMatrix(in Matrix4x4 matrix)
+    private void DrawCropMatrix(in Matrix4x4 matrix)
     {
         draw.color = Color.red;
 
@@ -124,13 +134,9 @@ public sealed class BlazePoseSample : MonoBehaviour
         draw.Apply();
     }
 
-    void DrawJoints(Vector4[] joints)
+    private void DrawViewportLandmarks(Vector4[] landmarks)
     {
         draw.color = Color.blue;
-
-        // Vector3 min = rtCorners[0];
-        // Vector3 max = rtCorners[2];
-        // Debug.Log($"rtCorners min: {min}, max: {max}");
 
         // Apply webcam rotation to draw landmarks correctly
         Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
@@ -153,20 +159,20 @@ public sealed class BlazePoseSample : MonoBehaviour
 
         // Update world joints
         var camera = canvas.worldCamera;
-        for (int i = 0; i < joints.Length; i++)
+        for (int i = 0; i < landmarks.Length; i++)
         {
-            Vector3 p = mtx.MultiplyPoint3x4((Vector3)joints[i]);
+            Vector3 p = mtx.MultiplyPoint3x4((Vector3)landmarks[i]);
             p = Vector3.Scale(p, scale) + offset;
             p = camera.ViewportToWorldPoint(p);
 
             // w is visibility
-            worldJoints[i] = new Vector4(p.x, p.y, p.z, joints[i].w);
+            viewportLandmarks[i] = new Vector4(p.x, p.y, p.z, landmarks[i].w);
         }
 
         // Draw
-        for (int i = 0; i < worldJoints.Length; i++)
+        for (int i = 0; i < viewportLandmarks.Length; i++)
         {
-            Vector4 p = worldJoints[i];
+            Vector4 p = viewportLandmarks[i];
             if (p.w > visibilityThreshold)
             {
                 draw.Cube(p, 0.2f);
@@ -175,8 +181,8 @@ public sealed class BlazePoseSample : MonoBehaviour
         var connections = PoseLandmarkDetect.Connections;
         for (int i = 0; i < connections.Length; i += 2)
         {
-            var a = worldJoints[connections[i]];
-            var b = worldJoints[connections[i + 1]];
+            var a = viewportLandmarks[connections[i]];
+            var b = viewportLandmarks[connections[i + 1]];
             if (a.w > visibilityThreshold || b.w > visibilityThreshold)
             {
                 draw.Line3D(a, b, 0.05f);
@@ -185,7 +191,33 @@ public sealed class BlazePoseSample : MonoBehaviour
         draw.Apply();
     }
 
-    void Invoke()
+    private void DrawWorldLandmarks(Vector4[] landmarks)
+    {
+        draw.color = Color.cyan;
+
+        for (int i = 0; i < landmarks.Length; i++)
+        {
+            Vector4 p = landmarks[i];
+            if (p.w > visibilityThreshold)
+            {
+                draw.Cube(p, 0.02f);
+            }
+        }
+        var connections = PoseLandmarkDetect.Connections;
+        for (int i = 0; i < connections.Length; i += 2)
+        {
+            var a = landmarks[connections[i]];
+            var b = landmarks[connections[i + 1]];
+            if (a.w > visibilityThreshold || b.w > visibilityThreshold)
+            {
+                draw.Line3D(a, b, 0.005f);
+            }
+        }
+
+        draw.Apply();
+    }
+
+    private void Invoke()
     {
         if (NeedsDetectionUpdate)
         {
@@ -203,11 +235,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         poseLandmark.Invoke(webcamTexture, poseResult);
         debugView.texture = poseLandmark.inputTex;
 
-        if (useLandmarkFilter)
-        {
-            poseLandmark.FilterVelocityScale = filterVelocityScale;
-        }
-        landmarkResult = poseLandmark.GetResult(useLandmarkFilter);
+        landmarkResult = poseLandmark.GetResult();
 
         if (landmarkResult.score < 0.3f)
         {
@@ -219,7 +247,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         }
     }
 
-    async UniTask<bool> InvokeAsync()
+    private async UniTask<bool> InvokeAsync()
     {
         if (NeedsDetectionUpdate)
         {
@@ -233,11 +261,7 @@ public sealed class BlazePoseSample : MonoBehaviour
             return false;
         }
 
-        if (useLandmarkFilter)
-        {
-            poseLandmark.FilterVelocityScale = filterVelocityScale;
-        }
-        landmarkResult = await poseLandmark.InvokeAsync(webcamTexture, poseResult, useLandmarkFilter, cancellationToken, PlayerLoopTiming.Update);
+        landmarkResult = await poseLandmark.InvokeAsync(webcamTexture, poseResult, cancellationToken, PlayerLoopTiming.Update);
 
         // Back to the update timing from now on 
         if (cameraView != null)
