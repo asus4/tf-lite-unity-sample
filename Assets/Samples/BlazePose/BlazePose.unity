@@ -539,10 +539,12 @@ MonoBehaviour:
   cameraView: {fileID: 2074584278}
   debugView: {fileID: 1302103928}
   canvas: {fileID: 1051232097}
-  useLandmarkFilter: 1
-  filterVelocityScale: {x: 10, y: 10, z: 2}
   runBackground: 0
   visibilityThreshold: 0.5
+  landmarkOptions:
+    useWorldLandmarks: 1
+    useFilter: 1
+    filterVelocityScale: {x: 10, y: 10, z: 2}
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0

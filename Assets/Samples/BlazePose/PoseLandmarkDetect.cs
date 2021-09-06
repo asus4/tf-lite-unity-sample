@@ -18,11 +18,13 @@ namespace TensorFlowLite
             public float score;
             // x, y, z, w = visibility
             public Vector4[] viewportLandmarks;
+            public Vector4[] worldLandmarks;
         }
 
         [System.Serializable]
         public class Options
         {
+            public bool useWorldLandmarks = true;
             public bool useFilter = true;
             public Vector3 filterVelocityScale = new Vector3(10, 10, 2);
 
@@ -54,10 +56,10 @@ namespace TensorFlowLite
         private readonly float[] output1 = new float[1];
         // output_segmentation, not in use
         // private float[,] output2 = new float[128, 128]; 
-        // output_heatmap, not in use
-        // private float[,,] output3 = new float[64, 64, 39];
-        // world_3d, not in use
-        // private float[] output4 = new float[117];
+        // output_heatmap
+        private readonly float[,,] output3 = new float[64, 64, 39];
+        // world_3d
+        private readonly float[] output4 = new float[117];
 
         private readonly Result result;
         private readonly Stopwatch stopwatch;
@@ -102,16 +104,16 @@ namespace TensorFlowLite
 
         public void Invoke(Texture inputTex, PoseDetect.Result pose)
         {
-            var options = (inputTex is WebCamTexture)
-                ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
-                : resizeOptions;
+            var resizeOptions = (inputTex is WebCamTexture)
+                ? this.resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
+                : this.resizeOptions;
 
-            cropMatrix = CalcCropMatrix(ref pose, ref options);
+            cropMatrix = CalcCropMatrix(ref pose, ref resizeOptions);
 
             RenderTexture rt = resizer.Resize(
-               inputTex, options.width, options.height, true,
+               inputTex, resizeOptions.width, resizeOptions.height, true,
                cropMatrix,
-               TextureResizer.GetTextureST(inputTex, options));
+               TextureResizer.GetTextureST(inputTex, resizeOptions));
             ToTensor(rt, input0, false);
 
             interpreter.SetInputTensorData(0, input0);
@@ -119,19 +121,24 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
             // interpreter.GetOutputTensorData(2, output2);// not in use
+            if (options.useWorldLandmarks)
+            {
+                interpreter.GetOutputTensorData(3, output3);
+                interpreter.GetOutputTensorData(4, output4);
+            }
         }
 
         public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, CancellationToken cancellationToken, PlayerLoopTiming timing)
         {
-            var options = (inputTex is WebCamTexture)
-                ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
-                : resizeOptions;
+            var resizeOptions = (inputTex is WebCamTexture)
+                ? base.resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
+                : base.resizeOptions;
 
-            cropMatrix = CalcCropMatrix(ref pose, ref options);
+            cropMatrix = CalcCropMatrix(ref pose, ref resizeOptions);
             RenderTexture rt = resizer.Resize(
-              inputTex, options.width, options.height, true,
+              inputTex, resizeOptions.width, resizeOptions.height, true,
               cropMatrix,
-              TextureResizer.GetTextureST(inputTex, options));
+              TextureResizer.GetTextureST(inputTex, resizeOptions));
             await ToTensorAsync(rt, input0, false, cancellationToken);
             await UniTask.SwitchToThreadPool();
 
@@ -139,7 +146,11 @@ namespace TensorFlowLite
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
-
+            if (options.useWorldLandmarks)
+            {
+                interpreter.GetOutputTensorData(3, output3);
+                interpreter.GetOutputTensorData(4, output4);
+            }
             var result = GetResult();
             await UniTask.SwitchToMainThread(timing, cancellationToken);
 
@@ -200,7 +211,26 @@ namespace TensorFlowLite
                 }
             }
 
+            if (options.useWorldLandmarks)
+            {
+                CalcWorldLandmarks(result);
+            }
+
             return result;
+        }
+
+        private void CalcWorldLandmarks(Result result)
+        {
+            int dimensions = output4.Length / LandmarkCount;
+            for (int i = 0; i < LandmarkCount; i++)
+            {
+                result.worldLandmarks[i] = new Vector4(
+                    output4[i * dimensions],
+                    output4[i * dimensions + 1],
+                    output4[i * dimensions + 2],
+                    result.viewportLandmarks[i].w
+                );
+            }
         }
 
         private static Rect AlignmentPointsToRect(in Vector2 center, in Vector2 scale)
