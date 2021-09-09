@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <cstdarg>
 #include <cstring>
 
 extern "C" {
