@@ -9,6 +9,7 @@ using UnityEngine.UI;
 /// https://github.com/google/mediapipe
 /// https://viz.mediapipe.dev/demo/pose_tracking
 /// </summary>
+[RequireComponent(typeof(WebCamInput))]
 public sealed class BlazePoseSample : MonoBehaviour
 {
 
@@ -31,7 +32,6 @@ public sealed class BlazePoseSample : MonoBehaviour
 
     private readonly Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
 
-    private WebCamTexture webcamTexture;
     private PoseDetect poseDetect;
     private PoseLandmarkDetect poseLandmark;
 
@@ -49,40 +49,36 @@ public sealed class BlazePoseSample : MonoBehaviour
         // Init model
         poseDetect = new PoseDetect(poseDetectionModelFile);
         poseLandmark = new PoseLandmarkDetect(poseLandmarkModelFile, landmarkOptions);
-
-        // Init camera 
-        string cameraName = WebCamUtil.FindName(WebCamKind.WideAngle, false);
-        webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
-        cameraView.texture = webcamTexture;
-        webcamTexture.Play();
-        Debug.Log($"Starting camera: {cameraName}");
-
+     
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
         viewportLandmarks = new Vector4[PoseLandmarkDetect.LandmarkCount];
 
         cancellationToken = this.GetCancellationTokenOnDestroy();
+
+        GetComponent<WebCamInput>().OnTextureUpdate.AddListener(OnTextureUpdate);
     }
 
     private void OnDestroy()
     {
-        webcamTexture?.Stop();
+        GetComponent<WebCamInput>().OnTextureUpdate.RemoveListener(OnTextureUpdate);
+
         poseDetect?.Dispose();
         poseLandmark?.Dispose();
         draw?.Dispose();
     }
 
-    private void Update()
+    private void OnTextureUpdate(Texture texture)
     {
         if (runBackground)
         {
             if (task.Status.IsCompleted())
             {
-                task = InvokeAsync();
+                task = InvokeAsync(texture);
             }
         }
         else
         {
-            Invoke();
+            Invoke(texture);
         }
 
         if (poseResult != null && poseResult.score > 0f)
@@ -123,8 +119,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
 
-        var mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored)
-            * matrix.inverse;
+        Matrix4x4 mtx = matrix.inverse;
         Vector3 a = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(0, 0, 0)));
         Vector3 b = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(1, 0, 0)));
         Vector3 c = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(1, 1, 0)));
@@ -139,7 +134,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         draw.color = Color.blue;
 
         // Apply webcam rotation to draw landmarks correctly
-        Matrix4x4 mtx = WebCamUtil.GetMatrix(-webcamTexture.videoRotationAngle, false, webcamTexture.videoVerticallyMirrored);
+        Matrix4x4 mtx = Matrix4x4.identity;
 
         // float zScale = (max.x - min.x) / 2;
         float zScale = 1;
@@ -217,11 +212,11 @@ public sealed class BlazePoseSample : MonoBehaviour
         draw.Apply();
     }
 
-    private void Invoke()
+    private void Invoke(Texture texture)
     {
         if (NeedsDetectionUpdate)
         {
-            poseDetect.Invoke(webcamTexture);
+            poseDetect.Invoke(texture);
             cameraView.material = poseDetect.transformMat;
             cameraView.rectTransform.GetWorldCorners(rtCorners);
             poseResult = poseDetect.GetResults(0.7f, 0.3f);
@@ -232,7 +227,7 @@ public sealed class BlazePoseSample : MonoBehaviour
             landmarkResult = null;
             return;
         }
-        poseLandmark.Invoke(webcamTexture, poseResult);
+        poseLandmark.Invoke(texture, poseResult);
         debugView.texture = poseLandmark.inputTex;
 
         landmarkResult = poseLandmark.GetResult();
@@ -247,12 +242,12 @@ public sealed class BlazePoseSample : MonoBehaviour
         }
     }
 
-    private async UniTask<bool> InvokeAsync()
+    private async UniTask<bool> InvokeAsync(Texture texture)
     {
         if (NeedsDetectionUpdate)
         {
             // Note: `await` changes PlayerLoopTiming from Update to FixedUpdate.
-            poseResult = await poseDetect.InvokeAsync(webcamTexture, cancellationToken, PlayerLoopTiming.FixedUpdate);
+            poseResult = await poseDetect.InvokeAsync(texture, cancellationToken, PlayerLoopTiming.FixedUpdate);
         }
         if (poseResult.score < 0)
         {
@@ -261,7 +256,7 @@ public sealed class BlazePoseSample : MonoBehaviour
             return false;
         }
 
-        landmarkResult = await poseLandmark.InvokeAsync(webcamTexture, poseResult, cancellationToken, PlayerLoopTiming.Update);
+        landmarkResult = await poseLandmark.InvokeAsync(texture, poseResult, cancellationToken, PlayerLoopTiming.Update);
 
         // Back to the update timing from now on 
         if (cameraView != null)
