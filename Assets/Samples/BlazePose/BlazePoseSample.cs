@@ -133,13 +133,9 @@ public sealed class BlazePoseSample : MonoBehaviour
     {
         draw.color = Color.blue;
 
-        // Apply webcam rotation to draw landmarks correctly
-        Matrix4x4 mtx = Matrix4x4.identity;
-
-        // float zScale = (max.x - min.x) / 2;
         float zScale = 1;
         float zOffset = canvas.planeDistance;
-        float aspect = (float)Screen.width / (float)Screen.height;
+        float aspect = (float)Screen.width / Screen.height;
         Vector3 scale, offset;
         if (aspect > 1)
         {
@@ -156,8 +152,7 @@ public sealed class BlazePoseSample : MonoBehaviour
         var camera = canvas.worldCamera;
         for (int i = 0; i < landmarks.Length; i++)
         {
-            Vector3 p = mtx.MultiplyPoint3x4((Vector3)landmarks[i]);
-            p = Vector3.Scale(p, scale) + offset;
+            Vector3 p = Vector3.Scale(landmarks[i], scale) + offset;
             p = camera.ViewportToWorldPoint(p);
 
             // w is visibility
