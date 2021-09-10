@@ -10,4 +10,4 @@
 **/TensorFlowLiteCCoreML.framework/TensorFlowLiteCCoreML filter=lfs diff=lfs merge=lfs -text
 
 # Big TFLite models
-Assets/StreamingAssets/*.tflite filter=lfs diff=lfs merge=lfs -text
+*.tflite filter=lfs diff=lfs merge=lfs -text
