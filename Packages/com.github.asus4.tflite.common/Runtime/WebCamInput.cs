@@ -4,37 +4,12 @@ using UnityEngine.Events;
 namespace TensorFlowLite
 {
     /// <summary>
-    /// An wrapper for WebCamTexture that handles texture rotation
+    /// An wrapper for WebCamTexture that corrects texture rotation
     /// </summary>
     public sealed class WebCamInput : MonoBehaviour
     {
-        [System.Flags]
-        public enum Mode
-        {
-            MirrorFrontFacing = 0,
-            ScreenAspect = 1 << 0,
-        }
-
-        [System.Flags]
-        public enum Kind
-        {
-            WideAngle = 0,
-            Telephoto = 1 << 0,
-            ColorAndDepth = 1 << 1,
-            UltraWideAngle = 1 << 2,
-        }
-
-        [System.Flags]
-        public enum Facing
-        {
-            Front = 0,
-            Back = 1,
-        }
-
         [System.Serializable]
-        public class TextureUpdateEvent : UnityEvent<Texture>
-        {
-        }
+        public class TextureUpdateEvent : UnityEvent<Texture> { }
 
         [SerializeField, WebCamName] private string editorCameraName;
         [SerializeField] private WebCamKind preferKind = WebCamKind.WideAngle;
@@ -42,7 +17,6 @@ namespace TensorFlowLite
         [SerializeField] private int width = 1280;
         [SerializeField] private int height = 720;
         [SerializeField] private int fps = 60;
-        [SerializeField] private Mode mode;
         public TextureUpdateEvent OnTextureUpdate = new TextureUpdateEvent();
 
         private TextureResizer resizer;
