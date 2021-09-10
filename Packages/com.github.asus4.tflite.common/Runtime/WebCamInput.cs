@@ -1,53 +1,28 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Scripting;
 
 namespace TensorFlowLite
 {
     /// <summary>
-    /// An wrapper for WebCamTexture that handles texture rotation
+    /// An wrapper for WebCamTexture that corrects texture rotation
     /// </summary>
     public sealed class WebCamInput : MonoBehaviour
     {
-        [System.Flags]
-        public enum Mode
-        {
-            MirrorFrontFacing = 0,
-            ScreenAspect = 1 << 0,
-        }
-
-        [System.Flags]
-        public enum Kind
-        {
-            WideAngle = 0,
-            Telephoto = 1 << 0,
-            ColorAndDepth = 1 << 1,
-            UltraWideAngle = 1 << 2,
-        }
-
-        [System.Flags]
-        public enum Facing
-        {
-            Front = 0,
-            Back = 1,
-        }
-
         [System.Serializable]
-        public class TextureUpdateEvent : UnityEvent<Texture>
-        {
-        }
+        public class TextureUpdateEvent : UnityEvent<Texture> { }
 
         [SerializeField, WebCamName] private string editorCameraName;
         [SerializeField] private WebCamKind preferKind = WebCamKind.WideAngle;
         [SerializeField] private bool isFrontFacing = false;
-        [SerializeField] private int width = 1280;
-        [SerializeField] private int height = 720;
-        [SerializeField] private int fps = 60;
-        [SerializeField] private Mode mode;
+        [SerializeField] private Vector2Int requestSize = new Vector2Int(1280, 720);
+        [SerializeField] private int requestFps = 60;
         public TextureUpdateEvent OnTextureUpdate = new TextureUpdateEvent();
 
         private TextureResizer resizer;
         private WebCamTexture webCamTexture;
         private WebCamDevice[] devices;
+        private int deviceIndex;
 
         private void Start()
         {
@@ -56,14 +31,24 @@ namespace TensorFlowLite
             string cameraName = Application.isEditor
                 ? editorCameraName
                 : WebCamUtil.FindName(preferKind, isFrontFacing);
-            webCamTexture = new WebCamTexture(cameraName, width, height, fps);
-            webCamTexture.Play();
+
+            WebCamDevice device = default;
+            for (int i = 0; i < devices.Length; i++)
+            {
+                if (devices[i].name == cameraName)
+                {
+                    device = devices[i];
+                    deviceIndex = i;
+                    break;
+                }
+            }
+            StartCamera(device);
         }
 
         private void OnDestroy()
         {
+            StopCamera();
             resizer?.Dispose();
-            webCamTexture?.Stop();
         }
 
         private void Update()
@@ -72,6 +57,32 @@ namespace TensorFlowLite
 
             var tex = NormalizeWebcam(webCamTexture, Screen.width, Screen.height, isFrontFacing);
             OnTextureUpdate.Invoke(tex);
+        }
+
+        // Invoked by Unity Event
+        [Preserve]
+        public void ToggleCamera()
+        {
+            deviceIndex = (deviceIndex + 1) % devices.Length;
+            StartCamera(devices[deviceIndex]);
+        }
+
+        private void StartCamera(WebCamDevice device)
+        {
+            StopCamera();
+            isFrontFacing = device.isFrontFacing;
+            webCamTexture = new WebCamTexture(device.name, requestSize.x, requestSize.y, requestFps);
+            webCamTexture.Play();
+        }
+
+        private void StopCamera()
+        {
+            if (webCamTexture == null)
+            {
+                return;
+            }
+            webCamTexture.Stop();
+            Destroy(webCamTexture);
         }
 
         private RenderTexture NormalizeWebcam(WebCamTexture texture, int width, int height, bool isFrontFacing)
