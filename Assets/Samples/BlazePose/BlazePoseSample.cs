@@ -80,7 +80,10 @@ public sealed class BlazePoseSample : MonoBehaviour
         {
             Invoke(texture);
         }
+    }
 
+    private void Update()
+    {
         if (poseResult != null && poseResult.score > 0f)
         {
             DrawFrame(poseResult);
