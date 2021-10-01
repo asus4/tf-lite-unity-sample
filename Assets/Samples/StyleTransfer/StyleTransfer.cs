@@ -1,17 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace TensorFlowLite
 {
     public class StyleTransfer : BaseImagePredictor<float>
     {
-
-        float[] styleBottleneck;
-        float[,,] output0;
-        RenderTexture outputTex;
-        ComputeShader compute;
-        ComputeBuffer outputBuffer;
+        private readonly float[] styleBottleneck;
+        private readonly float[,,] output0;
+        private readonly RenderTexture outputTex;
+        private readonly ComputeShader compute;
+        private readonly ComputeBuffer outputBuffer;
 
         public StyleTransfer(string modelPath, float[] styleBottleneck, ComputeShader compute) : base(modelPath, true)
         {
