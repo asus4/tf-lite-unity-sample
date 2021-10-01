@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
-
 
 namespace TensorFlowLite
 {
 
     public class PalmDetect : BaseImagePredictor<float>
     {
-
-
         public struct Result
         {
             public float score;
@@ -23,14 +19,14 @@ namespace TensorFlowLite
         public const int MAX_PALM_NUM = 4;
 
         // classificators / scores
-        private float[] output0 = new float[2944];
+        private readonly float[] output0 = new float[2944];
 
         // regressors / points
         // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
         // 4 - 17 are 7 hand keypoint x and y coordinates: x1,y1,x2,y2,...x7,y7
-        private float[,] output1 = new float[2944, 18];
-        private List<Result> results = new List<Result>();
-        private SsdAnchor[] anchors;
+        private readonly float[,] output1 = new float[2944, 18];
+        private readonly List<Result> results = new List<Result>();
+        private readonly SsdAnchor[] anchors;
 
         public PalmDetect(string modelPath) : base(modelPath, true)
         {
@@ -58,7 +54,7 @@ namespace TensorFlowLite
             };
 
             anchors = SsdAnchorsCalculator.Generate(options);
-            UnityEngine.Debug.AssertFormat(anchors.Length == 2944, "Anchors count must be 2944");
+            Debug.AssertFormat(anchors.Length == 2944, "Anchors count must be 2944");
         }
 
         public override void Invoke(Texture inputTex)
@@ -173,8 +169,6 @@ namespace TensorFlowLite
 
             return filtered;
         }
-
-
 
     }
 }
