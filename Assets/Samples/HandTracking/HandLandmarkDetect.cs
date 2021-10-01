@@ -62,25 +62,21 @@ namespace TensorFlowLite
 
         public void Invoke(Texture inputTex, PalmDetect.Result palm)
         {
-            var options = (inputTex is WebCamTexture)
-                ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
-                : resizeOptions;
-
             cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
             {
                 rect = palm.rect,
                 rotationDegree = CalcHandRotation(ref palm) * Mathf.Rad2Deg,
                 shift = PalmShift,
                 scale = PalmScale,
-                cameraRotationDegree = -options.rotationDegree,
-                mirrorHorizontal = options.mirrorHorizontal,
-                mirrorVertiacal = options.mirrorVertical,
+                cameraRotationDegree = -resizeOptions.rotationDegree,
+                mirrorHorizontal = resizeOptions.mirrorHorizontal,
+                mirrorVertiacal = resizeOptions.mirrorVertical,
             });
 
             RenderTexture rt = resizer.Resize(
-                inputTex, options.width, options.height, true,
+                inputTex, resizeOptions.width, resizeOptions.height, true,
                 cropMatrix,
-                TextureResizer.GetTextureST(inputTex, options));
+                TextureResizer.GetTextureST(inputTex, resizeOptions));
             ToTensor(rt, input0, false);
 
             //
@@ -92,24 +88,21 @@ namespace TensorFlowLite
 
         public async UniTask<Result> InvokeAsync(Texture inputTex, PalmDetect.Result palm, CancellationToken cancellationToken)
         {
-            var options = (inputTex is WebCamTexture)
-               ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
-               : resizeOptions;
             cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
             {
                 rect = palm.rect,
                 rotationDegree = CalcHandRotation(ref palm) * Mathf.Rad2Deg,
                 shift = PalmShift,
                 scale = PalmScale,
-                cameraRotationDegree = -options.rotationDegree,
-                mirrorHorizontal = options.mirrorHorizontal,
-                mirrorVertiacal = options.mirrorVertical,
+                cameraRotationDegree = -resizeOptions.rotationDegree,
+                mirrorHorizontal = resizeOptions.mirrorHorizontal,
+                mirrorVertiacal = resizeOptions.mirrorVertical,
             });
 
             RenderTexture rt = resizer.Resize(
-                inputTex, options.width, options.height, true,
+                inputTex, resizeOptions.width, resizeOptions.height, true,
                 cropMatrix,
-                TextureResizer.GetTextureST(inputTex, options));
+                TextureResizer.GetTextureST(inputTex, resizeOptions));
             await ToTensorAsync(rt, input0, false, cancellationToken);
             await UniTask.SwitchToThreadPool();
 
