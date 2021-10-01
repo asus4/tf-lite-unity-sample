@@ -104,10 +104,6 @@ namespace TensorFlowLite
 
         public void Invoke(Texture inputTex, PoseDetect.Result pose)
         {
-            var resizeOptions = (inputTex is WebCamTexture)
-                ? this.resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
-                : this.resizeOptions;
-
             cropMatrix = CalcCropMatrix(ref pose, ref resizeOptions);
 
             RenderTexture rt = resizer.Resize(
@@ -130,10 +126,6 @@ namespace TensorFlowLite
 
         public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, CancellationToken cancellationToken, PlayerLoopTiming timing)
         {
-            var resizeOptions = (inputTex is WebCamTexture)
-                ? base.resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
-                : base.resizeOptions;
-
             cropMatrix = CalcCropMatrix(ref pose, ref resizeOptions);
             RenderTexture rt = resizer.Resize(
               inputTex, resizeOptions.width, resizeOptions.height, true,
