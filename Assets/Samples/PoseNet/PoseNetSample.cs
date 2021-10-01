@@ -1,82 +1,89 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
+﻿using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
 using Cysharp.Threading.Tasks;
 
+[RequireComponent(typeof(WebCamInput))]
 public class PoseNetSample : MonoBehaviour
 {
-    [SerializeField, FilePopup("*.tflite")] string fileName = "posenet_mobilenet_v1_100_257x257_multi_kpt_stripped.tflite";
-    [SerializeField] RawImage cameraView = null;
-    [SerializeField, Range(0f, 1f)] float threshold = 0.5f;
-    [SerializeField, Range(0f, 1f)] float lineThickness = 0.5f;
-    [SerializeField] bool runBackground;
+    [SerializeField, FilePopup("*.tflite")]
+    private string fileName = "posenet_mobilenet_v1_100_257x257_multi_kpt_stripped.tflite";
 
-    WebCamTexture webcamTexture;
-    PoseNet poseNet;
-    Vector3[] corners = new Vector3[4];
-    PrimitiveDraw draw;
-    UniTask<bool> task;
-    PoseNet.Result[] results;
-    CancellationToken cancellationToken;
+    [SerializeField]
+    private RawImage cameraView = null;
 
-    void Start()
+    [SerializeField, Range(0f, 1f)]
+    private float threshold = 0.5f;
+
+    [SerializeField, Range(0f, 1f)]
+    private float lineThickness = 0.5f;
+
+    [SerializeField]
+    private bool runBackground;
+
+    private PoseNet poseNet;
+    private readonly Vector3[] rtCorners = new Vector3[4];
+    private PrimitiveDraw draw;
+    private UniTask<bool> task;
+    private PoseNet.Result[] results;
+    private CancellationToken cancellationToken;
+
+    private void Start()
     {
-        string path = Path.Combine(Application.streamingAssetsPath, fileName);
-        poseNet = new PoseNet(path);
+        poseNet = new PoseNet(fileName);
 
-        // Init camera
-        string cameraName = WebCamUtil.FindName();
-        webcamTexture = new WebCamTexture(cameraName, 640, 480, 30);
-        webcamTexture.Play();
-        cameraView.texture = webcamTexture;
-
-        draw = new PrimitiveDraw()
+        draw = new PrimitiveDraw(Camera.main, gameObject.layer)
         {
             color = Color.green,
         };
 
         cancellationToken = this.GetCancellationTokenOnDestroy();
+
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
-        webcamTexture?.Stop();
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
+
         poseNet?.Dispose();
         draw?.Dispose();
     }
 
-    void Update()
+    private void Update()
+    {
+        DrawResult(results);
+    }
+
+    private void OnTextureUpdate(Texture texture)
     {
         if (runBackground)
         {
             if (task.Status.IsCompleted())
             {
-                task = InvokeAsync();
+                task = InvokeAsync(texture);
             }
         }
         else
         {
-            poseNet.Invoke(webcamTexture);
-            results = poseNet.GetResults();
-            cameraView.material = poseNet.transformMat;
-        }
-
-        if (results != null)
-        {
-            DrawResult();
+            Invoke(texture);
         }
     }
 
-    void DrawResult()
+    private void DrawResult(PoseNet.Result[] results)
     {
+        if (results == null || results.Length == 0)
+        {
+            return;
+        }
+
         var rect = cameraView.GetComponent<RectTransform>();
-        rect.GetWorldCorners(corners);
-        Vector3 min = corners[0];
-        Vector3 max = corners[2];
+        rect.GetWorldCorners(rtCorners);
+        Vector3 min = rtCorners[0];
+        Vector3 max = rtCorners[2];
 
         var connections = PoseNet.Connections;
         int len = connections.GetLength(0);
@@ -97,9 +104,16 @@ public class PoseNetSample : MonoBehaviour
         draw.Apply();
     }
 
-    async UniTask<bool> InvokeAsync()
+    private void Invoke(Texture texture)
     {
-        results = await poseNet.InvokeAsync(webcamTexture, cancellationToken);
+        poseNet.Invoke(texture);
+        results = poseNet.GetResults();
+        cameraView.material = poseNet.transformMat;
+    }
+
+    private async UniTask<bool> InvokeAsync(Texture texture)
+    {
+        results = await poseNet.InvokeAsync(texture, cancellationToken);
         cameraView.material = poseNet.transformMat;
         return true;
     }

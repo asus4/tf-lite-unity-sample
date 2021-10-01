@@ -1,45 +1,44 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using TensorFlowLite;
+﻿using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(WebCamInput))]
 public class MeetSegmentationSample : MonoBehaviour
 {
-    [SerializeField, FilePopup("*.tflite")] string fileName = "deeplabv3_257_mv_gpu.tflite";
-    [SerializeField] RawImage cameraView = null;
-    [SerializeField] RawImage outputView = null;
-    [SerializeField] ComputeShader compute = null;
+    [SerializeField, FilePopup("*.tflite")]
+    private string fileName = "deeplabv3_257_mv_gpu.tflite";
 
-    WebCamTexture webcamTexture;
-    MeetSegmentation segmentation;
+    [SerializeField]
+    private RawImage cameraView = null;
 
+    [SerializeField]
+    private RawImage outputView = null;
 
-    void Start()
+    [SerializeField]
+    private ComputeShader compute = null;
+
+    private MeetSegmentation segmentation;
+
+    private void Start()
     {
-        string path = Path.Combine(Application.streamingAssetsPath, fileName);
-        segmentation = new MeetSegmentation(path, compute);
+        segmentation = new MeetSegmentation(fileName, compute);
 
-        // Init camera
-        string cameraName = WebCamUtil.FindName();
-        webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
-        webcamTexture.Play();
-        cameraView.texture = webcamTexture;
-
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
-        webcamTexture?.Stop();
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
+
         segmentation?.Dispose();
     }
 
-    void Update()
+    private void OnTextureUpdate(Texture texture)
     {
-        segmentation.Invoke(webcamTexture);
+        segmentation.Invoke(texture);
         cameraView.material = segmentation.transformMat;
-
         outputView.texture = segmentation.GetResultTexture();
     }
 }

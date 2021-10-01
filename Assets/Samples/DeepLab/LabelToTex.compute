@@ -1,4 +1,5 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Init
 #pragma kernel LabelToTex
 
 struct Label
@@ -6,6 +7,8 @@ struct Label
     float scores[21];
 };
 
+uint Width;
+uint Height;
 StructuredBuffer<Label> LabelBuffer;
 StructuredBuffer<float4> ColorTable;
 RWTexture2D<float4> Result;
@@ -26,10 +29,16 @@ inline int ArgMax(in Label label)
     return maxIndex; 
 }
 
+[numthreads(1,1,1)]
+void Init (uint2 tid : SV_DispatchThreadID)
+{
+    Result[tid] = float4(0, 0, 0, 1);
+}
+
 [numthreads(8,8,1)]
 void LabelToTex (uint2 tid : SV_DispatchThreadID)
 {
-    uint gid = (257 - tid.y) * 257 + tid.x;
+    uint gid = (Height - 1 - tid.y) * Width + tid.x;
     Label label = LabelBuffer[gid];
     int maxScore = ArgMax(label);
     float4 c = ColorTable[maxScore];

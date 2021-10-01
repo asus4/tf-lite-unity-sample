@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 
@@ -24,9 +22,9 @@ namespace TensorFlowLite
         public static readonly int[] CONNECTIONS = new int[] { 0, 1, 1, 2, 2, 3, 3, 4, 0, 5, 5, 6, 6, 7, 7, 8, 5, 9, 9, 10, 10, 11, 11, 12, 9, 13, 13, 14, 14, 15, 15, 16, 13, 17, 0, 17, 17, 18, 18, 19, 19, 20, };
         public const int JOINT_COUNT = 21;
 
-        private float[] output0 = new float[JOINT_COUNT * 2]; // keypoint
-        private float[] output1 = new float[1]; // hand flag
-        private Result result;
+        private readonly float[] output0 = new float[JOINT_COUNT * 2]; // keypoint
+        private readonly float[] output1 = new float[1]; // hand flag
+        private readonly Result result;
         private Matrix4x4 cropMatrix;
 
         public Dimension Dim { get; private set; }
