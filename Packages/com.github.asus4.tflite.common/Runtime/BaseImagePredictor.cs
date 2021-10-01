@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace TensorFlowLite
 {
-    public abstract class BaseImagePredictor<T> : System.IDisposable where T : struct
+    public abstract class BaseImagePredictor<T> : System.IDisposable
+        where T : struct
     {
         protected Interpreter interpreter;
         protected int width;

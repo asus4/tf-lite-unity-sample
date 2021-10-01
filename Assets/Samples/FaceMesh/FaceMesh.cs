@@ -39,25 +39,21 @@ namespace TensorFlowLite
 
         public void Invoke(Texture inputTex, FaceDetect.Result face)
         {
-            var options = (inputTex is WebCamTexture)
-                ? resizeOptions.GetModifedForWebcam((WebCamTexture)inputTex)
-                : resizeOptions;
-
             cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
             {
                 rect = face.rect,
                 rotationDegree = CalcFaceRotation(ref face) * Mathf.Rad2Deg,
                 shift = FaceShift,
                 scale = FaceScale,
-                cameraRotationDegree = -options.rotationDegree,
-                mirrorHorizontal = options.mirrorHorizontal,
-                mirrorVertiacal = options.mirrorVertical,
+                cameraRotationDegree = -resizeOptions.rotationDegree,
+                mirrorHorizontal = resizeOptions.mirrorHorizontal,
+                mirrorVertiacal = resizeOptions.mirrorVertical,
             });
 
             RenderTexture rt = resizer.Resize(
-                inputTex, options.width, options.height, true,
+                inputTex, resizeOptions.width, resizeOptions.height, true,
                 cropMatrix,
-                TextureResizer.GetTextureST(inputTex, options));
+                TextureResizer.GetTextureST(inputTex, resizeOptions));
             ToTensor(rt, input0, false);
 
             //
