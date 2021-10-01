@@ -37,16 +37,16 @@ namespace TensorFlowLite
 
         // https://www.tensorflow.org/lite/models/segmentation/overview
 
-        float[,,] outputs0; // height, width, 21
+        private readonly float[,,] outputs0; // height, width, 21
 
-        ComputeShader compute;
-        ComputeBuffer labelBuffer;
-        ComputeBuffer colorTableBuffer;
-        RenderTexture labelTex;
+        private readonly ComputeShader compute;
+        private readonly ComputeBuffer labelBuffer;
+        private readonly ComputeBuffer colorTableBuffer;
+        private readonly RenderTexture labelTex;
 
-        Color32[] labelPixels;
-        Texture2D labelTex2D;
-
+        private readonly Color32[] labelPixels;
+        private readonly Texture2D labelTex2D;
+        private readonly int labelToTexKernel;
 
         public DeepLab(string modelPath, ComputeShader compute) : base(modelPath, true)
         {
@@ -60,17 +60,24 @@ namespace TensorFlowLite
             labelTex2D = new Texture2D(width, height, TextureFormat.RGBA32, 0, false);
 
             // Init compute sahder resources
-            this.compute = compute;
             labelTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             labelTex.enableRandomWrite = true;
             labelTex.Create();
             labelBuffer = new ComputeBuffer(height * width, sizeof(float) * 21);
             colorTableBuffer = new ComputeBuffer(21, sizeof(float) * 4);
 
+            int initKernal = compute.FindKernel("Init");
+            this.compute = compute;
+            compute.SetInt("Width", width);
+            compute.SetInt("Height", height);
+            compute.SetTexture(initKernal, "Result", labelTex);
+            compute.Dispatch(initKernal, width, height, 1);
+
+            labelToTexKernel = compute.FindKernel("LabelToTex");
+
             // Init RGBA color table
             var table = COLOR_TABLE.Select(c => c.ToRGBA()).ToList();
             colorTableBuffer.SetData(table);
-
         }
 
         public override void Dispose()
@@ -102,51 +109,13 @@ namespace TensorFlowLite
         public RenderTexture GetResultTexture()
         {
             labelBuffer.SetData(outputs0);
-            compute.SetBuffer(0, "LabelBuffer", labelBuffer);
-            compute.SetBuffer(0, "ColorTable", colorTableBuffer);
-            compute.SetTexture(0, "Result", labelTex);
+            compute.SetBuffer(labelToTexKernel, "LabelBuffer", labelBuffer);
+            compute.SetBuffer(labelToTexKernel, "ColorTable", colorTableBuffer);
+            compute.SetTexture(labelToTexKernel, "Result", labelTex);
 
-            compute.Dispatch(0, 256 / 8, 256 / 8, 1);
+            compute.Dispatch(labelToTexKernel, 256 / 8, 256 / 8, 1);
 
             return labelTex;
-        }
-
-        public Texture2D GetResultTexture2D()
-        {
-
-            int rows = outputs0.GetLength(0); // y
-            int cols = outputs0.GetLength(1); // x
-            int labels = outputs0.GetLength(2);
-
-            for (int y = 0; y < rows; y++)
-            {
-                for (int x = 0; x < cols; x++)
-                {
-                    int argmax = ArgMaxZ(outputs0, y, x, labels);
-                    labelPixels[(rows - 1 - y) * cols + x] = COLOR_TABLE[argmax];
-                }
-            }
-
-            labelTex2D.SetPixels32(labelPixels);
-            labelTex2D.Apply();
-
-            return labelTex2D;
-        }
-
-        private static int ArgMaxZ(float[,,] arr, int x, int y, int numZ)
-        {
-            // Argmax
-            int maxIndex = -1;
-            float maxScore = float.MinValue;
-            for (int z = 0; z < numZ; z++)
-            {
-                if (arr[x, y, z] > maxScore)
-                {
-                    maxScore = arr[x, y, z];
-                    maxIndex = z;
-                }
-            }
-            return maxIndex;
         }
 
         private static Color32 ToColor(uint c)
