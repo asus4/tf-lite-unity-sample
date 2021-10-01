@@ -1,43 +1,42 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(WebCamInput))]
 public sealed class FaceMeshSample : MonoBehaviour
 {
-    [SerializeField, FilePopup("*.tflite")] string faceModelFile = "coco_ssd_mobilenet_quant.tflite";
-    [SerializeField, FilePopup("*.tflite")] string faceMeshModelFile = "coco_ssd_mobilenet_quant.tflite";
-    [SerializeField] bool useLandmarkToDetection = true;
-    [SerializeField] RawImage cameraView = null;
-    [SerializeField] RawImage croppedView = null;
-    [SerializeField] Material faceMaterial = null;
+    [SerializeField, FilePopup("*.tflite")]
+    private string faceModelFile = "coco_ssd_mobilenet_quant.tflite";
 
+    [SerializeField, FilePopup("*.tflite")]
+    private string faceMeshModelFile = "coco_ssd_mobilenet_quant.tflite";
 
+    [SerializeField]
+    private bool useLandmarkToDetection = true;
 
-    WebCamTexture webcamTexture;
-    FaceDetect faceDetect;
-    FaceMesh faceMesh;
-    PrimitiveDraw draw;
-    Vector3[] rtCorners = new Vector3[4];
-    MeshFilter faceMeshFilter;
-    Vector3[] faceKeypoints;
-    FaceDetect.Result detection;
+    [SerializeField]
+    private RawImage cameraView = null;
 
-    void Start()
+    [SerializeField]
+    private RawImage croppedView = null;
+
+    [SerializeField]
+    private Material faceMaterial = null;
+
+    private FaceDetect faceDetect;
+    private FaceMesh faceMesh;
+    private PrimitiveDraw draw;
+    private MeshFilter faceMeshFilter;
+    private Vector3[] faceKeypoints;
+    private FaceDetect.Result detectionResult;
+    private FaceMesh.Result meshResult;
+    private readonly Vector3[] rtCorners = new Vector3[4];
+
+    private void Start()
     {
-        string detectionPath = Path.Combine(Application.streamingAssetsPath, faceModelFile);
-        faceDetect = new FaceDetect(detectionPath);
-
-        string faceMeshPath = Path.Combine(Application.streamingAssetsPath, faceMeshModelFile);
-        faceMesh = new FaceMesh(faceMeshPath);
-
-        string cameraName = WebCamUtil.FindName(WebCamKind.WideAngle, false);
-        webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
-        cameraView.texture = webcamTexture;
-        webcamTexture.Play();
-        Debug.Log($"Starting camera: {cameraName}");
-
+        faceDetect = new FaceDetect(faceModelFile);
+        faceMesh = new FaceMesh(faceMeshModelFile);
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
 
         // Create Face Mesh Renderer
@@ -52,55 +51,64 @@ public sealed class FaceMeshSample : MonoBehaviour
 
             faceKeypoints = new Vector3[FaceMesh.KEYPOINT_COUNT];
         }
+
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
-        webcamTexture?.Stop();
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
+
         faceDetect?.Dispose();
         faceMesh?.Dispose();
         draw?.Dispose();
     }
 
-    void Update()
+    private void Update()
     {
-        if (detection == null || !useLandmarkToDetection)
-        {
-            faceDetect.Invoke(webcamTexture);
-            cameraView.material = faceDetect.transformMat;
-            detection = faceDetect.GetResults().FirstOrDefault();
+        DrawResults(detectionResult, meshResult);
+    }
 
-            if (detection == null)
+    private void OnTextureUpdate(Texture texture)
+    {
+        if (detectionResult == null || !useLandmarkToDetection)
+        {
+            faceDetect.Invoke(texture);
+            cameraView.material = faceDetect.transformMat;
+            detectionResult = faceDetect.GetResults().FirstOrDefault();
+
+            if (detectionResult == null)
             {
                 return;
             }
         }
 
-        faceMesh.Invoke(webcamTexture, detection);
+        faceMesh.Invoke(texture, detectionResult);
         croppedView.texture = faceMesh.inputTex;
-        var meshResult = faceMesh.GetResult();
+        meshResult = faceMesh.GetResult();
 
         if (meshResult.score < 0.5f)
         {
-            detection = null;
+            detectionResult = null;
             return;
         }
 
-        DrawResults(detection, meshResult);
-
         if (useLandmarkToDetection)
         {
-            detection = faceMesh.LandmarkToDetection(meshResult);
+            detectionResult = faceMesh.LandmarkToDetection(meshResult);
         }
     }
 
-    void DrawResults(FaceDetect.Result detection, FaceMesh.Result face)
+    private void DrawResults(FaceDetect.Result detection, FaceMesh.Result face)
     {
         cameraView.rectTransform.GetWorldCorners(rtCorners);
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
 
         // Draw Face Detection
+        if (detection != null)
         {
             draw.color = Color.blue;
             Rect rect = MathTF.Lerp(min, max, detection.rect, true);
@@ -109,22 +117,29 @@ public sealed class FaceMeshSample : MonoBehaviour
             {
                 draw.Point(MathTF.Lerp(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
             }
+            draw.Apply();
         }
-        draw.Apply();
 
-        // Draw face
-        draw.color = Color.green;
-        float zScale = (max.x - min.x) / 2;
-        for (int i = 0; i < face.keypoints.Length; i++)
+        if (face != null)
         {
-            Vector3 p = MathTF.Lerp(min, max, face.keypoints[i]);
-            p.z = face.keypoints[i].z * zScale;
-            faceKeypoints[i] = p;
-            draw.Point(p, 0.05f);
-        }
-        draw.Apply();
+            // Draw face
+            draw.color = Color.green;
+            float zScale = (max.x - min.x) / 2;
+            for (int i = 0; i < face.keypoints.Length; i++)
+            {
+                Vector3 kp = face.keypoints[i];
+                kp.y = 1f - kp.y;
 
-        // Update Mesh
-        FaceMeshBuilder.UpdateMesh(faceMeshFilter.sharedMesh, faceKeypoints);
+                Vector3 p = MathTF.Lerp(min, max, kp);
+                p.z = face.keypoints[i].z * zScale;
+
+                faceKeypoints[i] = p;
+                draw.Point(p, 0.05f);
+            }
+            draw.Apply();
+
+            // Update Mesh
+            FaceMeshBuilder.UpdateMesh(faceMeshFilter.sharedMesh, faceKeypoints);
+        }
     }
 }

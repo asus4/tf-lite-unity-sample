@@ -6,11 +6,11 @@ namespace TensorFlowLite
 
     public sealed class MeetSegmentation : BaseImagePredictor<float>
     {
-        float[,,] output0; // height, width, 2
+        private float[,,] output0; // height, width, 2
 
-        ComputeShader compute;
-        ComputeBuffer labelBuffer;
-        RenderTexture labelTex;
+        private readonly ComputeShader compute;
+        private ComputeBuffer labelBuffer;
+        private RenderTexture labelTex;
 
         public MeetSegmentation(string modelPath, ComputeShader compute) : base(modelPath, true)
         {
@@ -29,8 +29,6 @@ namespace TensorFlowLite
             labelTex.enableRandomWrite = true;
             labelTex.Create();
             labelBuffer = new ComputeBuffer(height * width, sizeof(float) * 2);
-
-            Debug.Log(compute);
         }
 
         public override void Dispose()
