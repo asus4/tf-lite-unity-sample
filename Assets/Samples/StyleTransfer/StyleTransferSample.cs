@@ -1,58 +1,54 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
 
+[RequireComponent(typeof(WebCamInput))]
 public class StyleTransferSample : MonoBehaviour
 {
-    [SerializeField, FilePopup("*.tflite")] string predictionFileName = "style_predict_quantized_256.tflite";
-    [SerializeField, FilePopup("*.tflite")] string transferFileName = "style_transfer_quantized_dynamic.tflite";
-    [SerializeField] Texture2D styleImage = null;
-    [SerializeField] RawImage preview = null;
-    [SerializeField] ComputeShader compute = null;
+    [SerializeField, FilePopup("*.tflite")]
+    private string predictionFileName = "style_predict_quantized_256.tflite";
 
-    WebCamTexture webcamTexture;
-    StyleTransfer styleTransfer;
-    float[] styleBottleneck;
+    [SerializeField, FilePopup("*.tflite")]
+    private string transferFileName = "style_transfer_quantized_dynamic.tflite";
 
-    void Start()
+    [SerializeField]
+    private Texture2D styleImage = null;
+
+    [SerializeField]
+    private RawImage preview = null;
+
+    [SerializeField]
+    private ComputeShader compute = null;
+
+    private StyleTransfer styleTransfer;
+    private float[] styleBottleneck;
+
+    private void Start()
     {
         // Predict style bottleneck;
-        string predictionModelPath = Path.Combine(Application.streamingAssetsPath, predictionFileName);
-        using (var predict = new StylePredict(predictionModelPath))
+        using (var predict = new StylePredict(predictionFileName))
         {
             predict.Invoke(styleImage);
             styleBottleneck = predict.GetStyleBottleneck();
         }
 
-        string transferModelPath = Path.Combine(Application.streamingAssetsPath, transferFileName);
-        styleTransfer = new StyleTransfer(transferModelPath, styleBottleneck, compute);
+        styleTransfer = new StyleTransfer(transferFileName, styleBottleneck, compute);
 
-        // Init camera
-        string cameraName = WebCamUtil.FindName();
-        webcamTexture = new WebCamTexture(cameraName, 640, 480, 30);
-        webcamTexture.Play();
-        preview.texture = webcamTexture;
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
+
         styleTransfer?.Dispose();
     }
 
-    void Update()
+    private void OnTextureUpdate(Texture texture)
     {
-
-        // styleTransfer.Invoke(sampleTexture);
-        styleTransfer.Invoke(webcamTexture);
-
+        styleTransfer.Invoke(texture);
         preview.texture = styleTransfer.GetResultTexture();
-
-        // preview.uvRect = TextureToTensor.GetUVRect(
-        //     (float)webcamTexture.width / (float)webcamTexture.height,
-        //     1,
-        //     TextureToTensor.AspectMode.Fill);
     }
 }
