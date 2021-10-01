@@ -44,7 +44,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Samples/MeetSegmentation/MeetSegmentation.unity
     guid: 3faed22ad2fae4961aa041fdd414f617
-  - enabled: 1
-    path: Assets/Samples/TestWebcamRotation/TestWebcamRotation.unity
-    guid: 9d50926a120584683985b32230436be4
   m_configObjects: {}
