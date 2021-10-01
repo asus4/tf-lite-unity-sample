@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,52 +8,58 @@ using UnityEngine.UI;
 /// https://github.com/google/mediapipe
 /// https://viz.mediapipe.dev/demo/face_detection
 /// </summary>
+[RequireComponent(typeof(WebCamInput))]
 public class FaceDetectionSample : MonoBehaviour
 {
-    [SerializeField, FilePopup("*.tflite")] string faceModelFile = "coco_ssd_mobilenet_quant.tflite";
-    [SerializeField] RawImage cameraView = null;
+    [SerializeField, FilePopup("*.tflite")]
+    private string faceModelFile = "coco_ssd_mobilenet_quant.tflite";
 
-    WebCamTexture webcamTexture;
-    FaceDetect faceDetect;
-    List<FaceDetect.Result> results;
-    PrimitiveDraw draw;
-    Vector3[] rtCorners = new Vector3[4];
+    [SerializeField]
+    private RawImage cameraView = null;
 
-    void Start()
+    private FaceDetect faceDetect;
+    private List<FaceDetect.Result> results;
+    private PrimitiveDraw draw;
+    private readonly Vector3[] rtCorners = new Vector3[4];
+
+    private void Start()
     {
-        string detectionPath = Path.Combine(Application.streamingAssetsPath, faceModelFile);
-        faceDetect = new FaceDetect(detectionPath);
-
-        string cameraName = WebCamUtil.FindName(WebCamKind.WideAngle, false);
-        webcamTexture = new WebCamTexture(cameraName, 1280, 720, 30);
-        cameraView.texture = webcamTexture;
-        webcamTexture.Play();
-        Debug.Log($"Starting camera: {cameraName}");
-
+        faceDetect = new FaceDetect(faceModelFile);
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
+
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
-        webcamTexture?.Stop();
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
+
         faceDetect?.Dispose();
         draw?.Dispose();
     }
 
-    void Update()
+    private void Update()
     {
-        faceDetect.Invoke(webcamTexture);
-        cameraView.material = faceDetect.transformMat;
-        cameraView.rectTransform.GetWorldCorners(rtCorners);
-
-        var results = faceDetect.GetResults();
-        if (results == null) return;
-
         DrawResults(results);
     }
 
-    void DrawResults(List<FaceDetect.Result> results)
+    private void OnTextureUpdate(Texture texture)
     {
+        faceDetect.Invoke(texture);
+        cameraView.material = faceDetect.transformMat;
+        cameraView.rectTransform.GetWorldCorners(rtCorners);
+        results = faceDetect.GetResults();
+    }
+
+    private void DrawResults(List<FaceDetect.Result> results)
+    {
+        if (results == null || results.Count == 0)
+        {
+            return;
+        }
+
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
 
@@ -71,6 +76,4 @@ public class FaceDetectionSample : MonoBehaviour
         }
         draw.Apply();
     }
-
-
 }
