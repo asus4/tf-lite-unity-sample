@@ -58,6 +58,7 @@ namespace TensorFlowLite
             GCHandle modelDataHandle = GCHandle.Alloc(modelData, GCHandleType.Pinned);
             IntPtr modelDataPtr = modelDataHandle.AddrOfPinnedObject();
             model = TfLiteModelCreate(modelDataPtr, modelData.Length);
+            modelDataHandle.Free();
             if (model == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Model");
 
             this.options = options ?? new InterpreterOptions();
