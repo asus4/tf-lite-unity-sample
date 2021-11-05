@@ -94,8 +94,9 @@ namespace TensorFlowLite
             GCHandle tensorDataHandle = GCHandle.Alloc(inputTensorData, GCHandleType.Pinned);
             IntPtr tensorDataPtr = tensorDataHandle.AddrOfPinnedObject();
             TfLiteTensor tensor = TfLiteInterpreterGetInputTensor(interpreter, inputTensorIndex);
-            ThrowIfError(TfLiteTensorCopyFromBuffer(
-                tensor, tensorDataPtr, Buffer.ByteLength(inputTensorData)));
+            Status status = TfLiteTensorCopyFromBuffer(tensor, tensorDataPtr, Buffer.ByteLength(inputTensorData));
+            tensorDataHandle.Free();
+            ThrowIfError(status);
         }
 
         public unsafe void SetInputTensorData<T>(int inputTensorIndex, NativeArray<T> inputTensorData) where T : struct
@@ -127,8 +128,9 @@ namespace TensorFlowLite
             GCHandle tensorDataHandle = GCHandle.Alloc(outputTensorData, GCHandleType.Pinned);
             IntPtr tensorDataPtr = tensorDataHandle.AddrOfPinnedObject();
             TfLiteTensor tensor = TfLiteInterpreterGetOutputTensor(interpreter, outputTensorIndex);
-            ThrowIfError(TfLiteTensorCopyToBuffer(
-                tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData)));
+            Status status = TfLiteTensorCopyToBuffer(tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData));
+            tensorDataHandle.Free();
+            ThrowIfError(status);
         }
 
         public TensorInfo GetInputTensorInfo(int index)
