@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
+
 using System;
 using System.Runtime.InteropServices;
 using Unity.Collections;
@@ -47,7 +48,8 @@ namespace TensorFlowLite
 
         private TfLiteModel model = IntPtr.Zero;
         private TfLiteInterpreter interpreter = IntPtr.Zero;
-        private InterpreterOptions options = null;
+        private readonly InterpreterOptions options = null;
+        private readonly GCHandle modelDataHandle;
 
         internal TfLiteInterpreter InterpreterPointer => interpreter;
 
@@ -55,10 +57,9 @@ namespace TensorFlowLite
 
         public Interpreter(byte[] modelData, InterpreterOptions options)
         {
-            GCHandle modelDataHandle = GCHandle.Alloc(modelData, GCHandleType.Pinned);
+            modelDataHandle = GCHandle.Alloc(modelData, GCHandleType.Pinned);
             IntPtr modelDataPtr = modelDataHandle.AddrOfPinnedObject();
             model = TfLiteModelCreate(modelDataPtr, modelData.Length);
-            modelDataHandle.Free();
             if (model == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Model");
 
             this.options = options ?? new InterpreterOptions();
@@ -70,13 +71,20 @@ namespace TensorFlowLite
 
         public void Dispose()
         {
-            if (interpreter != IntPtr.Zero) TfLiteInterpreterDelete(interpreter);
-            interpreter = IntPtr.Zero;
+            if (interpreter != IntPtr.Zero)
+            {
+                TfLiteInterpreterDelete(interpreter);
+                interpreter = IntPtr.Zero;
+            }
 
-            if (model != IntPtr.Zero) TfLiteModelDelete(model);
-            model = IntPtr.Zero;
+            if (model != IntPtr.Zero)
+            {
+                TfLiteModelDelete(model);
+                model = IntPtr.Zero;
+            }
 
-            if (options != null) options.Dispose();
+            options?.Dispose();
+            modelDataHandle.Free();
         }
 
         public void Invoke()
