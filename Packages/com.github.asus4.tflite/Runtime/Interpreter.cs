@@ -14,6 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -50,6 +51,9 @@ namespace TensorFlowLite
         private TfLiteInterpreter interpreter = IntPtr.Zero;
         private readonly InterpreterOptions options = null;
         private readonly GCHandle modelDataHandle;
+        private readonly Dictionary<int, GCHandle> inputDataHandles = new Dictionary<int, GCHandle>();
+        private readonly Dictionary<int, GCHandle> outputDataHandles = new Dictionary<int, GCHandle>();
+
 
         internal TfLiteInterpreter InterpreterPointer => interpreter;
 
@@ -84,6 +88,15 @@ namespace TensorFlowLite
             }
 
             options?.Dispose();
+
+            foreach (var handle in inputDataHandles.Values)
+            {
+                handle.Free();
+            }
+            foreach (var handle in outputDataHandles.Values)
+            {
+                handle.Free();
+            }
             modelDataHandle.Free();
         }
 
@@ -99,12 +112,14 @@ namespace TensorFlowLite
 
         public void SetInputTensorData(int inputTensorIndex, Array inputTensorData)
         {
-            GCHandle tensorDataHandle = GCHandle.Alloc(inputTensorData, GCHandleType.Pinned);
+            if (!inputDataHandles.TryGetValue(inputTensorIndex, out GCHandle tensorDataHandle))
+            {
+                tensorDataHandle = GCHandle.Alloc(inputTensorData, GCHandleType.Pinned);
+                inputDataHandles.Add(inputTensorIndex, tensorDataHandle);
+            }
             IntPtr tensorDataPtr = tensorDataHandle.AddrOfPinnedObject();
             TfLiteTensor tensor = TfLiteInterpreterGetInputTensor(interpreter, inputTensorIndex);
-            Status status = TfLiteTensorCopyFromBuffer(tensor, tensorDataPtr, Buffer.ByteLength(inputTensorData));
-            tensorDataHandle.Free();
-            ThrowIfError(status);
+            ThrowIfError(TfLiteTensorCopyFromBuffer(tensor, tensorDataPtr, Buffer.ByteLength(inputTensorData)));
         }
 
         public unsafe void SetInputTensorData<T>(int inputTensorIndex, NativeArray<T> inputTensorData) where T : struct
@@ -133,12 +148,14 @@ namespace TensorFlowLite
 
         public void GetOutputTensorData(int outputTensorIndex, Array outputTensorData)
         {
-            GCHandle tensorDataHandle = GCHandle.Alloc(outputTensorData, GCHandleType.Pinned);
+            if (!outputDataHandles.TryGetValue(outputTensorIndex, out GCHandle tensorDataHandle))
+            {
+                tensorDataHandle = GCHandle.Alloc(outputTensorData, GCHandleType.Pinned);
+                outputDataHandles.Add(outputTensorIndex, tensorDataHandle);
+            }
             IntPtr tensorDataPtr = tensorDataHandle.AddrOfPinnedObject();
             TfLiteTensor tensor = TfLiteInterpreterGetOutputTensor(interpreter, outputTensorIndex);
-            Status status = TfLiteTensorCopyToBuffer(tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData));
-            tensorDataHandle.Free();
-            ThrowIfError(status);
+            ThrowIfError(TfLiteTensorCopyToBuffer(tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData)));
         }
 
         public TensorInfo GetInputTensorInfo(int index)
