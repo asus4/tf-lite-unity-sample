@@ -12,7 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
+
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -47,7 +49,11 @@ namespace TensorFlowLite
 
         private TfLiteModel model = IntPtr.Zero;
         private TfLiteInterpreter interpreter = IntPtr.Zero;
-        private InterpreterOptions options = null;
+        private readonly InterpreterOptions options = null;
+        private readonly GCHandle modelDataHandle;
+        private readonly Dictionary<int, GCHandle> inputDataHandles = new Dictionary<int, GCHandle>();
+        private readonly Dictionary<int, GCHandle> outputDataHandles = new Dictionary<int, GCHandle>();
+
 
         internal TfLiteInterpreter InterpreterPointer => interpreter;
 
@@ -55,10 +61,9 @@ namespace TensorFlowLite
 
         public Interpreter(byte[] modelData, InterpreterOptions options)
         {
-            GCHandle modelDataHandle = GCHandle.Alloc(modelData, GCHandleType.Pinned);
+            modelDataHandle = GCHandle.Alloc(modelData, GCHandleType.Pinned);
             IntPtr modelDataPtr = modelDataHandle.AddrOfPinnedObject();
             model = TfLiteModelCreate(modelDataPtr, modelData.Length);
-            modelDataHandle.Free();
             if (model == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Model");
 
             this.options = options ?? new InterpreterOptions();
@@ -70,13 +75,29 @@ namespace TensorFlowLite
 
         public void Dispose()
         {
-            if (interpreter != IntPtr.Zero) TfLiteInterpreterDelete(interpreter);
-            interpreter = IntPtr.Zero;
+            if (interpreter != IntPtr.Zero)
+            {
+                TfLiteInterpreterDelete(interpreter);
+                interpreter = IntPtr.Zero;
+            }
 
-            if (model != IntPtr.Zero) TfLiteModelDelete(model);
-            model = IntPtr.Zero;
+            if (model != IntPtr.Zero)
+            {
+                TfLiteModelDelete(model);
+                model = IntPtr.Zero;
+            }
 
-            if (options != null) options.Dispose();
+            options?.Dispose();
+
+            foreach (var handle in inputDataHandles.Values)
+            {
+                handle.Free();
+            }
+            foreach (var handle in outputDataHandles.Values)
+            {
+                handle.Free();
+            }
+            modelDataHandle.Free();
         }
 
         public void Invoke()
@@ -91,12 +112,14 @@ namespace TensorFlowLite
 
         public void SetInputTensorData(int inputTensorIndex, Array inputTensorData)
         {
-            GCHandle tensorDataHandle = GCHandle.Alloc(inputTensorData, GCHandleType.Pinned);
+            if (!inputDataHandles.TryGetValue(inputTensorIndex, out GCHandle tensorDataHandle))
+            {
+                tensorDataHandle = GCHandle.Alloc(inputTensorData, GCHandleType.Pinned);
+                inputDataHandles.Add(inputTensorIndex, tensorDataHandle);
+            }
             IntPtr tensorDataPtr = tensorDataHandle.AddrOfPinnedObject();
             TfLiteTensor tensor = TfLiteInterpreterGetInputTensor(interpreter, inputTensorIndex);
-            Status status = TfLiteTensorCopyFromBuffer(tensor, tensorDataPtr, Buffer.ByteLength(inputTensorData));
-            tensorDataHandle.Free();
-            ThrowIfError(status);
+            ThrowIfError(TfLiteTensorCopyFromBuffer(tensor, tensorDataPtr, Buffer.ByteLength(inputTensorData)));
         }
 
         public unsafe void SetInputTensorData<T>(int inputTensorIndex, NativeArray<T> inputTensorData) where T : struct
@@ -125,12 +148,14 @@ namespace TensorFlowLite
 
         public void GetOutputTensorData(int outputTensorIndex, Array outputTensorData)
         {
-            GCHandle tensorDataHandle = GCHandle.Alloc(outputTensorData, GCHandleType.Pinned);
+            if (!outputDataHandles.TryGetValue(outputTensorIndex, out GCHandle tensorDataHandle))
+            {
+                tensorDataHandle = GCHandle.Alloc(outputTensorData, GCHandleType.Pinned);
+                outputDataHandles.Add(outputTensorIndex, tensorDataHandle);
+            }
             IntPtr tensorDataPtr = tensorDataHandle.AddrOfPinnedObject();
             TfLiteTensor tensor = TfLiteInterpreterGetOutputTensor(interpreter, outputTensorIndex);
-            Status status = TfLiteTensorCopyToBuffer(tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData));
-            tensorDataHandle.Free();
-            ThrowIfError(status);
+            ThrowIfError(TfLiteTensorCopyToBuffer(tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData)));
         }
 
         public TensorInfo GetInputTensorInfo(int index)
