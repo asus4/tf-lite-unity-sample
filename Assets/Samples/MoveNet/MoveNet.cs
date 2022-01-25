@@ -73,7 +73,7 @@ namespace TensorFlowLite
         private readonly float[,] outputs0;
         public readonly Result[] results;
 
-        public MoveNet(string modelPath) : base(modelPath, false)
+        public MoveNet(string modelPath) : base(modelPath, true)
         {
             var odim0 = interpreter.GetOutputTensorInfo(0).shape;
 
