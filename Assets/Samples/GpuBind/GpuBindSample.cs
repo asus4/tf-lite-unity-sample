@@ -316,11 +316,11 @@ public class GpuBindSample : MonoBehaviour
         var glOptions = GpuDelegateV2.DefaultOptions;
         if (useBinding)
         {
-            glOptions.isPrecisionLossAllowed = 1;
-            glOptions.inferencePreference = (int)GpuDelegateV2.Usage.SustainedSpeed;
-            glOptions.inferencePriority1 = (int)GpuDelegateV2.InferencePriority.MinLatency;
-            glOptions.inferencePriority2 = (int)GpuDelegateV2.InferencePriority.Auto;
-            glOptions.inferencePriority3 = (int)GpuDelegateV2.InferencePriority.Auto;
+            glOptions.is_precision_loss_allowed = 1;
+            glOptions.inference_preference = (int)GpuDelegateV2.Usage.SustainedSpeed;
+            glOptions.inference_priority1 = (int)GpuDelegateV2.InferencePriority.MinLatency;
+            glOptions.inference_priority2 = (int)GpuDelegateV2.InferencePriority.Auto;
+            glOptions.inference_priority3 = (int)GpuDelegateV2.InferencePriority.Auto;
         }
         return new GpuDelegateV2(glOptions);
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
