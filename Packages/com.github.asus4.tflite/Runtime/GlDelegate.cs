@@ -14,7 +14,8 @@ limitations under the License.
 ==============================================================================*/
 
 
-#if UNITY_ANDROID && !UNITY_EDITOR
+// #if UNITY_ANDROID && !UNITY_EDITOR
+#if true
 
 using System.Runtime.InteropServices;
 using UnityEngine;

@@ -13,17 +13,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#if UNITY_ANDROID && !UNITY_EDITOR
+
+// #if UNITY_ANDROID && !UNITY_EDITOR
+#if true
+
 
 using System.Runtime.InteropServices;
 using UnityEngine;
 using TfLiteDelegate = System.IntPtr;
+using System.Diagnostics;
+using System.Threading;
+using Debug = UnityEngine.Debug;
 
 namespace TensorFlowLite
 {
     public class GpuDelegateV2 : IBindableDelegate
     {
-
         /// <summary>
         /// TfLiteGpuInferenceUsage
         /// Encapsulated compilation/runtime tradeoffs.
@@ -57,9 +62,11 @@ namespace TensorFlowLite
         public enum ExperimentalFlags
         {
             None = 0,
+
             // Enables inference on quantized models with the delegate.
             // NOTE: This is enabled in TfLiteGpuDelegateOptionsV2Default.
             EnableQuant = 1 << 0,
+
             // Enforces execution with the provided backend.
             ClOnly = 1 << 1,
             GlOnly = 1 << 2
@@ -71,13 +78,15 @@ namespace TensorFlowLite
         [StructLayout(LayoutKind.Sequential)]
         public struct Options
         {
-            public int isPrecisionLossAllowed;
-            public int inferencePreference;
-            public int inferencePriority1;
-            public int inferencePriority2;
-            public int inferencePriority3;
-            public long experimentalFlags;
-            public int maxDelegatedPartitions;
+            public int is_precision_loss_allowed;
+            public int inference_preference;
+            public int inference_priority1;
+            public int inference_priority2;
+            public int inference_priority3;
+            public long experimental_flags;
+            public int max_delegated_partitions;
+            public System.IntPtr serialization_dir;
+            public System.IntPtr model_token;
         };
 
         public TfLiteDelegate Delegate { get; private set; }
@@ -115,7 +124,8 @@ namespace TensorFlowLite
             return status == Interpreter.Status.Ok;
         }
 
-#region Externs
+        #region Externs
+
         private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_delegate";
 
         [DllImport(TensorFlowLibraryGPU)]
@@ -139,8 +149,7 @@ namespace TensorFlowLite
         private static extern unsafe Interpreter.Status TfLiteGpuDelegateV2BindOutputBuffer(
             TfLiteDelegate gpuDelegate, int index, uint buffer);
 
-#endregion // Externs
+        #endregion // Externs
     }
 }
 #endif // UNITY_ANDROID && !UNITY_EDITOR
-

@@ -40,16 +40,16 @@ namespace TensorFlowLite
             public override string ToString()
             {
                 return string.Format("name: {0}, type: {1}, dimensions: {2}, quantizationParams: {3}",
-                  name,
-                  type,
-                  "[" + string.Join(",", shape) + "]",
-                  "{" + quantizationParams + "}");
+                    name,
+                    type,
+                    "[" + string.Join(",", shape) + "]",
+                    "{" + quantizationParams + "}");
             }
         }
 
         private TfLiteModel model = IntPtr.Zero;
         private TfLiteInterpreter interpreter = IntPtr.Zero;
-        private readonly InterpreterOptions options = null;
+        private TfLiteInterpreterOptions options = IntPtr.Zero;
         private readonly GCHandle modelDataHandle;
         private readonly Dictionary<int, GCHandle> inputDataHandles = new Dictionary<int, GCHandle>();
         private readonly Dictionary<int, GCHandle> outputDataHandles = new Dictionary<int, GCHandle>();
@@ -57,7 +57,9 @@ namespace TensorFlowLite
 
         internal TfLiteInterpreter InterpreterPointer => interpreter;
 
-        public Interpreter(byte[] modelData) : this(modelData, null) { }
+        public Interpreter(byte[] modelData) : this(modelData, null)
+        {
+        }
 
         public Interpreter(byte[] modelData, InterpreterOptions options)
         {
@@ -66,12 +68,15 @@ namespace TensorFlowLite
             model = TfLiteModelCreate(modelDataPtr, modelData.Length);
             if (model == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Model");
 
-            this.options = options ?? new InterpreterOptions();
+            if (!options.Equals(default(InterpreterOptions)))
+            {
+                this.options = TfLiteInterpreterOptionsCreate();
+                TfLiteInterpreterOptionsSetNumThreads(this.options, options.threads);
+            }
 
-            interpreter = TfLiteInterpreterCreate(model, options.nativePtr);
+            interpreter = TfLiteInterpreterCreate(model, this.options);
             if (interpreter == IntPtr.Zero) throw new Exception("Failed to create TensorFlowLite Interpreter");
         }
-
 
         public void Dispose()
         {
@@ -87,16 +92,22 @@ namespace TensorFlowLite
                 model = IntPtr.Zero;
             }
 
-            options?.Dispose();
+            if (options != IntPtr.Zero)
+            {
+                TfLiteInterpreterOptionsDelete(options);
+                options = IntPtr.Zero;
+            }
 
             foreach (var handle in inputDataHandles.Values)
             {
                 handle.Free();
             }
+
             foreach (var handle in outputDataHandles.Values)
             {
                 handle.Free();
             }
+
             modelDataHandle.Free();
         }
 
@@ -117,6 +128,7 @@ namespace TensorFlowLite
                 tensorDataHandle = GCHandle.Alloc(inputTensorData, GCHandleType.Pinned);
                 inputDataHandles.Add(inputTensorIndex, tensorDataHandle);
             }
+
             IntPtr tensorDataPtr = tensorDataHandle.AddrOfPinnedObject();
             TfLiteTensor tensor = TfLiteInterpreterGetInputTensor(interpreter, inputTensorIndex);
             ThrowIfError(TfLiteTensorCopyFromBuffer(tensor, tensorDataPtr, Buffer.ByteLength(inputTensorData)));
@@ -124,7 +136,7 @@ namespace TensorFlowLite
 
         public unsafe void SetInputTensorData<T>(int inputTensorIndex, NativeArray<T> inputTensorData) where T : struct
         {
-            IntPtr tensorDataPtr = (IntPtr)NativeArrayUnsafeUtility.GetUnsafePtr(inputTensorData);
+            IntPtr tensorDataPtr = (IntPtr) NativeArrayUnsafeUtility.GetUnsafePtr(inputTensorData);
             TfLiteTensor tensor = TfLiteInterpreterGetInputTensor(interpreter, inputTensorIndex);
             ThrowIfError(TfLiteTensorCopyFromBuffer(
                 tensor, tensorDataPtr, inputTensorData.Length * UnsafeUtility.SizeOf<T>()));
@@ -153,9 +165,11 @@ namespace TensorFlowLite
                 tensorDataHandle = GCHandle.Alloc(outputTensorData, GCHandleType.Pinned);
                 outputDataHandles.Add(outputTensorIndex, tensorDataHandle);
             }
+
             IntPtr tensorDataPtr = tensorDataHandle.AddrOfPinnedObject();
             TfLiteTensor tensor = TfLiteInterpreterGetOutputTensor(interpreter, outputTensorIndex);
-            ThrowIfError(TfLiteTensorCopyToBuffer(tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData)));
+            ThrowIfError(TfLiteTensorCopyToBuffer(
+                tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData)));
         }
 
         public TensorInfo GetInputTensorInfo(int index)
@@ -192,6 +206,7 @@ namespace TensorFlowLite
             {
                 dimensions[i] = TfLiteTensorDim(tensor, i);
             }
+
             return new TensorInfo()
             {
                 name = GetTensorName(tensor),
@@ -258,7 +273,19 @@ namespace TensorFlowLite
         private static extern unsafe TfLiteInterpreter TfLiteModelCreate(IntPtr model_data, int model_size);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern unsafe void TfLiteModelDelete(TfLiteModel model);
+        private static extern unsafe TfLiteInterpreter TfLiteModelDelete(TfLiteModel model);
+
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe TfLiteInterpreterOptions TfLiteInterpreterOptionsCreate();
+
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe void TfLiteInterpreterOptionsDelete(TfLiteInterpreterOptions options);
+
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe void TfLiteInterpreterOptionsSetNumThreads(
+            TfLiteInterpreterOptions options,
+            int num_threads
+        );
 
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe TfLiteInterpreter TfLiteInterpreterCreate(
