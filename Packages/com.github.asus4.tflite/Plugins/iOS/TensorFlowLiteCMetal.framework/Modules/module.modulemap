@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:adc9bab4f23b9757287e9d6c4112a065adb3fdce456cf001f5bfa818629494c5
-size 145
+framework module TensorFlowLiteCMetal {
+  umbrella header "TensorFlowLiteCMetal.h"
+  export *
+  module * { export * }
+  link framework "Metal"
+}

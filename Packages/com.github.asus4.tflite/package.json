@@ -1,3 +1,15 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:6d1d317d6090c52714c83ca8c60755e4bdc12102c41d0b2148dd383745bf72a9
-size 342
+{
+  "name": "com.github.asus4.tflite",
+  "displayName": "TensorFlow Lite",
+  "author": "Koki Ibukuro",
+  "description": "TensorFlow Lite Plugin for Unity",
+  "keywords": [
+    "unity"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "unity": "2019.3",
+  "unityRelease": "0f1",
+  "version": "2.4.1",
+  "type": "library",
+  "hideInEditor": false
+}

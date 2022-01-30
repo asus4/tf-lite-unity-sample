@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:3add251250d0459c9809d1011135ca3bfa8b72b03c4cb10faa4341998d889dfa
-size 110
+framework module TensorFlowLiteC {
+  umbrella header "TensorFlowLiteC.h"
+  export *
+  module * { export * }
+}
