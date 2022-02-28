@@ -20,13 +20,6 @@ def copy(from_tf, to_unity):
 def unzip(from_tf, to_unity):
     subprocess.call(['unzip', '-o', f'{TENSORFLOW_PATH}/{from_tf}', '-d' f'{PLUGIN_PATH}/{to_unity}'])
 
-def patch(file_path, target_str, patched_str):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        source = file.read()
-    source = source.replace(target_str, patched_str)
-    with open(file_path, 'w', encoding='utf-8') as file:
-        file.write(source)
-
 def build_mac(enable_xnnpack = False):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
@@ -36,28 +29,19 @@ def build_mac(enable_xnnpack = False):
     run_cmd(f'lipo -create -output {PLUGIN_PATH}/macOS/libtensorflowlite_c.dylib bazel-out/darwin-opt/{dylib_bin_path} bazel-out/darwin_arm64-opt/{dylib_bin_path}')
     
     # Metal Delegate
-    # v2.3.0 or later, Need to apply the following patch to build metal delegate
-    # For further info
-    # https://github.com/tensorflow/tensorflow/issues/41039#issuecomment-664701908
-    cpuinfo_file = f'{TENSORFLOW_PATH}/third_party/cpuinfo/BUILD.bazel'
-    original = '"cpu": "darwin",'
-    patched = '"cpu": "darwin_x86_64",'
-    patch(cpuinfo_file, original, patched)
-    # Build Metal Delegate
-    run_cmd('bazel build --config=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always --apple_platform_type=macos //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
-    copy('bazel-bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib', 'macOS/libtensorflowlite_metal_delegate.dylib')
-    # Restore it
-    patch(cpuinfo_file, patched, original)
+    # run_cmd('bazel build --config=macos_x86_64 --cpu=darwin --apple_platform_type=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    # run_cmd('bazel build --config=macos_arm64 --cpu=darwin_arm64 --apple_platform_type=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    # copy('bazel-out/applebin_macos-darwin_*/bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib', 'macOS/libtensorflowlite_metal_delegate.dylib')
 
 def build_windows(enable_xnnpack = False):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/tensorflowlite_c.dll', 'Windows/libtensorflowlite_c.dll')
-    # TODO GPU Delegate
+    # TODO support GPU Delegate
 
 def build_linux():
-    # Testd on Ubuntu 18.04.5 LTS
+    # Tested on Ubuntu 18.04.5 LTS
     # Main
     run_cmd('bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/libtensorflowlite_c.so')
