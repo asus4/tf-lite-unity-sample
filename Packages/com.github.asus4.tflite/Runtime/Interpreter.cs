@@ -203,8 +203,27 @@ namespace TensorFlowLite
 
         private static void ThrowIfError(Status status)
         {
-            if (status == Status.Error) throw new Exception("TensorFlowLite operation failed.");
-            if (status == Status.DelegateError) throw new Exception("TensorFlowLite delegage operation failed.");
+            switch(status)
+            {
+                case Status.Ok:
+                    return;
+                case Status.Error:
+                    throw new Exception("TensorFlowLite operation failed.");
+                case Status.DelegateError:
+                    throw new Exception("TensorFlowLite delegage operation failed.");
+                case Status.ApplicationError:
+                    throw new Exception("Applying TensorFlowLite delegage operation failed.");
+                case Status.DelegateDataNotFound:
+                    throw new Exception("Serialized delegage data not being found.");
+                case Status.DelegateDataWriteError:
+                    throw new Exception("Writing data to delgate failed.");
+                case Status.DelegateDataReadError:
+                    throw new Exception("Reading data from delgate failed.");
+                case Status.UnresolvedOps:
+                    throw new Exception("Ops not found.");
+                default:
+                    throw new Exception($"Unknown TensorFlowLite error: {status}");
+            }
         }
 
         #region Externs
