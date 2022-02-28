@@ -220,7 +220,12 @@ namespace TensorFlowLite
         {
             Ok = 0,
             Error = 1,
-            DelegateError = 2
+            DelegateError = 2,
+            ApplicationError = 3,
+            DelegateDataNotFound = 4,
+            DelegateDataWriteError = 5,
+            DelegateDataReadError = 6,
+            UnresolvedOps = 7,
         }
 
         // TfLiteType
@@ -238,6 +243,11 @@ namespace TensorFlowLite
             Int8 = 9,
             Float16 = 10,
             Float64 = 11,
+            Complex128 = 12,
+            UInt64 = 13,
+            Resource = 14,
+            Variant = 15,
+            UInt32 = 16,
         }
 
         public struct QuantizationParams
