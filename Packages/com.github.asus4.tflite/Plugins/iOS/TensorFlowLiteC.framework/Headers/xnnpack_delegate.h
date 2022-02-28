@@ -22,29 +22,41 @@ limitations under the License.
 extern "C" {
 #endif  // __cplusplus
 
+// Enable XNNPACK acceleration for signed quantized 8-bit inference.
+// This includes operators with channel-wise quantized weights.
+#define TFLITE_XNNPACK_DELEGATE_FLAG_QS8 0x00000001
+// Enable XNNPACK acceleration for unsigned quantized 8-bit inference.
+#define TFLITE_XNNPACK_DELEGATE_FLAG_QU8 0x00000002
+
 typedef struct {
   // Number of threads to use in the thread pool.
   // 0 or negative value means no thread pool used.
   int32_t num_threads;
+  // Bitfield with any combination of the following binary options:
+  // - TFLITE_XNNPACK_DELEGATE_FLAG_QS8
+  // - TFLITE_XNNPACK_DELEGATE_FLAG_QU8
+  uint32_t flags;
 } TfLiteXNNPackDelegateOptions;
 
 // Returns a structure with the default XNNPack delegate options.
-TfLiteXNNPackDelegateOptions TfLiteXNNPackDelegateOptionsDefault();
+TFL_CAPI_EXPORT TfLiteXNNPackDelegateOptions
+TfLiteXNNPackDelegateOptionsDefault();
 
 // Creates a new delegate instance that need to be destroyed with
 // `TfLiteXNNPackDelegateDelete` when delegate is no longer used by TFLite.
 // When `options` is set to `nullptr`, the following default values are used:
-TfLiteDelegate* TfLiteXNNPackDelegateCreate(
+TFL_CAPI_EXPORT TfLiteDelegate* TfLiteXNNPackDelegateCreate(
     const TfLiteXNNPackDelegateOptions* options);
 
 // Returns the pthreadpool_t object used for parallelization in XNNPACK.
 // Can return NULL if the XNNPack delegate is single-threaded.
 //
 // WARNING: This API is experimental and subject to change.
-void* TfLiteXNNPackDelegateGetThreadPool(TfLiteDelegate* delegate);
+TFL_CAPI_EXPORT void* TfLiteXNNPackDelegateGetThreadPool(
+    TfLiteDelegate* delegate);
 
 // Destroys a delegate created with `TfLiteXNNPackDelegateCreate` call.
-void TfLiteXNNPackDelegateDelete(TfLiteDelegate* delegate);
+TFL_CAPI_EXPORT void TfLiteXNNPackDelegateDelete(TfLiteDelegate* delegate);
 
 #ifdef __cplusplus
 }

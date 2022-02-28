@@ -40,7 +40,7 @@ TFL_CAPI_EXPORT extern TfLiteStatus TfLiteInterpreterResetVariableTensors(
 /// practice is making the provided `TfLiteRegistration` instance static.
 ///
 /// Code that uses this function should NOT call
-/// `TfLiteInterpreterOptionsSetOpResolver' on the same options object.
+/// `TfLiteInterpreterOptionsSetOpResolver` on the same options object.
 ///
 /// WARNING: This is an experimental API and subject to change.
 TFL_CAPI_EXPORT void TfLiteInterpreterOptionsAddBuiltinOp(
@@ -58,8 +58,11 @@ TFL_CAPI_EXPORT void TfLiteInterpreterOptionsAddBuiltinOp(
 /// remain valid for the duration of any created interpreter's lifetime. A
 /// common practice is making the provided `TfLiteRegistration` instance static.
 ///
+/// The lifetime of the string pointed to by `name` must be at least as long
+/// as the lifetime of the `TfLiteInterpreterOptions`.
+///
 /// Code that uses this function should NOT call
-/// `TfLiteInterpreterOptionsSetOpResolver' on the same options object.
+/// `TfLiteInterpreterOptionsSetOpResolver` on the same options object.
 ///
 /// WARNING: This is an experimental API and subject to change.
 TFL_CAPI_EXPORT void TfLiteInterpreterOptionsAddCustomOp(
@@ -76,8 +79,11 @@ TFL_CAPI_EXPORT void TfLiteInterpreterOptionsAddCustomOp(
 /// the operators in a single call.
 ///
 /// Code that uses this function should NOT call
-/// `TfLiteInterpreterOptionsAddBuiltin' or
-/// `TfLiteInterpreterOptionsAddCustomOp' on the same options object.
+/// `TfLiteInterpreterOptionsAddBuiltin` or
+/// `TfLiteInterpreterOptionsAddCustomOp` on the same options object.
+///
+/// If `op_resolver_user_data` is non-null, its lifetime must be at least as
+/// long as the lifetime of the `TfLiteInterpreterOptions`.
 ///
 /// WARNING: This is an experimental API and subject to change.
 void TfLiteInterpreterOptionsSetOpResolver(
@@ -161,6 +167,8 @@ TFL_CAPI_EXPORT extern void TfLiteSetAllowBufferHandleOutput(
 /// parts of the graph themselves. After this is called, the graph may
 /// contain new nodes that replace 1 more nodes.
 /// 'delegate' must outlive the interpreter.
+/// Use `TfLiteInterpreterOptionsAddDelegate` instead of this unless
+/// absolutely required.
 /// Returns one of the following three status codes:
 /// 1. kTfLiteOk: Success.
 /// 2. kTfLiteDelegateError: Delegation failed due to an error in the
@@ -171,13 +179,13 @@ TFL_CAPI_EXPORT extern void TfLiteSetAllowBufferHandleOutput(
 TFL_CAPI_EXPORT extern TfLiteStatus TfLiteInterpreterModifyGraphWithDelegate(
     const TfLiteInterpreter* interpreter, TfLiteDelegate* delegate);
 
-/// Returns the tensor index with the input index.
+/// Returns the tensor index corresponding to the input tensor
 ///
 /// WARNING: This is an experimental API and subject to change.
 TFL_CAPI_EXPORT extern int32_t TfLiteInterpreterGetInputTensorIndex(
     const TfLiteInterpreter* interpreter, int32_t input_index);
 
-/// Returns the tensor index with the output index.
+/// Returns the tensor index corresponding to the output tensor
 ///
 /// WARNING: This is an experimental API and subject to change.
 TFL_CAPI_EXPORT extern int32_t TfLiteInterpreterGetOutputTensorIndex(
