@@ -63,7 +63,7 @@ def build_windows(enable_xnnpack = False):
 def build_linux():
     # Tested on Ubuntu 18.04.5 LTS
     # Main
-    run_cmd('bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/c:tensorflowlite_c')
+    run_cmd('bazel build -c opt tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/libtensorflowlite_c.so')
     # TODO GPU Delegate
 
