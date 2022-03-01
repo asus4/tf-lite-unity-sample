@@ -44,7 +44,8 @@ namespace TensorFlowLite
             int formatLength = printf(format, vaList);
             IntPtr buffer = Marshal.AllocHGlobal(formatLength);
             sprintf(buffer, format, vaList);
-            report = Marshal.PtrToStringAnsi(buffer);
+            string tmpReport = Marshal.PtrToStringAnsi(buffer);
+            report = string.Copy(tmpReport);
             Marshal.FreeHGlobal(buffer);
 #elif UNITY_ANDROID && !UNITY_EDITOR
             report = UnityTFLiteStringFormat(format, vaList);
