@@ -203,8 +203,27 @@ namespace TensorFlowLite
 
         private static void ThrowIfError(Status status)
         {
-            if (status == Status.Error) throw new Exception("TensorFlowLite operation failed.");
-            if (status == Status.DelegateError) throw new Exception("TensorFlowLite delegage operation failed.");
+            switch(status)
+            {
+                case Status.Ok:
+                    return;
+                case Status.Error:
+                    throw new Exception("TensorFlowLite operation failed.");
+                case Status.DelegateError:
+                    throw new Exception("TensorFlowLite delegage operation failed.");
+                case Status.ApplicationError:
+                    throw new Exception("Applying TensorFlowLite delegage operation failed.");
+                case Status.DelegateDataNotFound:
+                    throw new Exception("Serialized delegage data not being found.");
+                case Status.DelegateDataWriteError:
+                    throw new Exception("Writing data to delgate failed.");
+                case Status.DelegateDataReadError:
+                    throw new Exception("Reading data from delgate failed.");
+                case Status.UnresolvedOps:
+                    throw new Exception("Ops not found.");
+                default:
+                    throw new Exception($"Unknown TensorFlowLite error: {status}");
+            }
         }
 
         #region Externs
@@ -220,7 +239,12 @@ namespace TensorFlowLite
         {
             Ok = 0,
             Error = 1,
-            DelegateError = 2
+            DelegateError = 2,
+            ApplicationError = 3,
+            DelegateDataNotFound = 4,
+            DelegateDataWriteError = 5,
+            DelegateDataReadError = 6,
+            UnresolvedOps = 7,
         }
 
         // TfLiteType
@@ -238,6 +262,11 @@ namespace TensorFlowLite
             Int8 = 9,
             Float16 = 10,
             Float64 = 11,
+            Complex128 = 12,
+            UInt64 = 13,
+            Resource = 14,
+            Variant = 15,
+            UInt32 = 16,
         }
 
         public struct QuantizationParams

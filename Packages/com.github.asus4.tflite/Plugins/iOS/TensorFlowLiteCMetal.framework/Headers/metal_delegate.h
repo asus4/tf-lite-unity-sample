@@ -16,8 +16,9 @@ limitations under the License.
 #ifndef TENSORFLOW_LITE_DELEGATES_GPU_METAL_DELEGATE_H_
 #define TENSORFLOW_LITE_DELEGATES_GPU_METAL_DELEGATE_H_
 
-#include "TensorFlowLiteC/common.h"
 #import <Metal/Metal.h>
+
+#include "TensorFlowLiteC/common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,9 +76,9 @@ TFL_CAPI_EXPORT extern void TFLGpuDelegateDelete(TfLiteDelegate* delegate);
 // Returns non-zero on success, or zero otherwise.
 //
 // *** Must be called *after* `Interpreter::ModifyGraphWithDelegate`. ***
-TFL_CAPI_EXPORT extern bool TFLGpuDelegateBindMetalBufferToTensor(TfLiteDelegate* delegate,
-                                                                  int tensor_index,
-                                                                  id<MTLBuffer> metal_buffer);
+// WARNING: This is an experimental API and subject to change.
+TFL_CAPI_EXPORT extern bool TFLGpuDelegateBindMetalBufferToTensor(
+    TfLiteDelegate* delegate, int tensor_index, id<MTLBuffer> metal_buffer);
 
 #ifdef __cplusplus
 }  // extern "C"

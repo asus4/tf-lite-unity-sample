@@ -40,19 +40,12 @@ namespace TensorFlowLite
             // https://github.com/jeremyVignelles/va-list-interop-demo
 
             string report;
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-            int formatLength = printf(format, vaList);
-            IntPtr buffer = Marshal.AllocHGlobal(formatLength);
-            sprintf(buffer, format, vaList);
-            report = Marshal.PtrToStringAnsi(buffer);
-            Marshal.FreeHGlobal(buffer);
-#elif UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR
             report = UnityTFLiteStringFormat(format, vaList);
 #else
             // TODO: Support arglist for other platforms
             report = format;
 #endif
-            // Debug.LogWarning($"raw format: {format}");
             Debug.LogWarning($"TFLite Warning: {report}");
         }
 

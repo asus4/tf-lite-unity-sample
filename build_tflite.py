@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import glob
 import os
 import platform
 import shlex
@@ -12,7 +13,7 @@ TENSORFLOW_PATH=''
 def run_cmd(cmd):
     print(cmd)
     args = shlex.split(cmd)
-    subprocess.call(args, cwd=TENSORFLOW_PATH)
+    return subprocess.check_output(args, cwd=TENSORFLOW_PATH, universal_newlines=True, shell=True)
 
 def copy(from_tf, to_unity):
     subprocess.call(['cp', '-vf', f'{TENSORFLOW_PATH}/{from_tf}', f'{PLUGIN_PATH}/{to_unity}'])
@@ -30,21 +31,26 @@ def patch(file_path, target_str, patched_str):
 def build_mac(enable_xnnpack = False):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
-    run_cmd(f'bazel build --config=macos -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
-    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.dylib', 'macOS/libtensorflowlite_c.dylib')
+    run_cmd(f'bazel build --config=macos --cpu=darwin -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
+    run_cmd(f'bazel build --config=macos --cpu=darwin_arm64 -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
+    dylib_bin_path = 'bin/tensorflow/lite/c/libtensorflowlite_c.dylib'
+    run_cmd(f'lipo -create -output {PLUGIN_PATH}/macOS/libtensorflowlite_c.dylib bazel-out/darwin-opt/{dylib_bin_path} bazel-out/darwin_arm64-opt/{dylib_bin_path}')
 
     # Metal Delegate
     # v2.3.0 or later, Need to apply the following patch to build metal delegate
     # For further info
     # https://github.com/tensorflow/tensorflow/issues/41039#issuecomment-664701908
-    cpuinfo_file = f'{TENSORFLOW_PATH}/third_party/cpuinfo/BUILD.bazel'
+    cpuinfo_file = f'{TENSORFLOW_PATH}/third_party/cpuinfo/cpuinfo.BUILD'
     original = '"cpu": "darwin",'
     patched = '"cpu": "darwin_x86_64",'
     patch(cpuinfo_file, original, patched)
-    # Build Metal Delegate
-    run_cmd('bazel build --config=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always --apple_platform_type=macos //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
-    copy('bazel-bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib', 'macOS/libtensorflowlite_metal_delegate.dylib')
-    # Restore it
+    run_cmd('bazel build --config=macos --cpu=darwin_x86_64 --macos_cpus=x86_64 --apple_platform_type=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    run_cmd('bazel build --config=macos_arm64 --cpu=darwin_arm64  --macos_cpus=arm64 --apple_platform_type=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    # Export path contains postfix like `applebin_macos-darwin_arm64-opt-ST-*`
+    metal_delegate_pathes = glob.glob(f'{TENSORFLOW_PATH}/bazel-out/applebin_macos-darwin*/bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib')
+    print(metal_delegate_pathes)
+    run_cmd(f'lipo -create -output {PLUGIN_PATH}/macOS/libtensorflowlite_metal_delegate.dylib ' + ' '.join(metal_delegate_pathes))
+    # Restore patch
     patch(cpuinfo_file, patched, original)
 
 def build_windows(enable_xnnpack = False):
@@ -52,12 +58,12 @@ def build_windows(enable_xnnpack = False):
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/tensorflowlite_c.dll', 'Windows/libtensorflowlite_c.dll')
-    # TODO GPU Delegate
+    # TODO support GPU Delegate
 
 def build_linux():
-    # Testd on Ubuntu 18.04.5 LTS
+    # Tested on Ubuntu 18.04.5 LTS
     # Main
-    run_cmd('bazel build -c opt --cxxopt=--std=c++11 tensorflow/lite/c:tensorflowlite_c')
+    run_cmd('bazel build -c opt tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/libtensorflowlite_c.so')
     # TODO GPU Delegate
 
@@ -114,22 +120,22 @@ if __name__ == '__main__':
     platform_name = platform.system()
 
     if args.macos:
-        assert platform_name == 'Darwin', f'-macos not suppoted on the platfrom: {platform_name}'
+        assert platform_name == 'Darwin', f'-macos not supported on the platfrom: {platform_name}'
         print('Build macOS')
         build_mac(args.xnnpack)
     
     if args.windows:
-        assert platform_name == 'Windows', f'-windows not suppoted on the platfrom: {platform_name}'
+        assert platform_name == 'Windows', f'-windows not supported on the platfrom: {platform_name}'
         print('Build Windows')
         build_windows(args.xnnpack)
     
     if args.linux:
-        assert platform_name == 'Linux', f'-linux not suppoted on the platfrom: {platform_name}'
+        assert platform_name == 'Linux', f'-linux not supported on the platfrom: {platform_name}'
         print('Build Linux')
         build_linux()
     
     if args.ios:
-        assert platform_name == 'Darwin', f'-ios not suppoted on the platfrom: {platform_name}'
+        assert platform_name == 'Darwin', f'-ios not supported on the platfrom: {platform_name}'
         # Need to set iOS build option in ./configure
         print('Build iOS')
         build_ios()

@@ -62,7 +62,10 @@ namespace TensorFlowLite
             EnableQuant = 1 << 0,
             // Enforces execution with the provided backend.
             ClOnly = 1 << 1,
-            GlOnly = 1 << 2
+            GlOnly = 1 << 2,
+            // Enable serialization of GPU kernels & model data. Speeds up initialization at the cost of space on disk.
+            // NOTE: User also needs to set serialization_dir & model_token in TfLiteGpuDelegateOptionsV2
+            EnableSerialization = 1 << 3,
         }
 
         /// <summary>
@@ -78,6 +81,8 @@ namespace TensorFlowLite
             public int inferencePriority3;
             public long experimentalFlags;
             public int maxDelegatedPartitions;
+            public IntPtr serializationDir; // char*
+            public IntPtr modelToken; // char*
         };
 
         public TfLiteDelegate Delegate { get; private set; }
