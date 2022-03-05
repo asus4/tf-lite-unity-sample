@@ -25,10 +25,8 @@ Samples
   - Hand Tracking
   - Blaze Face
   - Face Mesh
-  - Blaze Pose (Upper body)
-- MLKit
   - Blaze Pose (Full body)
-- Meet Segmentation
+  - Selfie Segmentation
 
 Included prebuilt libraries
 
@@ -146,5 +144,5 @@ Model Licenses
   - Blaze Pose
   - Face Mesh
   - Hand Tracking
-- [Meet Segmentation Model](https://drive.google.com/file/d/1lnP1bRi9CSqQQXUHa13159vLELYDgDu0/view)
-  - Using the modified model from [PINTO_model_zoo](https://github.com/PINTO0309/PINTO_model_zoo) to remove the custom post-process.
+  - Selfie Segmentation
+    - Using the modified model from [PINTO_model_zoo](https://github.com/PINTO0309/PINTO_model_zoo) to remove the custom post-process.

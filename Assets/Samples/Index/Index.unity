@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.3731193, g: 0.38073996, b: 0.35872698, a: 1}
+  m_IndirectSpecularColor: {r: 0.3708625, g: 0.37838694, b: 0.35726872, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1765,7 +1765,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Meet Segmentation
+  m_Text: Selfie Segmentation
 --- !u!222 &1149362539
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2731,7 +2731,7 @@ GameObject:
   - component: {fileID: 1957810021}
   - component: {fileID: 1957810020}
   m_Layer: 5
-  m_Name: Button - Meet Segmantation
+  m_Name: Button - Selfie Segmantation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2769,7 +2769,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: MeetSegmentation
+  sceneName: SelfieSegmentation
   mode: 0
 --- !u!114 &1957810021
 MonoBehaviour:

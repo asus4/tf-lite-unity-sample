@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(WebCamInput))]
-public class MeetSegmentationSample : MonoBehaviour
+public class SelfieSegmentationSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")]
     private string fileName = "deeplabv3_257_mv_gpu.tflite";
@@ -17,11 +17,11 @@ public class MeetSegmentationSample : MonoBehaviour
     [SerializeField]
     private ComputeShader compute = null;
 
-    private MeetSegmentation segmentation;
+    private SelfieSegmentation segmentation;
 
     private void Start()
     {
-        segmentation = new MeetSegmentation(fileName, compute);
+        segmentation = new SelfieSegmentation(fileName, compute);
 
         var webCamInput = GetComponent<WebCamInput>();
         webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);

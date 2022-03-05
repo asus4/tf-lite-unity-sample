@@ -4,7 +4,7 @@ using UnityEngine;
 namespace TensorFlowLite
 {
 
-    public sealed class MeetSegmentation : BaseImagePredictor<float>
+    public sealed class SelfieSegmentation : BaseImagePredictor<float>
     {
         private float[,,] output0; // height, width, 2
 
@@ -12,7 +12,7 @@ namespace TensorFlowLite
         private ComputeBuffer labelBuffer;
         private RenderTexture labelTex;
 
-        public MeetSegmentation(string modelPath, ComputeShader compute) : base(modelPath, true)
+        public SelfieSegmentation(string modelPath, ComputeShader compute) : base(modelPath, true)
         {
             var odim0 = interpreter.GetOutputTensorInfo(0).shape;
 
