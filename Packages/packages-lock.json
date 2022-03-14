@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.cysharp.unitask": {
-      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.2.5",
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.3.1",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "72e620d169841f32bc6110ad0e12ee9eae6f1aaf"
+      "hash": "33d32baea4d50040e0601b725a694dcf3dcf6640"
     },
     "com.github.asus4.mediapipe": {
       "version": "file:com.github.asus4.mediapipe",
