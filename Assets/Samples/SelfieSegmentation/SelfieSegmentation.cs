@@ -11,6 +11,7 @@ namespace TensorFlowLite
         {
             [FilePopup("*.tflite")]
             public string modelFile = string.Empty;
+            public AspectMode aspectMode = AspectMode.Fit;
 
             public ComputeShader compute = null;
 
@@ -41,6 +42,7 @@ namespace TensorFlowLite
         public SelfieSegmentation(Options options) : base(options.modelFile, true)
         {
             this.options = options;
+            resizeOptions.aspectMode = options.aspectMode;
 
             int[] odim0 = interpreter.GetOutputTensorInfo(0).shape;
 
