@@ -5,23 +5,32 @@ using UnityEngine.UI;
 [RequireComponent(typeof(WebCamInput))]
 public class SsdSample : MonoBehaviour
 {
-    [SerializeField, FilePopup("*.tflite")] string fileName = "coco_ssd_mobilenet_quant.tflite";
-    [SerializeField] RawImage cameraView = null;
-    [SerializeField] Text framePrefab = null;
-    [SerializeField, Range(0f, 1f)] float scoreThreshold = 0.5f;
-    [SerializeField] TextAsset labelMap = null;
+    [SerializeField]
+    private SSD.Options options = default;
 
-    SSD ssd;
-    Text[] frames;
-    string[] labels;
+    [SerializeField]
+    private AspectRatioFitter frameContainer = null;
 
-    void Start()
+    [SerializeField]
+    private Text framePrefab = null;
+
+    [SerializeField, Range(0f, 1f)]
+    private float scoreThreshold = 0.5f;
+
+    [SerializeField]
+    private TextAsset labelMap = null;
+
+    private SSD ssd;
+    private Text[] frames;
+    private string[] labels;
+
+    private void Start()
     {
-        ssd = new SSD(fileName);
+        ssd = new SSD(options);
 
         // Init frames
         frames = new Text[10];
-        var parent = cameraView.transform;
+        Transform parent = frameContainer.transform;
         for (int i = 0; i < frames.Length; i++)
         {
             frames[i] = Instantiate(framePrefab, Vector3.zero, Quaternion.identity, parent);
@@ -34,27 +43,25 @@ public class SsdSample : MonoBehaviour
         GetComponent<WebCamInput>().OnTextureUpdate.AddListener(Invoke);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         GetComponent<WebCamInput>().OnTextureUpdate.RemoveListener(Invoke);
         ssd?.Dispose();
     }
 
-    void Invoke(Texture texture)
+    private void Invoke(Texture texture)
     {
         ssd.Invoke(texture);
-        var results = ssd.GetResults();
 
-        var size = cameraView.rectTransform.rect.size;
+        SSD.Result[] results = ssd.GetResults();
+        Vector2 size = (frameContainer.transform as RectTransform).rect.size;
         for (int i = 0; i < 10; i++)
         {
             SetFrame(frames[i], results[i], size);
         }
-
-        cameraView.material = ssd.transformMat;
     }
 
-    void SetFrame(Text frame, SSD.Result result, Vector2 size)
+    private void SetFrame(Text frame, SSD.Result result, Vector2 size)
     {
         if (result.score < scoreThreshold)
         {
@@ -72,7 +79,7 @@ public class SsdSample : MonoBehaviour
         rt.sizeDelta = result.rect.size * size;
     }
 
-    string GetLabelName(int id)
+    private string GetLabelName(int id)
     {
         if (id < 0 || id >= labels.Length - 1)
         {

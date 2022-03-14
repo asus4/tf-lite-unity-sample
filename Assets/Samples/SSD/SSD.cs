@@ -8,6 +8,14 @@ namespace TensorFlowLite
     /// </summary>
     public class SSD : BaseImagePredictor<sbyte>
     {
+        [System.Serializable]
+        public class Options
+        {
+            [FilePopup("*.tflite")]
+            public string modelPath = string.Empty;
+            public AspectMode aspectMode = AspectMode.Fit;
+        }
+
         public readonly struct Result
         {
             public readonly int classID;
@@ -28,8 +36,10 @@ namespace TensorFlowLite
         float[] outputs2 = new float[MAX_DETECTION]; // Scores
         Result[] results = new Result[MAX_DETECTION];
 
-        public SSD(string modelPath) : base(modelPath, true)
+        public SSD(Options options)
+            : base(options.modelPath, true)
         {
+            resizeOptions.aspectMode = options.aspectMode;
         }
 
         public override void Invoke(Texture inputTex)
