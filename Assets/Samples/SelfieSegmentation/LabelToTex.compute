@@ -1,0 +1,57 @@
+﻿#pragma kernel LabelToTex
+#pragma kernel BilateralFilter
+
+uint Width;
+uint Height;
+Texture2D<float4> InputTexture;
+StructuredBuffer<float2> LabelBuffer;
+RWTexture2D<float4> OutputTexture;
+
+// The same paramerters as cv::bilateralFilter
+float sigmaColor = 1.0;
+float sigmaTexel;
+int step = 1;
+int radius = 1;
+
+float Gaussian(float x, float sigma) {
+    float coeff = -0.5 / (sigma * sigma * 4.0 + 0.000001);
+    return exp((x * x) * coeff);
+}
+
+[numthreads(8,8,1)]
+void LabelToTex (uint2 tid : SV_DispatchThreadID)
+{
+    float2 label = LabelBuffer[(Height - 1 - tid.y) * Width + tid.x];
+    OutputTexture[tid] = float4(label.x, label.y, 0, 1);
+}
+
+// TODO: Implement jointed-bilateral filter
+[numthreads(8,8,1)]
+void BilateralFilter(uint2 tid : SV_DispatchThreadID)
+{
+    float2 center = InputTexture[tid].xy;
+
+    float2 totalColor = float2(0.0, 0.0);
+    float totalWeight = 0.0;
+
+    for (int y = -radius; y <= radius; y += step)
+    {
+        for (int x = -radius; x <= radius; x += step)
+        {
+            uint2 id = uint2(
+                min(max((int)tid.x + x, 0), (int)Width - 1),
+                min(max((int)tid.y + y, 0), (int)Height - 1));
+            float2 p = InputTexture[id].xy;
+
+            // space weight * color weight
+            float w = Gaussian(distance((float2)tid, (float2)id) * sigmaTexel, sigmaTexel)
+                * Gaussian(distance(p, center), sigmaColor);
+
+            totalWeight += w;
+            totalColor += p * w;
+        }
+    }
+
+    float2 color = totalColor / totalWeight;
+    OutputTexture[tid] = float4(color.x, color.y, 0, 1);
+}
