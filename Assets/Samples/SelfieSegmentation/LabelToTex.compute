@@ -1,15 +1,57 @@
-﻿// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel LabelToTex
+﻿#pragma kernel LabelToTex
+#pragma kernel BilateralFilter
 
 uint Width;
 uint Height;
+Texture2D<float4> InputTexture;
 StructuredBuffer<float2> LabelBuffer;
-RWTexture2D<float4> Result;
+RWTexture2D<float4> OutputTexture;
+
+// The same paramerters as cv::bilateralFilter
+const float sigma_color = 20.0;
+const int step = 2;
+const int radius = 1;
+
+float Gaussian(float x, float sigma) {
+    float coeff = -0.5 / (sigma * sigma * 4.0 + 1.0e-6);
+    return exp((x * x) * coeff);
+}
+
+float GetWeight(float i1, float i2)
+{
+    float d = i2 - i1;
+    return exp(-0.5 * d * d);
+}
 
 [numthreads(8,8,1)]
 void LabelToTex (uint2 tid : SV_DispatchThreadID)
 {
-    uint gid = (Height - 1 - tid.y) * Width + tid.x;
-    float2 label = LabelBuffer[gid];
-    Result[tid] = float4(label.x, label.y, 0.0, 1.0);
+    float2 label = LabelBuffer[(Height - 1 - tid.y) * Width + tid.x];
+    OutputTexture[tid] = float4(label.x, label.y, 0, 1);
+}
+
+[numthreads(8,8,1)]
+void BilateralFilter(uint2 tid : SV_DispatchThreadID)
+{
+    float2 c = InputTexture[tid].xy;
+
+    float2 sumColor = float2(0, 0);
+    float sumWeight = 0;
+
+    for (int y = -1; y <= 1; y += 2)
+    {
+        for (int x = -1; x <= 1; x += 2)
+        {
+            uint2 id = uint2(
+                min(max((int)tid.x + x, 0), (int)Width - 1),
+                min(max((int)tid.y + y, 0), (int)Height - 1));
+            float2 p = InputTexture[id].xy;
+            float w = 0.27901 * GetWeight(p.y, c.y);
+
+            sumColor += p * w;
+            sumWeight += w;
+        }
+    }
+    float2 color = sumColor / sumWeight;
+    OutputTexture[tid] = float4(color.x, color.y, 0, 1);
 }
