@@ -538,10 +538,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd85ce8fc40d406ba4f42c84b077d95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: mediapipe/selfie_segmentation/selfie_segmentation.tflite
   cameraView: {fileID: 2074584278}
   outputView: {fileID: 1931683985}
-  compute: {fileID: 7200000, guid: f251d9385226e4b309b39eae95001ad2, type: 3}
+  options:
+    modelFile: mediapipe/selfie_segmentation/selfie_segmentation.tflite
+    compute: {fileID: 7200000, guid: f251d9385226e4b309b39eae95001ad2, type: 3}
+    sigmaColor: 0.88
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0
