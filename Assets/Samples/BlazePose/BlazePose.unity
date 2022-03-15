@@ -589,22 +589,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac6c2ecddc84d4bfb931c1f8ad12eac7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poseDetectionModelFile: mediapipe/pose_detection.tflite
+  options:
+    detect:
+      modelPath: mediapipe/pose_detection.tflite
+      scoreThreshold: 0.5
+      useNonMaxSuppression: 0
+      iouThreshold: 0.3
+    landmark:
+      modelPath: mediapipe/pose_landmark_lite.tflite
+      useWorldLandmarks: 1
+      useFilter: 1
+      filterVelocityScale: {x: 10, y: 10, z: 2}
+    runBackground: 0
   containerView: {fileID: 2074584277}
   debugView: {fileID: 1302103928}
   canvas: {fileID: 1051232097}
   runBackground: 0
   visibilityThreshold: 0.5
-  detectOptions:
-    modelPath: mediapipe/pose_detection.tflite
-    scoreThreshold: 0.5
-    useNonMaxSuppression: 0
-    iouThreshold: 0.3
-  landmarkOptions:
-    modelPath: mediapipe/pose_landmark_lite.tflite
-    useWorldLandmarks: 1
-    useFilter: 1
-    filterVelocityScale: {x: 10, y: 10, z: 2}
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0

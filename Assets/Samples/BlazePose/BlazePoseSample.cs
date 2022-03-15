@@ -13,10 +13,7 @@ using UnityEngine.UI;
 public sealed class BlazePoseSample : MonoBehaviour
 {
     [SerializeField]
-    private PoseDetect.Options detectOptions = default;
-
-    [SerializeField]
-    private PoseLandmarkDetect.Options landmarkOptions = default;
+    private BlazePose.Options options = default;
 
     [SerializeField]
     private RectTransform containerView = null;
@@ -33,8 +30,7 @@ public sealed class BlazePoseSample : MonoBehaviour
 
     private readonly Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
 
-    private PoseDetect poseDetect;
-    private PoseLandmarkDetect poseLandmark;
+    private BlazePose pose;
 
     private Vector4[] viewportLandmarks;
     private PrimitiveDraw draw;
@@ -43,13 +39,9 @@ public sealed class BlazePoseSample : MonoBehaviour
     private UniTask<bool> task;
     private CancellationToken cancellationToken;
 
-    private bool NeedsDetectionUpdate => poseResult == null || poseResult.score < 0.5f;
-
     private void Start()
     {
-        // Init model
-        poseDetect = new PoseDetect(detectOptions);
-        poseLandmark = new PoseLandmarkDetect(landmarkOptions);
+        pose = new BlazePose(options);
 
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
         viewportLandmarks = new Vector4[PoseLandmarkDetect.LandmarkCount];
@@ -62,9 +54,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     private void OnDestroy()
     {
         GetComponent<WebCamInput>().OnTextureUpdate.RemoveListener(OnTextureUpdate);
-
-        poseDetect?.Dispose();
-        poseLandmark?.Dispose();
+        pose?.Dispose();
         draw?.Dispose();
     }
 
@@ -92,9 +82,9 @@ public sealed class BlazePoseSample : MonoBehaviour
 
         if (landmarkResult != null && landmarkResult.score > 0.2f)
         {
-            DrawCropMatrix(poseLandmark.CropMatrix);
+            DrawCropMatrix(pose.CropMatrix);
             DrawViewportLandmarks(landmarkResult.viewportLandmarks);
-            if (landmarkOptions.useWorldLandmarks)
+            if (options.landmark.useWorldLandmarks)
             {
                 DrawWorldLandmarks(landmarkResult.worldLandmarks);
             }
@@ -213,69 +203,18 @@ public sealed class BlazePoseSample : MonoBehaviour
 
     private void Invoke(Texture texture)
     {
-        if (NeedsDetectionUpdate)
-        {
-            poseDetect.Invoke(texture);
-            containerView.GetWorldCorners(rtCorners);
-            poseResult = poseDetect.GetResults();
-        }
-        if (poseResult.score < 0)
-        {
-            poseResult = null;
-            landmarkResult = null;
-            return;
-        }
-        poseLandmark.Invoke(texture, poseResult);
-        debugView.texture = poseLandmark.inputTex;
-
-        landmarkResult = poseLandmark.GetResult();
-
-        if (landmarkResult.score < 0.3f)
-        {
-            poseResult.score = landmarkResult.score;
-        }
-        else
-        {
-            poseResult = PoseLandmarkDetect.LandmarkToDetection(landmarkResult);
-        }
+        landmarkResult = pose.Invoke(texture);
+        poseResult = pose.PoseResult;
+        containerView.GetWorldCorners(rtCorners);
+        debugView.texture = pose.LandmarkInputTexture;
     }
 
     private async UniTask<bool> InvokeAsync(Texture texture)
     {
-        if (NeedsDetectionUpdate)
-        {
-            // Note: `await` changes PlayerLoopTiming from Update to FixedUpdate.
-            poseResult = await poseDetect.InvokeAsync(texture, cancellationToken, PlayerLoopTiming.FixedUpdate);
-        }
-        if (poseResult.score < 0)
-        {
-            poseResult = null;
-            landmarkResult = null;
-            return false;
-        }
-
-        landmarkResult = await poseLandmark.InvokeAsync(texture, poseResult, cancellationToken, PlayerLoopTiming.Update);
-
-        // Back to the update timing from now on 
-        if (containerView != null)
-        {
-            containerView.GetWorldCorners(rtCorners);
-        }
-        if (debugView != null)
-        {
-            debugView.texture = poseLandmark.inputTex;
-        }
-
-        // Generate poseResult from landmarkResult
-        if (landmarkResult.score < 0.3f)
-        {
-            poseResult.score = landmarkResult.score;
-        }
-        else
-        {
-            poseResult = PoseLandmarkDetect.LandmarkToDetection(landmarkResult);
-        }
-
-        return true;
+        landmarkResult = await pose.InvokeAsync(texture, cancellationToken);
+        poseResult = pose.PoseResult;
+        containerView.GetWorldCorners(rtCorners);
+        debugView.texture = pose.LandmarkInputTexture;
+        return landmarkResult != null;
     }
 }
