@@ -206,7 +206,10 @@ public sealed class BlazePoseSample : MonoBehaviour
         landmarkResult = pose.Invoke(texture);
         poseResult = pose.PoseResult;
         containerView.GetWorldCorners(rtCorners);
-        debugView.texture = pose.LandmarkInputTexture;
+        if (pose.LandmarkInputTexture != null)
+        {
+            debugView.texture = pose.LandmarkInputTexture;
+        }
     }
 
     private async UniTask<bool> InvokeAsync(Texture texture)
@@ -214,7 +217,10 @@ public sealed class BlazePoseSample : MonoBehaviour
         landmarkResult = await pose.InvokeAsync(texture, cancellationToken);
         poseResult = pose.PoseResult;
         containerView.GetWorldCorners(rtCorners);
-        debugView.texture = pose.LandmarkInputTexture;
+        if (pose.LandmarkInputTexture != null)
+        {
+            debugView.texture = pose.LandmarkInputTexture;
+        }
         return landmarkResult != null;
     }
 }

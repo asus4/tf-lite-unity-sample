@@ -77,14 +77,14 @@ namespace TensorFlowLite
 
         public PoseLandmarkDetect(Options options) : base(options.modelPath, true)
         {
+            this.options = options;
+
             result = new Result()
             {
                 score = 0,
                 viewportLandmarks = new Vector4[LandmarkCount],
                 worldLandmarks = new Vector4[LandmarkCount],
             };
-
-            this.options = options ?? new Options();
 
             // Init filters
             filters = new RelativeVelocityFilter3D[LandmarkCount];

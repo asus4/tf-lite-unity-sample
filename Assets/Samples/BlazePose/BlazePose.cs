@@ -12,7 +12,6 @@ namespace TensorFlowLite
         {
             public PoseDetect.Options detect;
             public PoseLandmarkDetect.Options landmark;
-            public bool runBackground = false;
         }
 
         private readonly PoseDetect poseDetect;

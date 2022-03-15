@@ -592,6 +592,7 @@ MonoBehaviour:
   options:
     detect:
       modelPath: mediapipe/pose_detection.tflite
+      aspectMode: 1
       scoreThreshold: 0.5
       useNonMaxSuppression: 0
       iouThreshold: 0.3
@@ -600,7 +601,6 @@ MonoBehaviour:
       useWorldLandmarks: 1
       useFilter: 1
       filterVelocityScale: {x: 10, y: 10, z: 2}
-    runBackground: 0
   containerView: {fileID: 2074584277}
   debugView: {fileID: 1302103928}
   canvas: {fileID: 1051232097}
