@@ -6,9 +6,6 @@ using UnityEngine.UI;
 public class SelfieSegmentationSample : MonoBehaviour
 {
     [SerializeField]
-    private RawImage cameraView = null;
-
-    [SerializeField]
     private RawImage outputView = null;
 
     [SerializeField]
@@ -35,7 +32,6 @@ public class SelfieSegmentationSample : MonoBehaviour
     private void OnTextureUpdate(Texture texture)
     {
         segmentation.Invoke(texture);
-        cameraView.material = segmentation.transformMat;
         outputView.texture = segmentation.GetResultTexture();
     }
 }

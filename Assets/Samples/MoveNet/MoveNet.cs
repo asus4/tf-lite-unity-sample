@@ -12,6 +12,14 @@ namespace TensorFlowLite
     /// </summary>
     public class MoveNet : BaseImagePredictor<sbyte>
     {
+        [System.Serializable]
+        public class Options
+        {
+            [FilePopup("*.tflite")]
+            public string modelPath = string.Empty;
+            public AspectMode aspectMode = AspectMode.Fit;
+        }
+
         public enum Part
         {
             NOSE = 0,
@@ -73,8 +81,9 @@ namespace TensorFlowLite
         private readonly float[,] outputs0;
         public readonly Result[] results;
 
-        public MoveNet(string modelPath) : base(modelPath, true)
+        public MoveNet(Options options) : base(options.modelPath, true)
         {
+            resizeOptions.aspectMode = options.aspectMode;
             var odim0 = interpreter.GetOutputTensorInfo(0).shape;
 
             Assert.AreEqual(1, odim0[0]);
