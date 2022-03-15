@@ -30,6 +30,8 @@ namespace TensorFlowLite
             public bool useFilter = true;
             public Vector3 filterVelocityScale = new Vector3(10, 10, 2);
 
+            internal AspectMode AspectMode { get; set; } = AspectMode.Fit;
+
             private Vector3 cachedFilterVelocityScale;
 
             public bool CheckFilterUpdated()
@@ -78,6 +80,7 @@ namespace TensorFlowLite
         public PoseLandmarkDetect(Options options) : base(options.modelPath, true)
         {
             this.options = options;
+            resizeOptions.aspectMode = AspectMode.Fit;
 
             result = new Result()
             {

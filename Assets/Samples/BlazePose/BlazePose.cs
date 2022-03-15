@@ -30,6 +30,9 @@ namespace TensorFlowLite
 
         public BlazePose(Options options)
         {
+            // Sync aspect mode from detect
+            options.landmark.AspectMode = options.detect.aspectMode;
+
             poseDetect = new PoseDetect(options.detect);
             poseLandmark = new PoseLandmarkDetect(options.landmark);
         }
