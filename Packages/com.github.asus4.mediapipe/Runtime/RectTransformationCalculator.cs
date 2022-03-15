@@ -21,12 +21,12 @@ namespace TensorFlowLite
             // Custom options for WebCamTexture
             public float cameraRotationDegree;
             public bool mirrorHorizontal;
-            public bool mirrorVertiacal;
+            public bool mirrorVertical;
 
             public bool IsCameraModified =>
                 cameraRotationDegree != 0
                 || mirrorHorizontal
-                || mirrorVertiacal;
+                || mirrorVertical;
         }
 
         public static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
@@ -59,7 +59,7 @@ namespace TensorFlowLite
                 Quaternion.Euler(0, 0, -options.cameraRotationDegree),
                 new Vector3(
                     options.mirrorHorizontal ? -1 : 1,
-                    options.mirrorVertiacal ? -1 : 1,
+                    options.mirrorVertical ? -1 : 1,
                     1
                 )
             );

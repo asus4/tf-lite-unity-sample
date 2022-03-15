@@ -70,7 +70,7 @@ namespace TensorFlowLite
                 scale = PalmScale,
                 cameraRotationDegree = -resizeOptions.rotationDegree,
                 mirrorHorizontal = resizeOptions.mirrorHorizontal,
-                mirrorVertiacal = resizeOptions.mirrorVertical,
+                mirrorVertical = resizeOptions.mirrorVertical,
             });
 
             RenderTexture rt = resizer.Resize(
@@ -96,7 +96,7 @@ namespace TensorFlowLite
                 scale = PalmScale,
                 cameraRotationDegree = -resizeOptions.rotationDegree,
                 mirrorHorizontal = resizeOptions.mirrorHorizontal,
-                mirrorVertiacal = resizeOptions.mirrorVertical,
+                mirrorVertical = resizeOptions.mirrorVertical,
             });
 
             RenderTexture rt = resizer.Resize(

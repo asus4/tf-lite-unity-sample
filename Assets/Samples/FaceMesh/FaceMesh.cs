@@ -47,7 +47,7 @@ namespace TensorFlowLite
                 scale = FaceScale,
                 cameraRotationDegree = -resizeOptions.rotationDegree,
                 mirrorHorizontal = resizeOptions.mirrorHorizontal,
-                mirrorVertiacal = resizeOptions.mirrorVertical,
+                mirrorVertical = resizeOptions.mirrorVertical,
             });
 
             RenderTexture rt = resizer.Resize(

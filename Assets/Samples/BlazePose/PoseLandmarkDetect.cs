@@ -267,7 +267,7 @@ namespace TensorFlowLite
                 scale = PoseScale,
                 cameraRotationDegree = -options.rotationDegree,
                 mirrorHorizontal = options.mirrorHorizontal,
-                mirrorVertiacal = options.mirrorVertical,
+                mirrorVertical = options.mirrorVertical,
             });
         }
 
