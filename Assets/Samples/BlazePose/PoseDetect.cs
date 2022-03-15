@@ -14,6 +14,8 @@ namespace TensorFlowLite
         {
             [FilePopup("*.tflite")]
             public string modelPath = string.Empty;
+            public AspectMode aspectMode = AspectMode.Fit;
+
             [Range(0, 1)]
             public float scoreThreshold = 0.5f;
             public bool useNonMaxSuppression = false;
@@ -54,6 +56,7 @@ namespace TensorFlowLite
         public PoseDetect(Options options) : base(options.modelPath, true)
         {
             this.options = options;
+            resizeOptions.aspectMode = options.aspectMode;
 
             var anchorOptions = new SsdAnchorsCalculator.Options()
             {
