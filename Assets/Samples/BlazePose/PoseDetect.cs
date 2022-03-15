@@ -3,11 +3,23 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace TensorFlowLite
 {
     public sealed class PoseDetect : BaseImagePredictor<float>
     {
+        [System.Serializable]
+        public class Options
+        {
+            [FilePopup("*.tflite")]
+            public string modelPath = string.Empty;
+            [Range(0, 1)]
+            public float scoreThreshold = 0.5f;
+            public bool useNonMaxSuppression = false;
+            [Range(0, 1)]
+            public float iouThreshold = 0.3f;
+        }
 
         public class Result : System.IComparable<Result>
         {
@@ -38,9 +50,12 @@ namespace TensorFlowLite
         private SsdAnchor[] anchors;
         private SortedSet<Result> results = new SortedSet<Result>();
 
-        public PoseDetect(string modelPath) : base(modelPath, true)
+        private readonly Options options;
+        public PoseDetect(Options options) : base(options.modelPath, true)
         {
-            var options = new SsdAnchorsCalculator.Options()
+            this.options = options;
+
+            var anchorOptions = new SsdAnchorsCalculator.Options()
             {
                 inputSizeWidth = width,
                 inputSizeHeight = height,
@@ -63,9 +78,8 @@ namespace TensorFlowLite
                 fixedAnchorSize = true,
             };
 
-            anchors = SsdAnchorsCalculator.Generate(options);
-            UnityEngine.Debug.AssertFormat(
-                anchors.Length == ANCHOR_LENGTH,
+            anchors = SsdAnchorsCalculator.Generate(anchorOptions);
+            Assert.AreEqual(anchors.Length, ANCHOR_LENGTH,
                 $"Anchors count must be {ANCHOR_LENGTH}, but was {anchors.Length}");
 
             // Get Keypoint Mode
@@ -101,7 +115,7 @@ namespace TensorFlowLite
             return results;
         }
 
-        public Result GetResults(float scoreThreshold = 0.5f, float iouThreshold = 0.3f)
+        public Result GetResults()
         {
             results.Clear();
 
@@ -110,7 +124,7 @@ namespace TensorFlowLite
             for (int i = 0; i < anchors.Length; i++)
             {
                 float score = MathTF.Sigmoid(output1[i]);
-                if (score < scoreThreshold)
+                if (score < options.scoreThreshold)
                 {
                     continue;
                 }
@@ -125,10 +139,10 @@ namespace TensorFlowLite
                 float cx = sx + anchor.x * width;
                 float cy = sy + anchor.y * height;
 
-                cx /= (float)width;
-                cy /= (float)height;
-                w /= (float)width;
-                h /= (float)height;
+                cx /= width;
+                cy /= height;
+                w /= width;
+                h /= height;
 
                 var keypoints = new Vector2[keypointsCount];
                 for (int j = 0; j < keypointsCount; j++)
@@ -137,8 +151,8 @@ namespace TensorFlowLite
                     float ly = output0[i, 4 + (2 * j) + 1];
                     lx += anchor.x * width;
                     ly += anchor.y * height;
-                    lx /= (float)width;
-                    ly /= (float)height;
+                    lx /= width;
+                    ly /= height;
                     keypoints[j] = new Vector2(lx, ly);
                 }
 
@@ -156,19 +170,24 @@ namespace TensorFlowLite
                 return Result.Negative;
             }
 
-            return results.First();
-            // return NonMaxSuppression(results, iouThreshold).First();
+            if (options.useNonMaxSuppression)
+            {
+                return NonMaxSuppression(results, options.iouThreshold).First();
+            }
+            else
+            {
+                return results.First();
+            }
         }
 
-        private static List<Result> NonMaxSuppression(List<Result> results, float iouThreshold)
+        private static readonly List<Result> nonMaxSupressionCache = new List<Result>();
+        private static List<Result> NonMaxSuppression(SortedSet<Result> results, float iouThreshold)
         {
-            var filtered = new List<Result>();
-
-            // FIXME LinQ allocs GC each frame
-            foreach (Result original in results.OrderByDescending(o => o.score))
+            nonMaxSupressionCache.Clear();
+            foreach (Result original in results)
             {
                 bool ignoreCandidate = false;
-                foreach (Result newResult in filtered)
+                foreach (Result newResult in nonMaxSupressionCache)
                 {
                     float iou = original.rect.IntersectionOverUnion(newResult.rect);
                     if (iou >= iouThreshold)
@@ -180,15 +199,15 @@ namespace TensorFlowLite
 
                 if (!ignoreCandidate)
                 {
-                    filtered.Add(original);
-                    if (filtered.Count >= MAX_POSE_NUM)
+                    nonMaxSupressionCache.Add(original);
+                    if (nonMaxSupressionCache.Count >= MAX_POSE_NUM)
                     {
                         break;
                     }
                 }
             }
 
-            return filtered;
+            return nonMaxSupressionCache;
         }
     }
 }

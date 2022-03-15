@@ -12,13 +12,14 @@ using UnityEngine.UI;
 [RequireComponent(typeof(WebCamInput))]
 public sealed class BlazePoseSample : MonoBehaviour
 {
-
-    [SerializeField, FilePopup("*.tflite")]
-    private string poseDetectionModelFile = "coco_ssd_mobilenet_quant.tflite";
-    [SerializeField, FilePopup("*.tflite")]
-    private string poseLandmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
     [SerializeField]
-    private RawImage cameraView = null;
+    private PoseDetect.Options detectOptions = default;
+
+    [SerializeField]
+    private PoseLandmarkDetect.Options landmarkOptions = default;
+
+    [SerializeField]
+    private RectTransform containerView = null;
     [SerializeField]
     private RawImage debugView = null;
     [SerializeField]
@@ -27,8 +28,8 @@ public sealed class BlazePoseSample : MonoBehaviour
     private bool runBackground;
     [SerializeField, Range(0f, 1f)]
     private float visibilityThreshold = 0.5f;
-    [SerializeField]
-    private PoseLandmarkDetect.Options landmarkOptions = new PoseLandmarkDetect.Options();
+
+
 
     private readonly Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
 
@@ -47,9 +48,9 @@ public sealed class BlazePoseSample : MonoBehaviour
     private void Start()
     {
         // Init model
-        poseDetect = new PoseDetect(poseDetectionModelFile);
-        poseLandmark = new PoseLandmarkDetect(poseLandmarkModelFile, landmarkOptions);
-     
+        poseDetect = new PoseDetect(detectOptions);
+        poseLandmark = new PoseLandmarkDetect(landmarkOptions);
+
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
         viewportLandmarks = new Vector4[PoseLandmarkDetect.LandmarkCount];
 
@@ -215,9 +216,8 @@ public sealed class BlazePoseSample : MonoBehaviour
         if (NeedsDetectionUpdate)
         {
             poseDetect.Invoke(texture);
-            cameraView.material = poseDetect.transformMat;
-            cameraView.rectTransform.GetWorldCorners(rtCorners);
-            poseResult = poseDetect.GetResults(0.7f, 0.3f);
+            containerView.GetWorldCorners(rtCorners);
+            poseResult = poseDetect.GetResults();
         }
         if (poseResult.score < 0)
         {
@@ -257,10 +257,9 @@ public sealed class BlazePoseSample : MonoBehaviour
         landmarkResult = await poseLandmark.InvokeAsync(texture, poseResult, cancellationToken, PlayerLoopTiming.Update);
 
         // Back to the update timing from now on 
-        if (cameraView != null)
+        if (containerView != null)
         {
-            cameraView.material = poseDetect.transformMat;
-            cameraView.rectTransform.GetWorldCorners(rtCorners);
+            containerView.GetWorldCorners(rtCorners);
         }
         if (debugView != null)
         {

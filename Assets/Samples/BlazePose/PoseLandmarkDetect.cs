@@ -24,6 +24,8 @@ namespace TensorFlowLite
         [System.Serializable]
         public class Options
         {
+            [FilePopup("*.tflite")]
+            public string modelPath = string.Empty;
             public bool useWorldLandmarks = true;
             public bool useFilter = true;
             public Vector3 filterVelocityScale = new Vector3(10, 10, 2);
@@ -73,7 +75,7 @@ namespace TensorFlowLite
         public Matrix4x4 CropMatrix => cropMatrix;
 
 
-        public PoseLandmarkDetect(string modelPath, Options options) : base(modelPath, true)
+        public PoseLandmarkDetect(Options options) : base(options.modelPath, true)
         {
             result = new Result()
             {
@@ -197,9 +199,9 @@ namespace TensorFlowLite
                 for (int i = 0; i < LandmarkCount; i++)
                 {
                     Vector4 joint = result.viewportLandmarks[i];
-                    Vector4 filterd = filters[i].Apply(timestamp, valueScale, (Vector3)joint);
-                    filterd.w = joint.w;
-                    result.viewportLandmarks[i] = filterd;
+                    Vector4 filtered = filters[i].Apply(timestamp, valueScale, (Vector3)joint);
+                    filtered.w = joint.w;
+                    result.viewportLandmarks[i] = filtered;
                 }
             }
 
