@@ -122,14 +122,14 @@ namespace TensorFlowLite
         protected async UniTask<bool> ToTensorAsync(Texture inputTex, float[,,] inputs, CancellationToken cancellationToken)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
-            await tex2tensor.ToTensorAsync(tex, inputs);
+            await tex2tensor.ToTensorAsync(tex, inputs, cancellationToken);
             return true;
         }
 
         protected async UniTask<bool> ToTensorAsync(RenderTexture inputTex, float[,,] inputs, bool resize, CancellationToken cancellationToken)
         {
             RenderTexture tex = resize ? resizer.Resize(inputTex, resizeOptions) : inputTex;
-            await tex2tensor.ToTensorAsync(tex, inputs);
+            await tex2tensor.ToTensorAsync(tex, inputs, cancellationToken);
             return true;
         }
     }
