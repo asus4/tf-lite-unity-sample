@@ -50,6 +50,7 @@ namespace TensorFlowLite
         {
             draw.color = Color.red;
 
+            container.GetWorldCorners(rtCorners);
             Vector3 min = rtCorners[0];
             Vector3 max = rtCorners[2];
 
@@ -69,21 +70,15 @@ namespace TensorFlowLite
             {
                 return;
             }
-            container.GetWorldCorners(rtCorners);
-
-            Vector3 min = rtCorners[0];
-            Vector3 max = rtCorners[2];
-
-            Vector4[] landmarks = result.viewportLandmarks;
 
             draw.color = Color.blue;
 
+            Vector4[] landmarks = result.viewportLandmarks;
             // Update world joints
             for (int i = 0; i < landmarks.Length; i++)
             {
-                Vector3 p = MathTF.LerpUnclamped(min, max, landmarks[i]);                
-                // w is visibility
-                viewportLandmarks[i] = new Vector4(p.x, p.y, landmarks[i].z, landmarks[i].w);
+                Vector3 p = camera.ViewportToWorldPoint(landmarks[i]);
+                viewportLandmarks[i] = new Vector4(p.x, p.y, p.z + zOffset, landmarks[i].w);
             }
 
             // Draw
