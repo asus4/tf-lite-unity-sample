@@ -80,7 +80,7 @@ namespace TensorFlowLite
         public PoseLandmarkDetect(Options options) : base(options.modelPath, true)
         {
             this.options = options;
-            resizeOptions.aspectMode = AspectMode.Fit;
+            resizeOptions.aspectMode = options.AspectMode;
 
             result = new Result()
             {
@@ -210,13 +210,13 @@ namespace TensorFlowLite
 
             if (options.useWorldLandmarks)
             {
-                CalcWorldLandmarks(result);
+                SetWorldLandmarks(result);
             }
 
             return result;
         }
 
-        private void CalcWorldLandmarks(Result result)
+        private void SetWorldLandmarks(Result result)
         {
             int dimensions = output4.Length / LandmarkCount;
             for (int i = 0; i < LandmarkCount; i++)

@@ -37,22 +37,23 @@ namespace TensorFlowLite
             }
         }
 
-        const int MAX_POSE_NUM = 100;
-        const int ANCHOR_LENGTH = 2254;
-        public int KeypointsCount { get; private set; }
+        private const int MAX_POSE_NUM = 100;
+        private const int ANCHOR_LENGTH = 2254;
+        private readonly int keypointsCount;
 
         // regressors / points
         // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
         // 4 - 11 are 4 keypoints x and y coordinates: x0,y0,x1,y1,x2,y2,x3,y3
-        private float[,] output0 = new float[ANCHOR_LENGTH, 12];
+        private readonly float[,] output0 = new float[ANCHOR_LENGTH, 12];
 
         // classificators / scores
-        private float[] output1 = new float[ANCHOR_LENGTH];
+        private readonly float[] output1 = new float[ANCHOR_LENGTH];
 
-        private SsdAnchor[] anchors;
-        private SortedSet<Result> results = new SortedSet<Result>();
+        private readonly SsdAnchor[] anchors;
+        private readonly SortedSet<Result> results = new SortedSet<Result>();
 
         private readonly Options options;
+
         public PoseDetect(Options options) : base(options.modelPath, true)
         {
             this.options = options;
@@ -87,7 +88,7 @@ namespace TensorFlowLite
 
             // Get Keypoint Mode
             var odim0 = interpreter.GetOutputTensorInfo(0).shape;
-            KeypointsCount = (odim0[2] - 4) / 2;
+            keypointsCount = (odim0[2] - 4) / 2;
         }
 
         public override void Invoke(Texture inputTex)
@@ -121,8 +122,6 @@ namespace TensorFlowLite
         public Result GetResults()
         {
             results.Clear();
-
-            int keypointsCount = KeypointsCount;
 
             for (int i = 0; i < anchors.Length; i++)
             {
