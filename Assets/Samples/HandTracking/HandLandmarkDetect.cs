@@ -68,7 +68,6 @@ namespace TensorFlowLite
                 rotationDegree = CalcHandRotation(ref palm) * Mathf.Rad2Deg,
                 shift = PalmShift,
                 scale = PalmScale,
-                cameraRotationDegree = -resizeOptions.rotationDegree,
                 mirrorHorizontal = resizeOptions.mirrorHorizontal,
                 mirrorVertical = resizeOptions.mirrorVertical,
             });
@@ -94,7 +93,6 @@ namespace TensorFlowLite
                 rotationDegree = CalcHandRotation(ref palm) * Mathf.Rad2Deg,
                 shift = PalmShift,
                 scale = PalmScale,
-                cameraRotationDegree = -resizeOptions.rotationDegree,
                 mirrorHorizontal = resizeOptions.mirrorHorizontal,
                 mirrorVertical = resizeOptions.mirrorVertical,
             });
