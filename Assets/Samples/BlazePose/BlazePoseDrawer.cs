@@ -71,32 +71,19 @@ namespace TensorFlowLite
             }
             container.GetWorldCorners(rtCorners);
 
+            Vector3 min = rtCorners[0];
+            Vector3 max = rtCorners[2];
+
             Vector4[] landmarks = result.viewportLandmarks;
 
             draw.color = Color.blue;
 
-            float zScale = 1;
-            float aspect = (float)Screen.width / Screen.height;
-            Vector3 scale, offset;
-            if (aspect > 1)
-            {
-                scale = new Vector3(1f / aspect, 1f, zScale);
-                offset = new Vector3((1 - 1f / aspect) / 2, 0, zOffset);
-            }
-            else
-            {
-                scale = new Vector3(1f, aspect, zScale);
-                offset = new Vector3(0, (1 - aspect) / 2, zOffset);
-            }
-
             // Update world joints
             for (int i = 0; i < landmarks.Length; i++)
             {
-                Vector3 p = Vector3.Scale(landmarks[i], scale) + offset;
-                p = camera.ViewportToWorldPoint(p);
-
+                Vector3 p = MathTF.LerpUnclamped(min, max, landmarks[i]);                
                 // w is visibility
-                viewportLandmarks[i] = new Vector4(p.x, p.y, p.z, landmarks[i].w);
+                viewportLandmarks[i] = new Vector4(p.x, p.y, landmarks[i].z, landmarks[i].w);
             }
 
             // Draw
