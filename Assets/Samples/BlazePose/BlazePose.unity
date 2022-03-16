@@ -601,6 +601,8 @@ MonoBehaviour:
       useWorldLandmarks: 1
       useFilter: 1
       filterVelocityScale: {x: 10, y: 10, z: 2}
+      poseShift: {x: 0, y: 0}
+      poseScale: {x: 1.5, y: 1.5}
   containerView: {fileID: 2074584277}
   debugView: {fileID: 1302103928}
   canvas: {fileID: 1051232097}

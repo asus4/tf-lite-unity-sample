@@ -27,15 +27,11 @@ public sealed class BlazePoseSample : MonoBehaviour
     private float visibilityThreshold = 0.5f;
 
 
-
-    private readonly Vector3[] rtCorners = new Vector3[4]; // just cache for GetWorldCorners
-
     private BlazePose pose;
-
-    private Vector4[] viewportLandmarks;
-    private PrimitiveDraw draw;
     private PoseDetect.Result poseResult;
     private PoseLandmarkDetect.Result landmarkResult;
+    private BlazePoseDrawer drawer;
+
     private UniTask<bool> task;
     private CancellationToken cancellationToken;
 
@@ -43,8 +39,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     {
         pose = new BlazePose(options);
 
-        draw = new PrimitiveDraw(Camera.main, gameObject.layer);
-        viewportLandmarks = new Vector4[PoseLandmarkDetect.LandmarkCount];
+        drawer = new BlazePoseDrawer(Camera.main, gameObject.layer, containerView);
 
         cancellationToken = this.GetCancellationTokenOnDestroy();
 
@@ -55,7 +50,7 @@ public sealed class BlazePoseSample : MonoBehaviour
     {
         GetComponent<WebCamInput>().OnTextureUpdate.RemoveListener(OnTextureUpdate);
         pose?.Dispose();
-        draw?.Dispose();
+        drawer?.Dispose();
     }
 
     private void OnTextureUpdate(Texture texture)
@@ -75,137 +70,23 @@ public sealed class BlazePoseSample : MonoBehaviour
 
     private void Update()
     {
-        if (poseResult != null && poseResult.score > 0f)
-        {
-            DrawFrame(poseResult);
-        }
+        drawer.DrawPoseResult(poseResult);
 
         if (landmarkResult != null && landmarkResult.score > 0.2f)
         {
-            DrawCropMatrix(pose.CropMatrix);
-            DrawViewportLandmarks(landmarkResult.viewportLandmarks);
+            drawer.DrawCropMatrix(pose.CropMatrix);
+            drawer.DrawLandmarkResult(landmarkResult, visibilityThreshold, canvas.planeDistance);
             if (options.landmark.useWorldLandmarks)
             {
-                DrawWorldLandmarks(landmarkResult.worldLandmarks);
+                drawer.DrawWorldLandmarks(landmarkResult, visibilityThreshold);
             }
         }
-    }
-
-    void DrawFrame(PoseDetect.Result pose)
-    {
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
-
-        draw.color = Color.green;
-        draw.Rect(MathTF.Lerp(min, max, pose.rect, true), 0.02f, min.z);
-
-        foreach (var kp in pose.keypoints)
-        {
-            draw.Point(MathTF.Lerp(min, max, (Vector3)kp, true), 0.05f);
-        }
-        draw.Apply();
-    }
-
-    private void DrawCropMatrix(in Matrix4x4 matrix)
-    {
-        draw.color = Color.red;
-
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
-
-        Matrix4x4 mtx = matrix.inverse;
-        Vector3 a = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(0, 0, 0)));
-        Vector3 b = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(1, 0, 0)));
-        Vector3 c = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(1, 1, 0)));
-        Vector3 d = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(0, 1, 0)));
-
-        draw.Quad(a, b, c, d, 0.02f);
-        draw.Apply();
-    }
-
-    private void DrawViewportLandmarks(Vector4[] landmarks)
-    {
-        draw.color = Color.blue;
-
-        float zScale = 1;
-        float zOffset = canvas.planeDistance;
-        float aspect = (float)Screen.width / Screen.height;
-        Vector3 scale, offset;
-        if (aspect > 1)
-        {
-            scale = new Vector3(1f / aspect, 1f, zScale);
-            offset = new Vector3((1 - 1f / aspect) / 2, 0, zOffset);
-        }
-        else
-        {
-            scale = new Vector3(1f, aspect, zScale);
-            offset = new Vector3(0, (1 - aspect) / 2, zOffset);
-        }
-
-        // Update world joints
-        var camera = canvas.worldCamera;
-        for (int i = 0; i < landmarks.Length; i++)
-        {
-            Vector3 p = Vector3.Scale(landmarks[i], scale) + offset;
-            p = camera.ViewportToWorldPoint(p);
-
-            // w is visibility
-            viewportLandmarks[i] = new Vector4(p.x, p.y, p.z, landmarks[i].w);
-        }
-
-        // Draw
-        for (int i = 0; i < viewportLandmarks.Length; i++)
-        {
-            Vector4 p = viewportLandmarks[i];
-            if (p.w > visibilityThreshold)
-            {
-                draw.Cube(p, 0.2f);
-            }
-        }
-        var connections = PoseLandmarkDetect.Connections;
-        for (int i = 0; i < connections.Length; i += 2)
-        {
-            var a = viewportLandmarks[connections[i]];
-            var b = viewportLandmarks[connections[i + 1]];
-            if (a.w > visibilityThreshold || b.w > visibilityThreshold)
-            {
-                draw.Line3D(a, b, 0.05f);
-            }
-        }
-        draw.Apply();
-    }
-
-    private void DrawWorldLandmarks(Vector4[] landmarks)
-    {
-        draw.color = Color.cyan;
-
-        for (int i = 0; i < landmarks.Length; i++)
-        {
-            Vector4 p = landmarks[i];
-            if (p.w > visibilityThreshold)
-            {
-                draw.Cube(p, 0.02f);
-            }
-        }
-        var connections = PoseLandmarkDetect.Connections;
-        for (int i = 0; i < connections.Length; i += 2)
-        {
-            var a = landmarks[connections[i]];
-            var b = landmarks[connections[i + 1]];
-            if (a.w > visibilityThreshold || b.w > visibilityThreshold)
-            {
-                draw.Line3D(a, b, 0.005f);
-            }
-        }
-
-        draw.Apply();
     }
 
     private void Invoke(Texture texture)
     {
         landmarkResult = pose.Invoke(texture);
         poseResult = pose.PoseResult;
-        containerView.GetWorldCorners(rtCorners);
         if (pose.LandmarkInputTexture != null)
         {
             debugView.texture = pose.LandmarkInputTexture;
@@ -216,7 +97,6 @@ public sealed class BlazePoseSample : MonoBehaviour
     {
         landmarkResult = await pose.InvokeAsync(texture, cancellationToken);
         poseResult = pose.PoseResult;
-        containerView.GetWorldCorners(rtCorners);
         if (pose.LandmarkInputTexture != null)
         {
             debugView.texture = pose.LandmarkInputTexture;

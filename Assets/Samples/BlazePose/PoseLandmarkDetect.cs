@@ -74,7 +74,7 @@ namespace TensorFlowLite
         private Matrix4x4 cropMatrix;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
-               public Matrix4x4 CropMatrix => cropMatrix;
+        public Matrix4x4 CropMatrix => cropMatrix;
 
 
         public PoseLandmarkDetect(Options options) : base(options.modelPath, true)
@@ -86,7 +86,9 @@ namespace TensorFlowLite
             {
                 score = 0,
                 viewportLandmarks = new Vector4[LandmarkCount],
-                worldLandmarks = new Vector4[LandmarkCount],
+                worldLandmarks = options.useWorldLandmarks
+                    ? new Vector4[LandmarkCount]
+                    : null,
             };
 
             // Init filters
