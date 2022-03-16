@@ -36,6 +36,15 @@ namespace TensorFlowLite
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 LerpUnclamped(in Vector2 a, in Vector2 b, in Vector2 t)
+        {
+            return new Vector2(
+                Mathf.LerpUnclamped(a.x, b.x, t.x),
+                Mathf.LerpUnclamped(a.y, b.y, t.y)
+            );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 LerpUnclamped(in Vector3 a, in Vector3 b, in Vector3 t)
         {
             return new Vector3(

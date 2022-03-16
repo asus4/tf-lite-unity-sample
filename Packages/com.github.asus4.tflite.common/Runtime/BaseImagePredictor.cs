@@ -7,13 +7,13 @@ namespace TensorFlowLite
     public abstract class BaseImagePredictor<T> : System.IDisposable
         where T : struct
     {
-        protected Interpreter interpreter;
-        protected int width;
-        protected int height;
-        protected int channels;
-        protected T[,,] input0;
-        protected TextureToTensor tex2tensor;
-        protected TextureResizer resizer;
+        protected readonly Interpreter interpreter;
+        protected readonly int width;
+        protected readonly int height;
+        protected readonly int channels;
+        protected readonly T[,,] input0;
+        protected readonly TextureToTensor tex2tensor;
+        protected readonly TextureResizer resizer;
         protected TextureResizer.ResizeOptions resizeOptions;
 
         public Texture inputTex
@@ -56,7 +56,22 @@ namespace TensorFlowLite
             }
 
             interpreter.LogIOInfo();
-            InitInputs();
+            // Initialize inputs
+            {
+                var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
+                height = inputShape0[1];
+                width = inputShape0[2];
+                channels = inputShape0[3];
+                input0 = new T[height, width, channels];
+
+                int inputCount = interpreter.GetInputTensorCount();
+                for (int i = 0; i < inputCount; i++)
+                {
+                    int[] shape = interpreter.GetInputTensorInfo(i).shape;
+                    interpreter.ResizeInputTensor(i, shape);
+                }
+                interpreter.AllocateTensors();
+            }
 
             tex2tensor = new TextureToTensor();
             resizer = new TextureResizer();
@@ -107,32 +122,15 @@ namespace TensorFlowLite
         protected async UniTask<bool> ToTensorAsync(Texture inputTex, float[,,] inputs, CancellationToken cancellationToken)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
-            await tex2tensor.ToTensorAsync(tex, inputs);
+            await tex2tensor.ToTensorAsync(tex, inputs, cancellationToken);
             return true;
         }
 
         protected async UniTask<bool> ToTensorAsync(RenderTexture inputTex, float[,,] inputs, bool resize, CancellationToken cancellationToken)
         {
             RenderTexture tex = resize ? resizer.Resize(inputTex, resizeOptions) : inputTex;
-            await tex2tensor.ToTensorAsync(tex, inputs);
+            await tex2tensor.ToTensorAsync(tex, inputs, cancellationToken);
             return true;
-        }
-
-        private void InitInputs()
-        {
-            var idim0 = interpreter.GetInputTensorInfo(0).shape;
-            height = idim0[1];
-            width = idim0[2];
-            channels = idim0[3];
-            input0 = new T[height, width, channels];
-
-            int inputCount = interpreter.GetInputTensorCount();
-            for (int i = 0; i < inputCount; i++)
-            {
-                int[] dim = interpreter.GetInputTensorInfo(i).shape;
-                interpreter.ResizeInputTensor(i, dim);
-            }
-            interpreter.AllocateTensors();
         }
     }
 }

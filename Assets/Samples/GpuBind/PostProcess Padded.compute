@@ -10,6 +10,6 @@ RWTexture2D<float4> Result;
 void LabelToTex (uint2 tid : SV_DispatchThreadID)
 {
     uint gid = (Height - 1 - tid.y) * Width + tid.x;
-    float2 label = LabelBuffer[gid];
+    float2 label = LabelBuffer[gid].xy;
     Result[tid] = float4(label.x, label.y, 0.0, 1.0);
 }

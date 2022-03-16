@@ -45,9 +45,8 @@ namespace TensorFlowLite
                 rotationDegree = CalcFaceRotation(ref face) * Mathf.Rad2Deg,
                 shift = FaceShift,
                 scale = FaceScale,
-                cameraRotationDegree = -resizeOptions.rotationDegree,
                 mirrorHorizontal = resizeOptions.mirrorHorizontal,
-                mirrorVertiacal = resizeOptions.mirrorVertical,
+                mirrorVertical = resizeOptions.mirrorVertical,
             });
 
             RenderTexture rt = resizer.Resize(

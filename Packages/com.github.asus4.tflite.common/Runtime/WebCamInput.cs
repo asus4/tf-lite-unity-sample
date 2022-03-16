@@ -95,19 +95,19 @@ namespace TensorFlowLite
                 (cameraWidth, cameraHeight) = (cameraHeight, cameraWidth); // swap
             }
 
-            float cameraAspect = (float)cameraWidth / (float)cameraHeight;
-            float targetAspect = (float)width / (float)height;
+            float cameraAspect = (float)cameraWidth / cameraHeight;
+            float targetAspect = (float)width / height;
 
             int w, h;
             if (cameraAspect > targetAspect)
             {
-                w = Mathf.FloorToInt(cameraHeight * targetAspect);
+                w = RoundToEven(cameraHeight * targetAspect);
                 h = cameraHeight;
             }
             else
             {
                 w = cameraWidth;
-                h = Mathf.FloorToInt(cameraWidth / targetAspect);
+                h = RoundToEven(cameraWidth / targetAspect);
             }
 
             Matrix4x4 mtx;
@@ -138,6 +138,11 @@ namespace TensorFlowLite
         private static bool IsPortrait(WebCamTexture texture)
         {
             return texture.videoRotationAngle == 90 || texture.videoRotationAngle == 270;
+        }
+
+        private static int RoundToEven(float n)
+        {
+            return Mathf.RoundToInt(n / 2) * 2;
         }
     }
 }

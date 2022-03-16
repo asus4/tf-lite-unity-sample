@@ -24,9 +24,15 @@ namespace TensorFlowLite
         [System.Serializable]
         public class Options
         {
+            [FilePopup("*.tflite")]
+            public string modelPath = string.Empty;
             public bool useWorldLandmarks = true;
             public bool useFilter = true;
             public Vector3 filterVelocityScale = new Vector3(10, 10, 2);
+            public Vector2 poseShift = new Vector2(0, 0);
+            public Vector2 poseScale = new Vector2(1.5f, 1.5f);
+
+            internal AspectMode AspectMode { get; set; } = AspectMode.Fit;
 
             private Vector3 cachedFilterVelocityScale;
 
@@ -68,21 +74,22 @@ namespace TensorFlowLite
         private Matrix4x4 cropMatrix;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
-        public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
-        public Vector2 PoseScale { get; set; } = new Vector2(1.5f, 1.5f);
         public Matrix4x4 CropMatrix => cropMatrix;
 
 
-        public PoseLandmarkDetect(string modelPath, Options options) : base(modelPath, true)
+        public PoseLandmarkDetect(Options options) : base(options.modelPath, true)
         {
+            this.options = options;
+            resizeOptions.aspectMode = options.AspectMode;
+
             result = new Result()
             {
                 score = 0,
                 viewportLandmarks = new Vector4[LandmarkCount],
-                worldLandmarks = new Vector4[LandmarkCount],
+                worldLandmarks = options.useWorldLandmarks
+                    ? new Vector4[LandmarkCount]
+                    : null,
             };
-
-            this.options = options ?? new Options();
 
             // Init filters
             filters = new RelativeVelocityFilter3D[LandmarkCount];
@@ -197,21 +204,21 @@ namespace TensorFlowLite
                 for (int i = 0; i < LandmarkCount; i++)
                 {
                     Vector4 joint = result.viewportLandmarks[i];
-                    Vector4 filterd = filters[i].Apply(timestamp, valueScale, (Vector3)joint);
-                    filterd.w = joint.w;
-                    result.viewportLandmarks[i] = filterd;
+                    Vector4 filtered = filters[i].Apply(timestamp, valueScale, (Vector3)joint);
+                    filtered.w = joint.w;
+                    result.viewportLandmarks[i] = filtered;
                 }
             }
 
             if (options.useWorldLandmarks)
             {
-                CalcWorldLandmarks(result);
+                SetWorldLandmarks(result);
             }
 
             return result;
         }
 
-        private void CalcWorldLandmarks(Result result)
+        private void SetWorldLandmarks(Result result)
         {
             int dimensions = output4.Length / LandmarkCount;
             for (int i = 0; i < LandmarkCount; i++)
@@ -253,7 +260,7 @@ namespace TensorFlowLite
             }
         }
 
-        private Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options)
+        private Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions resizeOptions)
         {
             float rotation = CalcRotationDegree(pose.keypoints[0], pose.keypoints[1]);
             var rect = AlignmentPointsToRect(pose.keypoints[0], pose.keypoints[1]);
@@ -261,11 +268,10 @@ namespace TensorFlowLite
             {
                 rect = rect,
                 rotationDegree = rotation,
-                shift = PoseShift,
-                scale = PoseScale,
-                cameraRotationDegree = -options.rotationDegree,
-                mirrorHorizontal = options.mirrorHorizontal,
-                mirrorVertiacal = options.mirrorVertical,
+                shift = options.poseShift,
+                scale = options.poseScale,
+                mirrorHorizontal = resizeOptions.mirrorHorizontal,
+                mirrorVertical = resizeOptions.mirrorVertical,
             });
         }
 

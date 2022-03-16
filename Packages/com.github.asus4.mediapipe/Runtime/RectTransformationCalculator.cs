@@ -18,15 +18,10 @@ namespace TensorFlowLite
             public Vector2 shift;
             public Vector2 scale;
 
-            // Custom options for WebCamTexture
-            public float cameraRotationDegree;
             public bool mirrorHorizontal;
-            public bool mirrorVertiacal;
+            public bool mirrorVertical;
 
-            public bool IsCameraModified =>
-                cameraRotationDegree != 0
-                || mirrorHorizontal
-                || mirrorVertiacal;
+            public bool IsCameraModified => mirrorHorizontal || mirrorVertical;
         }
 
         public static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
@@ -41,7 +36,7 @@ namespace TensorFlowLite
             // Calc center position
             Vector2 center = options.rect.center + new Vector2(-0.5f, -0.5f);
             center = (Vector2)(rotation * center);
-            center += (shift * size);
+            center += shift * size;
             center /= size;
 
             Matrix4x4 trs = Matrix4x4.TRS(
@@ -56,10 +51,10 @@ namespace TensorFlowLite
             }
             Matrix4x4 cameraMtx = Matrix4x4.TRS(
                 new Vector3(0, 0, 0),
-                Quaternion.Euler(0, 0, -options.cameraRotationDegree),
+                Quaternion.identity,
                 new Vector3(
                     options.mirrorHorizontal ? -1 : 1,
-                    options.mirrorVertiacal ? -1 : 1,
+                    options.mirrorVertical ? -1 : 1,
                     1
                 )
             );

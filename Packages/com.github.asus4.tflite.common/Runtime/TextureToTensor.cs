@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace TensorFlowLite
@@ -84,9 +85,9 @@ namespace TensorFlowLite
             }
         }
 
-        public async UniTask<bool> ToTensorAsync(RenderTexture texture, float[,,] inputs)
+        public async UniTask<bool> ToTensorAsync(RenderTexture texture, float[,,] inputs, CancellationToken cancellationToken)
         {
-            await UniTask.SwitchToMainThread(PlayerLoopTiming.FixedUpdate);
+            await UniTask.SwitchToMainThread(PlayerLoopTiming.FixedUpdate, cancellationToken);
             var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
             int width = texture.width;
             int height = texture.height - 1;
