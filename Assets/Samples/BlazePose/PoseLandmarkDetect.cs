@@ -29,6 +29,8 @@ namespace TensorFlowLite
             public bool useWorldLandmarks = true;
             public bool useFilter = true;
             public Vector3 filterVelocityScale = new Vector3(10, 10, 2);
+            public Vector2 poseShift = new Vector2(0, 0);
+            public Vector2 poseScale = new Vector2(1.5f, 1.5f);
 
             internal AspectMode AspectMode { get; set; } = AspectMode.Fit;
 
@@ -72,9 +74,7 @@ namespace TensorFlowLite
         private Matrix4x4 cropMatrix;
 
         // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
-        public Vector2 PoseShift { get; set; } = new Vector2(0, 0);
-        public Vector2 PoseScale { get; set; } = new Vector2(1.5f, 1.5f);
-        public Matrix4x4 CropMatrix => cropMatrix;
+               public Matrix4x4 CropMatrix => cropMatrix;
 
 
         public PoseLandmarkDetect(Options options) : base(options.modelPath, true)
@@ -258,7 +258,7 @@ namespace TensorFlowLite
             }
         }
 
-        private Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions options)
+        private Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions resizeOptions)
         {
             float rotation = CalcRotationDegree(pose.keypoints[0], pose.keypoints[1]);
             var rect = AlignmentPointsToRect(pose.keypoints[0], pose.keypoints[1]);
@@ -266,11 +266,11 @@ namespace TensorFlowLite
             {
                 rect = rect,
                 rotationDegree = rotation,
-                shift = PoseShift,
-                scale = PoseScale,
-                cameraRotationDegree = -options.rotationDegree,
-                mirrorHorizontal = options.mirrorHorizontal,
-                mirrorVertical = options.mirrorVertical,
+                shift = options.poseShift,
+                scale = options.poseScale,
+                cameraRotationDegree = -resizeOptions.rotationDegree,
+                mirrorHorizontal = resizeOptions.mirrorHorizontal,
+                mirrorVertical = resizeOptions.mirrorVertical,
             });
         }
 
