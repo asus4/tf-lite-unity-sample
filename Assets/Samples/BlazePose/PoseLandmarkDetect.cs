@@ -123,7 +123,7 @@ namespace TensorFlowLite
             throw new System.NotImplementedException("Use Invoke(Texture, PalmDetect.Result)");
         }
 
-        public void Invoke(Texture inputTex, PoseDetect.Result pose)
+        public Result Invoke(Texture inputTex, PoseDetect.Result pose)
         {
             cropMatrix = CalcCropMatrix(ref pose, ref resizeOptions);
 
@@ -134,6 +134,8 @@ namespace TensorFlowLite
             ToTensor(rt, input0, false);
 
             InvokeInternal();
+
+            return GetResult();
         }
 
         public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, CancellationToken cancellationToken, PlayerLoopTiming timing)
@@ -170,7 +172,7 @@ namespace TensorFlowLite
             }
         }
 
-        public Result GetResult()
+        private Result GetResult()
         {
             // Normalize 0 ~ 255 => 0.0 ~ 1.0
             const float SCALE = 1f / 255f;
