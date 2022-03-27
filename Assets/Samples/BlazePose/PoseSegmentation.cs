@@ -7,9 +7,9 @@ namespace TensorFlowLite
     public class PoseSegmentation : System.IDisposable
     {
         private readonly ComputeShader compute;
-        private ComputeBuffer labelBuffer;
-        private RenderTexture labelTex;
-        private RenderTexture maskTex;
+        private readonly ComputeBuffer labelBuffer;
+        private readonly RenderTexture labelTex;
+        private readonly RenderTexture maskTex;
 
         private readonly int kLabelToTex;
         private readonly int kBilateralFilter;
@@ -53,21 +53,19 @@ namespace TensorFlowLite
 
         public void Dispose()
         {
+            labelBuffer?.Release();
+
             if (labelTex != null)
             {
                 labelTex.Release();
                 Object.Destroy(labelTex);
-                labelTex = null;
             }
+
             if (maskTex != null)
             {
                 maskTex.Release();
                 Object.Destroy(maskTex);
-                maskTex = null;
             }
-
-            labelBuffer?.Release();
-            labelBuffer = null;
         }
 
         public RenderTexture GetTexture(float[,] data, float sigmaColor = 1.0f)

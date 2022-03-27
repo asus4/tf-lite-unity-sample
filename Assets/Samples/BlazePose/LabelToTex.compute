@@ -22,16 +22,16 @@ float Gaussian(float x, float sigma) {
 void LabelToTex (uint2 tid : SV_DispatchThreadID)
 {
     float label = LabelBuffer[(Height - 1 - tid.y) * Width + tid.x];
-    OutputTexture[tid] = float4(label.x, 0, 0, 1);
+    OutputTexture[tid] = float4(label, 0, 0, 1);
 }
 
 // TODO: Implement jointed-bilateral filter
 [numthreads(8,8,1)]
 void BilateralFilter(uint2 tid : SV_DispatchThreadID)
 {
-    float2 center = InputTexture[tid].xy;
+    float center = InputTexture[tid].r;
 
-    float2 totalColor = float2(0.0, 0.0);
+    float totalColor = 0.0;
     float totalWeight = 0.0;
 
     for (int y = -radius; y <= radius; y += step)
@@ -39,19 +39,25 @@ void BilateralFilter(uint2 tid : SV_DispatchThreadID)
         for (int x = -radius; x <= radius; x += step)
         {
             uint2 id = uint2(
-                min(max((int)tid.x + x, 0), (int)Width - 1),
-                min(max((int)tid.y + y, 0), (int)Height - 1));
-            float2 p = InputTexture[id].xy;
+            min(max((int)tid.x + x, 0), (int)Width - 1),
+            min(max((int)tid.y + y, 0), (int)Height - 1));
+            float p = InputTexture[id].r;
 
             // space weight * color weight
             float w = Gaussian(distance((float2)tid, (float2)id) * sigmaTexel, sigmaTexel)
-                * Gaussian(distance(p, center), sigmaColor);
+            * Gaussian(distance(p, center), sigmaColor);
 
             totalWeight += w;
             totalColor += p * w;
         }
     }
 
-    float2 color = totalColor / totalWeight;
-    OutputTexture[tid] = float4(color.x, color.y, 0, 1);
+    float color = totalColor / totalWeight;
+    // Set UV to Red/Green channels
+    // Set Segmentation to Blue channel
+    OutputTexture[tid] = float4(
+    (float)tid.x / Width,
+    (float)tid.y / Height,
+    color,
+    1);
 }
