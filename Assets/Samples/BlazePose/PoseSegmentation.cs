@@ -8,11 +8,10 @@ namespace TensorFlowLite
     {
         private readonly ComputeShader compute;
         private readonly ComputeBuffer labelBuffer;
-        private readonly RenderTexture labelTex;
         private readonly RenderTexture maskTex;
+        // private RenderTexture 
 
         private readonly int kLabelToTex;
-        private readonly int kBilateralFilter;
         private static readonly int kLabelBuffer = Shader.PropertyToID("LabelBuffer");
         private static readonly int kInputTexture = Shader.PropertyToID("InputTexture");
         private static readonly int kOutputTexture = Shader.PropertyToID("OutputTexture");
@@ -40,27 +39,16 @@ namespace TensorFlowLite
 
             labelBuffer = new ComputeBuffer(height * width, sizeof(float) * channels);
 
-            labelTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
-            labelTex.enableRandomWrite = true;
-            labelTex.Create();
-
             maskTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             maskTex.enableRandomWrite = true;
             maskTex.Create();
 
             kLabelToTex = compute.FindKernel("LabelToTex");
-            kBilateralFilter = compute.FindKernel("BilateralFilter");
         }
 
         public void Dispose()
         {
             labelBuffer?.Release();
-
-            if (labelTex != null)
-            {
-                labelTex.Release();
-                Object.Destroy(labelTex);
-            }
 
             if (maskTex != null)
             {
@@ -69,21 +57,14 @@ namespace TensorFlowLite
             }
         }
 
-
-
         public RenderTexture GetTexture(Texture inputTex, float[,] data, float sigmaColor)
         {
             // Label to Texture
             labelBuffer.SetData(data);
-            compute.SetBuffer(kLabelToTex, kLabelBuffer, labelBuffer);
-            compute.SetTexture(kLabelToTex, kOutputTexture, labelTex);
-            compute.Dispatch(kLabelToTex, width / 8, height / 8, 1);
-
-            // Bilateral Filter
             compute.SetFloat(kSigmaColor, sigmaColor);
-            compute.SetTexture(kBilateralFilter, kInputTexture, labelTex);
-            compute.SetTexture(kBilateralFilter, kOutputTexture, maskTex);
-            compute.Dispatch(kBilateralFilter, width / 8, height / 8, 1);
+            compute.SetBuffer(kLabelToTex, kLabelBuffer, labelBuffer);
+            compute.SetTexture(kLabelToTex, kOutputTexture, maskTex);
+            compute.Dispatch(kLabelToTex, width / 8, height / 8, 1);
             return maskTex;
         }
     }
