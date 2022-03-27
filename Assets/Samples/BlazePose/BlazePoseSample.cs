@@ -20,6 +20,9 @@ public sealed class BlazePoseSample : MonoBehaviour
     [SerializeField]
     private RawImage debugView = null;
     [SerializeField]
+    private RawImage segmentationView = null;
+
+    [SerializeField]
     private Canvas canvas = null;
     [SerializeField]
     private bool runBackground;
@@ -90,6 +93,10 @@ public sealed class BlazePoseSample : MonoBehaviour
         if (pose.LandmarkInputTexture != null)
         {
             debugView.texture = pose.LandmarkInputTexture;
+        }
+        if (landmarkResult != null && landmarkResult.SegmentationTexture != null)
+        {
+            segmentationView.texture = landmarkResult.SegmentationTexture;
         }
     }
 

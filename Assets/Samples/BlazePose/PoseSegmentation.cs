@@ -1,34 +1,12 @@
-﻿
-using UnityEngine;
 
 namespace TensorFlowLite
 {
+    using UnityEngine;
+    using UnityEngine.Assertions;
 
-    public sealed class SelfieSegmentation : BaseImagePredictor<float>
+    public class PoseSegmentation : System.IDisposable
     {
-        [System.Serializable]
-        public class Options
-        {
-            [FilePopup("*.tflite")]
-            public string modelFile = string.Empty;
-            public AspectMode aspectMode = AspectMode.Fit;
-
-            public ComputeShader compute = null;
-
-            [Range(0.1f, 4f)]
-            public float sigmaColor = 1f;
-
-
-            public void UpdateParameter()
-            {
-                compute.SetFloat("sigmaColor", sigmaColor);
-            }
-        }
-
-        private float[,,] output0; // height, width, 2
-
         private readonly ComputeShader compute;
-        private readonly Options options;
         private ComputeBuffer labelBuffer;
         private RenderTexture labelTex;
         private RenderTexture maskTex;
@@ -39,28 +17,27 @@ namespace TensorFlowLite
         private static readonly int kInputTexture = Shader.PropertyToID("InputTexture");
         private static readonly int kOutputTexture = Shader.PropertyToID("OutputTexture");
 
-        public SelfieSegmentation(Options options) : base(options.modelFile, true)
+        private readonly int width;
+        private readonly int height;
+
+        public PoseSegmentation(Interpreter.TensorInfo info, ComputeShader compute)
         {
-            this.options = options;
-            resizeOptions.aspectMode = options.aspectMode;
+            this.compute = compute;
 
-            int[] odim0 = interpreter.GetOutputTensorInfo(0).shape;
+            width = info.shape[2];
+            height = info.shape[1];
+            int channels = info.shape[3];
 
-            Debug.Assert(odim0[1] == height);
-            Debug.Assert(odim0[2] == width);
+            Assert.AreEqual(1, channels);
 
-            output0 = new float[odim0[1], odim0[2], odim0[3]];
-
-            compute = options.compute;
             compute.SetInt("Width", width);
             compute.SetInt("Height", height);
 
-            compute.SetFloat("sigmaColor", options.sigmaColor);
             compute.SetFloat("sigmaTexel", Mathf.Max(1f / width, 1f / height));
             compute.SetInt("step", 1);
             compute.SetInt("radius", 1);
 
-            labelBuffer = new ComputeBuffer(height * width, sizeof(float) * 2);
+            labelBuffer = new ComputeBuffer(height * width, sizeof(float) * channels);
 
             labelTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             labelTex.enableRandomWrite = true;
@@ -74,9 +51,8 @@ namespace TensorFlowLite
             kBilateralFilter = compute.FindKernel("BilateralFilter");
         }
 
-        public override void Dispose()
+        public void Dispose()
         {
-            output0 = null;
             if (labelTex != null)
             {
                 labelTex.Release();
@@ -92,29 +68,18 @@ namespace TensorFlowLite
 
             labelBuffer?.Release();
             labelBuffer = null;
-
-            base.Dispose();
         }
 
-        public override void Invoke(Texture inputTex)
-        {
-            ToTensor(inputTex, input0);
-
-            interpreter.SetInputTensorData(0, input0);
-            interpreter.Invoke();
-            interpreter.GetOutputTensorData(0, output0);
-        }
-
-        public RenderTexture GetResultTexture()
+        public RenderTexture GetTexture(float[,] data, float sigmaColor = 1.0f)
         {
             // Label to Texture
-            labelBuffer.SetData(output0);
+            labelBuffer.SetData(data);
             compute.SetBuffer(kLabelToTex, kLabelBuffer, labelBuffer);
             compute.SetTexture(kLabelToTex, kOutputTexture, labelTex);
             compute.Dispatch(kLabelToTex, width / 8, height / 8, 1);
 
             // Bilateral Filter
-            options.UpdateParameter();
+            compute.SetFloat("sigmaColor", sigmaColor);
             compute.SetTexture(kBilateralFilter, kInputTexture, labelTex);
             compute.SetTexture(kBilateralFilter, kOutputTexture, maskTex);
             compute.Dispatch(kBilateralFilter, width / 8, height / 8, 1);
