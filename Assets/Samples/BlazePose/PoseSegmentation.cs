@@ -16,6 +16,7 @@ namespace TensorFlowLite
         private static readonly int kLabelBuffer = Shader.PropertyToID("LabelBuffer");
         private static readonly int kInputTexture = Shader.PropertyToID("InputTexture");
         private static readonly int kOutputTexture = Shader.PropertyToID("OutputTexture");
+        private static readonly int kSigmaColor = Shader.PropertyToID("sigmaColor");
 
         private readonly int width;
         private readonly int height;
@@ -68,7 +69,9 @@ namespace TensorFlowLite
             }
         }
 
-        public RenderTexture GetTexture(float[,] data, float sigmaColor = 1.0f)
+
+
+        public RenderTexture GetTexture(Texture inputTex, float[,] data, float sigmaColor)
         {
             // Label to Texture
             labelBuffer.SetData(data);
@@ -77,7 +80,7 @@ namespace TensorFlowLite
             compute.Dispatch(kLabelToTex, width / 8, height / 8, 1);
 
             // Bilateral Filter
-            compute.SetFloat("sigmaColor", sigmaColor);
+            compute.SetFloat(kSigmaColor, sigmaColor);
             compute.SetTexture(kBilateralFilter, kInputTexture, labelTex);
             compute.SetTexture(kBilateralFilter, kOutputTexture, maskTex);
             compute.Dispatch(kBilateralFilter, width / 8, height / 8, 1);

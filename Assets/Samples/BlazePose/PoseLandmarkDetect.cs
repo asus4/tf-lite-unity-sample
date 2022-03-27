@@ -34,6 +34,8 @@ namespace TensorFlowLite
             public Vector2 poseScale = new Vector2(1.5f, 1.5f);
             public bool enableSegmentation = false;
             public ComputeShader compute = default;
+            [Range(0.1f, 4f)]
+            public float segmentationSigma = 1f;
 
             internal AspectMode AspectMode { get; set; } = AspectMode.Fit;
 
@@ -135,7 +137,7 @@ namespace TensorFlowLite
 
             InvokeInternal();
 
-            return GetResult();
+            return GetResult(inputTex);
         }
 
         public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, CancellationToken cancellationToken, PlayerLoopTiming timing)
@@ -150,7 +152,7 @@ namespace TensorFlowLite
 
             InvokeInternal();
 
-            var result = GetResult();
+            var result = GetResult(inputTex);
             await UniTask.SwitchToMainThread(timing, cancellationToken);
 
             return result;
@@ -172,7 +174,7 @@ namespace TensorFlowLite
             }
         }
 
-        private Result GetResult()
+        private Result GetResult(Texture inputTex)
         {
             // Normalize 0 ~ 255 => 0.0 ~ 1.0
             const float SCALE = 1f / 255f;
@@ -233,7 +235,7 @@ namespace TensorFlowLite
 
             if (options.enableSegmentation)
             {
-                result.SegmentationTexture = segmentation.GetTexture(output2);
+                result.SegmentationTexture = segmentation.GetTexture(inputTex, output2, options.segmentationSigma);
             }
 
             return result;
