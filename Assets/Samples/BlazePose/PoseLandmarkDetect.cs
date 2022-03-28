@@ -235,7 +235,7 @@ namespace TensorFlowLite
 
             if (options.enableSegmentation)
             {
-                result.SegmentationTexture = segmentation.GetTexture(inputTex, output2, options.segmentationSigma);
+                result.SegmentationTexture = segmentation.GetTexture(inputTex, cropMatrix, output2, options.segmentationSigma);
             }
 
             return result;
