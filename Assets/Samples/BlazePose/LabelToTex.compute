@@ -50,8 +50,8 @@ void LabelToTex(uint2 tid : SV_DispatchThreadID)
     }
 
     float color = totalColor / totalWeight;
-    // Set UV to Red/Green channels
-    // Set Segmentation to Blue channel
+    // Store UV to Red/Green channels
+    // Store Segmentation to Blue channel
     _OutputTexture[tid] = float4(
     (float)tid.x / _Width,
     (float)tid.y / _Height,
@@ -69,7 +69,7 @@ inline bool IsClipped(float2 uv)
     return uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f;
 }
 
-float3 ApplyMatrixCrop(float2 uv, float4x4 mtx)
+float4 ApplyMatrixCrop(float2 uv, float4x4 mtx)
 {
     uv = mul(mtx, float4(uv, 0, 1)).xy;
     // UV gradients
@@ -77,14 +77,13 @@ float3 ApplyMatrixCrop(float2 uv, float4x4 mtx)
     float2 duv_dy = mul(mtx, float4(0, 1.0 / _Height, 0, 0)).xy;
 
     return IsClipped(uv)
-    ? float3(0, 0, 0)
-    : tex2Dgrad(_InputTexture, uv, duv_dx, duv_dy).rgb;
+    ? float4(0, 0, 0, 0)
+    : tex2Dgrad(_InputTexture, uv, duv_dx, duv_dy);
 }
 
 [numthreads(8,8,1)]
 void TransformToCameraMask(uint2 tid : SV_DispatchThreadID)
 {
     float2 uv = (float2)tid / float2(_CropWidth, _CropHeight);
-    float3 c = ApplyMatrixCrop(uv, _CropMatrix);
-    _OutputTexture[tid] = float4(c, 1.0);
+    _OutputTexture[tid] = ApplyMatrixCrop(uv, _CropMatrix);
 }

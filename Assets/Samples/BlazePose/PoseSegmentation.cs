@@ -62,11 +62,13 @@ namespace TensorFlowLite
         {
             labelBuffer?.Release();
 
-            TryDestroy(labelTex);
-            TryDestroy(maskTex);
+            DisposeUtil.TryDispose(labelTex);
+            DisposeUtil.TryDispose(maskTex);
         }
 
-        public RenderTexture GetTexture(Texture inputTex, Matrix4x4 cropMatrix, float[,] data, float sigmaColor)
+        public RenderTexture GetTexture(
+            Texture inputTex, TextureResizer.ResizeOptions resizeOptions,
+            Matrix4x4 cropMatrix, float[,] data, float sigmaColor)
         {
             // Label to Texture with bilateral filter
             labelBuffer.SetData(data);
@@ -78,7 +80,7 @@ namespace TensorFlowLite
             // Resize Mask to original texture
             if (maskTex == null || maskTex.width != inputTex.width || maskTex.height != inputTex.height)
             {
-                TryDestroy(maskTex);
+                DisposeUtil.TryDispose(maskTex);
                 maskTex = new RenderTexture(inputTex.width, inputTex.height, 0, RenderTextureFormat.ARGB32)
                 {
                     enableRandomWrite = true,
@@ -88,7 +90,8 @@ namespace TensorFlowLite
                 compute.SetInt(kCropHeight, inputTex.height);
             }
 
-            compute.SetMatrix(kCropMatrix, cropMatrix);
+            Matrix4x4 mtx = cropMatrix * GetTextureMatrix(inputTex, resizeOptions);
+            compute.SetMatrix(kCropMatrix, mtx);
             compute.SetTexture(kernelTransformToCameraMask, kInputTexture, labelTex);
             compute.SetTexture(kernelTransformToCameraMask, kOutputTexture, maskTex);
             compute.Dispatch(kernelTransformToCameraMask, maskTex.width / 8, maskTex.height / 8, 1);
@@ -96,14 +99,48 @@ namespace TensorFlowLite
             return maskTex;
         }
 
-        private static void TryDestroy(RenderTexture tex)
+        private static Matrix4x4 GetTextureMatrix(Texture texture, TextureResizer.ResizeOptions options)
         {
-            if (tex != null)
-            {
-                tex.Release();
-                Object.Destroy(tex);
-            }
+            float srcAspect = (float)options.width / options.height;
+            float dstAspect = (float)texture.width / texture.height;
+            Vector4 textureST = GetTextureST(dstAspect, srcAspect, options.aspectMode);
+            return Matrix4x4.TRS(
+                new Vector3(textureST.z, textureST.w, 0),
+                Quaternion.identity,
+                new Vector3(textureST.x, textureST.y));
         }
 
+        // TODO: Have to be consistent with TextureResizer.cs
+        private static Vector4 GetTextureST(float srcAspect, float dstAspect, AspectMode mode)
+        {
+            switch (mode)
+            {
+                case AspectMode.None:
+                    return new Vector4(1, 1, 0, 0);
+                case AspectMode.Fit:
+                    if (srcAspect > dstAspect)
+                    {
+                        float s = dstAspect / srcAspect;
+                        return new Vector4(1, s, 0, (1 - s) / 2);
+                    }
+                    else
+                    {
+                        float s = srcAspect / dstAspect;
+                        return new Vector4(s, 1, (1 - s) / 2, 0);
+                    }
+                case AspectMode.Fill:
+                    if (srcAspect > dstAspect)
+                    {
+                        float s = srcAspect / dstAspect;
+                        return new Vector4(s, 1, (1 - s) / 2, 0);
+                    }
+                    else
+                    {
+                        float s = dstAspect / srcAspect;
+                        return new Vector4(1, s, 0, (1 - s) / 2);
+                    }
+            }
+            throw new System.Exception("Unknown aspect mode");
+        }
     }
 }
