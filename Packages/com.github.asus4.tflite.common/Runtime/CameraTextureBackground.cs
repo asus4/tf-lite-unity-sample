@@ -14,7 +14,7 @@ namespace TensorFlowLite
 
         private static readonly int _UVRect = Shader.PropertyToID("_UVRect");
 
-        private void Start()
+        protected virtual void Start()
         {
             Material = useCustomMaterial
                 ? customMaterial
@@ -22,7 +22,7 @@ namespace TensorFlowLite
             Material.SetMatrix("_VertTransform", Matrix4x4.identity);
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             if (!useCustomMaterial)
             {
@@ -30,7 +30,7 @@ namespace TensorFlowLite
             }
         }
 
-        public void SetTexture(Texture texture)
+        public virtual void SetTexture(Texture texture)
         {
             Material.mainTexture = texture;
             Vector4 uvRect = GetDisplayTransform(
