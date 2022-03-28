@@ -1,0 +1,89 @@
+﻿#pragma kernel LabelToTex
+#pragma kernel TransformToCameraMask
+
+uint _Width;
+uint _Height;
+StructuredBuffer<float> _LabelBuffer;
+RWTexture2D<float4> _OutputTexture;
+
+// The same paramerters as cv::bilateralFilter
+float _SigmaColor = 1.0;
+float _SigmaTexel;
+int _Step = 1;
+int _Radius = 1;
+
+float Gaussian(float x, float sigma) {
+    float coeff = -0.5 / (sigma * sigma * 4.0 + 0.000001);
+    return exp((x * x) * coeff);
+}
+
+inline float GetLabel(uint2 tid)
+{
+    return _LabelBuffer[(_Height - 1 - tid.y) * _Width + tid.x];
+}
+
+// TODO: Implement jointed-bilateral filter
+[numthreads(8,8,1)]
+void LabelToTex(uint2 tid : SV_DispatchThreadID)
+{
+    float center = GetLabel(tid);
+
+    float totalColor = 0.0;
+    float totalWeight = 0.0;
+
+    for (int y = -_Radius; y <= _Radius; y += _Step)
+    {
+        for (int x = -_Radius; x <= _Radius; x += _Step)
+        {
+            uint2 id = uint2(
+            min(max((int)tid.x + x, 0), (int)_Width - 1),
+            min(max((int)tid.y + y, 0), (int)_Height - 1));
+            float p = GetLabel(tid);
+
+            // space weight * color weight
+            float w = Gaussian(distance((float2)tid, (float2)id) * _SigmaTexel, _SigmaTexel)
+            * Gaussian(distance(p, center), _SigmaColor);
+
+            totalWeight += w;
+            totalColor += p * w;
+        }
+    }
+
+    float color = totalColor / totalWeight;
+    // Store UV to Red/Green channels
+    // Store Segmentation to Blue channel
+    _OutputTexture[tid] = float4(
+    (float)tid.x / _Width,
+    (float)tid.y / _Height,
+    color,
+    1);
+}
+
+sampler2D _InputTexture;
+float4x4 _CropMatrix;
+int _CropWidth;
+int _CropHeight;
+
+inline bool IsClipped(float2 uv)
+{
+    return uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f;
+}
+
+float4 ApplyMatrixCrop(float2 uv, float4x4 mtx)
+{
+    uv = mul(mtx, float4(uv, 0, 1)).xy;
+    // UV gradients
+    float2 duv_dx = mul(mtx, float4(1.0 / _Width, 0, 0, 0)).xy;
+    float2 duv_dy = mul(mtx, float4(0, 1.0 / _Height, 0, 0)).xy;
+
+    return IsClipped(uv)
+    ? float4(0, 0, 0, 0)
+    : tex2Dgrad(_InputTexture, uv, duv_dx, duv_dy);
+}
+
+[numthreads(8,8,1)]
+void TransformToCameraMask(uint2 tid : SV_DispatchThreadID)
+{
+    float2 uv = (float2)tid / float2(_CropWidth, _CropHeight);
+    _OutputTexture[tid] = ApplyMatrixCrop(uv, _CropMatrix);
+}

@@ -56,7 +56,7 @@ namespace TensorFlowLite
             compute.SetInt("Height", height);
 
             compute.SetFloat("sigmaColor", options.sigmaColor);
-            compute.SetFloat("sigmaTexel", Mathf.Max(1f / width, 1f / height) * 1f);
+            compute.SetFloat("sigmaTexel", Mathf.Max(1f / width, 1f / height));
             compute.SetInt("step", 1);
             compute.SetInt("radius", 1);
 

@@ -59,19 +59,19 @@ namespace TensorFlowLite
             labelPixels = new Color32[width * height];
             labelTex2D = new Texture2D(width, height, TextureFormat.RGBA32, 0, false);
 
-            // Init compute sahder resources
+            // Init compute shader resources
             labelTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             labelTex.enableRandomWrite = true;
             labelTex.Create();
             labelBuffer = new ComputeBuffer(height * width, sizeof(float) * 21);
             colorTableBuffer = new ComputeBuffer(21, sizeof(float) * 4);
 
-            int initKernal = compute.FindKernel("Init");
+            int initKernel = compute.FindKernel("Init");
             this.compute = compute;
             compute.SetInt("Width", width);
             compute.SetInt("Height", height);
-            compute.SetTexture(initKernal, "Result", labelTex);
-            compute.Dispatch(initKernal, width, height, 1);
+            compute.SetTexture(initKernel, "Result", labelTex);
+            compute.Dispatch(initKernel, width, height, 1);
 
             labelToTexKernel = compute.FindKernel("LabelToTex");
 

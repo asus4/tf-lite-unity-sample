@@ -19,6 +19,7 @@ namespace TensorFlowLite
             // x, y, z, w = visibility
             public Vector4[] viewportLandmarks;
             public Vector4[] worldLandmarks;
+            public Texture SegmentationTexture { get; internal set; } = null;
         }
 
         [System.Serializable]
@@ -31,6 +32,10 @@ namespace TensorFlowLite
             public Vector3 filterVelocityScale = new Vector3(10, 10, 2);
             public Vector2 poseShift = new Vector2(0, 0);
             public Vector2 poseScale = new Vector2(1.5f, 1.5f);
+            public bool enableSegmentation = false;
+            public ComputeShader compute = default;
+            [Range(0.1f, 4f)]
+            public float segmentationSigma = 1f;
 
             internal AspectMode AspectMode { get; set; } = AspectMode.Fit;
 
@@ -60,10 +65,10 @@ namespace TensorFlowLite
         private readonly float[] output0 = new float[195];
         // output_poseflag
         private readonly float[] output1 = new float[1];
-        // output_segmentation, not in use
-        // private float[,] output2 = new float[128, 128]; 
-        // output_heatmap
-        private readonly float[,,] output3 = new float[64, 64, 39];
+        // output_segmentation
+        private readonly float[,] output2 = new float[256, 256];
+        // output_heatmap; not in use
+        // private readonly float[,,] output3 = new float[64, 64, 39];
         // world_3d
         private readonly float[] output4 = new float[117];
 
@@ -71,11 +76,10 @@ namespace TensorFlowLite
         private readonly Stopwatch stopwatch;
         private readonly RelativeVelocityFilter3D[] filters;
         private readonly Options options;
+        private readonly PoseSegmentation segmentation;
         private Matrix4x4 cropMatrix;
 
-        // https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_detection_to_roi.pbtxt
         public Matrix4x4 CropMatrix => cropMatrix;
-
 
         public PoseLandmarkDetect(Options options) : base(options.modelPath, true)
         {
@@ -91,6 +95,12 @@ namespace TensorFlowLite
                     : null,
             };
 
+            if (options.enableSegmentation)
+            {
+                var info = interpreter.GetOutputTensorInfo(2);
+                segmentation = new PoseSegmentation(info, options.compute);
+            }
+
             // Init filters
             filters = new RelativeVelocityFilter3D[LandmarkCount];
             const int windowSize = 5;
@@ -104,12 +114,18 @@ namespace TensorFlowLite
             stopwatch = Stopwatch.StartNew();
         }
 
+        public override void Dispose()
+        {
+            segmentation?.Dispose();
+            base.Dispose();
+        }
+
         public override void Invoke(Texture inputTex)
         {
             throw new System.NotImplementedException("Use Invoke(Texture, PalmDetect.Result)");
         }
 
-        public void Invoke(Texture inputTex, PoseDetect.Result pose)
+        public Result Invoke(Texture inputTex, PoseDetect.Result pose)
         {
             cropMatrix = CalcCropMatrix(ref pose, ref resizeOptions);
 
@@ -119,16 +135,9 @@ namespace TensorFlowLite
                TextureResizer.GetTextureST(inputTex, resizeOptions));
             ToTensor(rt, input0, false);
 
-            interpreter.SetInputTensorData(0, input0);
-            interpreter.Invoke();
-            interpreter.GetOutputTensorData(0, output0);
-            interpreter.GetOutputTensorData(1, output1);
-            // interpreter.GetOutputTensorData(2, output2);// not in use
-            if (options.useWorldLandmarks)
-            {
-                interpreter.GetOutputTensorData(3, output3);
-                interpreter.GetOutputTensorData(4, output4);
-            }
+            InvokeInternal();
+
+            return GetResult(inputTex);
         }
 
         public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, CancellationToken cancellationToken, PlayerLoopTiming timing)
@@ -141,22 +150,31 @@ namespace TensorFlowLite
             await ToTensorAsync(rt, input0, false, cancellationToken);
             await UniTask.SwitchToThreadPool();
 
-            interpreter.SetInputTensorData(0, input0);
-            interpreter.Invoke();
-            interpreter.GetOutputTensorData(0, output0);
-            interpreter.GetOutputTensorData(1, output1);
-            if (options.useWorldLandmarks)
-            {
-                interpreter.GetOutputTensorData(3, output3);
-                interpreter.GetOutputTensorData(4, output4);
-            }
-            var result = GetResult();
+            InvokeInternal();
+
+            var result = GetResult(inputTex);
             await UniTask.SwitchToMainThread(timing, cancellationToken);
 
             return result;
         }
 
-        public Result GetResult()
+        private void InvokeInternal()
+        {
+            interpreter.SetInputTensorData(0, input0);
+            interpreter.Invoke();
+            interpreter.GetOutputTensorData(0, output0);
+            interpreter.GetOutputTensorData(1, output1);
+            if (options.enableSegmentation)
+            {
+                interpreter.GetOutputTensorData(2, output2);
+            }
+            if (options.useWorldLandmarks)
+            {
+                interpreter.GetOutputTensorData(4, output4);
+            }
+        }
+
+        private Result GetResult(Texture inputTex)
         {
             // Normalize 0 ~ 255 => 0.0 ~ 1.0
             const float SCALE = 1f / 255f;
@@ -213,6 +231,14 @@ namespace TensorFlowLite
             if (options.useWorldLandmarks)
             {
                 SetWorldLandmarks(result);
+            }
+
+            if (options.enableSegmentation)
+            {
+                result.SegmentationTexture = segmentation.GetTexture(
+                    inputTex, resizeOptions,
+                    cropMatrix, output2,
+                    options.segmentationSigma);
             }
 
             return result;

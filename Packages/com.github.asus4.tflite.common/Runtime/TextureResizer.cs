@@ -133,8 +133,8 @@ namespace TensorFlowLite
         public static Vector4 GetTextureST(Texture sourceTex, ResizeOptions options)
         {
             return GetTextureST(
-                (float)sourceTex.width / (float)sourceTex.height, // src
-                (float)options.width / (float)options.height, // dst
+                (float)sourceTex.width / sourceTex.height, // src
+                (float)options.width / options.height, // dst
                 options.aspectMode);
         }
 

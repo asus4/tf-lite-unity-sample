@@ -59,8 +59,7 @@ namespace TensorFlowLite
                 landmarkResult = null;
                 return null;
             }
-            poseLandmark.Invoke(texture, poseResult);
-            landmarkResult = poseLandmark.GetResult();
+            landmarkResult = poseLandmark.Invoke(texture, poseResult);
             if (landmarkResult.score < 0.3f)
             {
                 poseResult.score = landmarkResult.score;
