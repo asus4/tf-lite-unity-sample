@@ -4,20 +4,30 @@ namespace TensorFlowLite
 
     public class CameraTextureBackground : MonoBehaviour
     {
-        public Material Material { get; private set; }
+        [SerializeField]
+        private bool useCustomMaterial = false;
 
+        [SerializeField]
+        private Material customMaterial = null;
+
+        public Material Material { get; private set; }
 
         private static readonly int _UVRect = Shader.PropertyToID("_UVRect");
 
         private void Start()
         {
-            Material = new Material(Shader.Find("Hidden/TFLite/Resize"));
+            Material = useCustomMaterial
+                ? customMaterial
+                : new Material(Shader.Find("Hidden/TFLite/Resize"));
             Material.SetMatrix("_VertTransform", Matrix4x4.identity);
         }
 
         private void OnDestroy()
         {
-            Destroy(Material);
+            if (!useCustomMaterial)
+            {
+                Destroy(Material);
+            }
         }
 
         public void SetTexture(Texture texture)
