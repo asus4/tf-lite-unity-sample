@@ -16,7 +16,7 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     private MoveNetSinglePose moveNet;
     private readonly Vector3[] rtCorners = new Vector3[4];
     private PrimitiveDraw draw;
-    private MoveNetSinglePose.Result[] results;
+    private MoveNetPose pose;
 
     private void Start()
     {
@@ -40,7 +40,7 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
     private void Update()
     {
-        DrawResult(results);
+        DrawPose(pose);
     }
 
     private void OnTextureUpdate(Texture texture)
@@ -51,12 +51,12 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     private void Invoke(Texture texture)
     {
         moveNet.Invoke(texture);
-        results = moveNet.GetResults();
+        pose = moveNet.GetResults();
     }
 
-    private void DrawResult(MoveNetSinglePose.Result[] results)
+    private void DrawPose(MoveNetPose pose)
     {
-        if (results == null || results.Length == 0)
+        if (pose == null)
         {
             return;
         }
@@ -69,8 +69,8 @@ public class MoveNetSinglePoseSample : MonoBehaviour
         int len = connections.GetLength(0);
         for (int i = 0; i < len; i++)
         {
-            var a = results[(int)connections[i, 0]];
-            var b = results[(int)connections[i, 1]];
+            var a = pose[(int)connections[i, 0]];
+            var b = pose[(int)connections[i, 1]];
             if (a.confidence >= threshold && b.confidence >= threshold)
             {
                 draw.Line3D(
