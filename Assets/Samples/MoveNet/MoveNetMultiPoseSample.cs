@@ -1,11 +1,13 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using TensorFlowLite;
 
 [RequireComponent(typeof(WebCamInput))]
-public class MoveNetSinglePoseSample : MonoBehaviour
+public class MoveNetMultiPoseSample : MonoBehaviour
 {
     [SerializeField]
-    MoveNetSinglePose.Options options = default;
+    MoveNetMultiPose.Options options = default;
 
     [SerializeField]
     private RectTransform cameraView = null;
@@ -13,14 +15,14 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     [SerializeField, Range(0, 1)]
     private float threshold = 0.3f;
 
-    private MoveNetSinglePose moveNet;
+    private MoveNetMultiPose moveNet;
     private readonly Vector3[] rtCorners = new Vector3[4];
     private PrimitiveDraw draw;
     private MoveNetPose pose;
 
     private void Start()
     {
-        moveNet = new MoveNetSinglePose(options);
+        moveNet = new MoveNetMultiPose(options);
         draw = new PrimitiveDraw(Camera.main, gameObject.layer)
         {
             color = Color.green,
@@ -51,7 +53,7 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     private void Invoke(Texture texture)
     {
         moveNet.Invoke(texture);
-        pose = moveNet.GetResult();
+        // pose = moveNet.GetResults();
     }
 
     private void DrawPose(MoveNetPose pose)

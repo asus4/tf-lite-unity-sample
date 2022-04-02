@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace TensorFlowLite
 {
     public class MoveNetPose
