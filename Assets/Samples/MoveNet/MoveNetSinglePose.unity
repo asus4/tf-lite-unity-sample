@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 86521804}
   - component: {fileID: 86521802}
   m_Layer: 0
-  m_Name: MoveNet Sample
+  m_Name: MoveNet SinglePose Sample
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -663,6 +663,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd6f7b5dfd6c243c5bcacc40ee7b38d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useCustomMaterial: 0
+  customMaterial: {fileID: 0}
 --- !u!114 &1889489333
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,8 +1,5 @@
-using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.Assertions;
-using Cysharp.Threading.Tasks;
 
 namespace TensorFlowLite
 {
@@ -10,7 +7,7 @@ namespace TensorFlowLite
     /// MoveNet Example
     /// https://www.tensorflow.org/hub/tutorials/movenet
     /// </summary>
-    public class MoveNet : BaseImagePredictor<sbyte>
+    public class MoveNetSinglePose : BaseImagePredictor<sbyte>
     {
         [System.Serializable]
         public class Options
@@ -81,7 +78,7 @@ namespace TensorFlowLite
         private readonly float[,] outputs0;
         public readonly Result[] results;
 
-        public MoveNet(Options options) : base(options.modelPath, true)
+        public MoveNetSinglePose(Options options) : base(options.modelPath, true)
         {
             resizeOptions.aspectMode = options.aspectMode;
             var odim0 = interpreter.GetOutputTensorInfo(0).shape;

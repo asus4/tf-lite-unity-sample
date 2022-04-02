@@ -1,13 +1,11 @@
-using System.Threading;
 using UnityEngine;
 using TensorFlowLite;
-using Cysharp.Threading.Tasks;
 
 [RequireComponent(typeof(WebCamInput))]
 public class MoveNetSinglePoseSample : MonoBehaviour
 {
     [SerializeField]
-    MoveNet.Options options = default;
+    MoveNetSinglePose.Options options = default;
 
     [SerializeField]
     private RectTransform cameraView = null;
@@ -15,14 +13,14 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     [SerializeField, Range(0, 1)]
     private float threshold = 0.3f;
 
-    private MoveNet moveNet;
+    private MoveNetSinglePose moveNet;
     private readonly Vector3[] rtCorners = new Vector3[4];
     private PrimitiveDraw draw;
-    private MoveNet.Result[] results;
+    private MoveNetSinglePose.Result[] results;
 
     private void Start()
     {
-        moveNet = new MoveNet(options);
+        moveNet = new MoveNetSinglePose(options);
         draw = new PrimitiveDraw(Camera.main, gameObject.layer)
         {
             color = Color.green,
@@ -56,7 +54,7 @@ public class MoveNetSinglePoseSample : MonoBehaviour
         results = moveNet.GetResults();
     }
 
-    private void DrawResult(MoveNet.Result[] results)
+    private void DrawResult(MoveNetSinglePose.Result[] results)
     {
         if (results == null || results.Length == 0)
         {
