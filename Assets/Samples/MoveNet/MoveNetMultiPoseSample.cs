@@ -15,18 +15,13 @@ public class MoveNetMultiPoseSample : MonoBehaviour
     private float threshold = 0.3f;
 
     private MoveNetMultiPose moveNet;
-    private readonly Vector3[] rtCorners = new Vector3[4];
-    private PrimitiveDraw draw;
     private MoveNetPose[] poses;
+    private MoveNetDrawer drawer;
 
     private void Start()
     {
         moveNet = new MoveNetMultiPose(options);
-        draw = new PrimitiveDraw(Camera.main, gameObject.layer)
-        {
-            color = Color.green,
-        };
-
+        drawer = new MoveNetDrawer(Camera.main, cameraView);
         var webCamInput = GetComponent<WebCamInput>();
         webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
     }
@@ -36,7 +31,7 @@ public class MoveNetMultiPoseSample : MonoBehaviour
         var webCamInput = GetComponent<WebCamInput>();
         webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
         moveNet?.Dispose();
-        draw?.Dispose();
+        drawer?.Dispose();
     }
 
     private void Update()
@@ -45,7 +40,7 @@ public class MoveNetMultiPoseSample : MonoBehaviour
         {
             foreach (var pose in poses)
             {
-                DrawPose(pose);
+                drawer.DrawPose(pose, threshold);
             }
         }
     }
@@ -59,35 +54,5 @@ public class MoveNetMultiPoseSample : MonoBehaviour
     {
         moveNet.Invoke(texture);
         poses = moveNet.GetResults();
-    }
-
-    private void DrawPose(MoveNetPose pose)
-    {
-        if (pose == null)
-        {
-            return;
-        }
-
-        cameraView.GetWorldCorners(rtCorners);
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
-
-        var connections = PoseNet.Connections;
-        int len = connections.GetLength(0);
-        for (int i = 0; i < len; i++)
-        {
-            var a = pose[(int)connections[i, 0]];
-            var b = pose[(int)connections[i, 1]];
-            if (a.score >= threshold && b.score >= threshold)
-            {
-                draw.Line3D(
-                    MathTF.Lerp(min, max, new Vector3(a.x, 1f - a.y, 0)),
-                    MathTF.Lerp(min, max, new Vector3(b.x, 1f - b.y, 0)),
-                    1
-                );
-            }
-        }
-
-        draw.Apply();
     }
 }

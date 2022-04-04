@@ -1,5 +1,7 @@
 namespace TensorFlowLite.MoveNet
 {
+    using UnityEngine;
+
     public class MoveNetPose
     {
         public enum Part
@@ -71,5 +73,12 @@ namespace TensorFlowLite.MoveNet
             get => joints[index];
             set => joints[index] = value;
         }
+    }
+
+    public class MoveNetPoseWithBoundingBox : MoveNetPose
+    {
+        // Normalized coordinates
+        public Rect boundingBox;
+        public float score;
     }
 }
