@@ -49,13 +49,13 @@ namespace TensorFlowLite
         {
             public readonly float x;
             public readonly float y;
-            public readonly float confidence;
+            public readonly float score;
 
-            public Joint(float x, float y, float confidence)
+            public Joint(float x, float y, float score)
             {
                 this.x = x;
                 this.y = y;
-                this.confidence = confidence;
+                this.score = score;
             }
         }
 

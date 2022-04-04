@@ -77,7 +77,7 @@ public class MoveNetMultiPoseSample : MonoBehaviour
         {
             var a = pose[(int)connections[i, 0]];
             var b = pose[(int)connections[i, 1]];
-            if (a.confidence >= threshold && b.confidence >= threshold)
+            if (a.score >= threshold && b.score >= threshold)
             {
                 draw.Line3D(
                     MathTF.Lerp(min, max, new Vector3(a.x, 1f - a.y, 0)),

@@ -61,7 +61,7 @@ namespace TensorFlowLite
                     pose[jointIndex] = new MoveNetPose.Joint(
                         y: outputs0[poseIndex, jointIndex * 3 + 0],
                         x: outputs0[poseIndex, jointIndex * 3 + 1],
-                        confidence: outputs0[poseIndex, jointIndex * 3 + 2]
+                        score: outputs0[poseIndex, jointIndex * 3 + 2]
                     );
                 }
             }
