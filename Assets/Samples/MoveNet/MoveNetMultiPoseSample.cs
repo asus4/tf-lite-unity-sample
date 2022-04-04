@@ -15,7 +15,7 @@ public class MoveNetMultiPoseSample : MonoBehaviour
     private float threshold = 0.3f;
 
     private MoveNetMultiPose moveNet;
-    private MoveNetPose[] poses;
+    private MoveNetPoseWithBoundingBox[] poses;
     private MoveNetDrawer drawer;
 
     private void Start()

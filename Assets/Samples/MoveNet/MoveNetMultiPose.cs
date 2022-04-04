@@ -51,7 +51,7 @@ namespace TensorFlowLite.MoveNet
             interpreter.GetOutputTensorData(0, outputs0);
         }
 
-        public MoveNetPose[] GetResults()
+        public MoveNetPoseWithBoundingBox[] GetResults()
         {
             for (int poseIndex = 0; poseIndex < poses.Length; poseIndex++)
             {
