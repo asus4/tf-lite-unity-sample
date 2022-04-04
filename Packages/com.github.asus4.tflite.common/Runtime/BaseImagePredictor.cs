@@ -119,6 +119,12 @@ namespace TensorFlowLite
             tex2tensor.ToTensor(tex, inputs);
         }
 
+        protected void ToTensor(Texture inputTex, int[,,] inputs)
+        {
+            RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
+            tex2tensor.ToTensor(tex, inputs);
+        }
+
         protected async UniTask<bool> ToTensorAsync(Texture inputTex, float[,,] inputs, CancellationToken cancellationToken)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);

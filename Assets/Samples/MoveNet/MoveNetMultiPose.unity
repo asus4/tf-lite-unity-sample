@@ -134,31 +134,14 @@ GameObject:
   m_Component:
   - component: {fileID: 86521803}
   - component: {fileID: 86521804}
-  - component: {fileID: 86521802}
+  - component: {fileID: 86521805}
   m_Layer: 0
-  m_Name: MoveNet SinglePose Sample
+  m_Name: MoveNet MultiPose Sample
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &86521802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 86521801}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d899c2c96e36841efb0bc632aa29adac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  options:
-    modelPath: movenet_singlepose_lightning_int8.tflite
-    aspectMode: 1
-  cameraView: {fileID: 237587964}
-  threshold: 0.3
 --- !u!4 &86521803
 Transform:
   m_ObjectHideFlags: 0
@@ -205,6 +188,23 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &86521805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 86521801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d523cd5df0ff446759cb392a43c235ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  options:
+    modelPath: movenet_multipose_lightning.tflite
+    aspectMode: 1
+  cameraView: {fileID: 237587964}
+  threshold: 0.2
 --- !u!1 &237587963
 GameObject:
   m_ObjectHideFlags: 0

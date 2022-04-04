@@ -3,10 +3,10 @@ using TensorFlowLite;
 using TensorFlowLite.MoveNet;
 
 [RequireComponent(typeof(WebCamInput))]
-public class MoveNetSinglePoseSample : MonoBehaviour
+public class MoveNetMultiPoseSample : MonoBehaviour
 {
     [SerializeField]
-    MoveNetSinglePose.Options options = default;
+    MoveNetMultiPose.Options options = default;
 
     [SerializeField]
     private RectTransform cameraView = null;
@@ -14,15 +14,14 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     [SerializeField, Range(0, 1)]
     private float threshold = 0.3f;
 
-    private MoveNetSinglePose moveNet;
-    private MoveNetPose pose;
+    private MoveNetMultiPose moveNet;
+    private MoveNetPoseWithBoundingBox[] poses;
     private MoveNetDrawer drawer;
 
     private void Start()
     {
-        moveNet = new MoveNetSinglePose(options);
+        moveNet = new MoveNetMultiPose(options);
         drawer = new MoveNetDrawer(Camera.main, cameraView);
-
         var webCamInput = GetComponent<WebCamInput>();
         webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
     }
@@ -37,9 +36,12 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
     private void Update()
     {
-        if(pose != null)
+        if (poses != null)
         {
-            drawer.DrawPose(pose, threshold);
+            foreach (var pose in poses)
+            {
+                drawer.DrawPose(pose, threshold);
+            }
         }
     }
 
@@ -51,6 +53,6 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     private void Invoke(Texture texture)
     {
         moveNet.Invoke(texture);
-        pose = moveNet.GetResult();
+        poses = moveNet.GetResults();
     }
 }
