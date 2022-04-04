@@ -201,10 +201,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   options:
-    modelPath: movenet_multipose_lightning_tflite_float16.tflite
+    modelPath: movenet_multipose_lightning.tflite
     aspectMode: 1
   cameraView: {fileID: 237587964}
-  threshold: 0.3
+  threshold: 0.2
 --- !u!1 &237587963
 GameObject:
   m_ObjectHideFlags: 0
