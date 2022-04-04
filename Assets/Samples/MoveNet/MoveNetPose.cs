@@ -1,4 +1,4 @@
-namespace TensorFlowLite
+namespace TensorFlowLite.MoveNet
 {
     public class MoveNetPose
     {

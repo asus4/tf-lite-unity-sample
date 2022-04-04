@@ -1,8 +1,8 @@
-using UnityEngine;
-using UnityEngine.Assertions;
-
-namespace TensorFlowLite
+namespace TensorFlowLite.MoveNet
 {
+    using UnityEngine;
+    using UnityEngine.Assertions;
+
     /// <summary>
     /// MoveNet Example
     /// https://www.tensorflow.org/hub/tutorials/movenet

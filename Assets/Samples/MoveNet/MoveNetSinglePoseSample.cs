@@ -1,5 +1,6 @@
 using UnityEngine;
 using TensorFlowLite;
+using TensorFlowLite.MoveNet;
 
 [RequireComponent(typeof(WebCamInput))]
 public class MoveNetSinglePoseSample : MonoBehaviour
