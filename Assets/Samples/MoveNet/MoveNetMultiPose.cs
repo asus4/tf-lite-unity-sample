@@ -21,7 +21,7 @@ namespace TensorFlowLite.MoveNet
         // Up to 6 people
         // 17 * 3 (y, x, confidence) + [y_min, x_min, y_max, x_max, score] = 56
         private readonly float[,] outputs0;
-        public readonly MoveNetPose[] poses;
+        public readonly MoveNetPoseWithBoundingBox[] poses;
 
         public MoveNetMultiPose(Options options) : base(options.modelPath, true)
         {
@@ -35,10 +35,10 @@ namespace TensorFlowLite.MoveNet
             outputs0 = new float[outputShape[1], outputShape[2]];
 
             int poseCount = outputShape[1];
-            poses = new MoveNetPose[poseCount];
+            poses = new MoveNetPoseWithBoundingBox[poseCount];
             for (int i = 0; i < poseCount; i++)
             {
-                poses[i] = new MoveNetPose();
+                poses[i] = new MoveNetPoseWithBoundingBox();
             }
         }
 
@@ -55,7 +55,7 @@ namespace TensorFlowLite.MoveNet
         {
             for (int poseIndex = 0; poseIndex < poses.Length; poseIndex++)
             {
-                MoveNetPose pose = poses[poseIndex];
+                var pose = poses[poseIndex];
                 for (int jointIndex = 0; jointIndex < pose.Length; jointIndex++)
                 {
                     pose[jointIndex] = new MoveNetPose.Joint(
@@ -63,7 +63,17 @@ namespace TensorFlowLite.MoveNet
                         x: outputs0[poseIndex, jointIndex * 3 + 1],
                         score: outputs0[poseIndex, jointIndex * 3 + 2]
                     );
+
                 }
+
+                const int BOX_OFFSET = MoveNetPose.JOINT_COUNT * 3;
+                pose.boundingBox = Rect.MinMaxRect(
+                    outputs0[poseIndex, BOX_OFFSET + 1],
+                    outputs0[poseIndex, BOX_OFFSET + 0],
+                    outputs0[poseIndex, BOX_OFFSET + 3],
+                    outputs0[poseIndex, BOX_OFFSET + 2]
+                );
+                pose.score = outputs0[poseIndex, BOX_OFFSET + 4];
             }
             return poses;
         }
