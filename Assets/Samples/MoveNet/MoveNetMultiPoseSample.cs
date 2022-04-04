@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TensorFlowLite;
 
@@ -18,7 +16,7 @@ public class MoveNetMultiPoseSample : MonoBehaviour
     private MoveNetMultiPose moveNet;
     private readonly Vector3[] rtCorners = new Vector3[4];
     private PrimitiveDraw draw;
-    private MoveNetPose pose;
+    private MoveNetPose[] poses;
 
     private void Start()
     {
@@ -42,7 +40,13 @@ public class MoveNetMultiPoseSample : MonoBehaviour
 
     private void Update()
     {
-        DrawPose(pose);
+        if (poses != null)
+        {
+            foreach (var pose in poses)
+            {
+                DrawPose(pose);
+            }
+        }
     }
 
     private void OnTextureUpdate(Texture texture)
@@ -53,7 +57,7 @@ public class MoveNetMultiPoseSample : MonoBehaviour
     private void Invoke(Texture texture)
     {
         moveNet.Invoke(texture);
-        // pose = moveNet.GetResults();
+        poses = moveNet.GetResults();
     }
 
     private void DrawPose(MoveNetPose pose)
