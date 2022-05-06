@@ -17,11 +17,14 @@ public class DeepLabSample : MonoBehaviour
     [SerializeField]
     private ComputeShader compute = null;
 
+    [SerializeField]
+    private DeepLab.Options options = default;
+
     private DeepLab deepLab;
 
     private void Start()
     {
-        deepLab = new DeepLab(fileName, compute);
+        deepLab = new DeepLab(options);
 
         var webCamInput = GetComponent<WebCamInput>();
         webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);

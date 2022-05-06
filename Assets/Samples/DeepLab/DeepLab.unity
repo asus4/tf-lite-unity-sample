@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.3731193, g: 0.38073996, b: 0.35872698, a: 1}
+  m_IndirectSpecularColor: {r: 0.3708625, g: 0.37838694, b: 0.35726872, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -543,6 +543,10 @@ MonoBehaviour:
   cameraView: {fileID: 2074584278}
   outputView: {fileID: 1931683985}
   compute: {fileID: 7200000, guid: 28738c161f6164ecd877b935ec023169, type: 3}
+  options:
+    modelFile: deeplabv3_257_mv_gpu.tflite
+    accelerator: 2
+    compute: {fileID: 7200000, guid: 28738c161f6164ecd877b935ec023169, type: 3}
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0

@@ -6,6 +6,15 @@ namespace TensorFlowLite
 {
     public class DeepLab : BaseImagePredictor<float>
     {
+        [System.Serializable]
+        public class Options
+        {
+            [FilePopup("*.tflite")]
+            public string modelFile = string.Empty;
+            public Accelerator accelerator = Accelerator.GPU;
+            public ComputeShader compute = null;
+        }
+
         // Port from
         // https://github.com/tensorflow/examples/blob/master/lite/examples/image_segmentation/ios/ImageSegmentation/ImageSegmentator.swift
         private static readonly Color32[] COLOR_TABLE = new Color32[]
@@ -44,19 +53,17 @@ namespace TensorFlowLite
         private readonly ComputeBuffer colorTableBuffer;
         private readonly RenderTexture labelTex;
 
-        private readonly Color32[] labelPixels;
         private readonly Texture2D labelTex2D;
         private readonly int labelToTexKernel;
 
-        public DeepLab(string modelPath, ComputeShader compute) : base(modelPath, true)
+        public DeepLab(Options options) : base(options.modelFile, options.accelerator)
         {
-            var odim0 = interpreter.GetOutputTensorInfo(0).shape;
+            var oShape0 = interpreter.GetOutputTensorInfo(0).shape;
 
-            Debug.Assert(odim0[1] == height);
-            Debug.Assert(odim0[2] == width);
+            Debug.Assert(oShape0[1] == height);
+            Debug.Assert(oShape0[2] == width);
 
-            outputs0 = new float[odim0[1], odim0[2], odim0[3]];
-            labelPixels = new Color32[width * height];
+            outputs0 = new float[oShape0[1], oShape0[2], oShape0[3]];
             labelTex2D = new Texture2D(width, height, TextureFormat.RGBA32, 0, false);
 
             // Init compute shader resources
@@ -66,8 +73,8 @@ namespace TensorFlowLite
             labelBuffer = new ComputeBuffer(height * width, sizeof(float) * 21);
             colorTableBuffer = new ComputeBuffer(21, sizeof(float) * 4);
 
+            compute = options.compute;
             int initKernel = compute.FindKernel("Init");
-            this.compute = compute;
             compute.SetInt("Width", width);
             compute.SetInt("Height", height);
             compute.SetTexture(initKernel, "Result", labelTex);
