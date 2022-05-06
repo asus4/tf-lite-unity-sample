@@ -28,7 +28,7 @@ namespace TensorFlowLite
         private readonly List<Result> results = new List<Result>();
         private readonly SsdAnchor[] anchors;
 
-        public PalmDetect(string modelPath) : base(modelPath, true)
+        public PalmDetect(string modelPath) : base(modelPath, Accelerator.GPU)
         {
             var options = new SsdAnchorsCalculator.Options()
             {

@@ -11,7 +11,7 @@ namespace TensorFlowLite
 
         int outputWidth, outputHeight;
 
-        public SuperResolution(string modelPath, ComputeShader compute) : base(modelPath, false)
+        public SuperResolution(string modelPath, ComputeShader compute) : base(modelPath, Accelerator.GPU)
         {
             // Setup output
             var odim0 = interpreter.GetOutputTensorInfo(0).shape;

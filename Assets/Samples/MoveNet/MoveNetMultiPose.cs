@@ -23,7 +23,7 @@ namespace TensorFlowLite.MoveNet
         private readonly float[,] outputs0;
         public readonly MoveNetPoseWithBoundingBox[] poses;
 
-        public MoveNetMultiPose(Options options) : base(options.modelPath, true)
+        public MoveNetMultiPose(Options options) : base(options.modelPath, Accelerator.GPU)
         {
             resizeOptions.aspectMode = options.aspectMode;
             int[] outputShape = interpreter.GetOutputTensorInfo(0).shape;

@@ -54,7 +54,7 @@ namespace TensorFlowLite
 
         private readonly Options options;
 
-        public PoseDetect(Options options) : base(options.modelPath, true)
+        public PoseDetect(Options options) : base(options.modelPath, Accelerator.GPU)
         {
             this.options = options;
             resizeOptions.aspectMode = options.aspectMode;

@@ -73,7 +73,7 @@ namespace TensorFlowLite
         // float[] outputs2 = new float[9 * 9 * 32]; // displacement fwd
         // float[] outputs3 = new float[9 * 9 * 32]; // displacement bwd
 
-        public PoseNet(string modelPath) : base(modelPath)
+        public PoseNet(string modelPath) : base(modelPath, Accelerator.GPU)
         {
             var odim0 = interpreter.GetOutputTensorInfo(0).shape;
             var odim1 = interpreter.GetOutputTensorInfo(1).shape;

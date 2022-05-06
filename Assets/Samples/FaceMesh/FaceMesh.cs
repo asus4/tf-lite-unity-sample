@@ -23,7 +23,7 @@ namespace TensorFlowLite
         public Matrix4x4 CropMatrix => cropMatrix;
 
 
-        public FaceMesh(string modelPath) : base(modelPath, true)
+        public FaceMesh(string modelPath) : base(modelPath, Accelerator.GPU)
         {
             result = new Result()
             {
