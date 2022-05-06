@@ -13,7 +13,9 @@ TENSORFLOW_PATH=''
 def run_cmd(cmd):
     print(cmd)
     args = shlex.split(cmd)
-    return subprocess.check_output(args, cwd=TENSORFLOW_PATH, universal_newlines=True, shell=True)
+    # TODO: this is not working on Linux.
+    # return subprocess.check_output(args, cwd=TENSORFLOW_PATH, universal_newlines=True, shell=True)
+    subprocess.call(args, cwd=TENSORFLOW_PATH)
 
 def copy(from_tf, to_unity):
     subprocess.call(['cp', '-vf', f'{TENSORFLOW_PATH}/{from_tf}', f'{PLUGIN_PATH}/{to_unity}'])
@@ -32,7 +34,7 @@ def build_mac(enable_xnnpack = False):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build --config=macos --cpu=darwin -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
-    run_cmd(f'bazel build --config=macos --cpu=darwin_arm64 -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
+    run_cmd(f'bazel build --config=macos_arm64 --cpu=darwin_arm64 -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
     dylib_bin_path = 'bin/tensorflow/lite/c/libtensorflowlite_c.dylib'
     run_cmd(f'lipo -create -output {PLUGIN_PATH}/macOS/libtensorflowlite_c.dylib bazel-out/darwin-opt/{dylib_bin_path} bazel-out/darwin_arm64-opt/{dylib_bin_path}')
 
@@ -111,7 +113,7 @@ if __name__ == '__main__':
                         help = 'Build iOS')
     parser.add_argument('-android', action = "store_true", default = False,
                         help = 'Build Android')
-    parser.add_argument('-xnnpack', action = "store_true", default = False,
+    parser.add_argument('-xnnpack', action = "store_true", default = True,
                         help = 'Build with XNNPACK')
 
     args = parser.parse_args()
