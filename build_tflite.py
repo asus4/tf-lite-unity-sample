@@ -32,7 +32,7 @@ def build_mac(enable_xnnpack = False):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build --config=macos --cpu=darwin -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
-    run_cmd(f'bazel build --config=macos --cpu=darwin_arm64 -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
+    run_cmd(f'bazel build --config=macos_arm64 --cpu=darwin_arm64 -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
     dylib_bin_path = 'bin/tensorflow/lite/c/libtensorflowlite_c.dylib'
     run_cmd(f'lipo -create -output {PLUGIN_PATH}/macOS/libtensorflowlite_c.dylib bazel-out/darwin-opt/{dylib_bin_path} bazel-out/darwin_arm64-opt/{dylib_bin_path}')
 
