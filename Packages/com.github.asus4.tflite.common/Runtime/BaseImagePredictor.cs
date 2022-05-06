@@ -49,12 +49,6 @@ namespace TensorFlowLite
             set => resizeOptions = value;
         }
 
-        [System.Obsolete("useGPU is deprecated, use Accelerator instead", false)]
-        public BaseImagePredictor(string modelPath, bool useGPU = true)
-            : this(modelPath, useGPU ? Accelerator.GPU : Accelerator.NONE)
-        {
-        }
-
         public BaseImagePredictor(string modelPath, Accelerator accelerator)
         {
             var options = new InterpreterOptions();

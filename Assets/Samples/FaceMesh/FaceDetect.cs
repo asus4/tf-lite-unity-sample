@@ -45,7 +45,7 @@ namespace TensorFlowLite
         private List<Result> results = new List<Result>();
         private List<Result> filterdResults = new List<Result>();
 
-        public FaceDetect(string modelPath) : base(modelPath, true)
+        public FaceDetect(string modelPath) : base(modelPath, Accelerator.GPU)
         {
             var options = new SsdAnchorsCalculator.Options()
             {

@@ -10,7 +10,8 @@ namespace TensorFlowLite
         private readonly ComputeShader compute;
         private readonly ComputeBuffer outputBuffer;
 
-        public StyleTransfer(string modelPath, float[] styleBottleneck, ComputeShader compute) : base(modelPath, true)
+        public StyleTransfer(string modelPath, float[] styleBottleneck, ComputeShader compute)
+            : base(modelPath, Accelerator.GPU)
         {
             this.styleBottleneck = styleBottleneck;
             this.compute = compute;
