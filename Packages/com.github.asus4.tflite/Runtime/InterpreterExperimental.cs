@@ -66,7 +66,7 @@ namespace TensorFlowLite
             TfLiteSetAllowBufferHandleOutput(interpreter.InterpreterPointer, allowBufferHandleOutput);
         }
 
-        public static Status ModifyGraphWithDelegate(this Interpreter interpreter, IGpuDelegate gpuDelegate)
+        public static Status ModifyGraphWithDelegate(this Interpreter interpreter, IDelegate gpuDelegate)
         {
             return TfLiteInterpreterModifyGraphWithDelegate(interpreter.InterpreterPointer, gpuDelegate.Delegate);
         }

@@ -19,12 +19,12 @@ using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
-    public interface IGpuDelegate : IDisposable
+    public interface IDelegate : IDisposable
     {
         TfLiteDelegate Delegate { get; }
     }
 
-    public interface IBindableDelegate : IGpuDelegate
+    public interface IBindableDelegate : IDelegate
     {
         bool BindBufferToInputTensor(Interpreter interpreter, int index, ComputeBuffer buffer);
         bool BindBufferToOutputTensor(Interpreter interpreter, int index, ComputeBuffer buffer);

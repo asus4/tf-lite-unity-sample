@@ -5,9 +5,6 @@ using UnityEngine.UI;
 [RequireComponent(typeof(WebCamInput))]
 public class DeepLabSample : MonoBehaviour
 {
-    [SerializeField, FilePopup("*.tflite")]
-    private string fileName = "deeplabv3_257_mv_gpu.tflite";
-
     [SerializeField]
     private RawImage cameraView = null;
 
@@ -15,13 +12,13 @@ public class DeepLabSample : MonoBehaviour
     private RawImage outputView = null;
 
     [SerializeField]
-    private ComputeShader compute = null;
+    private DeepLab.Options options = default;
 
     private DeepLab deepLab;
 
     private void Start()
     {
-        deepLab = new DeepLab(fileName, compute);
+        deepLab = new DeepLab(options);
 
         var webCamInput = GetComponent<WebCamInput>();
         webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
@@ -38,7 +35,7 @@ public class DeepLabSample : MonoBehaviour
     private void OnTextureUpdate(Texture texture)
     {
         deepLab.Invoke(texture);
-        cameraView.material = deepLab.transformMat;        
+        cameraView.material = deepLab.transformMat;
         outputView.texture = deepLab.GetResultTexture();
     }
 }

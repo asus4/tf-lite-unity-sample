@@ -14,6 +14,7 @@ namespace TensorFlowLite
             [FilePopup("*.tflite")]
             public string modelPath = string.Empty;
             public AspectMode aspectMode = AspectMode.Fit;
+            public Accelerator accelerator = Accelerator.GPU;
         }
 
         public readonly struct Result
@@ -31,13 +32,13 @@ namespace TensorFlowLite
         }
 
         const int MAX_DETECTION = 10;
-        float[,] outputs0 = new float[MAX_DETECTION, 4]; // [top, left, bottom, right] * 10
-        float[] outputs1 = new float[MAX_DETECTION]; // Classes
-        float[] outputs2 = new float[MAX_DETECTION]; // Scores
-        Result[] results = new Result[MAX_DETECTION];
+        private readonly float[,] outputs0 = new float[MAX_DETECTION, 4]; // [top, left, bottom, right] * 10
+        private readonly float[] outputs1 = new float[MAX_DETECTION]; // Classes
+        private readonly float[] outputs2 = new float[MAX_DETECTION]; // Scores
+        private readonly Result[] results = new Result[MAX_DETECTION];
 
         public SSD(Options options)
-            : base(options.modelPath, true)
+            : base(options.modelPath, options.accelerator)
         {
             resizeOptions.aspectMode = options.aspectMode;
         }

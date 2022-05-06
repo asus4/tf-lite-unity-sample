@@ -96,7 +96,7 @@ public class GpuBindSample : MonoBehaviour
         // [Metal] must be called ModifyGraphWithDelegate at beginning
         if (isMetal)
         {
-            options.AddGpuDelegate(gpuDelegate);
+            options.AddDelegate(gpuDelegate);
         }
         interpreter = new Interpreter(FileUtil.LoadFile(fileName), options);
 

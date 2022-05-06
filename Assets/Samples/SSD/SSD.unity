@@ -220,6 +220,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd6f7b5dfd6c243c5bcacc40ee7b38d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useCustomMaterial: 0
+  customMaterial: {fileID: 0}
 --- !u!114 &32141219
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -646,10 +648,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fb4138b830554fb3998a569eb701fb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: coco_ssd_mobilenet_quant.tflite
   options:
     modelPath: coco_ssd_mobilenet_quant.tflite
     aspectMode: 1
+    accelerator: 4
   frameContainer: {fileID: 2074584280}
   framePrefab: {fileID: 5133934790876113832, guid: 717c89ea2a05f4537b007f12d6357590,
     type: 3}

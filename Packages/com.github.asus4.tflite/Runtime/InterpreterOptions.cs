@@ -29,7 +29,7 @@ namespace TensorFlowLite
 
         internal TfLiteInterpreterOptions nativePtr;
 
-        private List<IGpuDelegate> delegates;
+        private List<IDelegate> delegates;
 
         private int _threads;
         public int threads
@@ -58,7 +58,7 @@ namespace TensorFlowLite
         public InterpreterOptions()
         {
             nativePtr = TfLiteInterpreterOptionsCreate();
-            delegates = new List<IGpuDelegate>();
+            delegates = new List<IDelegate>();
 
             ErrorReporter.ConfigureReporter(nativePtr);
         }
@@ -76,20 +76,20 @@ namespace TensorFlowLite
             delegates.Clear();
         }
 
-        public void AddGpuDelegate(IGpuDelegate gpuDelegate)
+        public void AddDelegate(IDelegate iDelegate)
         {
-            if (gpuDelegate == null) return;
-            TfLiteInterpreterOptionsAddDelegate(nativePtr, gpuDelegate.Delegate);
-            delegates.Add(gpuDelegate);
+            if (iDelegate == null) return;
+            TfLiteInterpreterOptionsAddDelegate(nativePtr, iDelegate.Delegate);
+            delegates.Add(iDelegate);
         }
 
         public void AddGpuDelegate()
         {
-            AddGpuDelegate(CreateGpuDelegate());
+            AddDelegate(CreateGpuDelegate());
         }
 
 #pragma warning disable CS0162 // Unreachable code detected 
-        private static IGpuDelegate CreateGpuDelegate()
+        private static IDelegate CreateGpuDelegate()
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
             return new GpuDelegateV2();
