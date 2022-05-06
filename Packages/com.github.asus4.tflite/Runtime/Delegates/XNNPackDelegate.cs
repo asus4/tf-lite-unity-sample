@@ -18,7 +18,7 @@ using TfLiteDelegate = System.IntPtr;
 
 namespace TensorFlowLite
 {
-    public sealed class XNNPackDelegate : IGpuDelegate
+    public sealed class XNNPackDelegate : IDelegate
     {
         [System.Flags]
         public enum Flags : uint
