@@ -111,7 +111,7 @@ if __name__ == '__main__':
                         help = 'Build iOS')
     parser.add_argument('-android', action = "store_true", default = False,
                         help = 'Build Android')
-    parser.add_argument('-xnnpack', action = "store_true", default = False,
+    parser.add_argument('-xnnpack', action = "store_true", default = True,
                         help = 'Build with XNNPACK')
 
     args = parser.parse_args()
