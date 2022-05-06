@@ -7,6 +7,22 @@ namespace TensorFlowLite
     public abstract class BaseImagePredictor<T> : System.IDisposable
         where T : struct
     {
+        /// <summary>
+        /// Accelerator options
+        /// </summary>
+        public enum Accelerator
+        {
+            NONE = 0,
+            NNAPI = 1,
+            GPU = 2,
+            // HEXAGON = 3,
+            XNNPACK = 4,
+            // The EdgeTpu in Pixel devices.
+            // EDGETPU = 5,
+            // The Coral EdgeTpu Dev Board / USB accelerator.
+            // EDGETPU_CORAL = 6,
+        }
+
         protected readonly Interpreter interpreter;
         protected readonly int width;
         protected readonly int height;
@@ -33,16 +49,41 @@ namespace TensorFlowLite
             set => resizeOptions = value;
         }
 
+        [System.Obsolete("useGPU is deprecated, use Accelerator instead", false)]
         public BaseImagePredictor(string modelPath, bool useGPU = true)
+            : this(modelPath, useGPU ? Accelerator.GPU : Accelerator.NONE)
+        {
+        }
+
+        public BaseImagePredictor(string modelPath, Accelerator accelerator)
         {
             var options = new InterpreterOptions();
-            if (useGPU)
+
+            switch (accelerator)
             {
-                options.AddGpuDelegate();
-            }
-            else
-            {
-                options.threads = SystemInfo.processorCount;
+                case Accelerator.NONE:
+                    options.threads = SystemInfo.processorCount;
+                    break;
+                case Accelerator.NNAPI:
+                    if (Application.platform == RuntimePlatform.Android)
+                    {
+                        options.useNNAPI = true;
+                    }
+                    else
+                    {
+                        Debug.LogError("NNAPI is only supported on Android");
+                    }
+                    break;
+                case Accelerator.GPU:
+                    options.AddGpuDelegate();
+                    break;
+                case Accelerator.XNNPACK:
+                    options.threads = SystemInfo.processorCount;
+                    options.AddDelegate(XNNPackDelegate.DelegateForType(typeof(T)));
+                    break;
+                default:
+                    options.Dispose();
+                    throw new System.NotImplementedException();
             }
 
             try

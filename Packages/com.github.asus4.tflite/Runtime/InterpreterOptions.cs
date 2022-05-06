@@ -76,11 +76,11 @@ namespace TensorFlowLite
             delegates.Clear();
         }
 
-        public void AddDelegate(IDelegate gpuDelegate)
+        public void AddDelegate(IDelegate iDelegate)
         {
-            if (gpuDelegate == null) return;
-            TfLiteInterpreterOptionsAddDelegate(nativePtr, gpuDelegate.Delegate);
-            delegates.Add(gpuDelegate);
+            if (iDelegate == null) return;
+            TfLiteInterpreterOptionsAddDelegate(nativePtr, iDelegate.Delegate);
+            delegates.Add(iDelegate);
         }
 
         public void AddGpuDelegate()

@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+using System;
 using System.Runtime.InteropServices;
 using TfLiteDelegate = System.IntPtr;
 
@@ -41,14 +42,13 @@ namespace TensorFlowLite
 
         public static Options DefaultOptions => TfLiteXNNPackDelegateOptionsDefault();
 
-        public XNNPackDelegate()
+        public XNNPackDelegate(): this(DefaultOptions)
         {
-            Options options = DefaultOptions;
-            Delegate = TfLiteXNNPackDelegateCreate(ref options);
         }
 
         public XNNPackDelegate(Options options)
         {
+            UnityEngine.Debug.Log("XNNPackDelegate Created");
             Delegate = TfLiteXNNPackDelegateCreate(ref options);
         }
 
@@ -56,6 +56,25 @@ namespace TensorFlowLite
         {
             TfLiteXNNPackDelegateDelete(Delegate);
             Delegate = TfLiteDelegate.Zero;
+        }
+
+        public static XNNPackDelegate DelegateForType(Type inputType)
+        {
+            Flags flags = 0;
+            if (inputType == typeof(sbyte))
+            {
+                flags = Flags.QS8;
+            }
+            else if (inputType == typeof(byte))
+            {
+                flags = Flags.QU8;
+            }
+            var options = new Options()
+            {
+                numThreads = UnityEngine.SystemInfo.processorCount,
+                flags = flags,
+            };
+            return new XNNPackDelegate(options);
         }
 
         #region Externs
