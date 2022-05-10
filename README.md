@@ -10,7 +10,7 @@ Tested on
 - Unity 2020.3.29f1
 - TensorFlow 2.8.0
 
-Samples
+Included examples:
 
 - TensorFlow
   - MNIST
@@ -28,7 +28,7 @@ Samples
   - Blaze Pose (Full body)
   - Selfie Segmentation
 
-Included prebuilt libraries
+Included prebuilt libraries:
 
 | | iOS | Android | macOS | Ubuntu | Windows |
 |---|:---:|:---:|:---:|:---:|:---:|
@@ -41,12 +41,39 @@ Included prebuilt libraries
 
 ## Install TensorFlow Lite for Unity
 
-- Clone this repository with examples
-  - Requires installing [Git-LFS](https://git-lfs.github.com/)
-- The TFLite core library is available on:
-  - [OpenUPM](https://openupm.com/packages/com.github.asus4.tflite/)  
-  Run `openupm add com.github.asus4.tflite` from the command line.
-  - Or add git URL from the Package Maneger UI: `https://github.com/asus4/tf-lite-unity-sample.git?path=/Packages/com.github.asus4.tflite`
+- If you want to try all examples, clone this repository with [Git-LFS](https://git-lfs.github.com/).
+- If you just need TensorFlow Lite libraries via UPM, open the file `Packages/manifest.json` and add following lines into `scopedRegistries` and `dependencies` section.
+
+```json
+{
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.cysharp.unitask"
+      ]
+    },
+    {
+      "name": "npm",
+      "url": "https://registry.npmjs.com",
+      "scopes": [
+        "com.github.asus4"
+      ]
+    }
+  ],
+  "dependencies": {
+    // Core TensorFlow Lite libraries
+    "com.github.asus4.tflite": "2.8.0",
+    // Utilities to use tflite from Unity
+    "com.github.asus4.tflite.common": "2.8.0",
+    // Scripts for MediaPipe
+    "com.github.asus4.mediapipe": "2.8.0",
+    ...// other dependencies
+  }
+}
+```
+
 
 ## Build TensorFlow Lite libraries
 
