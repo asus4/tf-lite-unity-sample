@@ -15,7 +15,7 @@ namespace TensorFlowLite
         [SerializeField, WebCamName] private string editorCameraName;
         [SerializeField] private WebCamKind preferKind = WebCamKind.WideAngle;
         [SerializeField] private bool isFrontFacing = false;
-        [SerializeField] private Vector2Int requestSize = new Vector2Int(1280, 720);
+        [SerializeField] private Vector2Int requestSize = new Vector2Int(1920, 1080);
         [SerializeField] private int requestFps = 60;
         public TextureUpdateEvent OnTextureUpdate = new TextureUpdateEvent();
 
@@ -55,7 +55,7 @@ namespace TensorFlowLite
         {
             if (!webCamTexture.didUpdateThisFrame) return;
 
-            var tex = NormalizeWebcam(webCamTexture, Screen.width, Screen.height, isFrontFacing);
+            var tex = NormalizeWebcam(webCamTexture, requestSize.x, requestSize.y, isFrontFacing);
             OnTextureUpdate.Invoke(tex);
         }
 
