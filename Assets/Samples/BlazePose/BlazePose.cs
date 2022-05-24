@@ -71,7 +71,7 @@ namespace TensorFlowLite
 
             if (landmarkResult != null)
             {
-                CorrectViewportLandmarks(landmarkResult.viewportLandmarks, options.landmark.AspectMode);
+                CorrectViewportLandmarks(texture, landmarkResult.viewportLandmarks, options.landmark.AspectMode);
             }
             return landmarkResult;
         }
@@ -104,14 +104,14 @@ namespace TensorFlowLite
 
             if (landmarkResult != null)
             {
-                CorrectViewportLandmarks(landmarkResult.viewportLandmarks, options.landmark.AspectMode);
+                CorrectViewportLandmarks(texture, landmarkResult.viewportLandmarks, options.landmark.AspectMode);
             }
 
             return landmarkResult;
         }
 
 
-        private static void CorrectViewportLandmarks(Vector4[] landmarks, AspectMode aspectMode)
+        private static void CorrectViewportLandmarks(Texture texture, Vector4[] landmarks, AspectMode aspectMode)
         {
             if (aspectMode == AspectMode.None)
             {
@@ -119,7 +119,7 @@ namespace TensorFlowLite
                 return;
             }
 
-            (Vector2 min, Vector2 max) = GetViewportSize(aspectMode);
+            (Vector2 min, Vector2 max) = GetViewportSize(texture, aspectMode);
 
             // Update world joints
             for (int i = 0; i < landmarks.Length; i++)
@@ -130,10 +130,10 @@ namespace TensorFlowLite
             }
         }
 
-        private static Tuple<Vector2, Vector2> GetViewportSize(AspectMode aspectMode)
+        private static Tuple<Vector2, Vector2> GetViewportSize(Texture texture, AspectMode aspectMode)
         {
-            float w = Screen.width;
-            float h = Screen.height;
+            float w = texture.width;
+            float h = texture.height;
             float aspect = w / h;
 
             Vector2 min, max;
