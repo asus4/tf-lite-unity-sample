@@ -13,6 +13,7 @@
   "type": "library",
   "hideInEditor": false,
   "dependencies": {
-    "com.github.asus4.tflite": "2.8.0"
+    "com.github.asus4.tflite": "2.8.0",
+    "com.cysharp.unitask": "2.3.1"
   }
 }

@@ -1,6 +1,6 @@
 # TensorFlow Lite for Unity Samples
 
-[![openupm](https://img.shields.io/npm/v/com.github.asus4.tflite?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.github.asus4.tflite/)
+[![npm](https://img.shields.io/npm/v/com.github.asus4.tflite?label=npm)](https://www.npmjs.com/package/com.github.asus4.tflite)
 
 Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples) to Unity. and some utilities for Unity.
 
@@ -65,15 +65,14 @@ Included prebuilt libraries:
   "dependencies": {
     // Core TensorFlow Lite libraries
     "com.github.asus4.tflite": "2.8.0",
-    // Utilities to use tflite from Unity
+    // Utilities for TFLite
     "com.github.asus4.tflite.common": "2.8.0",
-    // Scripts for MediaPipe
+    // Utilities for MediaPipe
     "com.github.asus4.mediapipe": "2.8.0",
     ...// other dependencies
   }
 }
 ```
-
 
 ## Build TensorFlow Lite libraries
 
