@@ -1,0 +1,27 @@
+name: UPM on npsjs.com
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        lfs: true
+    - uses: actions/setup-node@v3
+      with:
+        registry-url: 'https://registry.npmjs.org'
+    - run: npm publish
+      working-directory: Packages/com.github.asus4.tflite
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+    - run: npm publish
+      working-directory: Packages/com.github.asus4.tflite.common
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+    - run: npm publish
+      working-directory: Packages/com.github.asus4.mediapipe
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
