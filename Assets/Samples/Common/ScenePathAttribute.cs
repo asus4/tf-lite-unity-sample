@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -9,20 +7,18 @@ using UnityEditor;
 
 namespace TensorFlowLite
 {
-    public class SceneName : PropertyAttribute
+    public class ScenePath : PropertyAttribute
     {
-        public SceneName()
+        public ScenePath()
         {
         }
     }
 
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(SceneName))]
-    public class SceneNameDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(ScenePath))]
+    public class ScenePathDrawer : PropertyDrawer
     {
-                string[] displayNames = null;
-
-        int selectedIndex = -1;
+        private string[] scenePaths = null;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -33,32 +29,29 @@ namespace TensorFlowLite
                 return;
             }
 
-            if (displayNames == null)
+            if (scenePaths == null)
             {
                 // Init display names
-                displayNames = EditorBuildSettings.scenes
+                scenePaths = EditorBuildSettings.scenes
                     .Select(scene => scene.path)
                     .ToArray();
             }
 
-            if (selectedIndex < 0)
-            {
-                selectedIndex = FindSelectedIndex(displayNames, property.stringValue);
-            }
-
             EditorGUI.BeginProperty(position, label, property);
-
-            selectedIndex = EditorGUI.Popup(position, label.text, selectedIndex, displayNames);
-            property.stringValue = displayNames[selectedIndex];
-
+            int index = FindSelectedIndex(scenePaths, property.stringValue);
+            int newIndex = EditorGUI.Popup(position, label.text, index, scenePaths);
+            if (newIndex != index)
+            {
+                property.stringValue = scenePaths[newIndex];
+            }
             EditorGUI.EndProperty();
         }
 
-        private static int FindSelectedIndex(string[] displayNames, string value)
+        private static int FindSelectedIndex(string[] scenePaths, string value)
         {
-            for (int i = 0; i < displayNames.Length; i++)
+            for (int i = 0; i < scenePaths.Length; i++)
             {
-                if (displayNames[i] == value)
+                if (scenePaths[i] == value)
                 {
                     return i;
                 }
