@@ -1,6 +1,8 @@
 ﻿using System.Threading;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
+#if TFLITE_UNITASK_ENABLED
+using Cysharp.Threading.Tasks;
+#endif // TFLITE_UNITASK_ENABLED
 
 namespace TensorFlowLite
 {
@@ -10,9 +12,9 @@ namespace TensorFlowLite
     public class TextureToTensor : System.IDisposable
     {
 
-        Texture2D fetchTexture;
-        ComputeShader compute;
-        ComputeBuffer tensorBuffer;
+        private Texture2D fetchTexture;
+        private ComputeShader compute;
+        private ComputeBuffer tensorBuffer;
 
         public Texture2D texture => fetchTexture;
 
@@ -99,6 +101,7 @@ namespace TensorFlowLite
             }
         }
 
+#if TFLITE_UNITASK_ENABLED
         public async UniTask<bool> ToTensorAsync(RenderTexture texture, float[,,] inputs, CancellationToken cancellationToken)
         {
             await UniTask.SwitchToMainThread(PlayerLoopTiming.FixedUpdate, cancellationToken);
@@ -118,6 +121,7 @@ namespace TensorFlowLite
             }
             return true;
         }
+#endif // TFLITE_UNITASK_ENABLED
 
         private void ToTensorCPU(RenderTexture texture, float[,,] inputs)
         {

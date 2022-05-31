@@ -20,6 +20,11 @@
             "name": "com.unity.render-pipelines.universal",
             "expression": "10.0.0",
             "define": "MODULE_URP_ENABLED"
+        },
+        {
+            "name": "com.cysharp.unitask",
+            "expression": "",
+            "define": "TFLITE_UNITASK_ENABLED"
         }
     ],
     "noEngineReferences": false
