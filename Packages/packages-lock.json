@@ -27,8 +27,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.github.asus4.tflite": "2.8.0",
-        "com.cysharp.unitask": "2.3.1"
+        "com.github.asus4.tflite": "2.8.0"
       }
     },
     "com.unity.2d.sprite": {

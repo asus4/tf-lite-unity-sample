@@ -1,6 +1,8 @@
 ﻿using System.Threading;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
+#if TFLITE_UNITASK_ENABLED
+using Cysharp.Threading.Tasks;
+#endif // TFLITE_UNITASK_ENABLED
 
 namespace TensorFlowLite
 {
@@ -160,6 +162,7 @@ namespace TensorFlowLite
             tex2tensor.ToTensor(tex, inputs);
         }
 
+#if TFLITE_UNITASK_ENABLED
         protected async UniTask<bool> ToTensorAsync(Texture inputTex, float[,,] inputs, CancellationToken cancellationToken)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
@@ -173,5 +176,6 @@ namespace TensorFlowLite
             await tex2tensor.ToTensorAsync(tex, inputs, cancellationToken);
             return true;
         }
+#endif // TFLITE_UNITASK_ENABLED
     }
 }
