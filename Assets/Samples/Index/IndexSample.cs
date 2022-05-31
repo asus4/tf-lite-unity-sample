@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class IndexSample : MonoBehaviour
 {
-    IEnumerator Start()
+    private IEnumerator Start()
     {
         // Need the WebCam Authorization before using Camera on mobile devices
         if (!Application.HasUserAuthorization(UserAuthorization.WebCam))
@@ -12,5 +12,4 @@ public class IndexSample : MonoBehaviour
             yield return Application.RequestUserAuthorization(UserAuthorization.WebCam);
         }
     }
-
 }

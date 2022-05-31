@@ -7,6 +7,7 @@ namespace TensorFlowLite
     [RequireComponent(typeof(Button))]
     public class GoToSceneButton : MonoBehaviour
     {
+        [SceneName]
         public string sceneName = "";
         public LoadSceneMode mode = LoadSceneMode.Single;
 

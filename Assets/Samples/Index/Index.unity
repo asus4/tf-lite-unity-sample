@@ -255,7 +255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: SSD
+  sceneName: Assets/Samples/SSD/SSD.unity
   mode: 0
 --- !u!114 &241656356
 MonoBehaviour:
@@ -391,7 +391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: FaceDetection
+  sceneName: Assets/Samples/FaceMesh/FaceDetection.unity
   mode: 0
 --- !u!114 &421916872
 MonoBehaviour:
@@ -1139,7 +1139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: TextClassification
+  sceneName: Assets/Samples/TextClassification/TextClassification.unity
   mode: 0
 --- !u!114 &792026552
 MonoBehaviour:
@@ -1275,7 +1275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: FaceMesh
+  sceneName: Assets/Samples/FaceMesh/FaceMesh.unity
   mode: 0
 --- !u!114 &839424817
 MonoBehaviour:
@@ -1572,7 +1572,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: MNIST
+  sceneName: Assets/Samples/MNIST/MNIST.unity
   mode: 0
 --- !u!1 &1096687997
 GameObject:
@@ -1692,7 +1692,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: BlazePose
+  sceneName: Assets/Samples/BlazePose/BlazePose.unity
   mode: 0
 --- !u!114 &1098711271
 MonoBehaviour:
@@ -2065,7 +2065,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: DeepLab
+  sceneName: Assets/Samples/DeepLab/DeepLab.unity
   mode: 0
 --- !u!114 &1263876257
 MonoBehaviour:
@@ -2359,7 +2359,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: StyleTransfer
+  sceneName: Assets/Samples/StyleTransfer/StyleTransfer.unity
   mode: 0
 --- !u!114 &1557734919
 MonoBehaviour:
@@ -2495,7 +2495,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: PoseNet
+  sceneName: Assets/Samples/PoseNet/PoseNet.unity
   mode: 0
 --- !u!114 &1581263985
 MonoBehaviour:
@@ -2631,7 +2631,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: MoveNetMultiPose
+  sceneName: Assets/Samples/MoveNet/MoveNetMultiPose.unity
   mode: 0
 --- !u!114 &1768410644
 MonoBehaviour:
@@ -2850,7 +2850,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: MoveNetSinglePose
+  sceneName: Assets/Samples/MoveNet/MoveNetSinglePose.unity
   mode: 0
 --- !u!114 &1780760906
 MonoBehaviour:
@@ -2986,7 +2986,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: Bert
+  sceneName: Assets/Samples/Bert/Bert.unity
   mode: 0
 --- !u!114 &1934683171
 MonoBehaviour:
@@ -3122,7 +3122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: SelfieSegmentation
+  sceneName: Assets/Samples/SelfieSegmentation/SelfieSegmentation.unity
   mode: 0
 --- !u!114 &1957810021
 MonoBehaviour:
@@ -3258,7 +3258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d972aae23de42da8f4b2503acae38e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: HandTracking
+  sceneName: Assets/Samples/HandTracking/HandTracking.unity
   mode: 0
 --- !u!114 &1961334977
 MonoBehaviour:
