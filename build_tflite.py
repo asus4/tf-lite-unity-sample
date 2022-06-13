@@ -55,19 +55,26 @@ def build_mac(enable_xnnpack = False):
     # Restore patch
     patch(cpuinfo_file, patched, original)
 
-def build_windows(enable_xnnpack = False):
+def build_windows(enable_xnnpack = True):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/tensorflowlite_c.dll', 'Windows/libtensorflowlite_c.dll')
     # TODO support GPU Delegate
 
-def build_linux():
+def build_linux(enable_xnnpack = True):
     # Tested on Ubuntu 18.04.5 LTS
     # Main
-    run_cmd('bazel build -c opt tensorflow/lite/c:tensorflowlite_c')
-    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/libtensorflowlite_c.so')
+    option_xnnpack = 'true' if enable_xnnpack else 'false'
+    run_cmd(f'bazel build -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
+    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/x86_64/libtensorflowlite_c.so')
+
+    # For Embedded Linux
+    run_cmd(f'bazel build --config=elinux_aarch64 -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
+    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/arm64/libtensorflowlite_c.so')
     # TODO GPU Delegate
+    # run_cmd('bazel build --config=linux_x86_64 -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so')
+
 
 def build_ios():
     # Main
@@ -138,7 +145,7 @@ if __name__ == '__main__':
     if args.linux:
         assert platform_name == 'Linux', f'-linux not supported on the platform: {platform_name}'
         print('Build Linux')
-        build_linux()
+        build_linux(args.xnnpack)
     
     if args.ios:
         assert platform_name == 'Darwin', f'-ios not supported on the platform: {platform_name}'
