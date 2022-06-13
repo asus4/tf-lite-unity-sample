@@ -122,7 +122,7 @@ namespace TensorFlowLite
         }
 
 #region Externs
-        private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_delegate";
+        private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_jni.so";
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe Options TfLiteGpuDelegateOptionsV2Default();
