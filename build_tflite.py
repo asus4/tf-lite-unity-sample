@@ -126,22 +126,22 @@ if __name__ == '__main__':
     platform_name = platform.system()
 
     if args.macos:
-        assert platform_name == 'Darwin', f'-macos not supported on the platfrom: {platform_name}'
+        assert platform_name == 'Darwin', f'-macos not supported on the platform: {platform_name}'
         print('Build macOS')
         build_mac(args.xnnpack)
     
     if args.windows:
-        assert platform_name == 'Windows', f'-windows not supported on the platfrom: {platform_name}'
+        assert platform_name == 'Windows', f'-windows not supported on the platform: {platform_name}'
         print('Build Windows')
         build_windows(args.xnnpack)
     
     if args.linux:
-        assert platform_name == 'Linux', f'-linux not supported on the platfrom: {platform_name}'
+        assert platform_name == 'Linux', f'-linux not supported on the platform: {platform_name}'
         print('Build Linux')
         build_linux()
     
     if args.ios:
-        assert platform_name == 'Darwin', f'-ios not supported on the platfrom: {platform_name}'
+        assert platform_name == 'Darwin', f'-ios not supported on the platform: {platform_name}'
         # Need to set iOS build option in ./configure
         print('Build iOS')
         build_ios()
