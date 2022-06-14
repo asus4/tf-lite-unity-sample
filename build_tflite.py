@@ -55,19 +55,34 @@ def build_mac(enable_xnnpack = False):
     # Restore patch
     patch(cpuinfo_file, patched, original)
 
-def build_windows(enable_xnnpack = False):
+def build_windows(enable_xnnpack = True):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/tensorflowlite_c.dll', 'Windows/libtensorflowlite_c.dll')
     # TODO support GPU Delegate
 
-def build_linux():
+def build_linux(enable_xnnpack = True):
     # Tested on Ubuntu 18.04.5 LTS
     # Main
-    run_cmd('bazel build -c opt tensorflow/lite/c:tensorflowlite_c')
-    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/libtensorflowlite_c.so')
-    # TODO GPU Delegate
+    option_xnnpack = 'true' if enable_xnnpack else 'false'
+    run_cmd(f'bazel build -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
+    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/x86_64/libtensorflowlite_c.so')
+
+    # For Embedded Linux
+    run_cmd(f'bazel build --config=elinux_aarch64 -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
+    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/arm64/libtensorflowlite_c.so')
+
+    # GPU Delegate
+    # See MediaPipe docs to setup EGL on Linux https://google.github.io/mediapipe/getting_started/gpu_support.html#opengl-es-setup-on-linux-desktop
+    # Also, you need link EGL and GLESv2 for Linux platform, will make a patch for this
+    # https://github.com/tensorflow/tensorflow/blob/5850c0ba26745f92456234c34ed258b472f07487/tensorflow/lite/delegates/gpu/build_defs.bzl#L3-L15
+    run_cmd('bazel build --config=linux -c opt --copt -Os --copt -DMESA_EGL_NO_X11_HEADERS --copt -DEGL_NO_X11 --copt -DCL_TARGET_OPENCL_VERSION=210 --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so')
+    copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_delegate.so', 'Linux/x86_64/libtensorflowlite_gpu_delegate.so')
+    
+    # GPU Delegate for Embedded Linux, the cross-compile will not work as EGL it not linked correctly with aarch64_linux_toolchain
+    # run_cmd('bazel build --config=elinux_aarch64 -c opt --copt -Os --copt -DCL_DELEGATE_NO_GL --copt -DMESA_EGL_NO_X11_HEADERS --copt -DEGL_NO_X11 --copt -DCL_TARGET_OPENCL_VERSION=210 --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_gl.so')
+
 
 def build_ios():
     # Main
@@ -138,7 +153,7 @@ if __name__ == '__main__':
     if args.linux:
         assert platform_name == 'Linux', f'-linux not supported on the platform: {platform_name}'
         print('Build Linux')
-        build_linux()
+        build_linux(args.xnnpack)
     
     if args.ios:
         assert platform_name == 'Darwin', f'-ios not supported on the platform: {platform_name}'
