@@ -171,5 +171,6 @@ namespace TensorFlowLite
         RandomUniform = 148,
         Multinomial = 149,
         Gelu = 150,
+        DynamicUpdateSlice = 151,
     }
 }

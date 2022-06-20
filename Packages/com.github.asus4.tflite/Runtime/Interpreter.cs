@@ -230,6 +230,8 @@ namespace TensorFlowLite
 
 #if UNITY_IOS && !UNITY_EDITOR
         internal const string TensorFlowLibrary = "__Internal";
+#elif UNITY_ANDROID && !UNITY_EDITOR
+        internal const string TensorFlowLibrary = "libtensorflowlite_jni";
 #else
         internal const string TensorFlowLibrary = "libtensorflowlite_c";
 #endif
@@ -267,6 +269,7 @@ namespace TensorFlowLite
             Resource = 14,
             Variant = 15,
             UInt32 = 16,
+            UInt16 = 17,
         }
 
         public struct QuantizationParams
