@@ -85,8 +85,11 @@ def build_linux(enable_xnnpack = True):
 
 
 def build_ios():
+    # FIXME: Need to patch this PR to the tensorflow source: 
+    # https://github.com/tensorflow/tensorflow/pull/56336/files
+
     # Main
-    run_cmd('bazel build --config=ios_fat -c opt //tensorflow/lite/ios:TensorFlowLiteC_framework')
+    run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteC_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteC_framework.zip', 'iOS')
     # Metal Delegate
     run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
