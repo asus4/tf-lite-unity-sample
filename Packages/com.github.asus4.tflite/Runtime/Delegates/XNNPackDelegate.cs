@@ -16,6 +16,7 @@ limitations under the License.
 using System;
 using System.Runtime.InteropServices;
 using TfLiteDelegate = System.IntPtr;
+using TfLiteXNNPackDelegateWeightsCache = System.IntPtr;
 
 namespace TensorFlowLite
 {
@@ -29,6 +30,8 @@ namespace TensorFlowLite
             QS8 = 0x00000001,
             // Enable XNNPACK acceleration for unsigned quantized 8-bit inference.
             QU8 = 0x00000002,
+            // Force FP16 inference for FP32 operators.
+            FORCE_FP16 = 0x00000004,
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -36,6 +39,7 @@ namespace TensorFlowLite
         {
             public int numThreads;
             public Flags flags;
+            public TfLiteXNNPackDelegateWeightsCache weightsCache;
         }
 
         public TfLiteDelegate Delegate { get; private set; }
@@ -91,10 +95,15 @@ namespace TensorFlowLite
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe TfLiteDelegate TfLiteXNNPackDelegateCreate(ref Options options);
 
-
         // Destroys a delegate created with `TfLiteXNNPackDelegateCreate` call.
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe void TfLiteXNNPackDelegateDelete(TfLiteDelegate xnnPackDelegate);
+
+        // Creates a new weights cache that can be shared with multiple delegate instances.
+        private static extern unsafe TfLiteXNNPackDelegateWeightsCache TfLiteXNNPackDelegateWeightsCacheCreate();
+
+        // Destroys a weights cache created with `TfLiteXNNPackDelegateWeightsCacheCreate` call.
+        private static extern unsafe void TfLiteXNNPackWeightsCacheDelete(TfLiteXNNPackDelegateWeightsCache cache);
         #endregion // Externs
     }
 }
