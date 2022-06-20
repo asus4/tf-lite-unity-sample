@@ -46,8 +46,8 @@ def build_mac(enable_xnnpack = False):
     original = '"cpu": "darwin",'
     patched = '"cpu": "darwin_x86_64",'
     patch(cpuinfo_file, original, patched)
-    run_cmd('bazel build --config=macos --cpu=darwin_x86_64 --macos_cpus=x86_64 --apple_platform_type=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
-    run_cmd('bazel build --config=macos_arm64 --cpu=darwin_arm64  --macos_cpus=arm64 --apple_platform_type=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    run_cmd('bazel build --config=macos --cpu=darwin_x86_64 --macos_cpus=x86_64 --apple_platform_type=macos --cxxopt=--std=c++17 -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    run_cmd('bazel build --config=macos_arm64 --cpu=darwin_arm64  --macos_cpus=arm64 --apple_platform_type=macos --cxxopt=--std=c++17 -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
     # Export path contains postfix like `applebin_macos-darwin_arm64-opt-ST-*`
     metal_delegate_pathes = glob.glob(f'{TENSORFLOW_PATH}/bazel-out/applebin_macos-darwin*/bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib')
     print(metal_delegate_pathes)
