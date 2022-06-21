@@ -2,13 +2,13 @@
 
 [![npm](https://img.shields.io/npm/v/com.github.asus4.tflite?label=npm)](https://www.npmjs.com/package/com.github.asus4.tflite)
 
-Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples) to Unity. and some utilities for Unity.
+Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples) and some utilities for Unity.
 
 Tested on  
 
-- iOS / Android / macOS / Windows  
+- iOS / Android / macOS / Windows / Linux
 - Unity 2020.3.29f1
-- TensorFlow 2.8.0
+- TensorFlow 2.9.1
 
 Included examples:
 
@@ -34,10 +34,10 @@ Included prebuilt libraries:
 |---|:---:|:---:|:---:|:---:|:---:|
 | Core CPU |✅|✅|✅|✅|✅|
 | Metal Delegate |✅| - |✅| - | - |
-| OpenGL Delegate | - |✅| - | - | - |
+| GPU Delegate | - |✅| - | ✅ Experimental | - |
 | NNAPI Delegate | - |✅| - | - | - |
 
-- All libraries except iOS are targeted 64bit platform: arm64 or x86_64.
+- You need to install OpenGL ES and OpenCL to run GPU Delegate on Linux. See [MediaPipe](https://google.github.io/mediapipe/getting_started/gpu_support.html#opengl-es-setup-on-linux-desktop) for details.
 
 ## Install TensorFlow Lite for Unity
 
@@ -64,11 +64,11 @@ Included prebuilt libraries:
   ],
   "dependencies": {
     // Core TensorFlow Lite libraries
-    "com.github.asus4.tflite": "2.8.0",
+    "com.github.asus4.tflite": "2.9.1",
     // Utilities for TFLite
-    "com.github.asus4.tflite.common": "2.8.0",
+    "com.github.asus4.tflite.common": "2.9.1",
     // Utilities for MediaPipe
-    "com.github.asus4.mediapipe": "2.8.0",
+    "com.github.asus4.mediapipe": "2.9.1",
     ...// other dependencies
   }
 }
@@ -83,7 +83,7 @@ Pre-built libraries are included. If you want to build the latest TFLite,
 3. Run `./build_tflite.py` (Python3) to build for each platform
 
   ```sh
-  # Update iOS, Andoid and macOS
+  # Update iOS, Android and macOS
   ./build_tflite.py --tfpath ../tensorflow -ios -android -macos
 
   # Build with XNNPACK
