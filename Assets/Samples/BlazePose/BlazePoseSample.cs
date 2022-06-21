@@ -108,6 +108,10 @@ public sealed class BlazePoseSample : MonoBehaviour
         {
             debugView.texture = pose.LandmarkInputTexture;
         }
+        if (landmarkResult != null && landmarkResult.SegmentationTexture != null)
+        {
+            segmentationView.texture = landmarkResult.SegmentationTexture;
+        }
         return landmarkResult != null;
     }
 }
