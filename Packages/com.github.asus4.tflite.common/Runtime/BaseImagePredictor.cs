@@ -162,6 +162,8 @@ namespace TensorFlowLite
             tex2tensor.ToTensor(tex, inputs);
         }
 
+        // ToTensorAsync methods are only available when UniTask is installed via Unity Package Manager.
+        // TODO: consider using native Task or Unity Coroutine
 #if TFLITE_UNITASK_ENABLED
         protected async UniTask<bool> ToTensorAsync(Texture inputTex, float[,,] inputs, CancellationToken cancellationToken)
         {
