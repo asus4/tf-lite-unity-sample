@@ -20,7 +20,7 @@ namespace TensorFlowLite
             var sb = new StringBuilder();
             for (int i = 0; i < inputCount; i++)
             {
-                sb.AppendFormat("intput {0}: {1}", i, interpreter.GetInputTensorInfo(i));
+                sb.AppendFormat("input {0}: {1}", i, interpreter.GetInputTensorInfo(i));
                 sb.AppendLine();
             }
             for (int i = 0; i < outputCount; i++)
