@@ -49,15 +49,15 @@ namespace TensorFlowLite
         {
             if (IsConvertSkippable(inputTex))
             {
-                ToTensorDirect(inputTex as Texture2D, input0);
+                ToTensorDirect(inputTex as Texture2D, inputTensor);
             }
             else
             {
                 // ToTensor(inputTex, input0, 0f, 255f);
-                ToTensor(inputTex, input0);
+                ToTensor(inputTex, inputTensor);
             }
 
-            interpreter.SetInputTensorData(0, input0);
+            interpreter.SetInputTensorData(0, inputTensor);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
         }

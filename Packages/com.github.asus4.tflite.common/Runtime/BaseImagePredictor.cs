@@ -29,7 +29,7 @@ namespace TensorFlowLite
         protected readonly int width;
         protected readonly int height;
         protected readonly int channels;
-        protected readonly T[,,] input0;
+        protected readonly T[,,] inputTensor;
         protected readonly TextureToTensor tex2tensor;
         protected readonly TextureResizer resizer;
         protected TextureResizer.ResizeOptions resizeOptions;
@@ -99,7 +99,7 @@ namespace TensorFlowLite
                 height = inputShape0[1];
                 width = inputShape0[2];
                 channels = inputShape0[3];
-                input0 = new T[height, width, channels];
+                inputTensor = new T[height, width, channels];
 
                 int inputCount = interpreter.GetInputTensorCount();
                 for (int i = 0; i < inputCount; i++)

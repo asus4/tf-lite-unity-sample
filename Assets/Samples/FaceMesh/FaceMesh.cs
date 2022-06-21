@@ -53,10 +53,10 @@ namespace TensorFlowLite
                 inputTex, resizeOptions.width, resizeOptions.height, true,
                 cropMatrix,
                 TextureResizer.GetTextureST(inputTex, resizeOptions));
-            ToTensor(rt, input0, false);
+            ToTensor(rt, inputTensor, false);
 
             //
-            interpreter.SetInputTensorData(0, input0);
+            interpreter.SetInputTensorData(0, inputTensor);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
