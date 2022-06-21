@@ -140,6 +140,25 @@ namespace TensorFlowLite
             }
             return true;
         }
+
+        public async UniTask<bool> ToTensorAsync(RenderTexture texture, int[,,] inputs, CancellationToken cancellationToken)
+        {
+            await UniTask.SwitchToMainThread(PlayerLoopTiming.FixedUpdate, cancellationToken);
+            var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
+            int width = texture.width;
+            int height = texture.height - 1;
+            await UniTask.SwitchToThreadPool();
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                int y = height - i / width;
+                int x = i % width;
+                inputs[y, x, 0] = pixels[i].r;
+                inputs[y, x, 1] = pixels[i].g;
+                inputs[y, x, 2] = pixels[i].b;
+            }
+            return true;
+        }
 #endif // TFLITE_UNITASK_ENABLED
 
         private void ToTensorCPU(RenderTexture texture, float[,,] inputs)

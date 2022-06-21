@@ -183,6 +183,13 @@ namespace TensorFlowLite
             await tex2tensor.ToTensorAsync(tex, inputs, cancellationToken);
             return true;
         }
+
+        protected async UniTask<bool> ToTensorAsync(Texture inputTex, int[,,] inputs, CancellationToken cancellationToken)
+        {
+            RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
+            await tex2tensor.ToTensorAsync(tex, inputs, cancellationToken);
+            return true;
+        }
 #endif // TFLITE_UNITASK_ENABLED
     }
 }
