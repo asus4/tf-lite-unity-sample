@@ -152,10 +152,8 @@ namespace TensorFlowLite
 
             InvokeInternal();
 
-            var result = GetResult(inputTex);
             await UniTask.SwitchToMainThread(timing, cancellationToken);
-
-            return result;
+            return GetResult(inputTex);
         }
 
         private void InvokeInternal()
