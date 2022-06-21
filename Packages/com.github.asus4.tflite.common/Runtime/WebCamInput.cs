@@ -24,6 +24,9 @@ namespace TensorFlowLite
         private WebCamDevice[] devices;
         private int deviceIndex;
 
+        public Vector2Int RequestSize { get => requestSize; set => requestSize = value; }
+        public int RequestFps { get => requestFps; set => requestFps = value; }
+
         private void Start()
         {
             resizer = new TextureResizer();
