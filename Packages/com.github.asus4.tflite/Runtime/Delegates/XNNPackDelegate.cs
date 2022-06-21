@@ -100,9 +100,11 @@ namespace TensorFlowLite
         private static extern unsafe void TfLiteXNNPackDelegateDelete(TfLiteDelegate xnnPackDelegate);
 
         // Creates a new weights cache that can be shared with multiple delegate instances.
+        [DllImport(TensorFlowLibrary)]
         private static extern unsafe TfLiteXNNPackDelegateWeightsCache TfLiteXNNPackDelegateWeightsCacheCreate();
 
         // Destroys a weights cache created with `TfLiteXNNPackDelegateWeightsCacheCreate` call.
+        [DllImport(TensorFlowLibrary)]
         private static extern unsafe void TfLiteXNNPackWeightsCacheDelete(TfLiteXNNPackDelegateWeightsCache cache);
         #endregion // Externs
     }
