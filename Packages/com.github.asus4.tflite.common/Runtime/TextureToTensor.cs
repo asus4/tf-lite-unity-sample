@@ -115,9 +115,28 @@ namespace TensorFlowLite
             {
                 int y = height - i / width;
                 int x = i % width;
-                inputs[y, x, 0] = (float)(pixels[i].r) / scale;
-                inputs[y, x, 1] = (float)(pixels[i].g) / scale;
-                inputs[y, x, 2] = (float)(pixels[i].b) / scale;
+                inputs[y, x, 0] = pixels[i].r / scale;
+                inputs[y, x, 1] = pixels[i].g / scale;
+                inputs[y, x, 2] = pixels[i].b / scale;
+            }
+            return true;
+        }
+
+        public async UniTask<bool> ToTensorAsync(RenderTexture texture, sbyte[,,] inputs, CancellationToken cancellationToken)
+        {
+            await UniTask.SwitchToMainThread(PlayerLoopTiming.FixedUpdate, cancellationToken);
+            var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
+            int width = texture.width;
+            int height = texture.height - 1;
+            await UniTask.SwitchToThreadPool();
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                int y = height - i / width;
+                int x = i % width;
+                inputs[y, x, 0] = (sbyte)pixels[i].r;
+                inputs[y, x, 1] = (sbyte)pixels[i].g;
+                inputs[y, x, 2] = (sbyte)pixels[i].b;
             }
             return true;
         }
