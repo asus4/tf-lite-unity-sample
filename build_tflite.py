@@ -13,9 +13,8 @@ TENSORFLOW_PATH=''
 def run_cmd(cmd):
     print(cmd)
     args = shlex.split(cmd)
-    # TODO: this is not working on Linux.
-    # return subprocess.check_output(args, cwd=TENSORFLOW_PATH, universal_newlines=True, shell=True)
-    subprocess.call(args, cwd=TENSORFLOW_PATH)
+    is_shell = platform.system() == 'Windows'
+    subprocess.call(args, cwd=TENSORFLOW_PATH, shell=is_shell)
 
 def copy(from_tf, to_unity):
     subprocess.call(['cp', '-vf', f'{TENSORFLOW_PATH}/{from_tf}', f'{PLUGIN_PATH}/{to_unity}'])
