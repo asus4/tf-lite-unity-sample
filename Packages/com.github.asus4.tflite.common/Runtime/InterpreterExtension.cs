@@ -11,11 +11,14 @@ namespace TensorFlowLite
         /// <summary>
         /// Print the information about the model Inputs/Outputs for debug.
         /// </summary>
-        /// <param name="interpreter">An tflite interpreter</param>
+        /// <param name="interpreter">A TFLite Interpreter</param>
         [Conditional("DEVELOPMENT_BUILD"), Conditional("UNITY_EDITOR")]
         public static void LogIOInfo(this Interpreter interpreter)
         {
             var sb = new StringBuilder();
+            sb.AppendLine($"Version: {Interpreter.GetVersion()}");
+            sb.AppendLine();
+
             int inputCount = interpreter.GetInputTensorCount();
             int outputCount = interpreter.GetOutputTensorCount();
             for (int i = 0; i < inputCount; i++)
@@ -33,28 +36,34 @@ namespace TensorFlowLite
         /// <summary>
         /// Print the information about the model Inputs/Outputs for debug.
         /// </summary>
-        /// <param name="interpreter">An tflite interpreter</param>
+        /// <param name="runner">A TFLite SignatureRunner</param>
         [Conditional("DEVELOPMENT_BUILD"), Conditional("UNITY_EDITOR")]
-        public static void LogIOInfo(this SignatureRunner interpreter)
+        public static void LogIOInfo(this SignatureRunner runner)
         {
             var sb = new StringBuilder();
-            int signatureCount = interpreter.GetSignatureCount();
+            sb.AppendLine($"Version: {Interpreter.GetVersion()}");
+            sb.AppendLine();
+
+            int signatureCount = runner.GetSignatureCount();
             for (int i = 0; i < signatureCount; i++)
             {
-                sb.AppendLine($"Signature [{i}]: {interpreter.GetSignatureName(i)}");
+                sb.AppendLine($"Signature [{i}]: {runner.GetSignatureName(i)}");
             }
             sb.AppendLine();
 
-            int inputCount = interpreter.GetInputTensorCount();
-            int outputCount = interpreter.GetOutputTensorCount();
-            for (int i = 0; i < inputCount; i++)
+            int signatureInputCount = runner.GetSignatureInputCount();
+            for (int i = 0; i < signatureInputCount; i++)
             {
-                sb.AppendLine($"Input [{i}]: {interpreter.GetInputTensorInfo(i)}");
+                string name = runner.GetSignatureInputName(i);
+                sb.AppendLine($"Signature Input [{i}]: {name}, info: {runner.GetSignatureInputInfo(name)}");
             }
             sb.AppendLine();
-            for (int i = 0; i < outputCount; i++)
+
+            int signatureOutputCount = runner.GetSignatureOutputCount();
+            for (int i = 0; i < signatureOutputCount; i++)
             {
-                sb.AppendLine($"Output [{i}]: {interpreter.GetOutputTensorInfo(i)}");
+                string name = runner.GetSignatureOutputName(i);
+                sb.AppendLine($"Signature Output [{i}]: {name}, info: {runner.GetSignatureOutputInfo(name)}");
             }
             UnityEngine.Debug.Log(sb.ToString());
         }

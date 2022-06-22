@@ -20,6 +20,7 @@ namespace TensorFlowLite
             public string modelPath;
             public AspectMode aspectMode = AspectMode.Fill;
             public Accelerator accelerator = Accelerator.XNNPACK;
+            public TextAsset labels;
         }
 
         private readonly SignatureRunner runner;

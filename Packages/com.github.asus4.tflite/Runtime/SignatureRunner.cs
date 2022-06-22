@@ -14,10 +14,12 @@ limitations under the License.
 ==============================================================================*/
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using TfLiteInterpreter = System.IntPtr;
 using TfLiteTensor = System.IntPtr;
 using TfLiteSignatureRunner = System.IntPtr;
+using UnityEngine.Assertions;
 
 namespace TensorFlowLite
 {
@@ -27,19 +29,22 @@ namespace TensorFlowLite
     /// </summary>
     public class SignatureRunner : Interpreter
     {
-        private TfLiteSignatureRunner runner = TfLiteSignatureRunner.Zero;
+        private TfLiteSignatureRunner runner;
+
+        // Mappings of signature_name -> tensor_index
+        private Dictionary<string, int> inputTensors;
+        private Dictionary<string, int> outputTensors;
 
         public SignatureRunner(string signatureName, byte[] modelData, InterpreterOptions options)
             : base(modelData, options)
         {
-            runner = TfLiteInterpreterGetSignatureRunner(InterpreterPointer, signatureName);
+            Initialize(signatureName);
         }
 
         public SignatureRunner(int signatureIndex, byte[] modelData, InterpreterOptions options)
             : base(modelData, options)
         {
-            string signatureName = GetSignatureName(signatureIndex);
-            runner = TfLiteInterpreterGetSignatureRunner(InterpreterPointer, signatureName);
+            Initialize(GetSignatureName(signatureIndex));
         }
 
         public override void Dispose()
@@ -47,8 +52,9 @@ namespace TensorFlowLite
             if (runner != TfLiteSignatureRunner.Zero)
             {
                 TfLiteSignatureRunnerDelete(runner);
-                runner = TfLiteSignatureRunner.Zero;
             }
+            inputTensors?.Clear();
+            outputTensors?.Clear();
             base.Dispose();
         }
 
@@ -87,6 +93,12 @@ namespace TensorFlowLite
             return TfLiteSignatureRunnerGetInputTensor(runner, inputName);
         }
 
+        public TensorInfo GetSignatureInputInfo(string inputName)
+        {
+            TfLiteTensor tensor = GetSignatureInputTensor(inputName);
+            return GetTensorInfo(tensor);
+        }
+
         public override void Invoke()
         {
             ThrowIfError(TfLiteSignatureRunnerInvoke(runner));
@@ -107,9 +119,59 @@ namespace TensorFlowLite
             return TfLiteSignatureRunnerGetOutputTensor(runner, outputName);
         }
 
+        public TensorInfo GetSignatureOutputInfo(string outputName)
+        {
+            TfLiteTensor tensor = GetSignatureOutputTensor(outputName);
+            return GetTensorInfo(tensor);
+        }
+
         private static string ToString(IntPtr ptr)
         {
             return Marshal.PtrToStringAnsi(ptr);
+        }
+
+        private void Initialize(string signatureName)
+        {
+            runner = TfLiteInterpreterGetSignatureRunner(InterpreterPointer, signatureName);
+            if (runner == TfLiteSignatureRunner.Zero)
+            {
+                throw new Exception("Failed to create SignatureRunner");
+            }
+
+            inputTensors = CreateMap(isInput: true);
+            outputTensors = CreateMap(isInput: false);
+        }
+
+        private Dictionary<string, int> CreateMap(bool isInput)
+        {
+            int signatureCount = isInput ? GetSignatureInputCount() : GetSignatureOutputCount();
+            int tensorCount = isInput ? GetInputTensorCount() : GetOutputTensorCount();
+            Assert.AreEqual(signatureCount, tensorCount);
+
+            var indexMap = new Dictionary<TfLiteTensor, int>(tensorCount);
+            for (int i = 0; i < tensorCount; i++)
+            {
+                TfLiteTensor tensor = isInput ? GetInputTensor(i) : GetOutputTensor(i);
+                indexMap.Add(tensor, i);
+            }
+
+            var map = new Dictionary<string, int>(signatureCount);
+            for (int i = 0; i < signatureCount; i++)
+            {
+                string name = isInput ? GetSignatureInputName(i) : GetSignatureOutputName(i);
+                TfLiteTensor tensor = isInput ? GetSignatureInputTensor(name) : GetSignatureOutputTensor(name);
+
+                if (indexMap.TryGetValue(tensor, out int index))
+                {
+                    map.Add(name, index);
+                }
+                else
+                {
+                    throw new Exception($"Failed to find tensor for signature {name}");
+                }
+            }
+
+            return map;
         }
 
         /// --------------------------------------------------------------------------
