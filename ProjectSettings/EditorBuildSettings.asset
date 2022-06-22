@@ -50,4 +50,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Samples/SelfieSegmentation/SelfieSegmentation.unity
     guid: 3faed22ad2fae4961aa041fdd414f617
+  - enabled: 1
+    path: Assets/Samples/VideoClassification/VideoClassification.unity
+    guid: cf8b4560df54442d79c8d8110b741603
   m_configObjects: {}
