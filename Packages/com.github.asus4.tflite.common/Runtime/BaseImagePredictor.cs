@@ -51,7 +51,7 @@ namespace TensorFlowLite
             set => resizeOptions = value;
         }
 
-        public BaseImagePredictor(string modelPath, Accelerator accelerator, int[] inputShape = null)
+        public BaseImagePredictor(string modelPath, Accelerator accelerator)
         {
             var options = new InterpreterOptions();
 
@@ -95,7 +95,7 @@ namespace TensorFlowLite
             interpreter.LogIOInfo();
             // Initialize inputs
             {
-                var inputShape0 = inputShape ?? interpreter.GetInputTensorInfo(0).shape;
+                var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
                 height = inputShape0[1];
                 width = inputShape0[2];
                 channels = inputShape0[3];

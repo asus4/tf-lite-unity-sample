@@ -4,13 +4,14 @@ namespace TensorFlowLite
     using System.Collections.Generic;
     using System.Linq;
     using UnityEngine;
+    using Accelerator = BaseImagePredictor<float>.Accelerator;
 
     /// <summary>
     /// Video Classification example from TensorFlow
     /// https://www.tensorflow.org/lite/examples/video_classification/overview
     /// https://github.com/tensorflow/models/tree/master/official/projects/movinet
     /// </summary>
-    public class VideoClassification : BaseImagePredictor<float>
+    public sealed class VideoClassification : IDisposable
     {
         [Serializable]
         public class Options
@@ -21,69 +22,63 @@ namespace TensorFlowLite
             public Accelerator accelerator = Accelerator.XNNPACK;
         }
 
+        private readonly SignatureRunner runner;
+
         private const int IMAGE_TENSOR_INDEX = 37;
 
         private readonly Array[] states;
 
-        public VideoClassification(Options options)
-            : base(options.modelPath, options.accelerator, new int[] { 1, 172, 172, 3 })
+        public VideoClassification(Options modelOptions)
         {
-            resizeOptions.aspectMode = options.aspectMode;
-
-            int inputCount = interpreter.GetInputTensorCount();
-            states = new Array[inputCount];
-            for (int i = 0; i < inputCount; i++)
+            var options = new InterpreterOptions();
+            switch (modelOptions.accelerator)
             {
-                Array arr = i == IMAGE_TENSOR_INDEX
-                    ? inputTensor
-                    : ToArray(interpreter.GetInputTensorInfo(i));
-                states[i] = arr;
-            }
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-        }
-
-        public override void Invoke(Texture inputTex)
-        {
-            ToTensor(inputTex, inputTensor);
-
-            int length = states.Length;
-            for (int i = 0; i < length; i++)
-            {
-                interpreter.SetInputTensorData(i, states[i]);
-            }
-            interpreter.Invoke();
-            for (int i = 0; i < length; i++)
-            {
-                if (i != IMAGE_TENSOR_INDEX)
-                {
-                    try
+                case Accelerator.NONE:
+                    options.threads = SystemInfo.processorCount;
+                    break;
+                case Accelerator.NNAPI:
+                    if (Application.platform == RuntimePlatform.Android)
                     {
-                        interpreter.GetOutputTensorData(i, states[i]);
-
+                        options.useNNAPI = true;
                     }
-                    catch (Exception e)
+                    else
                     {
-                        Debug.Log(e.Message);
-                        Debug.Log($"index::::{i}");
+                        Debug.LogError("NNAPI is only supported on Android");
                     }
-                }
+                    break;
+                case Accelerator.GPU:
+                    options.AddGpuDelegate();
+                    break;
+                case Accelerator.XNNPACK:
+                    options.threads = SystemInfo.processorCount;
+                    options.AddDelegate(XNNPackDelegate.DelegateForType(typeof(float)));
+                    break;
+                default:
+                    options.Dispose();
+                    throw new NotImplementedException();
             }
+
+            try
+            {
+                runner = new SignatureRunner(0, FileUtil.LoadFile(modelOptions.modelPath), options);
+            }
+            catch (Exception e)
+            {
+                runner?.Dispose();
+                throw e;
+            }
+
+            runner.LogIOInfo();
         }
 
-        private static Array ToArray(in Interpreter.TensorInfo info)
+        public void Dispose()
         {
-            int length = info.shape.Aggregate(1, (acc, x) => acc * x);
-            // Debug.Log($"{info} = {length}");
-            return info.type switch
-            {
-                Interpreter.DataType.Float32 => new float[length],
-                Interpreter.DataType.Int32 => new int[length],
-                _ => throw new NotImplementedException(),
-            };
+            runner?.Dispose();
+        }
+
+        public void Invoke(Texture inputTex)
+        {
+            Debug.Log($"Invoke : {inputTex.width}x{inputTex.height}");
         }
     }
 }

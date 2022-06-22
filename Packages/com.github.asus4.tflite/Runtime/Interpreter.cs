@@ -73,7 +73,7 @@ namespace TensorFlowLite
         }
 
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (interpreter != IntPtr.Zero)
             {
@@ -100,7 +100,7 @@ namespace TensorFlowLite
             modelDataHandle.Free();
         }
 
-        public void Invoke()
+        public virtual void Invoke()
         {
             ThrowIfError(TfLiteInterpreterInvoke(interpreter));
         }
@@ -201,7 +201,7 @@ namespace TensorFlowLite
             };
         }
 
-        private static void ThrowIfError(Status status)
+        protected static void ThrowIfError(Status status)
         {
             switch(status)
             {
