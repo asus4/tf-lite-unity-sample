@@ -55,7 +55,7 @@ namespace TensorFlowLite
             for (int i = 0; i < signatureInputCount; i++)
             {
                 string name = runner.GetSignatureInputName(i);
-                sb.AppendLine($"Signature Input [{i}]: {name}, info: {runner.GetSignatureInputInfo(name)}");
+                sb.AppendLine($"Signature Input [{i}]: {name},\t info: {runner.GetSignatureInputInfo(name)}");
             }
             sb.AppendLine();
 
@@ -63,7 +63,7 @@ namespace TensorFlowLite
             for (int i = 0; i < signatureOutputCount; i++)
             {
                 string name = runner.GetSignatureOutputName(i);
-                sb.AppendLine($"Signature Output [{i}]: {name}, info: {runner.GetSignatureOutputInfo(name)}");
+                sb.AppendLine($"Signature Output [{i}]: {name},\t info: {runner.GetSignatureOutputInfo(name)}");
             }
             UnityEngine.Debug.Log(sb.ToString());
         }

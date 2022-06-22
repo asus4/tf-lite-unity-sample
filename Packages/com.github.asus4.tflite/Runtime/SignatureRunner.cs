@@ -15,6 +15,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using TfLiteInterpreter = System.IntPtr;
 using TfLiteTensor = System.IntPtr;
@@ -34,6 +35,9 @@ namespace TensorFlowLite
         // Mappings of signature_name -> tensor_index
         private Dictionary<string, int> inputTensors;
         private Dictionary<string, int> outputTensors;
+
+        public string[] InputSignatureNames { get; private set; }
+        public string[] OutputSignatureNames { get; private set; }
 
         public SignatureRunner(string signatureName, byte[] modelData, InterpreterOptions options)
             : base(modelData, options)
@@ -78,6 +82,15 @@ namespace TensorFlowLite
             return ToString(TfLiteSignatureRunnerGetInputName(runner, index));
         }
 
+        public void SetSignatureInputTensorData(string name, Array inputTensorData)
+        {
+            if (!inputTensors.TryGetValue(name, out int tensorIndex))
+            {
+                throw new ArgumentException($"{name} is not a valid input tensor name");
+            }
+            SetInputTensorData(tensorIndex, inputTensorData);
+        }
+
         public void ResizeSignatureInputTensor(string inputName, int[] inputDims)
         {
             ThrowIfError(TfLiteSignatureRunnerResizeInputTensor(runner, inputName, inputDims, inputDims.Length));
@@ -88,7 +101,7 @@ namespace TensorFlowLite
             ThrowIfError(TfLiteSignatureRunnerAllocateTensors(runner));
         }
 
-        public TfLiteTensor GetSignatureInputTensor(string inputName)
+        private TfLiteTensor GetSignatureInputTensor(string inputName)
         {
             return TfLiteSignatureRunnerGetInputTensor(runner, inputName);
         }
@@ -114,7 +127,16 @@ namespace TensorFlowLite
             return ToString(TfLiteSignatureRunnerGetOutputName(runner, index));
         }
 
-        public TfLiteTensor GetSignatureOutputTensor(string outputName)
+        public void GetSignatureOutputTensorData(string name, Array outputTensorData)
+        {
+            if (!outputTensors.TryGetValue(name, out int tensorIndex))
+            {
+                throw new ArgumentException($"{name} is not a valid output tensor name");
+            }
+            GetOutputTensorData(tensorIndex, outputTensorData);
+        }
+
+        private TfLiteTensor GetSignatureOutputTensor(string outputName)
         {
             return TfLiteSignatureRunnerGetOutputTensor(runner, outputName);
         }
@@ -140,6 +162,9 @@ namespace TensorFlowLite
 
             inputTensors = CreateMap(isInput: true);
             outputTensors = CreateMap(isInput: false);
+
+            InputSignatureNames = inputTensors.Keys.ToArray();
+            OutputSignatureNames = outputTensors.Keys.ToArray();
         }
 
         private Dictionary<string, int> CreateMap(bool isInput)
