@@ -84,9 +84,9 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
-            ToTensor(inputTex, input0);
+            ToTensor(inputTex, inputTensor);
 
-            interpreter.SetInputTensorData(0, input0);
+            interpreter.SetInputTensorData(0, inputTensor);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
@@ -94,10 +94,10 @@ namespace TensorFlowLite
 
         public async UniTask<Result[]> InvokeAsync(Texture inputTex, CancellationToken cancellationToken)
         {
-            await ToTensorAsync(inputTex, input0, cancellationToken);
+            await ToTensorAsync(inputTex, inputTensor, cancellationToken);
             await UniTask.SwitchToThreadPool();
 
-            interpreter.SetInputTensorData(0, input0);
+            interpreter.SetInputTensorData(0, inputTensor);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);

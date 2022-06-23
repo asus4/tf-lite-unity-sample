@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
+
 using System;
 using System.Runtime.InteropServices;
 using Status = TensorFlowLite.Interpreter.Status;
@@ -19,7 +20,6 @@ using TfLiteContext = System.IntPtr;
 using TfLiteDelegate = System.IntPtr;
 using TfLiteInterpreter = System.IntPtr;
 using TfLiteInterpreterOptions = System.IntPtr;
-using TfLiteModel = System.IntPtr;
 using TfLiteNode = System.IntPtr;
 using TfLiteRegistration = System.IntPtr;
 using TfLiteTensor = System.IntPtr;
@@ -34,9 +34,9 @@ namespace TensorFlowLite
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void FreeDelegate(TfLiteContext context, IntPtr buffer);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate Interpreter.Status PrepareDelegate(TfLiteContext context, TfLiteNode node);
+        public delegate Status PrepareDelegate(TfLiteContext context, TfLiteNode node);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate Interpreter.Status InvokeDelegate(TfLiteContext context, TfLiteNode node);
+        public delegate Status InvokeDelegate(TfLiteContext context, TfLiteNode node);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate string ProfilingStringDelegate(TfLiteContext context, TfLiteNode node);
 
@@ -55,9 +55,14 @@ namespace TensorFlowLite
     /// </summary>
     public static class InterpreterExperimental
     {
+        public static void ResetVariableTensors(this Interpreter interpreter)
+        {
+            TfLiteInterpreterResetVariableTensors(interpreter.InterpreterPointer);
+        }
+
         public static void AddCustomOp(this Interpreter interpreter, string name, Registration registration)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
             // TfLiteInterpreterOptionsAddCustomOp(interpreter, "HOGE");
         }
 
@@ -84,7 +89,7 @@ namespace TensorFlowLite
         private const string TensorFlowLibrary = Interpreter.TensorFlowLibrary;
 
         [DllImport(TensorFlowLibrary)]
-        private static extern Interpreter.Status TfLiteInterpreterResetVariableTensors(TfLiteInterpreter interpreter);
+        private static extern Status TfLiteInterpreterResetVariableTensors(TfLiteInterpreter interpreter);
 
         [DllImport(TensorFlowLibrary)]
         private static extern void TfLiteInterpreterOptionsAddBuiltinOp(
@@ -119,5 +124,6 @@ namespace TensorFlowLite
         [DllImport(TensorFlowLibrary)]
         internal static extern int TfLiteInterpreterGetOutputTensorIndex(
             TfLiteInterpreter interpreter, int output_index);
+
     }
 }

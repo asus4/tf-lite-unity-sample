@@ -245,6 +245,8 @@ MonoBehaviour:
     path: Assets/Samples/Bert/Bert.unity
   - displayName: Selfie Segmentation
     path: Assets/Samples/SelfieSegmentation/SelfieSegmentation.unity
+  - displayName: Video Classification
+    path: Assets/Samples/VideoClassification/VideoClassification.unity
 --- !u!4 &642741204
 Transform:
   m_ObjectHideFlags: 0

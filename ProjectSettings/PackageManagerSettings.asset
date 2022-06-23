@@ -24,20 +24,28 @@ MonoBehaviour:
     m_Scopes: []
     m_IsDefault: 1
     m_Capabilities: 7
+  - m_Id: scoped:npm
+    m_Name: npm
+    m_Url: https://registry.npmjs.com
+    m_Scopes:
+    - com.github.asus4
+    m_IsDefault: 0
+    m_Capabilities: 0
   m_UserSelectedRegistryName: 
   m_UserAddingNewScopedRegistry: 0
   m_RegistryInfoDraft:
     m_ErrorMessage: 
     m_Original:
-      m_Id: 
-      m_Name: 
-      m_Url: 
-      m_Scopes: []
+      m_Id: scoped:npm
+      m_Name: npm
+      m_Url: https://registry.npmjs.com
+      m_Scopes:
+      - com.github.asus4
       m_IsDefault: 0
       m_Capabilities: 0
     m_Modified: 0
-    m_Name: 
-    m_Url: 
+    m_Name: npm
+    m_Url: https://registry.npmjs.com
     m_Scopes:
-    - 
+    - com.github.asus4
     m_SelectedScopeIndex: 0
