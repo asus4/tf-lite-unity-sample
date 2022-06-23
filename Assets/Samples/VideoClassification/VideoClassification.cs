@@ -94,21 +94,23 @@ namespace TensorFlowLite
 
             runner.LogIOInfo();
 
-            int width, height, channels;
             // Initialize inputs
+            int width, height;
             {
                 var inputShape = runner.GetSignatureInputInfo(IMAGE_INPUT_NAME).shape;
                 height = inputShape[2];
                 width = inputShape[3];
-                channels = inputShape[4];
+                int channels = inputShape[4];
                 inputTensor = new float[height, width, channels];
-
-                foreach (string name in runner.InputSignatureNames)
+            }
+            foreach (string name in runner.InputSignatureNames)
+            {
+                if (name == IMAGE_INPUT_NAME)
                 {
-                    int[] shape = runner.GetSignatureInputInfo(name).shape;
-                    runner.ResizeSignatureInputTensor(name, shape);
+                    continue;
                 }
-                runner.AllocateSignatureTensors();
+                var info = runner.GetSignatureInputInfo(name);
+                states.Add(name, ToArray(info));
             }
 
             tex2tensor = new TextureToTensor();
@@ -148,6 +150,7 @@ namespace TensorFlowLite
                 runner.SetSignatureInputTensorData(kv.Key, kv.Value);
             }
             runner.Invoke();
+
             // Get outputs
             foreach (string name in runner.OutputSignatureNames)
             {
@@ -185,15 +188,9 @@ namespace TensorFlowLite
 
         public void ResetStates()
         {
-            states.Clear();
-            foreach (string name in runner.InputSignatureNames)
+            foreach (var kv in states)
             {
-                if (name == IMAGE_INPUT_NAME)
-                {
-                    continue;
-                }
-                var info = runner.GetSignatureInputInfo(name);
-                states.Add(name, ToArray(info));
+                Array.Clear(kv.Value, 0, kv.Value.Length);
             }
         }
 
