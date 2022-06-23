@@ -2,13 +2,15 @@ using System.Linq;
 using System.Text;
 using TensorFlowLite;
 using UnityEngine;
+using UnityEngine.Scripting;
 using UnityEngine.UI;
+using TextureSource;
 
 /// <summary>
 /// MoViNets: Video Classification example from TensorFlow
 /// https://www.tensorflow.org/lite/examples/video_classification/overview
 /// </summary>
-[RequireComponent(typeof(WebCamInput))]
+[RequireComponent(typeof(VirtualTextureSource))]
 public class VideoClassificationSample : MonoBehaviour
 {
     [SerializeField]
@@ -27,12 +29,12 @@ public class VideoClassificationSample : MonoBehaviour
     private void Start()
     {
         classification = new VideoClassification(options);
-        GetComponent<WebCamInput>().OnTextureUpdate.AddListener(Invoke);
+        GetComponent<VirtualTextureSource>().OnTexture.AddListener(Invoke);
     }
 
     private void OnDestroy()
     {
-        GetComponent<WebCamInput>().OnTextureUpdate.RemoveListener(Invoke);
+        GetComponent<VirtualTextureSource>().OnTexture.RemoveListener(Invoke);
         classification?.Dispose();
     }
 
@@ -50,5 +52,13 @@ public class VideoClassificationSample : MonoBehaviour
             sb.AppendLine($"{(int)(category.score * 100f)}% : {label}");
         }
         resultLabel.text = sb.ToString();
+    }
+
+    // Called by button via UnityEvent
+    [Preserve]
+    public void ResetStates()
+    {
+        Debug.Log("Reset states");
+        classification.ResetStates();
     }
 }
