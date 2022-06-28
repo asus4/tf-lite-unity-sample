@@ -91,7 +91,7 @@ def build_ios():
     run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteC_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteC_framework.zip', 'iOS')
     # Metal Delegate
-    run_cmd('bazel build -c opt --config=ios_fat --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
+    run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCMetal_framework.zip', 'iOS')
     # CoreML Delegate
     # run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteCCoreML_framework')
