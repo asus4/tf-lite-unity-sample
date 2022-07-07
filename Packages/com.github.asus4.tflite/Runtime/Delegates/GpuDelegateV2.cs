@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if (UNITY_ANDROID && !UNITY_EDITOR) || (UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX)
 
 using System;
 using System.Runtime.InteropServices;
@@ -122,7 +122,11 @@ namespace TensorFlowLite
         }
 
 #region Externs
+#if (UNITY_ANDROID && !UNITY_EDITOR)
+        private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_jni.so";
+#else
         private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_delegate";
+#endif
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe Options TfLiteGpuDelegateOptionsV2Default();
@@ -148,5 +152,5 @@ namespace TensorFlowLite
 #endregion // Externs
     }
 }
-#endif // UNITY_ANDROID && !UNITY_EDITOR
+#endif // (UNITY_ANDROID && !UNITY_EDITOR) || (UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX)
 

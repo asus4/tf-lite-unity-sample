@@ -158,6 +158,7 @@ MonoBehaviour:
     modelPath: movenet_singlepose_lightning_int8.tflite
     aspectMode: 1
   cameraView: {fileID: 237587964}
+  runBackground: 0
   threshold: 0.3
 --- !u!4 &86521803
 Transform:

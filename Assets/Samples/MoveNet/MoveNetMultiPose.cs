@@ -1,5 +1,7 @@
 namespace TensorFlowLite.MoveNet
 {
+    using System.Threading;
+    using Cysharp.Threading.Tasks;
     using UnityEngine;
     using UnityEngine.Assertions;
 
@@ -44,11 +46,24 @@ namespace TensorFlowLite.MoveNet
 
         public override void Invoke(Texture inputTex)
         {
-            ToTensor(inputTex, input0);
+            ToTensor(inputTex, inputTensor);
 
-            interpreter.SetInputTensorData(0, input0);
+            interpreter.SetInputTensorData(0, inputTensor);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
+        }
+
+        public async UniTask<MoveNetPoseWithBoundingBox[]> InvokeAsync(Texture inputTex, CancellationToken cancellationToken)
+        {
+            await ToTensorAsync(inputTex, inputTensor, cancellationToken);
+            await UniTask.SwitchToThreadPool();
+
+            interpreter.SetInputTensorData(0, inputTensor);
+            interpreter.Invoke();
+            interpreter.GetOutputTensorData(0, outputs0);
+            await UniTask.SwitchToMainThread(PlayerLoopTiming.Update, cancellationToken);
+
+            return GetResults();
         }
 
         public MoveNetPoseWithBoundingBox[] GetResults()

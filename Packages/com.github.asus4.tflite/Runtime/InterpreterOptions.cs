@@ -91,7 +91,7 @@ namespace TensorFlowLite
 #pragma warning disable CS0162 // Unreachable code detected 
         private static IDelegate CreateGpuDelegate()
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if (UNITY_ANDROID && !UNITY_EDITOR) || (UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX)
             return new GpuDelegateV2();
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             return new MetalDelegate(new MetalDelegate.Options()

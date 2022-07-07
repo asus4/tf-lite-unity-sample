@@ -13,9 +13,8 @@ TENSORFLOW_PATH=''
 def run_cmd(cmd):
     print(cmd)
     args = shlex.split(cmd)
-    # TODO: this is not working on Linux.
-    # return subprocess.check_output(args, cwd=TENSORFLOW_PATH, universal_newlines=True, shell=True)
-    subprocess.call(args, cwd=TENSORFLOW_PATH)
+    is_shell = platform.system() == 'Windows'
+    subprocess.call(args, cwd=TENSORFLOW_PATH, shell=is_shell)
 
 def copy(from_tf, to_unity):
     subprocess.call(['cp', '-vf', f'{TENSORFLOW_PATH}/{from_tf}', f'{PLUGIN_PATH}/{to_unity}'])
@@ -46,8 +45,8 @@ def build_mac(enable_xnnpack = False):
     original = '"cpu": "darwin",'
     patched = '"cpu": "darwin_x86_64",'
     patch(cpuinfo_file, original, patched)
-    run_cmd('bazel build --config=macos --cpu=darwin_x86_64 --macos_cpus=x86_64 --apple_platform_type=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
-    run_cmd('bazel build --config=macos_arm64 --cpu=darwin_arm64  --macos_cpus=arm64 --apple_platform_type=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    run_cmd('bazel build --config=macos --cpu=darwin_x86_64 --macos_cpus=x86_64 --apple_platform_type=macos --cxxopt=--std=c++17 -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    run_cmd('bazel build --config=macos_arm64 --cpu=darwin_arm64  --macos_cpus=arm64 --apple_platform_type=macos --cxxopt=--std=c++17 -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
     # Export path contains postfix like `applebin_macos-darwin_arm64-opt-ST-*`
     metal_delegate_pathes = glob.glob(f'{TENSORFLOW_PATH}/bazel-out/applebin_macos-darwin*/bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib')
     print(metal_delegate_pathes)
@@ -55,23 +54,41 @@ def build_mac(enable_xnnpack = False):
     # Restore patch
     patch(cpuinfo_file, patched, original)
 
-def build_windows(enable_xnnpack = False):
+def build_windows(enable_xnnpack = True):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
     copy('bazel-bin/tensorflow/lite/c/tensorflowlite_c.dll', 'Windows/libtensorflowlite_c.dll')
     # TODO support GPU Delegate
 
-def build_linux():
+def build_linux(enable_xnnpack = True):
     # Tested on Ubuntu 18.04.5 LTS
     # Main
-    run_cmd('bazel build -c opt tensorflow/lite/c:tensorflowlite_c')
-    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/libtensorflowlite_c.so')
-    # TODO GPU Delegate
+    option_xnnpack = 'true' if enable_xnnpack else 'false'
+    run_cmd(f'bazel build -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
+    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/x86_64/libtensorflowlite_c.so')
+
+    # For Embedded Linux
+    run_cmd(f'bazel build --config=elinux_aarch64 -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
+    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Linux/arm64/libtensorflowlite_c.so')
+
+    # GPU Delegate
+    # See MediaPipe docs to setup EGL on Linux https://google.github.io/mediapipe/getting_started/gpu_support.html#opengl-es-setup-on-linux-desktop
+    # Also, you need link EGL and GLESv2 for Linux platform, will make a patch for this
+    # https://github.com/tensorflow/tensorflow/blob/5850c0ba26745f92456234c34ed258b472f07487/tensorflow/lite/delegates/gpu/build_defs.bzl#L3-L15
+    run_cmd('bazel build --config=linux -c opt --copt -Os --copt -DMESA_EGL_NO_X11_HEADERS --copt -DEGL_NO_X11 --copt -DCL_TARGET_OPENCL_VERSION=210 --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so')
+    copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_delegate.so', 'Linux/x86_64/libtensorflowlite_gpu_delegate.so')
+    
+    # GPU Delegate for Embedded Linux, the cross-compile will not work as EGL it not linked correctly with aarch64_linux_toolchain
+    # run_cmd('bazel build --config=elinux_aarch64 -c opt --copt -Os --copt -DCL_DELEGATE_NO_GL --copt -DMESA_EGL_NO_X11_HEADERS --copt -DEGL_NO_X11 --copt -DCL_TARGET_OPENCL_VERSION=210 --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_gl.so')
+
 
 def build_ios():
+    # FIXME: Need to patch this PR to the tensorflow source: 
+    # https://github.com/tensorflow/tensorflow/pull/56336/files
+
     # Main
-    run_cmd('bazel build --config=ios_fat -c opt //tensorflow/lite/ios:TensorFlowLiteC_framework')
+    run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteC_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteC_framework.zip', 'iOS')
     # Metal Delegate
     run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
@@ -86,15 +103,19 @@ def build_ios():
 def build_android(enable_xnnpack = False):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
-    run_cmd(f'bazel build -c opt --config=android_arm64 --define tflite_with_xnnpack={option_xnnpack} //tensorflow/lite/c:libtensorflowlite_c.so')
-    copy('bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so', 'Android')
+    run_cmd(f'bazel build -c opt --fat_apk_cpu=arm64-v8a,armeabi-v7a,x86_64 //tensorflow/lite/java:tensorflow-lite')
+    copy('bazel-bin/tensorflow/lite/java/tensorflow-lite.aar', 'Android')
+
     # GPU Delegate
-    run_cmd('bazel build -c opt --config=android_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so')
-    copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_delegate.so', 'Android')
+    run_cmd('bazel build -c opt --fat_apk_cpu=arm64-v8a,armeabi-v7a,x86_64 //tensorflow/lite/java:tensorflow-lite-gpu')
+    copy('bazel-bin/tensorflow/lite/java/tensorflow-lite-gpu.aar', 'Android')
+
     # GL Delegate
     run_cmd('bazel build -c opt --config=android_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_gl.so')
-    copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_gl.so', 'Android')
-    
+    copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_gl.so', 'Android/arm64-v8a')
+    run_cmd('bazel build -c opt --config=android_arm --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_gl.so')
+    copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_gl.so', 'Android/armeabi-v7a')
+
     # NNAPI Delegate
     # run_cmd('bazel build -c opt --config=android_arm64 //tensorflow/lite/delegates/nnapi:nnapi_delegate')
     # copy('bazel-bin/tensorflow/lite/delegates/nnapi/libnnapi_delegate.so', 'Android')
@@ -122,22 +143,22 @@ if __name__ == '__main__':
     platform_name = platform.system()
 
     if args.macos:
-        assert platform_name == 'Darwin', f'-macos not supported on the platfrom: {platform_name}'
+        assert platform_name == 'Darwin', f'-macos not supported on the platform: {platform_name}'
         print('Build macOS')
         build_mac(args.xnnpack)
     
     if args.windows:
-        assert platform_name == 'Windows', f'-windows not supported on the platfrom: {platform_name}'
+        assert platform_name == 'Windows', f'-windows not supported on the platform: {platform_name}'
         print('Build Windows')
         build_windows(args.xnnpack)
     
     if args.linux:
-        assert platform_name == 'Linux', f'-linux not supported on the platfrom: {platform_name}'
+        assert platform_name == 'Linux', f'-linux not supported on the platform: {platform_name}'
         print('Build Linux')
-        build_linux()
+        build_linux(args.xnnpack)
     
     if args.ios:
-        assert platform_name == 'Darwin', f'-ios not supported on the platfrom: {platform_name}'
+        assert platform_name == 'Darwin', f'-ios not supported on the platform: {platform_name}'
         # Need to set iOS build option in ./configure
         print('Build iOS')
         build_ios()

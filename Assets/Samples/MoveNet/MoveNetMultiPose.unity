@@ -204,6 +204,7 @@ MonoBehaviour:
     modelPath: movenet_multipose_lightning.tflite
     aspectMode: 1
   cameraView: {fileID: 237587964}
+  runBackground: 0
   threshold: 0.2
 --- !u!1 &237587963
 GameObject:

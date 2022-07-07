@@ -73,7 +73,7 @@ namespace TensorFlowLite
         }
 
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (interpreter != IntPtr.Zero)
             {
@@ -100,7 +100,7 @@ namespace TensorFlowLite
             modelDataHandle.Free();
         }
 
-        public void Invoke()
+        public virtual void Invoke()
         {
             ThrowIfError(TfLiteInterpreterInvoke(interpreter));
         }
@@ -185,7 +185,7 @@ namespace TensorFlowLite
             return Marshal.PtrToStringAnsi(TfLiteTensorName(tensor));
         }
 
-        private static TensorInfo GetTensorInfo(TfLiteTensor tensor)
+        protected static TensorInfo GetTensorInfo(TfLiteTensor tensor)
         {
             int[] dimensions = new int[TfLiteTensorNumDims(tensor)];
             for (int i = 0; i < dimensions.Length; i++)
@@ -201,24 +201,34 @@ namespace TensorFlowLite
             };
         }
 
-        private static void ThrowIfError(Status status)
+        protected TfLiteTensor GetInputTensor(int inputTensorIndex)
         {
-            switch(status)
+            return TfLiteInterpreterGetInputTensor(interpreter, inputTensorIndex);
+        }
+
+        protected TfLiteTensor GetOutputTensor(int outputTensorIndex)
+        {
+            return TfLiteInterpreterGetOutputTensor(interpreter, outputTensorIndex);
+        }
+
+        protected static void ThrowIfError(Status status)
+        {
+            switch (status)
             {
                 case Status.Ok:
                     return;
                 case Status.Error:
                     throw new Exception("TensorFlowLite operation failed.");
                 case Status.DelegateError:
-                    throw new Exception("TensorFlowLite delegage operation failed.");
+                    throw new Exception("TensorFlowLite delegate operation failed.");
                 case Status.ApplicationError:
-                    throw new Exception("Applying TensorFlowLite delegage operation failed.");
+                    throw new Exception("Applying TensorFlowLite delegate operation failed.");
                 case Status.DelegateDataNotFound:
-                    throw new Exception("Serialized delegage data not being found.");
+                    throw new Exception("Serialized delegate data not being found.");
                 case Status.DelegateDataWriteError:
-                    throw new Exception("Writing data to delgate failed.");
+                    throw new Exception("Writing data to delegate failed.");
                 case Status.DelegateDataReadError:
-                    throw new Exception("Reading data from delgate failed.");
+                    throw new Exception("Reading data from delegate failed.");
                 case Status.UnresolvedOps:
                     throw new Exception("Ops not found.");
                 default:
@@ -230,6 +240,8 @@ namespace TensorFlowLite
 
 #if UNITY_IOS && !UNITY_EDITOR
         internal const string TensorFlowLibrary = "__Internal";
+#elif UNITY_ANDROID && !UNITY_EDITOR
+        internal const string TensorFlowLibrary = "libtensorflowlite_jni";
 #else
         internal const string TensorFlowLibrary = "libtensorflowlite_c";
 #endif
@@ -267,6 +279,7 @@ namespace TensorFlowLite
             Resource = 14,
             Variant = 15,
             UInt32 = 16,
+            UInt16 = 17,
         }
 
         public struct QuantizationParams

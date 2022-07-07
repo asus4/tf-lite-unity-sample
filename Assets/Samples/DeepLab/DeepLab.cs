@@ -83,7 +83,7 @@ namespace TensorFlowLite
             labelToTexKernel = compute.FindKernel("LabelToTex");
 
             // Init RGBA color table
-            var table = COLOR_TABLE.Select(c => c.ToRGBA()).ToList();
+            var table = COLOR_TABLE.Select(c => (Color)c).ToArray();
             colorTableBuffer.SetData(table);
         }
 
@@ -106,9 +106,9 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
-            ToTensor(inputTex, input0);
+            ToTensor(inputTex, inputTensor);
 
-            interpreter.SetInputTensorData(0, input0);
+            interpreter.SetInputTensorData(0, inputTensor);
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
         }

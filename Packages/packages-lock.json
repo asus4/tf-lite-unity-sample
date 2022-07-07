@@ -12,9 +12,16 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.github.asus4.tflite": "2.8.0",
-        "com.github.asus4.tflite.common": "2.8.0"
+        "com.github.asus4.tflite": "2.9.1",
+        "com.github.asus4.tflite.common": "2.9.1"
       }
+    },
+    "com.github.asus4.texture-source": {
+      "version": "0.1.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://registry.npmjs.com"
     },
     "com.github.asus4.tflite": {
       "version": "file:com.github.asus4.tflite",
@@ -27,7 +34,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.github.asus4.tflite": "2.8.0"
+        "com.github.asus4.tflite": "2.9.1"
       }
     },
     "com.unity.2d.sprite": {

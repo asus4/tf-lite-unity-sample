@@ -62,10 +62,10 @@ namespace TensorFlowLite
             // const float OFFSET = 128f;
             // const float SCALE = 1f / 128f;
             // ToTensor(inputTex, input0, OFFSET, SCALE);
-            ToTensor(inputTex, input0);
+            ToTensor(inputTex, inputTensor);
 
 
-            interpreter.SetInputTensorData(0, input0);
+            interpreter.SetInputTensorData(0, inputTensor);
             interpreter.Invoke();
 
             interpreter.GetOutputTensorData(0, output0);
@@ -74,10 +74,10 @@ namespace TensorFlowLite
 
         public async UniTask<List<Result>> InvokeAsync(Texture inputTex, CancellationToken cancellationToken)
         {
-            await ToTensorAsync(inputTex, input0, cancellationToken);
+            await ToTensorAsync(inputTex, inputTensor, cancellationToken);
             await UniTask.SwitchToThreadPool();
 
-            interpreter.SetInputTensorData(0, input0);
+            interpreter.SetInputTensorData(0, inputTensor);
             interpreter.Invoke();
 
             interpreter.GetOutputTensorData(0, output0);

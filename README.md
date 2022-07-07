@@ -1,16 +1,16 @@
 # TensorFlow Lite for Unity Samples
 
-[![openupm](https://img.shields.io/npm/v/com.github.asus4.tflite?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.github.asus4.tflite/)
+[![npm](https://img.shields.io/npm/v/com.github.asus4.tflite?label=npm)](https://www.npmjs.com/package/com.github.asus4.tflite)
 
-Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples) to Unity. and some utilities for Unity.
+Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples) and some utilities for Unity.
 
 Tested on  
 
-- iOS / Android / macOS / Windows  
+- iOS / Android / macOS / Windows / Linux
 - Unity 2020.3.29f1
-- TensorFlow 2.8.0
+- TensorFlow 2.9.1
 
-Samples
+Included examples:
 
 - TensorFlow
   - MNIST
@@ -28,25 +28,51 @@ Samples
   - Blaze Pose (Full body)
   - Selfie Segmentation
 
-Included prebuilt libraries
+Included prebuilt libraries:
 
 | | iOS | Android | macOS | Ubuntu | Windows |
 |---|:---:|:---:|:---:|:---:|:---:|
 | Core CPU |✅|✅|✅|✅|✅|
 | Metal Delegate |✅| - |✅| - | - |
-| OpenGL Delegate | - |✅| - | - | - |
+| GPU Delegate | - |✅| - | ✅ Experimental | - |
 | NNAPI Delegate | - |✅| - | - | - |
 
-- All libraries except iOS are targeted 64bit platform: arm64 or x86_64.
+- You need to install OpenGL ES and OpenCL to run GPU Delegate on Linux. See [MediaPipe](https://google.github.io/mediapipe/getting_started/gpu_support.html#opengl-es-setup-on-linux-desktop) for details.
 
 ## Install TensorFlow Lite for Unity
 
-- Clone this repository with examples
-  - Requires installing [Git-LFS](https://git-lfs.github.com/)
-- The TFLite core library is available on:
-  - [OpenUPM](https://openupm.com/packages/com.github.asus4.tflite/)  
-  Run `openupm add com.github.asus4.tflite` from the command line.
-  - Or add git URL from the Package Maneger UI: `https://github.com/asus4/tf-lite-unity-sample.git?path=/Packages/com.github.asus4.tflite`
+- If you want to try all examples, clone this repository with [Git-LFS](https://git-lfs.github.com/).
+- If you just need TensorFlow Lite libraries via UPM, open the file `Packages/manifest.json` and add following lines into `scopedRegistries` and `dependencies` section.
+
+```json
+{
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.cysharp.unitask"
+      ]
+    },
+    {
+      "name": "npm",
+      "url": "https://registry.npmjs.com",
+      "scopes": [
+        "com.github.asus4"
+      ]
+    }
+  ],
+  "dependencies": {
+    // Core TensorFlow Lite libraries
+    "com.github.asus4.tflite": "2.9.1",
+    // Utilities for TFLite
+    "com.github.asus4.tflite.common": "2.9.1",
+    // Utilities for MediaPipe
+    "com.github.asus4.mediapipe": "2.9.1",
+    ...// other dependencies
+  }
+}
+```
 
 ## Build TensorFlow Lite libraries
 
@@ -57,7 +83,7 @@ Pre-built libraries are included. If you want to build the latest TFLite,
 3. Run `./build_tflite.py` (Python3) to build for each platform
 
   ```sh
-  # Update iOS, Andoid and macOS
+  # Update iOS, Android and macOS
   ./build_tflite.py --tfpath ../tensorflow -ios -android -macos
 
   # Build with XNNPACK
