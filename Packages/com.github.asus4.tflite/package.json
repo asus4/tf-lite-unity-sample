@@ -9,7 +9,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "unity": "2019.3",
   "unityRelease": "0f1",
-  "version": "2.9.1",
+  "version": "2.9.1-p1",
   "type": "library",
   "hideInEditor": false
 }
