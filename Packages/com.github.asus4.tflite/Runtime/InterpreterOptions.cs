@@ -68,6 +68,7 @@ namespace TensorFlowLite
             if (nativePtr != IntPtr.Zero)
             {
                 TfLiteInterpreterOptionsDelete(nativePtr);
+                nativePtr = IntPtr.Zero;
             }
             foreach (var gpuDelegate in delegates)
             {
