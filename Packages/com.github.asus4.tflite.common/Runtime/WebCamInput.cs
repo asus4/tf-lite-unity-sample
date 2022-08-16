@@ -26,12 +26,13 @@ namespace TensorFlowLite
 
         public Vector2Int RequestSize { get => requestSize; set => requestSize = value; }
         public int RequestFps { get => requestFps; set => requestFps = value; }
+        public string RequestCameraByDeviceName { get => editorCameraName; set => editorCameraName = value; }
 
-        private void Start()
+        private void OnEnable()
         {
             resizer = new TextureResizer();
             devices = WebCamTexture.devices;
-            string cameraName = Application.isEditor
+            string cameraName = Application.isEditor || !string.IsNullOrEmpty(editorCameraName)
                 ? editorCameraName
                 : WebCamUtil.FindName(preferKind, isFrontFacing);
 
@@ -48,6 +49,11 @@ namespace TensorFlowLite
             StartCamera(device);
         }
 
+        private void OnDisable()
+        {
+            PauseCamera();
+        }
+
         private void OnDestroy()
         {
             StopCamera();
@@ -58,7 +64,7 @@ namespace TensorFlowLite
         {
             if (!webCamTexture.didUpdateThisFrame) return;
 
-            var tex = NormalizeWebcam(webCamTexture, Screen.width, Screen.height, isFrontFacing);
+            var tex = NormalizeWebcam(webCamTexture, requestSize.x, requestSize.y, isFrontFacing);
             OnTextureUpdate.Invoke(tex);
         }
 
@@ -77,7 +83,14 @@ namespace TensorFlowLite
             webCamTexture = new WebCamTexture(device.name, requestSize.x, requestSize.y, requestFps);
             webCamTexture.Play();
         }
-
+        private void PauseCamera()
+        {
+            if (webCamTexture == null)
+            {
+                return;
+            }
+            webCamTexture.Stop();
+        }
         private void StopCamera()
         {
             if (webCamTexture == null)
