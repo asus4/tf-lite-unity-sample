@@ -41,7 +41,7 @@ def build_mac(enable_xnnpack = True):
     # v2.3.0 or later, Need to apply the following patch to build metal delegate
     # For further info
     # https://github.com/tensorflow/tensorflow/issues/41039#issuecomment-664701908
-    cpuinfo_file = f'{TENSORFLOW_PATH}/third_party/cpuinfo/cpuinfo.BUILD'
+    cpuinfo_file = f'{TENSORFLOW_PATH}/bazel-tensorflow/external/cpuinfo/BUILD.bazel'
     original = '"cpu": "darwin",'
     patched = '"cpu": "darwin_x86_64",'
     patch(cpuinfo_file, original, patched)
