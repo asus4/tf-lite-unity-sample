@@ -29,7 +29,7 @@ def patch(file_path, target_str, patched_str):
     with open(file_path, 'w', encoding='utf-8') as file:
         file.write(source)
 
-def build_mac(enable_xnnpack = False):
+def build_mac(enable_xnnpack = True):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build --config=macos --cpu=darwin -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
@@ -97,7 +97,7 @@ def build_ios():
     # run_cmd('bazel build -c opt --config=ios --ios_multi_cpus=armv7,arm64,x86_64 //tensorflow/lite/ios:TensorFlowLiteSelectTfOps_framework')
     # unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteSelectTfOps_framework.zip', 'iOS')
 
-def build_android(enable_xnnpack = False):
+def build_android(enable_xnnpack = True):
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build -c opt --fat_apk_cpu=arm64-v8a,armeabi-v7a,x86_64 //tensorflow/lite/java:tensorflow-lite')
