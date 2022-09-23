@@ -48,7 +48,7 @@ namespace TensorFlowLite
         public SignatureRunner(int signatureIndex, byte[] modelData, InterpreterOptions options)
             : base(modelData, options)
         {
-            Initialize(GetSignatureName(signatureIndex));
+            Initialize(GetSignatureKey(signatureIndex));
         }
 
         public override void Dispose()
@@ -67,9 +67,9 @@ namespace TensorFlowLite
             return TfLiteInterpreterGetSignatureCount(InterpreterPointer);
         }
 
-        public string GetSignatureName(int index)
+        public string GetSignatureKey(int index)
         {
-            return ToString(TfLiteInterpreterGetSignatureName(InterpreterPointer, index));
+            return ToString(TfLiteInterpreterGetSignatureKey(InterpreterPointer, index));
         }
 
         public int GetSignatureInputCount()
@@ -234,7 +234,7 @@ namespace TensorFlowLite
         private static extern int TfLiteInterpreterGetSignatureCount(TfLiteInterpreter interpreter);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern IntPtr TfLiteInterpreterGetSignatureName(TfLiteInterpreter interpreter, int signature_index);
+        private static extern IntPtr TfLiteInterpreterGetSignatureKey(TfLiteInterpreter interpreter, int signature_index);
 
         [DllImport(TensorFlowLibrary)]
         private static extern TfLiteSignatureRunner TfLiteInterpreterGetSignatureRunner(TfLiteInterpreter interpreter, string signature_name);
