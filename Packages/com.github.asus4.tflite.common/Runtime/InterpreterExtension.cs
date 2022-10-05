@@ -47,7 +47,7 @@ namespace TensorFlowLite
             int signatureCount = runner.GetSignatureCount();
             for (int i = 0; i < signatureCount; i++)
             {
-                sb.AppendLine($"Signature [{i}]: {runner.GetSignatureName(i)}");
+                sb.AppendLine($"Signature [{i}]: {runner.GetSignatureKey(i)}");
             }
             sb.AppendLine();
 
