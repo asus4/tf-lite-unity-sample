@@ -17,6 +17,7 @@ namespace TensorFlowLite.MoveNet
             [FilePopup("*.tflite")]
             public string modelPath = string.Empty;
             public AspectMode aspectMode = AspectMode.Fit;
+            public Accelerator accelerator = Accelerator.GPU;
         }
 
         // [6, 56]
@@ -25,7 +26,7 @@ namespace TensorFlowLite.MoveNet
         private readonly float[,] outputs0;
         public readonly MoveNetPoseWithBoundingBox[] poses;
 
-        public MoveNetMultiPose(Options options) : base(options.modelPath, Accelerator.GPU)
+        public MoveNetMultiPose(Options options) : base(options.modelPath, options.accelerator)
         {
             resizeOptions.aspectMode = options.aspectMode;
             int[] outputShape = interpreter.GetOutputTensorInfo(0).shape;
