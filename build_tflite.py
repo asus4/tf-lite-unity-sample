@@ -107,11 +107,17 @@ def build_android(enable_xnnpack = True):
     run_cmd('bazel build -c opt --fat_apk_cpu=arm64-v8a,armeabi-v7a,x86_64 //tensorflow/lite/java:tensorflow-lite-gpu')
     copy('bazel-bin/tensorflow/lite/java/tensorflow-lite-gpu.aar', 'Android')
 
-    # GL Delegate
-    run_cmd('bazel build -c opt --config=android_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_gl.so')
-    copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_gl.so', 'Android/arm64-v8a')
-    run_cmd('bazel build -c opt --config=android_arm --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_gl.so')
-    copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_gl.so', 'Android/armeabi-v7a')
+    # Deprecated; GL Delegate
+    # run_cmd('bazel build -c opt --config=android_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_gl.so')
+    # copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_gl.so', 'Android/arm64-v8a')
+    # run_cmd('bazel build -c opt --config=android_arm --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_gl.so')
+    # copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_gl.so', 'Android/armeabi-v7a')
+
+    # Experimental; GPU API Delegate
+    run_cmd('bazel build -c opt --config=android_arm64 --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_api_delegate.so')
+    copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_api_delegate.so', 'Android/arm64-v8a')
+    run_cmd('bazel build -c opt --config=android_arm --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=hidden --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_api_delegate.so')
+    copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_api_delegate.so', 'Android/armeabi-v7a')
 
     # NNAPI Delegate
     # run_cmd('bazel build -c opt --config=android_arm64 //tensorflow/lite/delegates/nnapi:nnapi_delegate')

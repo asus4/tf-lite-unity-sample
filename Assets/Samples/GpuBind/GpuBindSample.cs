@@ -115,14 +115,14 @@ public class GpuBindSample : MonoBehaviour
         inputs = new float[height, width, gpuInputChannels];
         if (!gpuDelegate.BindBufferToInputTensor(interpreter, 0, inputBuffer))
         {
-            Debug.LogError("input is not binded");
+            Debug.LogError("Failed to bind input");
         }
 
         outputBuffer = new ComputeBuffer(height * width * gpuOutputChannels, sizeof(float));
         interpreter.SetAllowBufferHandleOutput(true);
         if (!gpuDelegate.BindBufferToOutputTensor(interpreter, 0, outputBuffer))
         {
-            Debug.LogError("output is not binded");
+            Debug.LogError("Failed to bind output");
         }
 
         // [OpenGLGLES] must be called ModifyGraphWithDelegate at last  
@@ -240,7 +240,7 @@ public class GpuBindSample : MonoBehaviour
         // Graphics.ExecuteCommandBufferAsync(preprocessCommand, ComputeQueueType.Urgent);
         Graphics.ExecuteCommandBuffer(commandBuffer);
         Graphics.WaitOnAsyncGraphicsFence(fence);
-        // Debug.Log($"supportCraphicsFence: {SystemInfo.supportsGraphicsFence}, supportsAsyncCompute: {SystemInfo.supportsAsyncCompute}");
+        // Debug.Log($"supportGraphicsFence: {SystemInfo.supportsGraphicsFence}, supportsAsyncCompute: {SystemInfo.supportsAsyncCompute}");
     }
 
     static void TextureToTensor(Texture2D texture, float[,,] tensor)
@@ -313,16 +313,7 @@ public class GpuBindSample : MonoBehaviour
     static IBindableDelegate CreateGpuDelegate(bool useBinding)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        var glOptions = GpuDelegateV2.DefaultOptions;
-        if (useBinding)
-        {
-            glOptions.isPrecisionLossAllowed = 1;
-            glOptions.inferencePreference = (int)GpuDelegateV2.Usage.SustainedSpeed;
-            glOptions.inferencePriority1 = (int)GpuDelegateV2.InferencePriority.MinLatency;
-            glOptions.inferencePriority2 = (int)GpuDelegateV2.InferencePriority.Auto;
-            glOptions.inferencePriority3 = (int)GpuDelegateV2.InferencePriority.Auto;
-        }
-        return new GpuDelegateV2(glOptions);
+        return new GpuApiDelegate();
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         return new MetalDelegate(new MetalDelegate.Options()
         {

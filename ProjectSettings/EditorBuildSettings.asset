@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Samples/DeepLab/DeepLab.unity
     guid: 83d7df9250b9b412fb5713f372009893
   - enabled: 1
+    path: Assets/Samples/GpuBind/GpuBind.unity
+    guid: 0321594a6108b47ed94feaafa7421584
+  - enabled: 1
     path: Assets/Samples/PoseNet/PoseNet.unity
     guid: 338da8008aa764c05a72b5db18dc0d5c
   - enabled: 1
