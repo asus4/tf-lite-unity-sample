@@ -89,14 +89,14 @@ def build_linux(enable_xnnpack = True):
 
 def build_ios():
     # Main
-    run_cmd('bazel build -c opt --config=ios_fat --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteC_framework')
+    run_cmd('bazel build -c opt --config=ios_arm64 --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteC_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteC_framework.zip', 'iOS')
     # Metal Delegate
-    run_cmd('bazel build -c opt --config=ios_fat --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
+    run_cmd('bazel build -c opt --config=ios_arm64 --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCMetal_framework.zip', 'iOS')
     # CoreML Delegate
-    # run_cmd('bazel build -c opt --config=ios_fat --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteCCoreML_framework')
-    # unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCCoreML_framework.zip', 'iOS')
+    run_cmd('bazel build -c opt --config=ios_arm64 --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteCCoreML_framework')
+    unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCCoreML_framework.zip', 'iOS')
     # SelectOps Delegate
     # run_cmd('bazel build -c opt --config=ios --ios_multi_cpus=armv7,arm64,x86_64 //tensorflow/lite/ios:TensorFlowLiteSelectTfOps_framework')
     # unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteSelectTfOps_framework.zip', 'iOS')
