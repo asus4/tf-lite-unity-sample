@@ -1,0 +1,171 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@5.0
+  android: circleci/android@2.1.2
+
+parameters:
+  tf-repository:
+    type: string
+    default: "git@github.com:tensorflow/tensorflow.git"
+  tf-branch:
+    type: string
+    default: "v2.10.0"
+
+jobs:
+  build-mac:
+    macos:
+      xcode: 12.5.1
+    steps:
+      - checkout
+      - run:
+          name: Install Bazelisk
+          command: |
+            npm install -g @bazel/bazelisk  
+      - run:
+          name: Install NumPy
+          command: |
+            pip3 install numpy
+      - run:
+          name: Download TensorFlow
+          command: |
+            git clone --depth 1 << pipeline.parameters.tf-repository >> --branch << pipeline.parameters.tf-branch >> ../tensorflow
+      - run:
+          name: Build TensorFlow Lite for macOS
+          command: |
+            python3 build_tflite.py -macos
+      - run:
+          name: Compress Artifacts
+          command: tar -cvzf macOS.tar Packages/com.github.asus4.tflite/Plugins/macOS
+      - store_artifacts:
+          path: macOS.tar
+  build-windows:
+    executor:
+      name: win/default
+    steps:
+      - checkout
+      - run:
+          name: Install Bazelisk
+          command: |
+            choco install bazelisk -y
+      - run:
+          name: Install NumPy
+          command: |
+            pip install numpy
+      - run:
+          name: Download TensorFlow
+          command: |
+            git clone --depth 1 << pipeline.parameters.tf-repository >> --branch << pipeline.parameters.tf-branch >> ../tensorflow
+      - run:
+          name: Build TensorFlow Lite for Windows
+          command: |
+            python build_tflite.py -windows
+      - run:
+          name: Compress Artifacts
+          command: tar -cvzf Windows.tar Packages/com.github.asus4.tflite/Plugins/Windows
+      - store_artifacts:
+          path: Windows.tar
+  build-linux:
+    machine:
+      image: ubuntu-2004:202010-01
+    steps:
+      - checkout
+      - run:
+          name: Install GLES dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install --no-install-recommends -y libgles2-mesa-dev libdrm-dev
+      - run:
+          name: Install Bazelisk
+          command: |
+            npm install -g @bazel/bazelisk  
+      - run:
+          name: Install NumPy
+          command: |
+            pip3 install numpy
+      - run:
+          name: Download TensorFlow
+          command: |
+            git clone --depth 1 << pipeline.parameters.tf-repository >> --branch << pipeline.parameters.tf-branch >> ../tensorflow
+      - run:
+          name: Build TensorFlow Lite for Linux
+          command: |
+            python3 build_tflite.py -linux
+      - run:
+          name: Compress Artifacts
+          command: tar -cvzf Linux.tar Packages/com.github.asus4.tflite/Plugins/Linux
+      - store_artifacts:
+          path: Linux.tar
+  build-ios:
+    macos:
+      xcode: 12.5.1
+    steps:
+      - checkout
+      - run:
+          name: Install Bazelisk
+          command: |
+            npm install -g @bazel/bazelisk  
+      - run:
+          name: Install NumPy
+          command: |
+            pip3 install numpy
+      - run:
+          name: Download TensorFlow
+          command: |
+            git clone --depth 1 << pipeline.parameters.tf-repository >> --branch << pipeline.parameters.tf-branch >> ../tensorflow
+      - run:
+          name: Build TensorFlow Lite for iOS
+          command: |
+            mv ../tensorflow/tensorflow/lite/ios/BUILD.apple ../tensorflow/tensorflow/lite/ios/BUILD
+            mv ../tensorflow/tensorflow/lite/objc/BUILD.apple ../tensorflow/tensorflow/lite/objc/BUILD
+            mv ../tensorflow/tensorflow/lite/swift/BUILD.apple ../tensorflow/tensorflow/lite/swift/BUILD
+            python3 build_tflite.py -ios
+      - run:
+          name: Compress Artifacts
+          command: tar -cvzf iOS.tar Packages/com.github.asus4.tflite/Plugins/iOS
+      - store_artifacts:
+          path: iOS.tar
+  build-android:
+    machine:
+      image: android:202102-01
+    environment:
+      ANDROID_SDK_API_LEVEL: 23
+      ANDROID_NDK_API_LEVEL: 21
+      ANDROID_BUILD_TOOLS_VERSION: 30.0.3
+    steps:
+      - checkout
+      - run:
+          name: Install Bazelisk
+          command: |
+            npm install -g @bazel/bazelisk  
+      - run:
+          name: Install NumPy
+          command: |
+            pip3 install numpy
+      - run:
+          name: Download TensorFlow
+          command: |
+            git clone --depth 1 << pipeline.parameters.tf-repository >> --branch << pipeline.parameters.tf-branch >> ../tensorflow
+      - run:
+          name: Build TensorFlow Lite for Android
+          command: |
+            # For gpu-api-delegate branch
+            # sed -i -e 's/libtensorflowlite_gpu_delegate.so/libtensorflowlite_gpu_api_delegate.so/' ../tensorflow/tensorflow/lite/delegates/gpu/BUILD 
+            # sed -i -e 's/\":delegate\"/\"\/\/tensorflow\/lite\/delegates\/gpu\/cl:gpu_api_delegate\"/' ../tensorflow/tensorflow/lite/delegates/gpu/BUILD
+            export ANDROID_SDK_HOME=$ANDROID_HOME
+            python3 build_tflite.py -android
+      - run:
+          name: Compress Artifacts
+          command: tar -cvzf Android.tar Packages/com.github.asus4.tflite/Plugins/Android
+      - store_artifacts:
+          path: Android.tar
+
+workflows:
+  version: 2
+  build-all:
+    jobs:
+      - build-mac
+      - build-windows
+      - build-linux
+      - build-ios
+      - build-android
