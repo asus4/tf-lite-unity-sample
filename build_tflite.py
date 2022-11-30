@@ -5,7 +5,9 @@ import glob
 import os
 import platform
 import shlex
+import shutil
 import subprocess
+import sys
 
 PLUGIN_PATH=f'{os.getcwd()}/Packages/com.github.asus4.tflite/Plugins'
 TENSORFLOW_PATH=''
@@ -14,10 +16,12 @@ def run_cmd(cmd):
     print(cmd)
     args = shlex.split(cmd)
     is_shell = platform.system() == 'Windows'
-    subprocess.call(args, cwd=TENSORFLOW_PATH, shell=is_shell)
+    ret = subprocess.call(args, cwd=TENSORFLOW_PATH, shell=is_shell)
+    if ret != 0:
+        sys.exit(ret)
 
 def copy(from_tf, to_unity):
-    subprocess.call(['cp', '-vf', f'{TENSORFLOW_PATH}/{from_tf}', f'{PLUGIN_PATH}/{to_unity}'])
+    shutil.copy(f'{TENSORFLOW_PATH}/{from_tf}', f'{PLUGIN_PATH}/{to_unity}')
 
 def unzip(from_tf, to_unity):
     subprocess.call(['unzip', '-o', f'{TENSORFLOW_PATH}/{from_tf}', '-d' f'{PLUGIN_PATH}/{to_unity}'])
@@ -85,14 +89,14 @@ def build_linux(enable_xnnpack = True):
 
 def build_ios():
     # Main
-    run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteC_framework')
+    run_cmd('bazel build -c opt --config=ios_arm64 --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteC_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteC_framework.zip', 'iOS')
     # Metal Delegate
-    run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
+    run_cmd('bazel build -c opt --config=ios_arm64 --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCMetal_framework.zip', 'iOS')
     # CoreML Delegate
-    # run_cmd('bazel build -c opt --config=ios_fat //tensorflow/lite/ios:TensorFlowLiteCCoreML_framework')
-    # unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCCoreML_framework.zip', 'iOS')
+    run_cmd('bazel build -c opt --config=ios_arm64 --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteCCoreML_framework')
+    unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCCoreML_framework.zip', 'iOS')
     # SelectOps Delegate
     # run_cmd('bazel build -c opt --config=ios --ios_multi_cpus=armv7,arm64,x86_64 //tensorflow/lite/ios:TensorFlowLiteSelectTfOps_framework')
     # unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteSelectTfOps_framework.zip', 'iOS')
