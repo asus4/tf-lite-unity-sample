@@ -122,7 +122,8 @@ namespace TensorFlowLite
         }
 
 #region Externs
-#if (UNITY_ANDROID && !UNITY_EDITOR)
+#if UNITY_ANDROID && !UNITY_EDITOR
+        // library name on Android
         private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_jni.so";
 #else
         private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_delegate";

@@ -70,7 +70,7 @@ public class GpuBindSample : MonoBehaviour
         StopAllCoroutines();
 
         interpreter?.Dispose();
-        if(!IsMetal)
+        if (!IsMetal)
         {
             gpuDelegate?.Dispose();
         }
@@ -100,7 +100,7 @@ public class GpuBindSample : MonoBehaviour
         }
         interpreter = new Interpreter(FileUtil.LoadFile(fileName), options);
 
-        
+        Debug.Log($"Interpreter has been created; input: {interpreter.GetInputTensorInfo(0)}");
 
         var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
         int height = inputShape0[1];
@@ -110,6 +110,8 @@ public class GpuBindSample : MonoBehaviour
         // On iOS GPU, input must be 4 channels, regardless of what model expects.
         int gpuInputChannels = isMetal ? 4 : 3;
         int gpuOutputChannels = isMetal ? 4 : 2;
+        // int gpuInputChannels = 4;
+        // int gpuOutputChannels = 4;
 
         inputBuffer = new ComputeBuffer(height * width * gpuInputChannels, sizeof(float));
         inputs = new float[height, width, gpuInputChannels];
@@ -118,6 +120,9 @@ public class GpuBindSample : MonoBehaviour
             Debug.LogError("Failed to bind input");
         }
 
+        Debug.Log("Input tensor Bound");
+
+
         outputBuffer = new ComputeBuffer(height * width * gpuOutputChannels, sizeof(float));
         interpreter.SetAllowBufferHandleOutput(true);
         if (!gpuDelegate.BindBufferToOutputTensor(interpreter, 0, outputBuffer))
@@ -125,13 +130,20 @@ public class GpuBindSample : MonoBehaviour
             Debug.LogError("Failed to bind output");
         }
 
+        Debug.Log("Output tensor Bound");
+
+
         // [OpenGLGLES] must be called ModifyGraphWithDelegate at last  
         if (IsOpenGLES3)
         {
+            Debug.Log("Modifying Android Graph");
+
             if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
             {
                 Debug.LogError("Failed to modify the graph with delegate");
             }
+
+            Debug.Log("Modified Android Graph");
         }
     }
 
@@ -171,7 +183,10 @@ public class GpuBindSample : MonoBehaviour
 
     void InvokeBindingOn(Texture2D inputTex)
     {
+        Debug.Log($"InvokeBindingOn: {inputTex.width}x{inputTex.height}");
+
         bool usePadded = IsMetal;
+        // bool usePadded = true;
 
         var computePreProcess = usePadded ? computePreProcessPadded : computePreProcessNormal;
         TextureToTensor(inputTex, computePreProcess, inputBuffer);
@@ -313,7 +328,8 @@ public class GpuBindSample : MonoBehaviour
     static IBindableDelegate CreateGpuDelegate(bool useBinding)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        return new GpuApiDelegate();
+        var options = useBinding ? GpuApiDelegate.BindableOptions : GpuApiDelegate.DefaultOptions;
+        return new GpuApiDelegate(options);
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         return new MetalDelegate(new MetalDelegate.Options()
         {

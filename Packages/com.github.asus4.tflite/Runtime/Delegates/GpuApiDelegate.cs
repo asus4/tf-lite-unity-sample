@@ -79,6 +79,30 @@ namespace TensorFlowLite
             serialized_binary_cache_size = 0,
         };
 
+#if UNITY_ANDROID && !UNITY_EDITOR
+        public static Options BindableOptions
+        {
+            get
+            {
+                // Call Java API to get EGLDisplay and EGLContext
+                var EGL14 = new AndroidJavaClass("android.opengl.EGL14");
+                var display = EGL14.CallStatic<AndroidJavaObject>("eglGetCurrentDisplay");
+                var context = EGL14.CallStatic<AndroidJavaObject>("eglGetCurrentContext");
+                return new Options()
+                {
+                    compileOptions = new CompileOptions()
+                    {
+                        precisionLossAllowed = 1,
+                        inferencePriority = (int)GpuDelegateV2.InferencePriority.MinLatency,
+                    },
+                    eglDisplay = display.GetRawObject(),
+                    eglContext = context.GetRawObject(),
+                    serializedBinaryCacheData = IntPtr.Zero,
+                    serialized_binary_cache_size = 0,
+                };
+            }
+        }
+#endif
 
         public GpuApiDelegate()
         {
@@ -112,7 +136,6 @@ namespace TensorFlowLite
         private bool BindBufferToTensor(int tensorIndex, ComputeBuffer buffer)
         {
             // TODO: make these configurable
-            // var dataType = DataType.Float32;
             var dataType = DataType.Float32;
             // var dataLayout = DataLayout.DHWC4;
             var dataLayout = DataLayout.BHWC;
@@ -124,9 +147,11 @@ namespace TensorFlowLite
         }
 
         #region Externs
-#if (UNITY_ANDROID && !UNITY_EDITOR)
+#if UNITY_ANDROID && !UNITY_EDITOR
+        // library name on Android
         private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_api_delegate.so";
 #else
+        // library name on Linux
         private const string TensorFlowLibraryGPU = "libtensorflowlite_gpu_delegate";
 #endif
 
