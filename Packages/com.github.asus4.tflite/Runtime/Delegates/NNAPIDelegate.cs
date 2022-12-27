@@ -13,8 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-// #if UNITY_ANDROID && !UNITY_EDITOR
-#if UNITY_ANDROID // to test
+#if UNITY_ANDROID && !UNITY_EDITOR
 
 using System;
 using System.Runtime.InteropServices;
@@ -92,6 +91,31 @@ namespace TensorFlowLite
             // If specified, NNAPI delegate will use the support lib instead of NNAPI in
             // Android OS.
             public IntPtr nnapi_support_library_handle; // void*
+
+
+            public string CacheDir
+            {
+                get => Marshal.PtrToStringAuto(cacheDir);
+                set
+                {
+                    cacheDir = Marshal.StringToHGlobalAuto(value);
+                }
+            }
+
+            public string ModelToken
+            {
+                get => Marshal.PtrToStringAuto(modelToken);
+                set
+                {
+                    modelToken = Marshal.StringToHGlobalAuto(value);
+                }
+            }
+
+            public bool AllowFp16
+            {
+                get => allowFp16 > 0;
+                set => allowFp16 = value ? 1 : 0;
+            }
         }
 
         public TfLiteDelegate Delegate { get; private set; }

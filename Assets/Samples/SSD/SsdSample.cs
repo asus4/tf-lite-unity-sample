@@ -26,7 +26,25 @@ public class SsdSample : MonoBehaviour
 
     private void Start()
     {
-        ssd = new SSD(options);
+#if UNITY_ANDROID && !UNITY_EDITOR
+        // This is an example usage of the NNAPI delegate.
+        if (options.accelerator == SSD.Accelerator.NNAPI && !Application.isEditor)
+        {
+            string cacheDir = Application.persistentDataPath;
+            string modelToken = "ssd-token";
+            var interpreterOptions = new InterpreterOptions();
+            var nnapiOptions = NNAPIDelegate.DefaultOptions;
+            nnapiOptions.AllowFp16 = true;
+            nnapiOptions.CacheDir = cacheDir;
+            nnapiOptions.ModelToken = modelToken;
+            interpreterOptions.AddDelegate(new NNAPIDelegate(nnapiOptions));
+            ssd = new SSD(options, interpreterOptions);
+        }
+        else
+#endif // UNITY_ANDROID && !UNITY_EDITOR
+        {
+            ssd = new SSD(options);
+        }
 
         // Init frames
         frames = new Text[10];

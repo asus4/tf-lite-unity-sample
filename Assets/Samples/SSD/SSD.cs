@@ -43,6 +43,12 @@ namespace TensorFlowLite
             resizeOptions.aspectMode = options.aspectMode;
         }
 
+        public SSD(Options options, InterpreterOptions interpreterOptions)
+            : base(options.modelPath, interpreterOptions)
+        {
+            resizeOptions.aspectMode = options.aspectMode;
+        }
+
         public override void Invoke(Texture inputTex)
         {
             ToTensor(inputTex, inputTensor);
