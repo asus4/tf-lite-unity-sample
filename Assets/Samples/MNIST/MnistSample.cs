@@ -25,7 +25,6 @@ public class MnistSample : MonoBehaviour
         var options = new InterpreterOptions()
         {
             threads = 2,
-            useNNAPI = false,
         };
         interpreter = new Interpreter(FileUtil.LoadFile(fileName), options);
         interpreter.ResizeInputTensor(0, new int[] { 1, 28, 28, 1 });

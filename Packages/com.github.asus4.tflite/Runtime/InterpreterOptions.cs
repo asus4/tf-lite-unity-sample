@@ -43,6 +43,7 @@ namespace TensorFlowLite
         }
 
         private bool _useNNAPI;
+        [Obsolete("useNNAPI option is deprecated, use NNAPIDelegate instead.")]
         public bool useNNAPI
         {
             get => _useNNAPI;
@@ -50,7 +51,8 @@ namespace TensorFlowLite
             {
                 _useNNAPI = value;
 #if UNITY_ANDROID && !UNITY_EDITOR
-                InterpreterExperimental.TfLiteInterpreterOptionsSetUseNNAPI(nativePtr, value);
+                // Create NNAPI delegate with default options
+                AddDelegate(new NNAPIDelegate());
 #endif // UNITY_ANDROID && !UNITY_EDITOR
             }
         }

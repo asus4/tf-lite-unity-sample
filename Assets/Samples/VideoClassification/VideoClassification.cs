@@ -63,7 +63,10 @@ namespace TensorFlowLite
                 case Accelerator.NNAPI:
                     if (Application.platform == RuntimePlatform.Android)
                     {
-                        interpreterOptions.useNNAPI = true;
+#if UNITY_ANDROID && !UNITY_EDITOR
+                        // Create NNAPI delegate with default options
+                        interpreterOptions.AddDelegate(new NNAPIDelegate());
+#endif // UNITY_ANDROID && !UNITY_EDITOR
                     }
                     else
                     {
