@@ -658,7 +658,7 @@ MonoBehaviour:
   options:
     modelPath: coco_ssd_mobilenet_quant.tflite
     aspectMode: 1
-    accelerator: 1
+    accelerator: 2
   frameContainer: {fileID: 2074584280}
   framePrefab: {fileID: 5133934790876113832, guid: 717c89ea2a05f4537b007f12d6357590,
     type: 3}
