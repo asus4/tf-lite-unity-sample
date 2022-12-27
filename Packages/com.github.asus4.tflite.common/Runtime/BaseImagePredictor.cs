@@ -103,7 +103,6 @@ namespace TensorFlowLite
         {
             var options = new InterpreterOptions();
 
-            // Debug.Log($"Accelerator: {accelerator}");
             switch (accelerator)
             {
                 case Accelerator.NONE:
@@ -112,7 +111,10 @@ namespace TensorFlowLite
                 case Accelerator.NNAPI:
                     if (Application.platform == RuntimePlatform.Android)
                     {
-                        options.useNNAPI = true;
+#if UNITY_ANDROID && !UNITY_EDITOR
+                        // Create NNAPI delegate with default options
+                        options.AddDelegate(new NNAPIDelegate());
+#endif // UNITY_ANDROID && !UNITY_EDITOR
                     }
                     else
                     {
