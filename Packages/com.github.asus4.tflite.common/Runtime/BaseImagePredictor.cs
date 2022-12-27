@@ -51,37 +51,8 @@ namespace TensorFlowLite
             set => resizeOptions = value;
         }
 
-        public BaseImagePredictor(string modelPath, Accelerator accelerator)
+        public BaseImagePredictor(string modelPath, InterpreterOptions options)
         {
-            var options = new InterpreterOptions();
-
-            switch (accelerator)
-            {
-                case Accelerator.NONE:
-                    options.threads = SystemInfo.processorCount;
-                    break;
-                case Accelerator.NNAPI:
-                    if (Application.platform == RuntimePlatform.Android)
-                    {
-                        options.useNNAPI = true;
-                    }
-                    else
-                    {
-                        Debug.LogError("NNAPI is only supported on Android");
-                    }
-                    break;
-                case Accelerator.GPU:
-                    options.AddGpuDelegate();
-                    break;
-                case Accelerator.XNNPACK:
-                    options.threads = SystemInfo.processorCount;
-                    options.AddDelegate(XNNPackDelegate.DelegateForType(typeof(T)));
-                    break;
-                default:
-                    options.Dispose();
-                    throw new System.NotImplementedException();
-            }
-
             try
             {
                 interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
@@ -121,6 +92,45 @@ namespace TensorFlowLite
                 width = width,
                 height = height,
             };
+        }
+
+        public BaseImagePredictor(string modelPath, Accelerator accelerator)
+            : this(modelPath, CreateOptions(accelerator))
+        {
+        }
+
+        protected static InterpreterOptions CreateOptions(Accelerator accelerator)
+        {
+            var options = new InterpreterOptions();
+
+            // Debug.Log($"Accelerator: {accelerator}");
+            switch (accelerator)
+            {
+                case Accelerator.NONE:
+                    options.threads = SystemInfo.processorCount;
+                    break;
+                case Accelerator.NNAPI:
+                    if (Application.platform == RuntimePlatform.Android)
+                    {
+                        options.useNNAPI = true;
+                    }
+                    else
+                    {
+                        Debug.LogError("NNAPI is only supported on Android");
+                    }
+                    break;
+                case Accelerator.GPU:
+                    options.AddGpuDelegate();
+                    break;
+                case Accelerator.XNNPACK:
+                    options.threads = SystemInfo.processorCount;
+                    options.AddDelegate(XNNPackDelegate.DelegateForType(typeof(T)));
+                    break;
+                default:
+                    options.Dispose();
+                    throw new System.NotImplementedException();
+            }
+            return options;
         }
 
         public virtual void Dispose()
