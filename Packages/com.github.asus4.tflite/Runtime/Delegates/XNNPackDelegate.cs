@@ -99,13 +99,16 @@ namespace TensorFlowLite
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe void TfLiteXNNPackDelegateDelete(TfLiteDelegate xnnPackDelegate);
 
+        // Weights Cache is disable due to build error in iOS and Unity 2021 LTS.
+        // https://github.com/asus4/tf-lite-unity-sample/issues/261
+
         // Creates a new weights cache that can be shared with multiple delegate instances.
-        [DllImport(TensorFlowLibrary)]
-        private static extern unsafe TfLiteXNNPackDelegateWeightsCache TfLiteXNNPackDelegateWeightsCacheCreate();
+        // [DllImport(TensorFlowLibrary)]
+        // private static extern unsafe TfLiteXNNPackDelegateWeightsCache TfLiteXNNPackDelegateWeightsCacheCreate();        
 
         // Destroys a weights cache created with `TfLiteXNNPackDelegateWeightsCacheCreate` call.
-        [DllImport(TensorFlowLibrary)]
-        private static extern unsafe void TfLiteXNNPackWeightsCacheDelete(TfLiteXNNPackDelegateWeightsCache cache);
+        // [DllImport(TensorFlowLibrary)]
+        // private static extern unsafe void TfLiteXNNPackWeightsCacheDelete(TfLiteXNNPackDelegateWeightsCache cache);
         #endregion // Externs
     }
 }
