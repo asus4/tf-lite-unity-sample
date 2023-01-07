@@ -7,8 +7,8 @@ Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples
 Tested on  
 
 - iOS / Android / macOS / Windows / Linux
-- Unity 2020.3.29f1
-- TensorFlow 2.9.1
+- Unity 2020.3.44f1
+- TensorFlow 2.10.0
 
 Included examples:
 
@@ -64,11 +64,11 @@ Included prebuilt libraries:
   ],
   "dependencies": {
     // Core TensorFlow Lite libraries
-    "com.github.asus4.tflite": "2.10.0",
+    "com.github.asus4.tflite": "2.10.0-p1",
     // Utilities for TFLite
-    "com.github.asus4.tflite.common": "2.10.0",
+    "com.github.asus4.tflite.common": "2.10.0-p1",
     // Utilities for MediaPipe
-    "com.github.asus4.mediapipe": "2.10.0",
+    "com.github.asus4.mediapipe": "2.10.0-p1",
     ...// other dependencies
   }
 }
