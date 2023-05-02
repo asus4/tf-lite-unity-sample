@@ -51,11 +51,11 @@ namespace TensorFlowLite
             set => resizeOptions = value;
         }
 
-        public BaseImagePredictor(string modelPath, InterpreterOptions options)
+        public BaseImagePredictor(byte[] modelData, InterpreterOptions options)
         {
             try
             {
-                interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
+                interpreter = new Interpreter(modelData, options);
             }
             catch (System.Exception e)
             {
@@ -92,6 +92,11 @@ namespace TensorFlowLite
                 width = width,
                 height = height,
             };
+        }
+
+        public BaseImagePredictor(string modelPath, InterpreterOptions options)
+            : this(FileUtil.LoadFile(modelPath), options)
+        {
         }
 
         public BaseImagePredictor(string modelPath, Accelerator accelerator)
