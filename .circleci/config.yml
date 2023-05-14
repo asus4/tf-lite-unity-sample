@@ -10,7 +10,7 @@ parameters:
     default: "git@github.com:tensorflow/tensorflow.git"
   tf-branch:
     type: string
-    default: "v2.11.1"
+    default: "v2.12.0"
 
 jobs:
   build-mac:
