@@ -12,12 +12,12 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.github.asus4.tflite": "2.10.0-p1",
-        "com.github.asus4.tflite.common": "2.10.0-p1"
+        "com.github.asus4.tflite": "2.11.1",
+        "com.github.asus4.tflite.common": "2.11.1"
       }
     },
     "com.github.asus4.texture-source": {
-      "version": "0.1.2",
+      "version": "0.1.3",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
@@ -34,7 +34,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.github.asus4.tflite": "2.10.0-p1"
+        "com.github.asus4.tflite": "2.11.1"
       }
     },
     "com.unity.2d.sprite": {
