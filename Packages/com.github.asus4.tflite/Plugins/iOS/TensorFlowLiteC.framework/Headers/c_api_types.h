@@ -16,8 +16,14 @@ limitations under the License.
 // This file declares types used by the pure C inference API defined in c_api.h,
 // some of which are also used in the C++ and C kernel and interpreter APIs.
 
-#ifndef TENSORFLOW_LITE_C_C_API_TYPES_H_
-#define TENSORFLOW_LITE_C_C_API_TYPES_H_
+/// WARNING: Users of TensorFlow Lite should not include this file directly,
+/// but should instead include
+/// "third_party/tensorflow/lite/c/c_api_types.h".
+/// Only the TensorFlow Lite implementation itself should include this
+/// file directly.
+
+#ifndef TENSORFLOW_LITE_CORE_C_C_API_TYPES_H_
+#define TENSORFLOW_LITE_CORE_C_C_API_TYPES_H_
 
 #include <stdint.h>
 
@@ -132,16 +138,31 @@ typedef struct TfLiteOpaqueNode TfLiteOpaqueNode;
 // TfLiteOpaqueTensor is an opaque version of TfLiteTensor;
 typedef struct TfLiteOpaqueTensor TfLiteOpaqueTensor;
 
-// TfLiteOpaqueDelegateStruct: opaque version of TfLiteDelegate; allows
-// delegation of nodes to alternative backends.
+// TfLiteDelegate: allows delegation of nodes to alternative backends.
+// Forward declaration of concrete type declared in common.h.
+typedef struct TfLiteDelegate TfLiteDelegate;
+
+// TfLiteOpaqueDelegateStruct: unconditionally opaque version of
+// TfLiteDelegate; allows delegation of nodes to alternative backends.
 //
 // This is an abstract type that is intended to have the same
-// role as TfLiteDelegate from common.h, but without exposing the implementation
+// role as TfLiteDelegate, but without exposing the implementation
 // details of how delegates are implemented.
 // WARNING: This is an experimental type and subject to change.
 typedef struct TfLiteOpaqueDelegateStruct TfLiteOpaqueDelegateStruct;
 
+// TfLiteOpaqueDelegate: conditionally opaque version of
+// TfLiteDelegate; allows delegation of nodes to alternative backends.
+// For TF Lite in Play Services, this is an opaque type,
+// but for regular TF Lite, this is just a typedef for TfLiteDelegate.
+// WARNING: This is an experimental type and subject to change.
+#if TFLITE_WITH_STABLE_ABI || TFLITE_USE_OPAQUE_DELEGATE
+typedef TfLiteOpaqueDelegateStruct TfLiteOpaqueDelegate;
+#else
+typedef TfLiteDelegate TfLiteOpaqueDelegate;
+#endif
+
 #ifdef __cplusplus
 }  // extern C
 #endif
-#endif  // TENSORFLOW_LITE_C_C_API_TYPES_H_
+#endif  // TENSORFLOW_LITE_CORE_C_C_API_TYPES_H_

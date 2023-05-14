@@ -37,9 +37,16 @@ namespace TensorFlowLite
         [StructLayout(LayoutKind.Sequential)]
         public struct Options
         {
+            // Number of threads to use in the thread pool.
+            // 0 or negative value means no thread pool used.
             public int numThreads;
             public Flags flags;
+            // Cache for packed weights, can be shared between multiple instances of
+            // delegates.
             public TfLiteXNNPackDelegateWeightsCache weightsCache;
+            // Whether READ_VARIABLE, ASSIGN_VARIABLE, and VARIABLE_HANDLE operations
+            // should be handled by XNNPACK.
+            bool handleVariableOps;
         }
 
         public TfLiteDelegate Delegate { get; private set; }
