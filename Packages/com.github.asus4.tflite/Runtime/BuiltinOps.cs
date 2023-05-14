@@ -177,5 +177,7 @@ namespace TensorFlowLite
         UnsortedSegmentMax = 154,
         UnsortedSegmentSum = 155,
         Atan2 = 156,
+        UnsortedSegmentMin = 157,
+        Sign = 158,
     }
 }
