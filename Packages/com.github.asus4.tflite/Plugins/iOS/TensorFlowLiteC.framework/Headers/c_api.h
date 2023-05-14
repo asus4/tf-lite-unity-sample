@@ -12,13 +12,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#ifndef TENSORFLOW_LITE_C_C_API_H_
-#define TENSORFLOW_LITE_C_C_API_H_
+/// WARNING: Users of TensorFlow Lite should not include this file directly,
+/// but should instead include "third_party/tensorflow/lite/c/c_api.h".
+/// Only the TensorFlow Lite implementation itself should include this
+/// file directly.
+#ifndef TENSORFLOW_LITE_CORE_C_C_API_H_
+#define TENSORFLOW_LITE_CORE_C_C_API_H_
 
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "builtin_ops.h"
 #include "c_api_types.h"  // IWYU pragma: export
 
 // --------------------------------------------------------------------------
@@ -112,13 +117,19 @@ TFL_CAPI_EXPORT extern const char* TfLiteVersion(void);
 
 // Returns a model from the provided buffer, or null on failure.
 //
-// NOTE: The caller retains ownership of the `model_data` and should ensure that
-// the lifetime of the `model_data` must be at least as long as the lifetime
-// of the `TfLiteModel`.
+// NOTE: The caller retains ownership of the `model_data` buffer and should
+// ensure that the lifetime of the `model_data` buffer must be at least as long
+// as the lifetime of the `TfLiteModel` and of any `TfLiteInterpreter` objects
+// created from that `TfLiteModel`, and furthermore the contents of the
+// `model_data` buffer must not be modified during that time."
 TFL_CAPI_EXPORT extern TfLiteModel* TfLiteModelCreate(const void* model_data,
                                                       size_t model_size);
 
 // Returns a model from the provided file, or null on failure.
+//
+// NOTE: The file's contents must not be modified during the lifetime of the
+// `TfLiteModel` or of any `TfLiteInterpreter` objects created from that
+// `TfLiteModel`.
 TFL_CAPI_EXPORT extern TfLiteModel* TfLiteModelCreateFromFile(
     const char* model_path);
 
@@ -132,12 +143,41 @@ TFL_CAPI_EXPORT extern void TfLiteModelDelete(TfLiteModel* model);
 // the lifetime of the `TfLiteInterpreter`.
 // WARNING: This is an experimental API and subject to change.
 TFL_CAPI_EXPORT extern TfLiteRegistrationExternal*
-TfLiteRegistrationExternalCreate(const char* custom_name, const int version);
+TfLiteRegistrationExternalCreate(TfLiteBuiltinOperator builtin_code,
+                                 const char* custom_name, int version);
+
+// Return the builtin op code of the provided external 'registration'.
+//
+// WARNING: This is an experimental API and subject to change.
+TFL_CAPI_EXPORT extern TfLiteBuiltinOperator
+TfLiteRegistrationExternalGetBuiltInCode(
+    const TfLiteRegistrationExternal* registration);
 
 // Destroys the TfLiteRegistrationExternal instance.
 // WARNING: This is an experimental API and subject to change.
 TFL_CAPI_EXPORT extern void TfLiteRegistrationExternalDelete(
     TfLiteRegistrationExternal* registration);
+
+// Sets the initialization callback for the registration.
+//
+// The callback is called to initialize the op from serialized data.
+// Please refer `init` of `TfLiteRegistration` for the detail.
+// WARNING: This is an experimental API and subject to change.
+TFL_CAPI_EXPORT extern void TfLiteRegistrationExternalSetInit(
+    TfLiteRegistrationExternal* registration,
+    void* (*init)(TfLiteOpaqueContext* context, const char* buffer,
+                  size_t length));
+
+// Sets the deallocation callback for the registration.
+//
+// This callback is called to deallocate the data returned by the init callback.
+// The value passed in the `data` parameter is the value that was returned by
+// the `init` callback.
+// Please refer `free` of `TfLiteRegistration` for the detail.
+// WARNING: This is an experimental API and subject to change.
+TFL_CAPI_EXPORT extern void TfLiteRegistrationExternalSetFree(
+    TfLiteRegistrationExternal* registration,
+    void (*free)(TfLiteOpaqueContext* context, void* data));
 
 // Sets the preparation callback for the registration.
 //
@@ -181,6 +221,17 @@ TFL_CAPI_EXPORT extern void TfLiteInterpreterOptionsSetNumThreads(
 TFL_CAPI_EXPORT extern void TfLiteInterpreterOptionsAddDelegate(
     TfLiteInterpreterOptions* options, TfLiteDelegate* delegate);
 
+// Adds an opaque delegate to be applied during `TfLiteInterpreter` creation.
+//
+// If delegate application fails, interpreter creation will also fail with an
+// associated error logged.
+//
+// NOTE: The caller retains ownership of the delegate and should ensure that it
+// remains valid for the duration of any created interpreter's lifetime.
+TFL_CAPI_EXPORT extern void TfLiteInterpreterOptionsAddOpaqueDelegate(
+    TfLiteInterpreterOptions* options,
+    TfLiteOpaqueDelegateStruct* opaque_delegate);
+
 // Sets a custom error reporter for interpreter execution.
 //
 // * `reporter` takes the provided `user_data` object, as well as a C-style
@@ -212,9 +263,17 @@ TFL_CAPI_EXPORT extern void TfLiteInterpreterOptionsAddRegistrationExternal(
 // failure.
 //
 // * `model` must be a valid model instance. The caller retains ownership of the
-//   object, and the model must outlive the interpreter.
+//   object, and may destroy it (via TfLiteModelDelete) immediately after
+//   creating the interpreter.  However, if the TfLiteModel was allocated with
+//   TfLiteModelCreate, then the `model_data` buffer that was passed to
+//   TfLiteModelCreate must outlive the lifetime of the TfLiteInterpreter object
+//   that this function returns, and must not be modified during that time;
+//   and if the TfLiteModel was allocated with TfLiteModelCreateFromFile, then
+//   the contents of the model file must not be modified during the lifetime of
+//   the TfLiteInterpreter object that this function returns.
 // * `optional_options` may be null. The caller retains ownership of the object,
-//   and can safely destroy it immediately after creating the interpreter.
+//   and can safely destroy it (via TfLiteInterpreterOptionsDelete) immediately
+//   after creating the interpreter.
 //
 // NOTE: The client *must* explicitly allocate tensors before attempting to
 // access input tensor data or invoke the interpreter.
@@ -357,4 +416,4 @@ TFL_CAPI_EXPORT extern TfLiteStatus TfLiteTensorCopyToBuffer(
 }  // extern "C"
 #endif  // __cplusplus
 
-#endif  // TENSORFLOW_LITE_C_C_API_H_
+#endif  // TENSORFLOW_LITE_CORE_C_C_API_H_
