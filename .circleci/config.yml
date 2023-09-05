@@ -10,12 +10,12 @@ parameters:
     default: "git@github.com:tensorflow/tensorflow.git"
   tf-branch:
     type: string
-    default: "v2.12.0"
+    default: "v2.13.0"
 
 jobs:
   build-mac:
     macos:
-      xcode: 12.5.1
+      xcode: 14.2.0
     steps:
       - checkout
       - run:
@@ -98,7 +98,7 @@ jobs:
           path: Linux.tar
   build-ios:
     macos:
-      xcode: 12.5.1
+      xcode: 14.2.0
     steps:
       - checkout
       - run:
