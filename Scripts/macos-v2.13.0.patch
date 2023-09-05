@@ -1,0 +1,28 @@
+diff --git forkSrcPrefix/tensorflow/lite/build_def.bzl forkDstPrefix/tensorflow/lite/build_def.bzl
+index 842879a053652363a0e328407d295c551c869702..a952a3b5cbbaa8025c5a93d10e6f1ce1308285b1 100644
+--- forkSrcPrefix/tensorflow/lite/build_def.bzl
++++ forkDstPrefix/tensorflow/lite/build_def.bzl
+@@ -150,8 +150,11 @@ def tflite_linkopts_no_undefined():
+     """
+     return if_oss(
+         select({
++            # macOS/iOS linker uses "--undefined error" instead of "--no-undefined".
+             "//tensorflow:ios": [
+-                # iOS linker uses "--undefined error" instead of "--no-undefined".
++                "-Wl,-undefined,error",
++            ],
++            "//tensorflow:macos": [
+                 "-Wl,-undefined,error",
+             ],
+             "//conditions:default": ["-Wl,--no-undefined"],
+@@ -165,7 +168,9 @@ def tflite_linkopts_no_undefined():
+             "//tools/cpp:msan_build": [],
+             "//tools/cpp:tsan_build": [],
+             "//tensorflow:ios": [
+-                # iOS linker uses "--undefined error" instead of "--no-undefined".
++                "-Wl,-undefined,error",
++            ],
++            "//tensorflow:macos": [
+                 "-Wl,-undefined,error",
+             ],
+             "//conditions:default": ["-Wl,--no-undefined"],
