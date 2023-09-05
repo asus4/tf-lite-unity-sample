@@ -36,6 +36,7 @@ def patch(file_path, target_str, patched_str):
 def build_mac(enable_xnnpack = True):
     # Workaround for macOS build error
     # https://github.com/tensorflow/tensorflow/pull/60771
+    run_cmd(f'git fetch --depth=1 origin 4869e557d603b211ca7d0b4640ee9aac08b48565')
     run_cmd(f'git cherry-pick 4869e557d603b211ca7d0b4640ee9aac08b48565 --no-commit')
     
     # Main
