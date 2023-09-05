@@ -107,9 +107,8 @@ def build_ios():
     # run_cmd('bazel build -c opt --config=ios --ios_multi_cpus=armv7,arm64,x86_64 //tensorflow/lite/ios:TensorFlowLiteSelectTfOps_framework')
     # unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteSelectTfOps_framework.zip', 'iOS')
 
-def build_android(enable_xnnpack = True):
+def build_android():
     # Main
-    option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build -c opt --fat_apk_cpu=arm64-v8a,armeabi-v7a,x86_64 //tensorflow/lite/java:tensorflow-lite')
     copy('bazel-bin/tensorflow/lite/java/tensorflow-lite.aar', 'Android')
 
@@ -173,4 +172,4 @@ if __name__ == '__main__':
     if args.android:
         # Need to set Android build option in ./configure
         print('Build Android')
-        build_android(args.xnnpack)
+        build_android()
