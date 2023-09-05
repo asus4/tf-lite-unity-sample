@@ -34,6 +34,10 @@ def patch(file_path, target_str, patched_str):
         file.write(source)
 
 def build_mac(enable_xnnpack = True):
+    # Workaround for macOS build error
+    # https://github.com/tensorflow/tensorflow/pull/60771
+    run_cmd(f'git cherry-pick 4869e557d603b211ca7d0b4640ee9aac08b48565 --no-commit')
+    
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build --config=macos --cpu=darwin -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
@@ -57,6 +61,8 @@ def build_mac(enable_xnnpack = True):
     run_cmd(f'lipo -create -output {PLUGIN_PATH}/macOS/libtensorflowlite_metal_delegate.dylib ' + ' '.join(metal_delegate_pathes))
     # Restore patch
     patch(cpuinfo_file, patched, original)
+    # Restore workaround
+    run_cmd('git reset --hard')
 
 def build_windows(enable_xnnpack = True):
     # Main
