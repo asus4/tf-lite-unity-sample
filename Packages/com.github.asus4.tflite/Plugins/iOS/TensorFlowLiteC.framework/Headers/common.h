@@ -38,6 +38,7 @@ limitations under the License.
 /// "third_party/tensorflow/lite/c/common.h".
 /// Only the TensorFlow Lite implementation itself should include this
 /// file directly.
+// IWYU pragma: private, include "third_party/tensorflow/lite/c/common.h"
 
 #ifndef TENSORFLOW_LITE_CORE_C_COMMON_H_
 #define TENSORFLOW_LITE_CORE_C_COMMON_H_
@@ -156,6 +157,10 @@ int TfLiteFloatArrayGetSizeInBytes(int size);
 // Create a array of a given `size` (uninitialized entries).
 // This returns a pointer, that you must free using TfLiteFloatArrayFree().
 TfLiteFloatArray* TfLiteFloatArrayCreate(int size);
+
+// Create a copy of an array passed as `src`.
+// You are expected to free memory with TfLiteFloatArrayFree.
+TfLiteFloatArray* TfLiteFloatArrayCopy(const TfLiteFloatArray* src);
 
 // Free memory of array `a`.
 void TfLiteFloatArrayFree(TfLiteFloatArray* a);
@@ -959,12 +964,53 @@ typedef struct TfLiteRegistration {
   // ops. We keep it inside of `TfLiteRegistration` and use it to route
   // callbacks properly.
   TfLiteRegistrationExternal* registration_external;
+
+  // Retrieves asynchronous kernel.
+  //
+  // If the `async_kernel` field is nullptr, it means the operation described by
+  // this TfLiteRegistration object does not support asynchronous execution.
+  // Otherwise, the function that the field points to should only be called for
+  // delegate kernel nodes, i.e. `node` should be a delegate kernel node created
+  // by applying a delegate.
+  // If the function returns nullptr, that means that the underlying delegate
+  // does not support asynchronous execution for this `node`.
+  struct TfLiteAsyncKernel* (*async_kernel)(TfLiteContext* context,
+                                            TfLiteNode* node);
 } TfLiteRegistration;
 
+/// \private
 // Old version of `TfLiteRegistration` to maintain binary backward
 // compatibility.
-// WARNING: This structure is deprecated / not an official part of the API.
-// It should be only used for binary backward compatibility.
+// The legacy registration type must be a POD struct type whose field types must
+// be a prefix of the field types in TfLiteRegistration, and offset of the first
+// field in TfLiteRegistration that is not present in the legacy registration
+// type must be greater than or equal to the size of the legacy registration
+// type.
+// WARNING: This structure is deprecated / not an official part of the
+// API. It should be only used for binary backward compatibility.
+typedef struct TfLiteRegistration_V2 {
+  void* (*init)(TfLiteContext* context, const char* buffer, size_t length);
+  void (*free)(TfLiteContext* context, void* buffer);
+  TfLiteStatus (*prepare)(TfLiteContext* context, TfLiteNode* node);
+  TfLiteStatus (*invoke)(TfLiteContext* context, TfLiteNode* node);
+  const char* (*profiling_string)(const TfLiteContext* context,
+                                  const TfLiteNode* node);
+  int32_t builtin_code;
+  const char* custom_name;
+  int version;
+  TfLiteRegistrationExternal* registration_external;
+} TfLiteRegistration_V2;
+
+/// \private
+// Old version of `TfLiteRegistration` to maintain binary backward
+// compatibility.
+// The legacy registration type must be a POD struct type whose field types must
+// be a prefix of the field types in TfLiteRegistration, and offset of the first
+// field in TfLiteRegistration that is not present in the legacy registration
+// type must be greater than or equal to the size of the legacy registration
+// type.
+// WARNING: This structure is deprecated / not an official part of the
+// API. It should be only used for binary backward compatibility.
 typedef struct TfLiteRegistration_V1 {
   void* (*init)(TfLiteContext* context, const char* buffer, size_t length);
   void (*free)(TfLiteContext* context, void* buffer);
@@ -1148,6 +1194,9 @@ void TfLiteOpaqueDelegateDelete(TfLiteOpaqueDelegate* delegate);
 // - Or in case of any other error.
 // - The 'delegate' has been constructed via a 'TfLiteOpaqueDelegateBuilder',
 //   but the 'data' field of the 'TfLiteOpaqueDelegateBuilder' is null.
+//
+//  The data_ field of 'delegate' will be returned if the
+//  'opaque_delegate_builder' field is null.
 void* TfLiteOpaqueDelegateGetData(const TfLiteOpaqueDelegate* delegate);
 
 #ifdef __cplusplus

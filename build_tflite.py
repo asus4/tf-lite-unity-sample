@@ -34,6 +34,11 @@ def patch(file_path, target_str, patched_str):
         file.write(source)
 
 def build_mac(enable_xnnpack = True):
+    # Workaround for macOS build error
+    # https://github.com/tensorflow/tensorflow/pull/60771
+    patch_file = os.path.abspath('Scripts/macos-v2.13.0.patch')
+    run_cmd(f'git apply {patch_file}')
+
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build --config=macos --cpu=darwin -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
@@ -78,8 +83,9 @@ def build_linux(enable_xnnpack = True):
 
     # GPU Delegate
     # See MediaPipe docs to setup EGL on Linux https://google.github.io/mediapipe/getting_started/gpu_support.html#opengl-es-setup-on-linux-desktop
-    # Also, you need link EGL and GLESv2 for Linux platform, will make a patch for this
-    # https://github.com/tensorflow/tensorflow/blob/5850c0ba26745f92456234c34ed258b472f07487/tensorflow/lite/delegates/gpu/build_defs.bzl#L3-L15
+    # Need to apply patch to build gpu delegate
+    patch_file = os.path.abspath('Scripts/linux-gpu-delegate.patch')
+    run_cmd(f'git apply {patch_file}')
     run_cmd('bazel build --config=linux -c opt --copt -Os --copt -DMESA_EGL_NO_X11_HEADERS --copt -DEGL_NO_X11 --copt -DCL_TARGET_OPENCL_VERSION=210 --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:libtensorflowlite_gpu_delegate.so')
     copy('bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_delegate.so', 'Linux/x86_64/libtensorflowlite_gpu_delegate.so')
     
@@ -101,9 +107,8 @@ def build_ios():
     # run_cmd('bazel build -c opt --config=ios --ios_multi_cpus=armv7,arm64,x86_64 //tensorflow/lite/ios:TensorFlowLiteSelectTfOps_framework')
     # unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteSelectTfOps_framework.zip', 'iOS')
 
-def build_android(enable_xnnpack = True):
+def build_android():
     # Main
-    option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build -c opt --fat_apk_cpu=arm64-v8a,armeabi-v7a,x86_64 //tensorflow/lite/java:tensorflow-lite')
     copy('bazel-bin/tensorflow/lite/java/tensorflow-lite.aar', 'Android')
 
@@ -167,4 +172,4 @@ if __name__ == '__main__':
     if args.android:
         # Need to set Android build option in ./configure
         print('Build Android')
-        build_android(args.xnnpack)
+        build_android()

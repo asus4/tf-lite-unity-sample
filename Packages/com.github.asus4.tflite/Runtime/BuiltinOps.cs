@@ -179,5 +179,8 @@ namespace TensorFlowLite
         Atan2 = 156,
         UnsortedSegmentMin = 157,
         Sign = 158,
+        Bitcast = 159,
+        BitwiseXor = 160,
+        RightShift = 161,
     }
 }

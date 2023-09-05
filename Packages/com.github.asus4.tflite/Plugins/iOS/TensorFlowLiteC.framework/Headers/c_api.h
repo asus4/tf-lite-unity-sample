@@ -25,6 +25,7 @@ limitations under the License.
 #include <stdlib.h>
 
 #include "builtin_ops.h"
+#include "types.h"
 #include "c_api_types.h"  // IWYU pragma: export
 
 // --------------------------------------------------------------------------
@@ -483,6 +484,13 @@ TFL_CAPI_EXPORT extern TfLiteBuiltinOperator
 TfLiteRegistrationExternalGetBuiltInCode(
     const TfLiteRegistrationExternal* registration);
 
+/// Return the OP version of the provided external 'registration'.  Return -1
+/// in case of error, or if the provided address is null.
+///
+/// \warning This is an experimental API and subject to change.
+TFL_CAPI_EXPORT extern int TfLiteRegistrationExternalGetVersion(
+    const TfLiteRegistrationExternal* registration);
+
 /// Returns the custom name of the provided 'registration'. The returned pointer
 /// will be non-null iff the op is a custom op.
 ///
@@ -535,6 +543,19 @@ TFL_CAPI_EXPORT extern void TfLiteRegistrationExternalSetInvoke(
     TfLiteRegistrationExternal* registration,
     TfLiteStatus (*invoke)(TfLiteOpaqueContext* context,
                            TfLiteOpaqueNode* node));
+
+/// Sets the async kernel accessor callback for the registration.
+///
+/// The callback is called to retrieve the async kernel if the delegate supports
+/// it. If the delegate does not support async execution, either this function
+/// should not be called, or `async_kernel` needs to be nullptr.
+/// `node` is the delegate TfLiteNode created by `ModifyGraphWithDelegate`.
+/// Please refer `async_kernel` of `TfLiteRegistration` for the detail.
+/// \warning This is an experimental API and subject to change.
+TFL_CAPI_EXPORT extern void TfLiteRegistrationExternalSetAsyncKernel(
+    TfLiteRegistrationExternal* registration,
+    TfLiteAsyncKernel* (*async_kernel)(TfLiteOpaqueContext* context,
+                                       TfLiteOpaqueNode* node));
 
 // NOLINTEND(modernize-redundant-void-arg)
 

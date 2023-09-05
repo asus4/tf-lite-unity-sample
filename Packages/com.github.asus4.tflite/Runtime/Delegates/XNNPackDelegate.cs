@@ -32,6 +32,9 @@ namespace TensorFlowLite
             QU8 = 0x00000002,
             // Force FP16 inference for FP32 operators.
             FORCE_FP16 = 0x00000004,
+            // Enable XNNPACK acceleration for FULLY_CONNECTED operator with dynamic
+            //weights.
+            DYNAMIC_FULLY_CONNECTED = 0x00000008,
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -46,7 +49,7 @@ namespace TensorFlowLite
             public TfLiteXNNPackDelegateWeightsCache weightsCache;
             // Whether READ_VARIABLE, ASSIGN_VARIABLE, and VARIABLE_HANDLE operations
             // should be handled by XNNPACK.
-            bool handleVariableOps;
+            public bool handleVariableOps;
         }
 
         public TfLiteDelegate Delegate { get; private set; }

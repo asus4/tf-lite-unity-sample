@@ -1,0 +1,10 @@
+diff --git forkSrcPrefix/tensorflow/lite/delegates/gpu/build_defs.bzl forkDstPrefix/tensorflow/lite/delegates/gpu/build_defs.bzl
+index 462ec7c22189685cbca99024e41f594864ef2e1c..a76b4de5c982faf62e6e5bf982e4ff2b21c983d7 100644
+--- forkSrcPrefix/tensorflow/lite/delegates/gpu/build_defs.bzl
++++ forkDstPrefix/tensorflow/lite/delegates/gpu/build_defs.bzl
+@@ -24,4 +24,4 @@ def gpu_delegate_linkopts():
+             "-lGLESv2",
+         ],
+         "//conditions:default": [],
+-    }) + nativewindow_linkopts()
++    }) # + nativewindow_linkopts()
