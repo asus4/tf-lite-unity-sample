@@ -5,4 +5,5 @@
 #import <TensorFlowLiteC/common.h>
 #import <TensorFlowLiteC/profiler.h>
 #import <TensorFlowLiteC/telemetry_setting.h>
+#import <TensorFlowLiteC/types.h>
 #import <TensorFlowLiteC/xnnpack_delegate.h>
