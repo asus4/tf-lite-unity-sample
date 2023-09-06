@@ -7,7 +7,7 @@
     "unity"
   ],
   "license": "SEE LICENSE IN LICENSE",
-  "unity": "2019.3",
+  "unity": "2022.3",
   "unityRelease": "0f1",
   "version": "2.12.0",
   "type": "library",
