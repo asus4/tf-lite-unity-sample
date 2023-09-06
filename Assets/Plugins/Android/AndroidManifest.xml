@@ -4,6 +4,7 @@
     package="com.unity3d.player"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
+        <!-- TFLite GPU delegate requires OpenCL -->
         <uses-native-library android:name="libOpenCL.so" android:required="false"/>
         <uses-native-library android:name="libOpenCL-car.so" android:required="false"/>
         <uses-native-library android:name="libOpenCL-pixel.so" android:required="false"/>
