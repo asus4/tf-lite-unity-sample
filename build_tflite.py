@@ -34,11 +34,6 @@ def patch(file_path, target_str, patched_str):
         file.write(source)
 
 def build_mac(enable_xnnpack = True):
-    # Workaround for macOS build error
-    # https://github.com/tensorflow/tensorflow/pull/60771
-    patch_file = os.path.abspath('Scripts/macos-v2.13.0.patch')
-    run_cmd(f'git apply {patch_file}')
-
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build --config=macos --cpu=darwin -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
