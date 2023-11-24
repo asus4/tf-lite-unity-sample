@@ -8,7 +8,7 @@ Tested on
 
 - iOS / Android / macOS / Windows / Linux
 - Unity 2022.3.7f1
-- TensorFlow 2.12.0
+- TensorFlow 2.14.0
 
 Included examples:
 
@@ -64,11 +64,11 @@ Included prebuilt libraries:
   ],
   "dependencies": {
     // Core TensorFlow Lite libraries
-    "com.github.asus4.tflite": "2.13.0",
+    "com.github.asus4.tflite": "2.14.0",
     // Utilities for TFLite
-    "com.github.asus4.tflite.common": "2.13.0",
+    "com.github.asus4.tflite.common": "2.14.0",
     // Utilities for MediaPipe
-    "com.github.asus4.mediapipe": "2.13.0",
+    "com.github.asus4.mediapipe": "2.14.0",
     ...// other dependencies
   }
 }
