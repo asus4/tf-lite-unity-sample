@@ -34,11 +34,6 @@ def patch(file_path, target_str, patched_str):
         file.write(source)
 
 def build_mac(enable_xnnpack = True):
-    # Workaround for macOS build error
-    # https://github.com/tensorflow/tensorflow/pull/60771
-    patch_file = os.path.abspath('Scripts/macos-v2.13.0.patch')
-    run_cmd(f'git apply {patch_file}')
-
     # Main
     option_xnnpack = 'true' if enable_xnnpack else 'false'
     run_cmd(f'bazel build --config=macos --cpu=darwin -c opt --define tflite_with_xnnpack={option_xnnpack} tensorflow/lite/c:tensorflowlite_c')
@@ -54,8 +49,8 @@ def build_mac(enable_xnnpack = True):
     original = '"cpu": "darwin",'
     patched = '"cpu": "darwin_x86_64",'
     patch(cpuinfo_file, original, patched)
-    run_cmd('bazel build --config=macos --cpu=darwin_x86_64 --macos_cpus=x86_64 --apple_platform_type=macos --cxxopt=--std=c++17 -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
-    run_cmd('bazel build --config=macos_arm64 --cpu=darwin_arm64  --macos_cpus=arm64 --apple_platform_type=macos --cxxopt=--std=c++17 -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    run_cmd('bazel build --config=macos --cpu=darwin_x86_64 --macos_cpus=x86_64 --apple_platform_type=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
+    run_cmd('bazel build --config=macos_arm64 --cpu=darwin_arm64  --macos_cpus=arm64 --apple_platform_type=macos -c opt --copt -Os --copt -DTFLITE_GPU_BINARY_RELEASE --copt -fvisibility=default --linkopt -s --strip always //tensorflow/lite/delegates/gpu:tensorflow_lite_gpu_dylib')
     # Export path contains postfix like `applebin_macos-darwin_arm64-opt-ST-*`
     metal_delegate_pathes = glob.glob(f'{TENSORFLOW_PATH}/bazel-out/applebin_macos-darwin*/bin/tensorflow/lite/delegates/gpu/tensorflow_lite_gpu_dylib.dylib')
     print(metal_delegate_pathes)
@@ -95,13 +90,13 @@ def build_linux(enable_xnnpack = True):
 
 def build_ios():
     # Main
-    run_cmd('bazel build -c opt --config=ios_arm64 --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteC_framework')
+    run_cmd('bazel build -c opt --config=ios_arm64 //tensorflow/lite/ios:TensorFlowLiteC_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteC_framework.zip', 'iOS')
     # Metal Delegate
-    run_cmd('bazel build -c opt --config=ios_arm64 --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
+    run_cmd('bazel build -c opt --config=ios_arm64 //tensorflow/lite/ios:TensorFlowLiteCMetal_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCMetal_framework.zip', 'iOS')
     # CoreML Delegate
-    run_cmd('bazel build -c opt --config=ios_arm64 --cxxopt=--std=c++17 //tensorflow/lite/ios:TensorFlowLiteCCoreML_framework')
+    run_cmd('bazel build -c opt --config=ios_arm64 //tensorflow/lite/ios:TensorFlowLiteCCoreML_framework')
     unzip('bazel-bin/tensorflow/lite/ios/TensorFlowLiteCCoreML_framework.zip', 'iOS')
     # SelectOps Delegate
     # run_cmd('bazel build -c opt --config=ios --ios_multi_cpus=armv7,arm64,x86_64 //tensorflow/lite/ios:TensorFlowLiteSelectTfOps_framework')
