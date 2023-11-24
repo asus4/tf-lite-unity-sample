@@ -74,9 +74,11 @@ Included prebuilt libraries:
 }
 ```
 
-## Build TensorFlow Lite libraries
+## Build TensorFlow Lite libraries yourself
 
-Pre-built libraries are included. If you want to build the latest TFLite,
+Pre-built libraries are included in the UPM package. Also, you can find TFLite libraries at [tflite-runtime-builder](https://github.com/DeNA/tflite-runtime-builder/releases) from TFLite v2.14.0 or later.
+
+If you want to build the latest TFLite yourself, Follow the below instructions:
 
 1. Clone [TensorFlow library](https://github.com/tensorflow/tensorflow/)
 2. Run `./configure` in the TensorFlow library
@@ -89,15 +91,6 @@ Pre-built libraries are included. If you want to build the latest TFLite,
   # Build with XNNPACK
   ./build_tflite.py --tfpath ../tensorflow -macos -xnnpack
   ```
-
-## TIPS
-
-\[Android\] You can see logs from tflite by filtering with "tflite"  
-
-```bash
-# Filtering logcat only Unity and tflite
-adb logcat Unity:V tflite:V "*:S"
-```
 
 ## Show Cases
 
