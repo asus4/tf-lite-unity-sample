@@ -35,6 +35,16 @@ namespace TensorFlowLite
             // Enable XNNPACK acceleration for FULLY_CONNECTED operator with dynamic
             //weights.
             DYNAMIC_FULLY_CONNECTED = 0x00000008,
+            // Enable XNNPACK acceleration for VAR_HANDLE, READ_VARIABLE, and
+            // ASSIGN_VARIABLE operators.
+            VARIABLE_OPERATORS = 0x00000010,
+            // Enable transient indirection buffer to reduce memory usage in selected
+            // operators. Indirection buffer initialization will take place on every
+            // inference run, instead of only once during initialization of the operators.
+            TRANSIENT_INDIRECTION_BUFFER = 0x00000020,
+            // Enable the latest XNNPACK operators and features in the delegate which have
+            // not yet been enabled by default.
+            ENABLE_LATEST_OPERATORS = 0x00000040,
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -47,8 +57,9 @@ namespace TensorFlowLite
             // Cache for packed weights, can be shared between multiple instances of
             // delegates.
             public TfLiteXNNPackDelegateWeightsCache weightsCache;
-            // Whether READ_VARIABLE, ASSIGN_VARIABLE, and VARIABLE_HANDLE operations
-            // should be handled by XNNPACK.
+            // Deprecated. Use the flags bitfield with the
+            // TFLITE_XNNPACK_DELEGATE_FLAG_VARIABLE_OPERATORS mask.
+            [Obsolete("Use the flags bitfield with the TFLITE_XNNPACK_DELEGATE_FLAG_VARIABLE_OPERATORS mask.")]
             public bool handleVariableOps;
         }
 
