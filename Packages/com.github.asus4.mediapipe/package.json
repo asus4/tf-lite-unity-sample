@@ -9,11 +9,11 @@
   "license": "SEE LICENSE IN LICENSE",
   "unity": "2022.3",
   "unityRelease": "0f1",
-  "version": "2.14.0",
+  "version": "2.15.0",
   "type": "library",
   "hideInEditor": false,
   "dependencies": {
-    "com.github.asus4.tflite": "2.14.0",
-    "com.github.asus4.tflite.common": "2.14.0"
+    "com.github.asus4.tflite": "2.15.0",
+    "com.github.asus4.tflite.common": "2.15.0"
   }
 }
