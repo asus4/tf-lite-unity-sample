@@ -41,6 +41,9 @@ Included prebuilt libraries:
 
 ## Install TensorFlow Lite for Unity
 
+> [!IMPORTANT]  
+> You need to install [Git-LFS](https://git-lfs.github.com/).
+
 - If you want to try all examples, clone this repository with [Git-LFS](https://git-lfs.github.com/).
 - If you just need TensorFlow Lite libraries via UPM, open the file `Packages/manifest.json` and add following lines into `scopedRegistries` and `dependencies` section.
 
