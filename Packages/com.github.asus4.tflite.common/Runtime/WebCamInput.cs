@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Scripting;
 
@@ -27,6 +29,10 @@ namespace TensorFlowLite
         public Vector2Int RequestSize { get => requestSize; set => requestSize = value; }
         public int RequestFps { get => requestFps; set => requestFps = value; }
         public string RequestCameraByDeviceName { get => editorCameraName; set => editorCameraName = value; }
+        public string PreferKind { get => preferKind.ToString(); set => System.Enum.TryParse(value, out preferKind); }
+        public bool IsFrontFacing { get => isFrontFacing; set => isFrontFacing = value; }
+
+        private static List<int> deviceIndexesOpened;
 
         private void OnEnable()
         {
@@ -46,16 +52,40 @@ namespace TensorFlowLite
                     break;
                 }
             }
+
+            if (deviceIndexesOpened == null) deviceIndexesOpened = new List<int>();
+            // trying to open a busy camera
+            if (deviceIndexesOpened.Contains(deviceIndex))
+            {
+                // select next available camera
+                var ordered = deviceIndexesOpened.OrderByDescending(x => x);
+                deviceIndex = ordered.First();
+                deviceIndex++;
+                if (deviceIndex >= devices.Length)
+                {
+                    deviceIndex = 0;
+                    while (deviceIndexesOpened.Contains(deviceIndex) && deviceIndex < devices.Length - 1)
+                    {
+                        deviceIndex++;
+                    }
+                }
+                device = devices[deviceIndex];
+            }
+
+            deviceIndexesOpened.Add(deviceIndex);
+            editorCameraName = devices[deviceIndex].name;
             StartCamera(device);
         }
 
         private void OnDisable()
         {
+            deviceIndexesOpened.Remove(deviceIndex);
             PauseCamera();
         }
 
         private void OnDestroy()
         {
+            deviceIndexesOpened.Remove(deviceIndex);
             StopCamera();
             resizer?.Dispose();
         }
@@ -81,7 +111,15 @@ namespace TensorFlowLite
             StopCamera();
             isFrontFacing = device.isFrontFacing;
             webCamTexture = new WebCamTexture(device.name, requestSize.x, requestSize.y, requestFps);
-            webCamTexture.Play();
+            try
+            {
+                webCamTexture.Play();
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e.Message);
+                webCamTexture = null;
+            }
         }
         private void PauseCamera()
         {
