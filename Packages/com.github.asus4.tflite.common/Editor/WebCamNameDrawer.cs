@@ -28,10 +28,7 @@ namespace TensorFlowLite
                 displayNames = WebCamTexture.devices.Select(device => device.name).ToArray();
             }
 
-            if (selectedIndex < 0)
-            {
-                selectedIndex = FindSelectedIndex(displayNames, property.stringValue);
-            }
+            selectedIndex = FindSelectedIndex(displayNames, property.stringValue);
 
             EditorGUI.BeginProperty(position, label, property);
 

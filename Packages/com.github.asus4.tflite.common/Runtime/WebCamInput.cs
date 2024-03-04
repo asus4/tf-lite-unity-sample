@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Scripting;
 
@@ -24,11 +26,19 @@ namespace TensorFlowLite
         private WebCamDevice[] devices;
         private int deviceIndex;
 
-        private void Start()
+        public Vector2Int RequestSize { get => requestSize; set => requestSize = value; }
+        public int RequestFps { get => requestFps; set => requestFps = value; }
+        public string RequestCameraByDeviceName { get => editorCameraName; set => editorCameraName = value; }
+        public string PreferKind { get => preferKind.ToString(); set => System.Enum.TryParse(value, out preferKind); }
+        public bool IsFrontFacing { get => isFrontFacing; set => isFrontFacing = value; }
+
+        private static List<int> deviceIndexesOpened;
+
+        private void OnEnable()
         {
             resizer = new TextureResizer();
             devices = WebCamTexture.devices;
-            string cameraName = Application.isEditor
+            string cameraName = Application.isEditor || !string.IsNullOrEmpty(editorCameraName)
                 ? editorCameraName
                 : WebCamUtil.FindName(preferKind, isFrontFacing);
 
@@ -42,11 +52,40 @@ namespace TensorFlowLite
                     break;
                 }
             }
+
+            if (deviceIndexesOpened == null) deviceIndexesOpened = new List<int>();
+            // trying to open a busy camera
+            if (deviceIndexesOpened.Contains(deviceIndex))
+            {
+                // select next available camera
+                var ordered = deviceIndexesOpened.OrderByDescending(x => x);
+                deviceIndex = ordered.First();
+                deviceIndex++;
+                if (deviceIndex >= devices.Length)
+                {
+                    deviceIndex = 0;
+                    while (deviceIndexesOpened.Contains(deviceIndex) && deviceIndex < devices.Length - 1)
+                    {
+                        deviceIndex++;
+                    }
+                }
+                device = devices[deviceIndex];
+            }
+
+            deviceIndexesOpened.Add(deviceIndex);
+            editorCameraName = devices[deviceIndex].name;
             StartCamera(device);
+        }
+
+        private void OnDisable()
+        {
+            deviceIndexesOpened.Remove(deviceIndex);
+            PauseCamera();
         }
 
         private void OnDestroy()
         {
+            deviceIndexesOpened.Remove(deviceIndex);
             StopCamera();
             resizer?.Dispose();
         }
@@ -55,7 +94,7 @@ namespace TensorFlowLite
         {
             if (!webCamTexture.didUpdateThisFrame) return;
 
-            var tex = NormalizeWebcam(webCamTexture, Screen.width, Screen.height, isFrontFacing);
+            var tex = NormalizeWebcam(webCamTexture, requestSize.x, requestSize.y, isFrontFacing);
             OnTextureUpdate.Invoke(tex);
         }
 
@@ -72,9 +111,24 @@ namespace TensorFlowLite
             StopCamera();
             isFrontFacing = device.isFrontFacing;
             webCamTexture = new WebCamTexture(device.name, requestSize.x, requestSize.y, requestFps);
-            webCamTexture.Play();
+            try
+            {
+                webCamTexture.Play();
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e.Message);
+                webCamTexture = null;
+            }
         }
-
+        private void PauseCamera()
+        {
+            if (webCamTexture == null)
+            {
+                return;
+            }
+            webCamTexture.Stop();
+        }
         private void StopCamera()
         {
             if (webCamTexture == null)
