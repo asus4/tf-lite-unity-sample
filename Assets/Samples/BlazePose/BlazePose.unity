@@ -800,7 +800,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1453601107}
-  - component: {fileID: 1453601108}
+  - component: {fileID: 1453601109}
   - component: {fileID: 1453601106}
   m_Layer: 0
   m_Name: BlazePose
@@ -859,7 +859,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1453601108
+--- !u!114 &1453601109
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -868,15 +868,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1453601105}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f81f0d43e2d14fbbb064a205095507c, type: 3}
+  m_Script: {fileID: 11500000, guid: be5e5635fba104ec29475e42f3b5a517, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorCameraName: FaceTime HD Camera
-  preferKind: 1
-  isFrontFacing: 0
-  requestSize: {x: 1280, y: 720}
-  requestFps: 60
-  OnTextureUpdate:
+  source: {fileID: 11400000, guid: 75e4397da16524bcd9f1325b0f5d51d4, type: 2}
+  sourceForEditor: {fileID: 11400000, guid: 75e4397da16524bcd9f1325b0f5d51d4, type: 2}
+  trimToScreenAspect: 0
+  OnTexture:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 32141218}
@@ -891,6 +889,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  OnAspectChange:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2074584276
 GameObject:
   m_ObjectHideFlags: 0
@@ -1073,7 +1074,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1453601108}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
