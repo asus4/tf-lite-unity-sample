@@ -9,6 +9,7 @@ namespace TensorFlowLite
     /// <summary>
     /// An wrapper for WebCamTexture that corrects texture rotation
     /// </summary>
+    [System.Obsolete("Use TextureSource.VirtualTextureSource instead")]
     public sealed class WebCamInput : MonoBehaviour
     {
         [System.Serializable]
