@@ -17,10 +17,12 @@
       }
     },
     "com.github.asus4.texture-source": {
-      "version": "0.1.3",
+      "version": "0.2.2",
       "depth": 0,
       "source": "registry",
-      "dependencies": {},
+      "dependencies": {
+        "com.unity.modules.video": "1.0.0"
+      },
       "url": "https://registry.npmjs.com"
     },
     "com.github.asus4.tflite": {
