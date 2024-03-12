@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 using TensorFlowLite;
+using TextureSource;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 /// https://github.com/google/mediapipe
 /// https://viz.mediapipe.dev/demo/pose_tracking
 /// </summary>
-[RequireComponent(typeof(WebCamInput))]
+[RequireComponent(typeof(VirtualTextureSource))]
 public sealed class BlazePoseSample : MonoBehaviour
 {
     [SerializeField]
@@ -36,7 +37,6 @@ public sealed class BlazePoseSample : MonoBehaviour
     private BlazePoseDrawer drawer;
 
     private UniTask<bool> task;
-    private CancellationToken cancellationToken;
 
     private void Start()
     {
@@ -44,14 +44,18 @@ public sealed class BlazePoseSample : MonoBehaviour
 
         drawer = new BlazePoseDrawer(Camera.main, gameObject.layer, containerView);
 
-        cancellationToken = this.GetCancellationTokenOnDestroy();
-
-        GetComponent<WebCamInput>().OnTextureUpdate.AddListener(OnTextureUpdate);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(OnTextureUpdate);
+        }
     }
 
     private void OnDestroy()
     {
-        GetComponent<WebCamInput>().OnTextureUpdate.RemoveListener(OnTextureUpdate);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(OnTextureUpdate);
+        }
         pose?.Dispose();
         drawer?.Dispose();
     }
@@ -102,7 +106,7 @@ public sealed class BlazePoseSample : MonoBehaviour
 
     private async UniTask<bool> InvokeAsync(Texture texture)
     {
-        landmarkResult = await pose.InvokeAsync(texture, cancellationToken);
+        landmarkResult = await pose.InvokeAsync(texture, destroyCancellationToken);
         poseResult = pose.PoseResult;
         if (pose.LandmarkInputTexture != null)
         {

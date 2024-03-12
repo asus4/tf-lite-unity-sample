@@ -1,8 +1,9 @@
 ﻿using TensorFlowLite;
+using TextureSource;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(WebCamInput))]
+[RequireComponent(typeof(VirtualTextureSource))]
 public class DeepLabSample : MonoBehaviour
 {
     [SerializeField]
@@ -19,16 +20,18 @@ public class DeepLabSample : MonoBehaviour
     private void Start()
     {
         deepLab = new DeepLab(options);
-
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(OnTextureUpdate);
+        }
     }
 
     private void OnDestroy()
     {
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
-
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(OnTextureUpdate);
+        }
         deepLab?.Dispose();
     }
 

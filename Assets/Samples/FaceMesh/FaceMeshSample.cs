@@ -1,9 +1,10 @@
 ﻿using System.Linq;
 using TensorFlowLite;
+using TextureSource;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(WebCamInput))]
+[RequireComponent(typeof(VirtualTextureSource))]
 public sealed class FaceMeshSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")]
@@ -52,14 +53,18 @@ public sealed class FaceMeshSample : MonoBehaviour
             faceKeypoints = new Vector3[FaceMesh.KEYPOINT_COUNT];
         }
 
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(OnTextureUpdate);
+        }
     }
 
     private void OnDestroy()
     {
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(OnTextureUpdate);
+        }
 
         faceDetect?.Dispose();
         faceMesh?.Dispose();

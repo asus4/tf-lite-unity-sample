@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TensorFlowLite;
+using TextureSource;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +9,7 @@ using UnityEngine.UI;
 /// https://github.com/google/mediapipe
 /// https://viz.mediapipe.dev/demo/face_detection
 /// </summary>
-[RequireComponent(typeof(WebCamInput))]
+[RequireComponent(typeof(VirtualTextureSource))]
 public class FaceDetectionSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")]
@@ -27,15 +28,18 @@ public class FaceDetectionSample : MonoBehaviour
         faceDetect = new FaceDetect(faceModelFile);
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
 
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(OnTextureUpdate);
+        }
     }
 
     private void OnDestroy()
     {
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
-
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(OnTextureUpdate);
+        }
         faceDetect?.Dispose();
         draw?.Dispose();
     }

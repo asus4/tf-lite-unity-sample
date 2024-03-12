@@ -2,10 +2,11 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using TensorFlowLite;
+using TextureSource;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(WebCamInput))]
+[RequireComponent(typeof(VirtualTextureSource))]
 public class HandTrackingSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")]
@@ -40,15 +41,18 @@ public class HandTrackingSample : MonoBehaviour
 
         draw = new PrimitiveDraw();
 
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(OnTextureUpdate);
+        }
     }
 
     private void OnDestroy()
     {
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
-
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(OnTextureUpdate);
+        }
         palmDetect?.Dispose();
         landmarkDetect?.Dispose();
     }

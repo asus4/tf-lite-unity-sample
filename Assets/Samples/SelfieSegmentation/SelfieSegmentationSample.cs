@@ -1,8 +1,9 @@
 ﻿using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
+using TextureSource;
 
-[RequireComponent(typeof(WebCamInput))]
+[RequireComponent(typeof(VirtualTextureSource))]
 public class SelfieSegmentationSample : MonoBehaviour
 {
     [SerializeField]
@@ -16,16 +17,18 @@ public class SelfieSegmentationSample : MonoBehaviour
     private void Start()
     {
         segmentation = new SelfieSegmentation(options);
-
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(OnTextureUpdate);
+        }
     }
 
     private void OnDestroy()
     {
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
-
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(OnTextureUpdate);
+        }
         segmentation?.Dispose();
     }
 
