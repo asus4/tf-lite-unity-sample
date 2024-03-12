@@ -700,11 +700,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 86521805}
     - target: {fileID: 173531016972836179, guid: a20533af9a9a94af494156c17e85a9e8,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: ToggleCamera
+      value: NextSource
+      objectReference: {fileID: 0}
+    - target: {fileID: 173531016972836179, guid: a20533af9a9a94af494156c17e85a9e8,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: TextureSource.VirtualTextureSource, TextureSource
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
