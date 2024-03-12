@@ -5,6 +5,7 @@ using TensorFlowLite;
 using Cysharp.Threading.Tasks;
 
 [RequireComponent(typeof(WebCamInput))]
+[System.Obsolete("Use MoveNet instead")]
 public class PoseNetSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")]
