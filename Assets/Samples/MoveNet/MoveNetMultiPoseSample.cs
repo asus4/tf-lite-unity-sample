@@ -1,10 +1,9 @@
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using TensorFlowLite;
 using TensorFlowLite.MoveNet;
+using TextureSource;
 
-[RequireComponent(typeof(WebCamInput))]
+[RequireComponent(typeof(VirtualTextureSource))]
 public class MoveNetMultiPoseSample : MonoBehaviour
 {
     [SerializeField]
@@ -24,23 +23,24 @@ public class MoveNetMultiPoseSample : MonoBehaviour
     private MoveNetDrawer drawer;
 
     private UniTask<bool> task;
-    private CancellationToken cancellationToken;
 
     private void Start()
     {
         moveNet = new MoveNetMultiPose(options);
         drawer = new MoveNetDrawer(Camera.main, cameraView);
 
-        cancellationToken = this.GetCancellationTokenOnDestroy();
-
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(OnTextureUpdate);
+        }
     }
 
     private void OnDestroy()
     {
-        var webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(OnTextureUpdate);
+        }
         moveNet?.Dispose();
         drawer?.Dispose();
     }
@@ -79,7 +79,7 @@ public class MoveNetMultiPoseSample : MonoBehaviour
 
     private async UniTask<bool> InvokeAsync(Texture texture)
     {
-        await moveNet.InvokeAsync(texture, cancellationToken);
+        await moveNet.InvokeAsync(texture, destroyCancellationToken);
         poses = moveNet.GetResults();
         return true;
     }

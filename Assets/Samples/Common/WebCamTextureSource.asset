@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: WebCamTextureSource
   m_EditorClassIdentifier: 
   kindFilter: 11
-  facingFilter: 3
+  facingFilter: -1
   resolution: {x: 1270, y: 720}
   frameRate: 60
