@@ -1,8 +1,9 @@
 ﻿using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
+using TextureSource;
 
-[RequireComponent(typeof(WebCamInput))]
+[RequireComponent(typeof(VirtualTextureSource))]
 public class SsdSample : MonoBehaviour
 {
     [SerializeField]
@@ -58,12 +59,18 @@ public class SsdSample : MonoBehaviour
         // Labels
         labels = labelMap.text.Split('\n');
 
-        GetComponent<WebCamInput>().OnTextureUpdate.AddListener(Invoke);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(Invoke);
+        }
     }
 
     private void OnDestroy()
     {
-        GetComponent<WebCamInput>().OnTextureUpdate.RemoveListener(Invoke);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(Invoke);
+        }
         ssd?.Dispose();
     }
 

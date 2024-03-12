@@ -569,7 +569,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1453601108}
+      objectReference: {fileID: 0}
     - target: {fileID: 173531016972836179, guid: a20533af9a9a94af494156c17e85a9e8,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -719,15 +719,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1453601105}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f81f0d43e2d14fbbb064a205095507c, type: 3}
+  m_Script: {fileID: 11500000, guid: be5e5635fba104ec29475e42f3b5a517, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorCameraName: HD Pro Webcam C920
-  preferKind: 1
-  isFrontFacing: 0
-  requestSize: {x: 1280, y: 720}
-  requestFps: 60
-  OnTextureUpdate:
+  source: {fileID: 11400000, guid: 75e4397da16524bcd9f1325b0f5d51d4, type: 2}
+  sourceForEditor: {fileID: 11400000, guid: 75e4397da16524bcd9f1325b0f5d51d4, type: 2}
+  trimToScreenAspect: 1
+  OnTexture:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 32141218}
@@ -742,6 +740,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  OnAspectChange:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2074584276
 GameObject:
   m_ObjectHideFlags: 0
