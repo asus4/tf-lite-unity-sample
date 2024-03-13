@@ -43,7 +43,7 @@ namespace TensorFlowLite
             set => material.SetVector(_UVRect, value);
         }
 
-        public Matrix4x4 VertexTransfrom
+        public Matrix4x4 VertexTransform
         {
             get => material.GetMatrix(_VertTransform);
             set => material.SetMatrix(_VertTransform, value);
@@ -63,7 +63,7 @@ namespace TensorFlowLite
 
         public RenderTexture Resize(Texture texture, ResizeOptions options)
         {
-            VertexTransfrom = GetVertTransform(options.rotationDegree, options.mirrorHorizontal, options.mirrorVertical);
+            VertexTransform = GetVertTransform(options.rotationDegree, options.mirrorHorizontal, options.mirrorVertical);
             UVRect = GetTextureST(texture, options);
             return ApplyResize(texture, options.width, options.height, false);
         }
@@ -73,7 +73,7 @@ namespace TensorFlowLite
              Matrix4x4 transform,
              Vector4 uvRect)
         {
-            VertexTransfrom = transform;
+            VertexTransform = transform;
             UVRect = uvRect;
             return ApplyResize(texture, width, height, fillBackground);
         }
