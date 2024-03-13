@@ -22,7 +22,7 @@ namespace TensorFlowLite.MoveNet
         private readonly float[,] outputs0;
         public readonly MoveNetPose pose;
 
-        public MoveNetSinglePose(Options options) : base(options.modelPath, Accelerator.GPU)
+        public MoveNetSinglePose(Options options) : base(options.modelPath, TfLiteDelegateType.GPU)
         {
             resizeOptions.aspectMode = options.aspectMode;
             int[] outputShape = interpreter.GetOutputTensorInfo(0).shape;

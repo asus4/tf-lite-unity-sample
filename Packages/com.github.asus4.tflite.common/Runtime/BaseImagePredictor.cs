@@ -6,25 +6,13 @@ using Cysharp.Threading.Tasks;
 
 namespace TensorFlowLite
 {
+    /// <summary>
+    /// Base class for predictor that takes a Texture as an input
+    /// </summary>
+    /// <typeparam name="T">A type of input tensor (float, sbyte etc.)</typeparam>
     public abstract class BaseImagePredictor<T> : System.IDisposable
         where T : struct
     {
-        /// <summary>
-        /// Accelerator options
-        /// </summary>
-        public enum Accelerator
-        {
-            NONE = 0,
-            NNAPI = 1,
-            GPU = 2,
-            // HEXAGON = 3,
-            XNNPACK = 4,
-            // The EdgeTpu in Pixel devices.
-            // EDGETPU = 5,
-            // The Coral EdgeTpu Dev Board / USB accelerator.
-            // EDGETPU_CORAL = 6,
-        }
-
         protected readonly Interpreter interpreter;
         protected readonly int width;
         protected readonly int height;
@@ -99,21 +87,21 @@ namespace TensorFlowLite
         {
         }
 
-        public BaseImagePredictor(string modelPath, Accelerator accelerator)
-            : this(modelPath, CreateOptions(accelerator))
+        public BaseImagePredictor(string modelPath, TfLiteDelegateType delegateType)
+            : this(modelPath, CreateOptions(delegateType))
         {
         }
 
-        protected static InterpreterOptions CreateOptions(Accelerator accelerator)
+        protected static InterpreterOptions CreateOptions(TfLiteDelegateType delegateType)
         {
             var options = new InterpreterOptions();
 
-            switch (accelerator)
+            switch (delegateType)
             {
-                case Accelerator.NONE:
+                case TfLiteDelegateType.NONE:
                     options.threads = SystemInfo.processorCount;
                     break;
-                case Accelerator.NNAPI:
+                case TfLiteDelegateType.NNAPI:
                     if (Application.platform == RuntimePlatform.Android)
                     {
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -126,10 +114,10 @@ namespace TensorFlowLite
                         Debug.LogError("NNAPI is only supported on Android");
                     }
                     break;
-                case Accelerator.GPU:
+                case TfLiteDelegateType.GPU:
                     options.AddGpuDelegate();
                     break;
-                case Accelerator.XNNPACK:
+                case TfLiteDelegateType.XNNPACK:
                     options.threads = SystemInfo.processorCount;
                     options.AddDelegate(XNNPackDelegate.DelegateForType(typeof(T)));
                     break;

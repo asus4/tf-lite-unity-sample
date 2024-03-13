@@ -11,10 +11,9 @@ namespace TensorFlowLite
     /// </summary>
     public class TextureToTensor : System.IDisposable
     {
-
         private Texture2D fetchTexture;
-        private ComputeShader compute;
         private ComputeBuffer tensorBuffer;
+        private readonly ComputeShader compute;
 
         public Texture2D texture => fetchTexture;
 

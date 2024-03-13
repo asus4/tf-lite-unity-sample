@@ -11,7 +11,7 @@ namespace TensorFlowLite
         private readonly ComputeBuffer outputBuffer;
 
         public StyleTransfer(string modelPath, float[] styleBottleneck, ComputeShader compute)
-            : base(modelPath, Accelerator.GPU)
+            : base(modelPath, TfLiteDelegateType.GPU)
         {
             this.styleBottleneck = styleBottleneck;
             this.compute = compute;

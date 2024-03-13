@@ -14,7 +14,7 @@ namespace TensorFlowLite
             [FilePopup("*.tflite")]
             public string modelPath = string.Empty;
             public AspectMode aspectMode = AspectMode.Fit;
-            public Accelerator accelerator = Accelerator.GPU;
+            public TfLiteDelegateType delegateType = TfLiteDelegateType.GPU;
         }
 
         public readonly struct Result
@@ -38,7 +38,7 @@ namespace TensorFlowLite
         private readonly Result[] results = new Result[MAX_DETECTION];
 
         public SSD(Options options)
-            : base(options.modelPath, options.accelerator)
+            : base(options.modelPath, options.delegateType)
         {
             resizeOptions.aspectMode = options.aspectMode;
         }
