@@ -7,6 +7,9 @@ using UnityEditor;
 
 namespace TensorFlowLite
 {
+    /// <summary>
+    /// Attribute for scene path
+    /// </summary>
     public class ScenePath : PropertyAttribute
     {
         public ScenePath()
@@ -29,13 +32,10 @@ namespace TensorFlowLite
                 return;
             }
 
-            if (scenePaths == null)
-            {
-                // Init display names
-                scenePaths = EditorBuildSettings.scenes
-                    .Select(scene => scene.path)
-                    .ToArray();
-            }
+            // Init display names
+            scenePaths ??= EditorBuildSettings.scenes
+                .Select(scene => scene.path)
+                .ToArray();
 
             EditorGUI.BeginProperty(position, label, property);
             int index = FindSelectedIndex(scenePaths, property.stringValue);
