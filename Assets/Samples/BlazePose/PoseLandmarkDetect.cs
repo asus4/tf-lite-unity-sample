@@ -81,7 +81,7 @@ namespace TensorFlowLite
 
         public Matrix4x4 CropMatrix => cropMatrix;
 
-        public PoseLandmarkDetect(Options options) : base(options.modelPath, Accelerator.GPU)
+        public PoseLandmarkDetect(Options options) : base(options.modelPath, TfLiteDelegateType.GPU)
         {
             this.options = options;
             resizeOptions.aspectMode = options.AspectMode;

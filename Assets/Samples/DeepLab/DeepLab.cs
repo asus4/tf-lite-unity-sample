@@ -11,7 +11,7 @@ namespace TensorFlowLite
         {
             [FilePopup("*.tflite")]
             public string modelFile = string.Empty;
-            public Accelerator accelerator = Accelerator.GPU;
+            public TfLiteDelegateType delegateType = TfLiteDelegateType.GPU;
             public ComputeShader compute = null;
         }
 
@@ -56,7 +56,7 @@ namespace TensorFlowLite
         private readonly Texture2D labelTex2D;
         private readonly int labelToTexKernel;
 
-        public DeepLab(Options options) : base(options.modelFile, options.accelerator)
+        public DeepLab(Options options) : base(options.modelFile, options.delegateType)
         {
             var oShape0 = interpreter.GetOutputTensorInfo(0).shape;
 

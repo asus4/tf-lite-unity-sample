@@ -4,7 +4,6 @@ namespace TensorFlowLite
     using System.Collections.Generic;
     using System.Linq;
     using UnityEngine;
-    using Accelerator = BaseImagePredictor<float>.Accelerator;
 
     /// <summary>
     /// MoViNets: Video Classification example from TensorFlow
@@ -19,7 +18,7 @@ namespace TensorFlowLite
             [FilePopup("*.tflite")]
             public string modelPath;
             public AspectMode aspectMode = AspectMode.Fill;
-            public Accelerator accelerator = Accelerator.XNNPACK;
+            public TfLiteDelegateType delegateType = TfLiteDelegateType.XNNPACK;
             public TextAsset labels;
         }
 
@@ -55,12 +54,12 @@ namespace TensorFlowLite
         public VideoClassification(Options options)
         {
             var interpreterOptions = new InterpreterOptions();
-            switch (options.accelerator)
+            switch (options.delegateType)
             {
-                case Accelerator.NONE:
+                case TfLiteDelegateType.NONE:
                     interpreterOptions.threads = SystemInfo.processorCount;
                     break;
-                case Accelerator.NNAPI:
+                case TfLiteDelegateType.NNAPI:
                     if (Application.platform == RuntimePlatform.Android)
                     {
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -73,10 +72,10 @@ namespace TensorFlowLite
                         Debug.LogError("NNAPI is only supported on Android");
                     }
                     break;
-                case Accelerator.GPU:
+                case TfLiteDelegateType.GPU:
                     interpreterOptions.AddGpuDelegate();
                     break;
-                case Accelerator.XNNPACK:
+                case TfLiteDelegateType.XNNPACK:
                     interpreterOptions.threads = SystemInfo.processorCount;
                     interpreterOptions.AddDelegate(XNNPackDelegate.DelegateForType(typeof(float)));
                     break;

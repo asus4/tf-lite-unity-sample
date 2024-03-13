@@ -32,7 +32,7 @@ namespace TensorFlowLite
         public Vector2 PalmScale { get; set; } = new Vector2(2.8f, 2.8f);
         public Matrix4x4 CropMatrix => cropMatrix;
 
-        public HandLandmarkDetect(string modelPath) : base(modelPath, Accelerator.GPU)
+        public HandLandmarkDetect(string modelPath) : base(modelPath, TfLiteDelegateType.GPU)
         {
             var out0info = interpreter.GetOutputTensorInfo(0);
             switch (out0info.shape[1])

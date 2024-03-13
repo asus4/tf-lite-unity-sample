@@ -29,7 +29,7 @@ public class SsdSample : MonoBehaviour
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
         // This is an example usage of the NNAPI delegate.
-        if (options.accelerator == SSD.Accelerator.NNAPI && !Application.isEditor)
+        if (options.delegateType == TfLiteDelegateType.NNAPI && !Application.isEditor)
         {
             string cacheDir = Application.persistentDataPath;
             string modelToken = "ssd-token";

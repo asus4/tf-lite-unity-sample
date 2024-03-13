@@ -12,7 +12,7 @@ namespace TensorFlowLite
             [FilePopup("*.tflite")]
             public string modelFile = string.Empty;
             public AspectMode aspectMode = AspectMode.Fit;
-            public Accelerator accelerator = Accelerator.GPU;
+            public TfLiteDelegateType delegateType = TfLiteDelegateType.GPU;
             public ComputeShader compute = null;
 
             [Range(0.1f, 4f)]
@@ -39,7 +39,7 @@ namespace TensorFlowLite
         private static readonly int kInputTexture = Shader.PropertyToID("InputTexture");
         private static readonly int kOutputTexture = Shader.PropertyToID("OutputTexture");
 
-        public SelfieSegmentation(Options options) : base(options.modelFile, options.accelerator)
+        public SelfieSegmentation(Options options) : base(options.modelFile, options.delegateType)
         {
             this.options = options;
             resizeOptions.aspectMode = options.aspectMode;

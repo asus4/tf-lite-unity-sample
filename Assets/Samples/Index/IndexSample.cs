@@ -2,6 +2,9 @@
 using TensorFlowLite;
 using UnityEngine;
 
+/// <summary>
+/// Index scene
+/// </summary>
 public class IndexSample : MonoBehaviour
 {
     [System.Serializable]

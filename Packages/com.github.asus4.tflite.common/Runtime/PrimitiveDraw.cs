@@ -75,9 +75,9 @@ namespace TensorFlowLite
         {
             material = new Material(Shader.Find("Hidden/PrimitiveDraw"));
             material.hideFlags = HideFlags.HideAndDontSave;
-            material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+            material.SetInt("_SrcBlend", (int)BlendMode.SrcAlpha);
+            material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+            material.SetInt("_Cull", (int)CullMode.Off);
             material.SetInt("_ZWrite", 0);
             material.SetInt("_ZTest", 6); //always
             material.enableInstancing = true;
