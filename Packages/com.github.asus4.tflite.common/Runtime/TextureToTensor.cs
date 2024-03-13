@@ -7,7 +7,7 @@ using Cysharp.Threading.Tasks;
 namespace TensorFlowLite
 {
     /// <summary>
-    /// Utility to convert Texture to Tensor
+    /// Converts Texture to Tensor (NHWC layout)
     /// </summary>
     public class TextureToTensor : System.IDisposable
     {
@@ -26,7 +26,7 @@ namespace TensorFlowLite
 
         public TextureToTensor()
         {
-            compute = Resources.Load<ComputeShader>("TextureToTensor");
+            compute = Resources.Load<ComputeShader>("com.github.asus4.tflite.common/TextureToTensor");
         }
 
         public void Dispose()

@@ -5,7 +5,7 @@ namespace TensorFlowLite
     /// <summary>
     /// Utility to resize the texture
     /// </summary>
-    public class TextureResizer : System.IDisposable
+    public sealed class TextureResizer : System.IDisposable
     {
         public struct ResizeOptions
         {
