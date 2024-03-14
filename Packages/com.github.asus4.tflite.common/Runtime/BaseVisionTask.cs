@@ -9,7 +9,7 @@ namespace TensorFlowLite
     /// Base class for task that takes a Texture as an input
     /// </summary>
     /// <typeparam name="T">A type of input tensor (float, sbyte etc.)</typeparam>
-    public abstract class BaseImageTask<T> : IDisposable
+    public abstract class BaseVisionTask<T> : IDisposable
         where T : unmanaged
     {
         protected readonly Interpreter interpreter;
@@ -22,16 +22,16 @@ namespace TensorFlowLite
         public AspectMode AspectMode { get; set; } = AspectMode.None;
 
         // Profilers
-        static readonly ProfilerMarker preprocessPerfMarker = new($"{typeof(BaseImageTask<T>).Name}.Preprocess");
-        static readonly ProfilerMarker runPerfMarker = new($"{typeof(BaseImageTask<T>).Name}.Session.Run");
-        static readonly ProfilerMarker postprocessPerfMarker = new($"{typeof(BaseImageTask<T>).Name}.Postprocess");
+        static readonly ProfilerMarker preprocessPerfMarker = new($"{typeof(BaseVisionTask<T>).Name}.Preprocess");
+        static readonly ProfilerMarker runPerfMarker = new($"{typeof(BaseVisionTask<T>).Name}.Session.Run");
+        static readonly ProfilerMarker postprocessPerfMarker = new($"{typeof(BaseVisionTask<T>).Name}.Postprocess");
 
         /// <summary>
         /// Create in inference that has Image input
         /// </summary>
         /// <param name="model"></param>
         /// <param name="options"></param>
-        public BaseImageTask(byte[] model, InterpreterOptions options)
+        public BaseVisionTask(byte[] model, InterpreterOptions options)
         {
             try
             {
@@ -99,6 +99,7 @@ namespace TensorFlowLite
 
         protected virtual void PreProcess(Texture texture)
         {
+            // TODO: Support GPU binding
             var input = textureToTensor.Transform(texture, AspectMode);
             interpreter.SetInputTensorData(0, input);
         }

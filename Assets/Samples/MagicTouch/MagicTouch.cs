@@ -10,7 +10,7 @@ namespace TensorFlowLite
     /// See model card for details
     /// https://storage.googleapis.com/mediapipe-assets/Model%20Card%20MagicTouch.pdf
     /// </summary>
-    public sealed class MagicTouch : BaseImageTask<float>
+    public sealed class MagicTouch : BaseVisionTask<float>
     {
         [System.Serializable]
         public class Options

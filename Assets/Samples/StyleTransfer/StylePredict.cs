@@ -1,26 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace TensorFlowLite
+﻿namespace TensorFlowLite
 {
-    public class StylePredict : BaseImagePredictor<float>
+    public class StylePredict : BaseVisionTask<float>
     {
-        float[] output0;
+        private readonly float[] output0;
 
-        public StylePredict(string modelPath) : base(modelPath, TfLiteDelegateType.GPU)
+        public StylePredict(string modelPath) :
+            base(FileUtil.LoadFile(modelPath), CreateOptions(TfLiteDelegateType.GPU))
         {
-
             var outDim0 = interpreter.GetOutputTensorInfo(0).shape;
-            output0 = new float[outDim0[3]]; // shold be 100
+            output0 = new float[outDim0[3]]; // should be 100
         }
 
-        public override void Invoke(Texture inputTex)
+        protected override void PostProcess()
         {
-            ToTensor(inputTex, inputTensor);
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
         }
 

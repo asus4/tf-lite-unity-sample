@@ -19,9 +19,6 @@ public class StyleTransferSample : MonoBehaviour
     private RawImage preview = null;
 
     [SerializeField]
-    private RawImage debugView = null;
-
-    [SerializeField]
     private ComputeShader compute = null;
 
     private StyleTransfer styleTransfer;
@@ -32,7 +29,7 @@ public class StyleTransferSample : MonoBehaviour
         // Predict style bottleneck;
         using (var predict = new StylePredict(predictionFileName))
         {
-            predict.Invoke(styleImage);
+            predict.Run(styleImage);
             styleBottleneck = predict.GetStyleBottleneck();
         }
 
@@ -57,6 +54,5 @@ public class StyleTransferSample : MonoBehaviour
     {
         styleTransfer.Run(texture);
         preview.texture = styleTransfer.GetResultTexture();
-        debugView.texture = styleTransfer.InputTexture;
     }
 }

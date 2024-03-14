@@ -6,7 +6,7 @@ namespace TensorFlowLite
     /// TensorFlow Lite Style Transfer Example
     /// https://www.tensorflow.org/lite/examples/style_transfer/overview
     /// </summary>
-    public class StyleTransfer : BaseImageTask<float>
+    public class StyleTransfer : BaseVisionTask<float>
     {
         private readonly float[] styleBottleneck;
         private readonly float[,,] output0;
