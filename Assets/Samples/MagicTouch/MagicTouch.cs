@@ -10,7 +10,7 @@ namespace TensorFlowLite
     /// See model card for details
     /// https://storage.googleapis.com/mediapipe-assets/Model%20Card%20MagicTouch.pdf
     /// </summary>
-    public sealed class MagicTouch : System.IDisposable
+    public sealed class MagicTouch : BaseImageTask<float>
     {
         [System.Serializable]
         public class Options
@@ -21,12 +21,17 @@ namespace TensorFlowLite
         }
 
         public MagicTouch(string modelFile, Options options)
+            : base(FileUtil.LoadFile(modelFile), CreateOptions(options.delegateType))
         {
-            // TODO: Implement MagicTouch model
+            // resizeOptions.aspectMode = options.aspectMode;
         }
 
-        public void Dispose()
+
+        public override void Dispose()
         {
+            base.Dispose();
         }
+
+
     }
 }

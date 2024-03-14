@@ -19,6 +19,9 @@ public class StyleTransferSample : MonoBehaviour
     private RawImage preview = null;
 
     [SerializeField]
+    private RawImage debugView = null;
+
+    [SerializeField]
     private ComputeShader compute = null;
 
     private StyleTransfer styleTransfer;
@@ -52,7 +55,8 @@ public class StyleTransferSample : MonoBehaviour
 
     private void OnTextureUpdate(Texture texture)
     {
-        styleTransfer.Invoke(texture);
+        styleTransfer.Run(texture);
         preview.texture = styleTransfer.GetResultTexture();
+        debugView.texture = styleTransfer.InputTexture;
     }
 }

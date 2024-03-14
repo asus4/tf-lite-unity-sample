@@ -51,7 +51,10 @@ namespace TensorFlowLite
                 throw e;
             }
 
+#if UNITY_EDITOR
             interpreter.LogIOInfo();
+#endif
+
             // Initialize inputs
             {
                 var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
