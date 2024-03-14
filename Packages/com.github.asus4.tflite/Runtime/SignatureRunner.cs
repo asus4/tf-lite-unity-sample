@@ -17,10 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Unity.Collections;
+using UnityEngine.Assertions;
 using TfLiteInterpreter = System.IntPtr;
 using TfLiteTensor = System.IntPtr;
 using TfLiteSignatureRunner = System.IntPtr;
-using UnityEngine.Assertions;
 
 namespace TensorFlowLite
 {
@@ -83,6 +84,16 @@ namespace TensorFlowLite
         }
 
         public void SetSignatureInputTensorData(string name, Array inputTensorData)
+        {
+            if (!inputTensors.TryGetValue(name, out int tensorIndex))
+            {
+                throw new ArgumentException($"{name} is not a valid input tensor name");
+            }
+            SetInputTensorData(tensorIndex, inputTensorData);
+        }
+
+        public void SetSignatureInputTensorData<T>(string name, in NativeArray<T> inputTensorData)
+            where T : unmanaged
         {
             if (!inputTensors.TryGetValue(name, out int tensorIndex))
             {
