@@ -24,7 +24,7 @@ public class VideoClassificationSample : MonoBehaviour
     private int resultCount = 3;
 
     private VideoClassification classification;
-    private readonly StringBuilder sb = new StringBuilder();
+    private readonly StringBuilder sb = new();
 
     private void Start()
     {
@@ -44,9 +44,7 @@ public class VideoClassificationSample : MonoBehaviour
         classification?.Dispose();
     }
 
-    // Called from VirtualTextureSource
-    [Preserve]
-    public void OnTextureUpdate(Texture texture)
+    private void OnTextureUpdate(Texture texture)
     {
         if (classification == null)
         {

@@ -117,36 +117,7 @@ namespace TensorFlowLite
         protected static InterpreterOptions CreateOptions(TfLiteDelegateType delegateType)
         {
             var options = new InterpreterOptions();
-
-            switch (delegateType)
-            {
-                case TfLiteDelegateType.NONE:
-                    options.threads = SystemInfo.processorCount;
-                    break;
-                case TfLiteDelegateType.NNAPI:
-                    if (Application.platform == RuntimePlatform.Android)
-                    {
-#if UNITY_ANDROID && !UNITY_EDITOR
-                        // Create NNAPI delegate with default options
-                        options.AddDelegate(new NNAPIDelegate());
-#endif // UNITY_ANDROID && !UNITY_EDITOR
-                    }
-                    else
-                    {
-                        Debug.LogError("NNAPI is only supported on Android");
-                    }
-                    break;
-                case TfLiteDelegateType.GPU:
-                    options.AddGpuDelegate();
-                    break;
-                case TfLiteDelegateType.XNNPACK:
-                    options.threads = SystemInfo.processorCount;
-                    options.AddDelegate(XNNPackDelegate.DelegateForType(typeof(T)));
-                    break;
-                default:
-                    options.Dispose();
-                    throw new NotImplementedException();
-            }
+            options.AutoAddDelegate(delegateType, typeof(T));
             return options;
         }
     }

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace TensorFlowLite
 {
+    /// <summary>
+    /// Extension methods for InterpreterOptions
+    /// </summary>
     public static class InterpreterOptionsExtension
     {
         /// <summary>

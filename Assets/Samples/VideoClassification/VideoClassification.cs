@@ -44,7 +44,6 @@ namespace TensorFlowLite
         private const string SIGNATURE_KEY = "serving_default";
         private const int LABEL_COUNT = 600;
         private readonly Dictionary<string, Array> states = new Dictionary<string, Array>();
-        private readonly float[,,] inputTensor;
         private readonly float[] logitsTensor = new float[LABEL_COUNT];
         private readonly TextureToNativeTensor<float> textureToTensor;
         private readonly AspectMode aspectMode;
@@ -53,35 +52,7 @@ namespace TensorFlowLite
         public VideoClassification(Options options)
         {
             var interpreterOptions = new InterpreterOptions();
-            switch (options.delegateType)
-            {
-                case TfLiteDelegateType.NONE:
-                    interpreterOptions.threads = SystemInfo.processorCount;
-                    break;
-                case TfLiteDelegateType.NNAPI:
-                    if (Application.platform == RuntimePlatform.Android)
-                    {
-#if UNITY_ANDROID && !UNITY_EDITOR
-                        // Create NNAPI delegate with default options
-                        interpreterOptions.AddDelegate(new NNAPIDelegate());
-#endif // UNITY_ANDROID && !UNITY_EDITOR
-                    }
-                    else
-                    {
-                        Debug.LogError("NNAPI is only supported on Android");
-                    }
-                    break;
-                case TfLiteDelegateType.GPU:
-                    interpreterOptions.AddGpuDelegate();
-                    break;
-                case TfLiteDelegateType.XNNPACK:
-                    interpreterOptions.threads = SystemInfo.processorCount;
-                    interpreterOptions.AddDelegate(XNNPackDelegate.DelegateForType(typeof(float)));
-                    break;
-                default:
-                    interpreterOptions.Dispose();
-                    throw new NotImplementedException();
-            }
+            interpreterOptions.AutoAddDelegate(options.delegateType, typeof(float));
 
             try
             {
@@ -96,13 +67,12 @@ namespace TensorFlowLite
             runner.LogIOInfo();
 
             // Initialize inputs
-            int width, height;
+            int width, height, channels;
             {
                 var inputShape = runner.GetSignatureInputInfo(IMAGE_INPUT_NAME).shape;
                 height = inputShape[2];
                 width = inputShape[3];
-                int channels = inputShape[4];
-                inputTensor = new float[height, width, channels];
+                channels = inputShape[4];
             }
             foreach (string name in runner.InputSignatureNames)
             {
@@ -120,7 +90,7 @@ namespace TensorFlowLite
                 kernel = 0,
                 width = width,
                 height = height,
-                channels = 3,
+                channels = channels,
             });
             aspectMode = options.aspectMode;
 
