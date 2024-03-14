@@ -46,9 +46,8 @@ namespace TensorFlowLite
         private readonly Dictionary<string, Array> states = new Dictionary<string, Array>();
         private readonly float[,,] inputTensor;
         private readonly float[] logitsTensor = new float[LABEL_COUNT];
-        private readonly TextureToTensor tex2tensor;
-        private readonly TextureResizer resizer;
-        private TextureResizer.ResizeOptions resizeOptions;
+        private readonly TextureToNativeTensor<float> textureToTensor;
+        private readonly AspectMode aspectMode;
         private readonly Category[] categories = new Category[LABEL_COUNT];
 
         public VideoClassification(Options options)
@@ -115,17 +114,15 @@ namespace TensorFlowLite
                 states.Add(name, ToArray(info));
             }
 
-            tex2tensor = new TextureToTensor();
-            resizer = new TextureResizer();
-            resizeOptions = new TextureResizer.ResizeOptions()
+            textureToTensor = new TextureToNativeTensor<float>(new TextureToNativeTensor<float>.Options
             {
-                aspectMode = options.aspectMode,
-                rotationDegree = 0,
-                mirrorHorizontal = false,
-                mirrorVertical = false,
+                compute = null,
+                kernel = 0,
                 width = width,
                 height = height,
-            };
+                channels = 3,
+            });
+            aspectMode = options.aspectMode;
 
             ResetStates();
 
@@ -137,15 +134,14 @@ namespace TensorFlowLite
         {
             states.Clear();
             runner?.Dispose();
-            tex2tensor?.Dispose();
-            resizer?.Dispose();
+            textureToTensor.Dispose();
         }
 
         public void Invoke(Texture inputTex)
         {
-            ToTensor(inputTex, inputTensor);
+            var input = textureToTensor.Transform(inputTex, aspectMode);
 
-            runner.SetSignatureInputTensorData(IMAGE_INPUT_NAME, inputTensor);
+            runner.SetSignatureInputTensorData(IMAGE_INPUT_NAME, input);
             // Set inputs
             foreach (var kv in states)
             {
@@ -194,12 +190,6 @@ namespace TensorFlowLite
             {
                 Array.Clear(kv.Value, 0, kv.Value.Length);
             }
-        }
-
-        private void ToTensor(Texture inputTex, float[,,] inputs)
-        {
-            RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
-            tex2tensor.ToTensor(tex, inputs);
         }
 
         private static Array ToArray(in Interpreter.TensorInfo info)

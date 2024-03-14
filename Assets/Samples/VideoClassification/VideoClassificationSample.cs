@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Text;
 using TensorFlowLite;
+using TextureSource;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
@@ -9,6 +10,7 @@ using UnityEngine.UI;
 /// MoViNets: Video Classification example from TensorFlow
 /// https://www.tensorflow.org/lite/examples/video_classification/overview
 /// </summary>
+[RequireComponent(typeof(VirtualTextureSource))]
 public class VideoClassificationSample : MonoBehaviour
 {
     [SerializeField]
@@ -27,16 +29,24 @@ public class VideoClassificationSample : MonoBehaviour
     private void Start()
     {
         classification = new VideoClassification(options);
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(OnTextureUpdate);
+        }
     }
 
     private void OnDestroy()
     {
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(OnTextureUpdate);
+        }
         classification?.Dispose();
     }
 
     // Called from VirtualTextureSource
     [Preserve]
-    public void Invoke(Texture texture)
+    public void OnTextureUpdate(Texture texture)
     {
         if (classification == null)
         {
