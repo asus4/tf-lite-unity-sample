@@ -6,7 +6,7 @@ namespace TensorFlowLite
     /// TensorFlow Lite Style Transfer Example
     /// https://www.tensorflow.org/lite/examples/style_transfer/overview
     /// </summary>
-    public class StyleTransfer : BaseVisionTask<float>
+    public class StyleTransfer : BaseVisionTask
     {
 
         private readonly float[] styleBottleneck;
@@ -17,7 +17,9 @@ namespace TensorFlowLite
 
         public StyleTransfer(string modelPath, float[] styleBottleneck, ComputeShader compute)
         {
-            Load(FileUtil.LoadFile(modelPath), CreateOptions(TfLiteDelegateType.GPU));
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            Load(FileUtil.LoadFile(modelPath), interpreterOptions);
             this.styleBottleneck = styleBottleneck;
             this.compute = compute;
         }

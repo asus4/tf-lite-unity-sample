@@ -85,7 +85,7 @@ namespace TensorFlowLite
                 states.Add(name, ToArray(info));
             }
 
-            textureToTensor = new TextureToNativeTensor(new TextureToNativeTensor.Options
+            textureToTensor = TextureToNativeTensor.Create(new()
             {
                 compute = null,
                 kernel = 0,

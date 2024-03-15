@@ -1,12 +1,14 @@
 ﻿namespace TensorFlowLite
 {
-    public class StylePredict : BaseVisionTask<float>
+    public class StylePredict : BaseVisionTask
     {
         private readonly float[] output0;
 
         public StylePredict(string modelPath)
         {
-            Load(FileUtil.LoadFile(modelPath), CreateOptions(TfLiteDelegateType.GPU));
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            Load(FileUtil.LoadFile(modelPath), interpreterOptions);
 
             var outDim0 = interpreter.GetOutputTensorInfo(0).shape;
             output0 = new float[outDim0[3]]; // should be 100

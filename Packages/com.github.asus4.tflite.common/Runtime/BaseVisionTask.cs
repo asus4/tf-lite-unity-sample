@@ -10,8 +10,7 @@ namespace TensorFlowLite
     /// Base class for task that takes a Texture as an input
     /// </summary>
     /// <typeparam name="T">A type of input tensor (float, sbyte etc.)</typeparam>
-    public abstract class BaseVisionTask<T> : IDisposable
-        where T : unmanaged
+    public abstract class BaseVisionTask : IDisposable
     {
         protected Interpreter interpreter;
         protected int inputTensorIndex = 0;
@@ -24,10 +23,9 @@ namespace TensorFlowLite
         public AspectMode AspectMode { get; set; } = AspectMode.None;
 
         // Profilers
-        static readonly ProfilerMarker preprocessPerfMarker = new($"{typeof(BaseVisionTask<T>).Name}.Preprocess");
-        static readonly ProfilerMarker runPerfMarker = new($"{typeof(BaseVisionTask<T>).Name}.Session.Run");
-        static readonly ProfilerMarker postprocessPerfMarker = new($"{typeof(BaseVisionTask<T>).Name}.Postprocess");
-
+        static readonly ProfilerMarker preprocessPerfMarker = new($"{typeof(BaseVisionTask).Name}.Preprocess");
+        static readonly ProfilerMarker runPerfMarker = new($"{typeof(BaseVisionTask).Name}.Session.Run");
+        static readonly ProfilerMarker postprocessPerfMarker = new($"{typeof(BaseVisionTask).Name}.Postprocess");
 
         /// <summary>
         /// Load model from byte array
@@ -78,6 +76,11 @@ namespace TensorFlowLite
             postprocessPerfMarker.End();
         }
 
+        /// <summary>
+        /// Pre process the input texture
+        /// Set all input tensors for the model
+        /// </summary>
+        /// <param name="texture">An input texture</param>
         protected virtual void PreProcess(Texture texture)
         {
             // TODO: Support GPU binding
@@ -85,11 +88,10 @@ namespace TensorFlowLite
             interpreter.SetInputTensorData(inputTensorIndex, input);
         }
 
-        protected virtual void PostProcess()
-        {
-            // Override this in subclass
-        }
-
+        /// <summary>
+        /// Get the output tensors and do post process in subclass
+        /// </summary>
+        protected abstract void PostProcess();
 
         /// <summary>
         /// Default implementation of InitializeInputsOutputs
@@ -120,7 +122,7 @@ namespace TensorFlowLite
         /// <returns>A TextureToNativeTensor instance</returns>
         protected virtual TextureToNativeTensor CreateTextureToTensor(TensorInfo inputTensorInfo)
         {
-            return new TextureToNativeTensor(new TextureToNativeTensor.Options
+            return TextureToNativeTensor.Create(new()
             {
                 compute = null,
                 kernel = 0,
@@ -129,18 +131,6 @@ namespace TensorFlowLite
                 channels = channels,
                 inputType = inputTensorInfo.type,
             });
-        }
-
-        /// <summary>
-        /// Create InterpreterOptions from delegate type
-        /// </summary>
-        /// <param name="delegateType">A delegate type</param>
-        /// <returns>An interpreter options</returns>
-        protected static InterpreterOptions CreateOptions(TfLiteDelegateType delegateType)
-        {
-            var options = new InterpreterOptions();
-            options.AutoAddDelegate(delegateType, typeof(T));
-            return options;
         }
     }
 }

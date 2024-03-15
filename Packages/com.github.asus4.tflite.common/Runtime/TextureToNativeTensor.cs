@@ -25,8 +25,10 @@ namespace TensorFlowLite
             public DataType inputType = DataType.Float32;
         }
 
-        private static readonly Lazy<ComputeShader> DefaultComputeShaderFloat32 = new(()
+        protected static readonly Lazy<ComputeShader> DefaultComputeShaderFloat32 = new(()
             => Resources.Load<ComputeShader>("com.github.asus4.tflite.common/TextureToNativeTensorFloat32"));
+        protected static readonly Lazy<ComputeShader> DefaultComputeShaderUint32 = new(()
+            => Resources.Load<ComputeShader>("com.github.asus4.tflite.common/TextureToNativeTensorUInt8"));
 
         private static readonly int _InputTex = Shader.PropertyToID("_InputTex");
         private static readonly int _OutputTex = Shader.PropertyToID("_OutputTex");
@@ -50,7 +52,7 @@ namespace TensorFlowLite
         public RenderTexture Texture => texture;
         public Matrix4x4 TransformMatrix { get; private set; } = Matrix4x4.identity;
 
-        public TextureToNativeTensor(Options options)
+        protected TextureToNativeTensor(int stride, Options options)
         {
             compute = options.compute != null
                 ? options.compute
@@ -75,7 +77,6 @@ namespace TensorFlowLite
             texture.Create();
 
             int length = width * height * channels;
-            int stride = UnsafeUtility.SizeOf(typeof(float));
             tensorBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, length, stride);
             tensor = new NativeArray<byte>(length * stride, Allocator.Persistent);
 
@@ -85,7 +86,7 @@ namespace TensorFlowLite
             compute.SetTexture(kernel, _OutputTex, texture, 0);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             texture.Release();
             UnityEngine.Object.Destroy(texture);
@@ -138,6 +139,67 @@ namespace TensorFlowLite
                 (AspectMode.Fill, false) => new Vector2(1, srcAspect / dstAspect),
                 _ => throw new Exception("Unknown aspect mode"),
             };
+        }
+
+        public static TextureToNativeTensor Create(Options options)
+        {
+            return options.inputType switch
+            {
+                DataType.Float32 => new TextureToNativeTensorFloat32(options),
+                DataType.UInt8 => new TextureToNativeTensorUInt8(options),
+                _ => throw new NotImplementedException(
+                    $"input type {options.inputType} is not implemented yet. Create our own TextureToNativeTensor class and override it."),
+            };
+        }
+    }
+
+    /// <summary>
+    /// For Float32
+    /// </summary>
+    public sealed class TextureToNativeTensorFloat32 : TextureToNativeTensor
+    {
+        public TextureToNativeTensorFloat32(Options options)
+            : base(UnsafeUtility.SizeOf<float>(), options)
+        { }
+    }
+
+    /// <summary>
+    /// For UInt8
+    /// </summary>
+    public sealed class TextureToNativeTensorUInt8 : TextureToNativeTensor
+    {
+        private NativeArray<uint> tensorUintRef;
+        private NativeArray<byte> tensorInt8;
+
+        public TextureToNativeTensorUInt8(Options options)
+            : base(UnsafeUtility.SizeOf<uint>(), options)
+        {
+            int stride = UnsafeUtility.SizeOf<uint>();
+            tensorUintRef = tensor.Reinterpret<uint>(stride);
+
+            Assert.AreEqual(tensorUintRef.Length, options.width * options.height * options.channels);
+
+            // Run as UInt32 then cast to UInt8(byte)
+            // Because ComputeBuffer doesn't support UInt8 type
+            tensorInt8 = new NativeArray<byte>(tensorUintRef.Length, Allocator.Persistent);
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            tensorInt8.Dispose();
+            tensorUintRef.Dispose();
+        }
+
+        public override NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
+        {
+            base.Transform(input, t);
+            // TODO: implement in burst
+            for (int i = 0; i < tensorUintRef.Length; i++)
+            {
+                tensorInt8[i] = (byte)tensorUintRef[i];
+            }
+            return tensorInt8;
         }
     }
 }
