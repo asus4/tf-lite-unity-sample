@@ -12,6 +12,7 @@
   "version": "2.15.0",
   "hideInEditor": false,
   "dependencies": {
+    "com.unity.burst": "1.8.12",
     "com.github.asus4.tflite": "2.15.0"
   },
   "repository": {
