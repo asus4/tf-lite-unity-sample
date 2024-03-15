@@ -6,7 +6,7 @@ namespace TensorFlowLite
     /// Object Detection
     /// See https://www.tensorflow.org/lite/models/object_detection/overview
     /// </summary>
-    public class SSD : BaseImagePredictor<sbyte>
+    public class SSD : BaseImagePredictor<byte>
     {
         [System.Serializable]
         public class Options
@@ -52,7 +52,6 @@ namespace TensorFlowLite
         public override void Invoke(Texture inputTex)
         {
             ToTensor(inputTex, inputTensor);
-            // ToTensor(inputTex, ref input);
 
             interpreter.SetInputTensorData(0, inputTensor);
             interpreter.Invoke();

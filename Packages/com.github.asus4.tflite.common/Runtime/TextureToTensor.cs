@@ -34,7 +34,7 @@ namespace TensorFlowLite
             DisposeUtil.TryDispose(tensorBuffer);
         }
 
-        public void ToTensor(RenderTexture texture, sbyte[,,] inputs)
+        public void ToTensor(RenderTexture texture, byte[,,] inputs)
         {
             var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
             int width = texture.width;
@@ -43,9 +43,9 @@ namespace TensorFlowLite
             {
                 int y = height - i / width;
                 int x = i % width;
-                inputs[y, x, 0] = (sbyte)pixels[i].r;
-                inputs[y, x, 1] = (sbyte)pixels[i].g;
-                inputs[y, x, 2] = (sbyte)pixels[i].b;
+                inputs[y, x, 0] = pixels[i].r;
+                inputs[y, x, 1] = pixels[i].b;
+                inputs[y, x, 2] = pixels[i].g;
             }
         }
 
@@ -121,7 +121,7 @@ namespace TensorFlowLite
             return true;
         }
 
-        public async UniTask<bool> ToTensorAsync(RenderTexture texture, sbyte[,,] inputs, CancellationToken cancellationToken)
+        public async UniTask<bool> ToTensorAsync(RenderTexture texture, byte[,,] inputs, CancellationToken cancellationToken)
         {
             await UniTask.SwitchToMainThread(PlayerLoopTiming.FixedUpdate, cancellationToken);
             var pixels = FetchToTexture2D(texture).GetRawTextureData<Color32>();
@@ -133,9 +133,9 @@ namespace TensorFlowLite
             {
                 int y = height - i / width;
                 int x = i % width;
-                inputs[y, x, 0] = (sbyte)pixels[i].r;
-                inputs[y, x, 1] = (sbyte)pixels[i].g;
-                inputs[y, x, 2] = (sbyte)pixels[i].b;
+                inputs[y, x, 0] = pixels[i].r;
+                inputs[y, x, 1] = pixels[i].g;
+                inputs[y, x, 2] = pixels[i].b;
             }
             return true;
         }

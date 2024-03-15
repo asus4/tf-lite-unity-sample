@@ -9,7 +9,7 @@ namespace TensorFlowLite.MoveNet
     /// MoveNet Example
     /// https://www.tensorflow.org/hub/tutorials/movenet
     /// </summary>
-    public class MoveNetSinglePose : BaseImagePredictor<sbyte>
+    public class MoveNetSinglePose : BaseImagePredictor<byte>
     {
         [System.Serializable]
         public class Options

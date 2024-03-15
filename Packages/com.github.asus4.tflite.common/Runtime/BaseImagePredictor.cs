@@ -129,7 +129,7 @@ namespace TensorFlowLite
             tex2tensor.ToTensor(tex, inputs, offset, scale);
         }
 
-        protected void ToTensor(Texture inputTex, sbyte[,,] inputs)
+        protected void ToTensor(Texture inputTex, byte[,,] inputs)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
             tex2tensor.ToTensor(tex, inputs);
@@ -158,7 +158,7 @@ namespace TensorFlowLite
             return true;
         }
 
-        protected async UniTask<bool> ToTensorAsync(Texture inputTex, sbyte[,,] inputs, CancellationToken cancellationToken)
+        protected async UniTask<bool> ToTensorAsync(Texture inputTex, byte[,,] inputs, CancellationToken cancellationToken)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
             await tex2tensor.ToTensorAsync(tex, inputs, cancellationToken);
