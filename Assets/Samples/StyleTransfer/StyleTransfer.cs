@@ -8,6 +8,7 @@ namespace TensorFlowLite
     /// </summary>
     public class StyleTransfer : BaseVisionTask<float>
     {
+
         private readonly float[] styleBottleneck;
         private readonly ComputeShader compute;
         private RenderTexture outputTex;
@@ -21,9 +22,9 @@ namespace TensorFlowLite
             this.compute = compute;
         }
 
-        protected override void InitializeInputsOutputs()
+        protected override void InitializeInputsOutputs(Interpreter.TensorInfo inputTensorInfo)
         {
-            base.InitializeInputsOutputs();
+            base.InitializeInputsOutputs(inputTensorInfo);
 
             output0 = new float[height, width, channels];
             outputTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat)

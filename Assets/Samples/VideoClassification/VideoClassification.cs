@@ -67,9 +67,10 @@ namespace TensorFlowLite
             runner.LogIOInfo();
 
             // Initialize inputs
+            var inputTensorInfo = runner.GetSignatureInputInfo(IMAGE_INPUT_NAME);
             int width, height, channels;
             {
-                var inputShape = runner.GetSignatureInputInfo(IMAGE_INPUT_NAME).shape;
+                var inputShape = inputTensorInfo.shape;
                 height = inputShape[2];
                 width = inputShape[3];
                 channels = inputShape[4];
@@ -91,7 +92,7 @@ namespace TensorFlowLite
                 width = width,
                 height = height,
                 channels = channels,
-                inputType = typeof(float),
+                inputType = inputTensorInfo.type,
             });
             aspectMode = options.aspectMode;
 

@@ -2,6 +2,7 @@ using System;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Assertions;
+using TensorInfo = TensorFlowLite.Interpreter.TensorInfo;
 
 namespace TensorFlowLite
 {
@@ -13,6 +14,7 @@ namespace TensorFlowLite
         where T : unmanaged
     {
         protected Interpreter interpreter;
+        protected int inputTensorIndex = 0;
         protected int width;
         protected int height;
         protected int channels;
@@ -47,17 +49,9 @@ namespace TensorFlowLite
             interpreter.LogIOInfo();
 #endif
 
-            InitializeInputsOutputs();
-
-            textureToTensor = new TextureToNativeTensor(new TextureToNativeTensor.Options
-            {
-                compute = null,
-                kernel = 0,
-                width = width,
-                height = height,
-                channels = channels,
-                inputType = typeof(T),
-            });
+            var inputTensorInfo = interpreter.GetInputTensorInfo(inputTensorIndex);
+            InitializeInputsOutputs(inputTensorInfo);
+            textureToTensor = CreateTextureToTensor(inputTensorInfo);
         }
 
         public virtual void Dispose()
@@ -65,7 +59,6 @@ namespace TensorFlowLite
             interpreter?.Dispose();
             textureToTensor?.Dispose();
         }
-
 
         public virtual void Run(Texture texture)
         {
@@ -89,7 +82,7 @@ namespace TensorFlowLite
         {
             // TODO: Support GPU binding
             var input = textureToTensor.Transform(texture, AspectMode);
-            interpreter.SetInputTensorData(0, input);
+            interpreter.SetInputTensorData(inputTensorIndex, input);
         }
 
         protected virtual void PostProcess()
@@ -102,14 +95,14 @@ namespace TensorFlowLite
         /// Default implementation of InitializeInputsOutputs
         /// Override this in subclass if needed
         /// </summary>
-        protected virtual void InitializeInputsOutputs()
+        protected virtual void InitializeInputsOutputs(TensorInfo inputTensorInfo)
         {
-            var shape0 = interpreter.GetInputTensorInfo(0).shape;
-            Assert.AreEqual(4, shape0.Length);
-            Assert.AreEqual(1, shape0[0], $"The batch size of the model must be 1. But got {shape0[0]}");
-            height = shape0[1];
-            width = shape0[2];
-            channels = shape0[3];
+            int[] inputShape = inputTensorInfo.shape;
+            Assert.AreEqual(4, inputShape.Length);
+            Assert.AreEqual(1, inputShape[0], $"The batch size of the model must be 1. But got {inputShape[0]}");
+            height = inputShape[1];
+            width = inputShape[2];
+            channels = inputShape[3];
 
             int inputCount = interpreter.GetInputTensorCount();
             for (int i = 0; i < inputCount; i++)
@@ -118,6 +111,24 @@ namespace TensorFlowLite
                 interpreter.ResizeInputTensor(i, shape);
             }
             interpreter.AllocateTensors();
+        }
+
+        /// <summary>
+        /// Create TextureToTensor for this model.
+        /// Override this in subclass if needed
+        /// </summary>
+        /// <returns>A TextureToNativeTensor instance</returns>
+        protected virtual TextureToNativeTensor CreateTextureToTensor(TensorInfo inputTensorInfo)
+        {
+            return new TextureToNativeTensor(new TextureToNativeTensor.Options
+            {
+                compute = null,
+                kernel = 0,
+                width = width,
+                height = height,
+                channels = channels,
+                inputType = inputTensorInfo.type,
+            });
         }
 
         /// <summary>

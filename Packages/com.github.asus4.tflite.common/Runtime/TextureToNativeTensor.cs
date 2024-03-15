@@ -1,16 +1,16 @@
 using System;
-using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering;
+using DataType = TensorFlowLite.Interpreter.DataType;
 
 namespace TensorFlowLite
 {
     /// <summary>
     /// Converts Texture to Tensor with arbitrary matrix transformation
-    /// then return it as a NativeArray (NHWC layout)
+    /// then return it as a NativeArray<byte> (NHWC layout)
     /// </summary>
     public class TextureToNativeTensor : IDisposable
     {
@@ -22,15 +22,11 @@ namespace TensorFlowLite
             public int width = 0;
             public int height = 0;
             public int channels = 0;
-            public Type inputType = typeof(float);
+            public DataType inputType = DataType.Float32;
         }
 
-        private static readonly Lazy<ComputeShader> DefaultComputeShaderFloat32 = new(() =>
-        {
-            const string path = "com.github.asus4.tflite.common/TextureToNativeTensorFloat32";
-            return Resources.Load<ComputeShader>(path);
-        });
-
+        private static readonly Lazy<ComputeShader> DefaultComputeShaderFloat32 = new(()
+            => Resources.Load<ComputeShader>("com.github.asus4.tflite.common/TextureToNativeTensorFloat32"));
 
         private static readonly int _InputTex = Shader.PropertyToID("_InputTex");
         private static readonly int _OutputTex = Shader.PropertyToID("_OutputTex");
@@ -49,7 +45,7 @@ namespace TensorFlowLite
 
         private readonly RenderTexture texture;
         private readonly GraphicsBuffer tensorBuffer;
-        private NativeArray<byte> tensor;
+        protected NativeArray<byte> tensor;
 
         public RenderTexture Texture => texture;
         public Matrix4x4 TransformMatrix { get; private set; } = Matrix4x4.identity;
@@ -68,7 +64,6 @@ namespace TensorFlowLite
             Assert.IsTrue(width > 0, $"Width must be greater than 0");
             Assert.IsTrue(height > 0, $"Height must be greater than 0");
             Assert.IsTrue(channels > 0 && channels <= 4, $"Channels must be 1 to 4");
-            Assert.IsTrue(UnsafeUtility.IsUnmanaged(options.inputType), "Type must be unmanaged");
 
             var desc = new RenderTextureDescriptor(width, height, RenderTextureFormat.ARGB32)
             {
@@ -80,7 +75,7 @@ namespace TensorFlowLite
             texture.Create();
 
             int length = width * height * channels;
-            int stride = UnsafeUtility.SizeOf(options.inputType);
+            int stride = UnsafeUtility.SizeOf(typeof(float));
             tensorBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, length, stride);
             tensor = new NativeArray<byte>(length * stride, Allocator.Persistent);
 
@@ -98,7 +93,7 @@ namespace TensorFlowLite
             tensorBuffer.Dispose();
         }
 
-        public NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
+        public virtual NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
         {
             TransformMatrix = t;
             compute.SetTexture(kernel, _InputTex, input, 0);
