@@ -44,45 +44,15 @@ namespace TensorFlowLite
         private const string SIGNATURE_KEY = "serving_default";
         private const int LABEL_COUNT = 600;
         private readonly Dictionary<string, Array> states = new Dictionary<string, Array>();
-        private readonly float[,,] inputTensor;
         private readonly float[] logitsTensor = new float[LABEL_COUNT];
-        private readonly TextureToTensor tex2tensor;
-        private readonly TextureResizer resizer;
-        private TextureResizer.ResizeOptions resizeOptions;
+        private readonly TextureToNativeTensor textureToTensor;
+        private readonly AspectMode aspectMode;
         private readonly Category[] categories = new Category[LABEL_COUNT];
 
         public VideoClassification(Options options)
         {
             var interpreterOptions = new InterpreterOptions();
-            switch (options.delegateType)
-            {
-                case TfLiteDelegateType.NONE:
-                    interpreterOptions.threads = SystemInfo.processorCount;
-                    break;
-                case TfLiteDelegateType.NNAPI:
-                    if (Application.platform == RuntimePlatform.Android)
-                    {
-#if UNITY_ANDROID && !UNITY_EDITOR
-                        // Create NNAPI delegate with default options
-                        interpreterOptions.AddDelegate(new NNAPIDelegate());
-#endif // UNITY_ANDROID && !UNITY_EDITOR
-                    }
-                    else
-                    {
-                        Debug.LogError("NNAPI is only supported on Android");
-                    }
-                    break;
-                case TfLiteDelegateType.GPU:
-                    interpreterOptions.AddGpuDelegate();
-                    break;
-                case TfLiteDelegateType.XNNPACK:
-                    interpreterOptions.threads = SystemInfo.processorCount;
-                    interpreterOptions.AddDelegate(XNNPackDelegate.DelegateForType(typeof(float)));
-                    break;
-                default:
-                    interpreterOptions.Dispose();
-                    throw new NotImplementedException();
-            }
+            interpreterOptions.AutoAddDelegate(options.delegateType, typeof(float));
 
             try
             {
@@ -97,13 +67,13 @@ namespace TensorFlowLite
             runner.LogIOInfo();
 
             // Initialize inputs
-            int width, height;
+            var inputTensorInfo = runner.GetSignatureInputInfo(IMAGE_INPUT_NAME);
+            int width, height, channels;
             {
-                var inputShape = runner.GetSignatureInputInfo(IMAGE_INPUT_NAME).shape;
+                var inputShape = inputTensorInfo.shape;
                 height = inputShape[2];
                 width = inputShape[3];
-                int channels = inputShape[4];
-                inputTensor = new float[height, width, channels];
+                channels = inputShape[4];
             }
             foreach (string name in runner.InputSignatureNames)
             {
@@ -115,17 +85,16 @@ namespace TensorFlowLite
                 states.Add(name, ToArray(info));
             }
 
-            tex2tensor = new TextureToTensor();
-            resizer = new TextureResizer();
-            resizeOptions = new TextureResizer.ResizeOptions()
+            textureToTensor = TextureToNativeTensor.Create(new()
             {
-                aspectMode = options.aspectMode,
-                rotationDegree = 0,
-                mirrorHorizontal = false,
-                mirrorVertical = false,
+                compute = null,
+                kernel = 0,
                 width = width,
                 height = height,
-            };
+                channels = channels,
+                inputType = inputTensorInfo.type,
+            });
+            aspectMode = options.aspectMode;
 
             ResetStates();
 
@@ -137,15 +106,14 @@ namespace TensorFlowLite
         {
             states.Clear();
             runner?.Dispose();
-            tex2tensor?.Dispose();
-            resizer?.Dispose();
+            textureToTensor.Dispose();
         }
 
         public void Invoke(Texture inputTex)
         {
-            ToTensor(inputTex, inputTensor);
+            var input = textureToTensor.Transform(inputTex, aspectMode);
 
-            runner.SetSignatureInputTensorData(IMAGE_INPUT_NAME, inputTensor);
+            runner.SetSignatureInputTensorData(IMAGE_INPUT_NAME, input);
             // Set inputs
             foreach (var kv in states)
             {
@@ -194,12 +162,6 @@ namespace TensorFlowLite
             {
                 Array.Clear(kv.Value, 0, kv.Value.Length);
             }
-        }
-
-        private void ToTensor(Texture inputTex, float[,,] inputs)
-        {
-            RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
-            tex2tensor.ToTensor(tex, inputs);
         }
 
         private static Array ToArray(in Interpreter.TensorInfo info)

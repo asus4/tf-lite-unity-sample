@@ -10,9 +10,9 @@
   "unity": "2022.3",
   "unityRelease": "0f1",
   "version": "2.15.0",
-  "type": "library",
   "hideInEditor": false,
   "dependencies": {
+    "com.unity.burst": "1.8.12",
     "com.github.asus4.tflite": "2.15.0"
   },
   "repository": {

@@ -10,6 +10,7 @@ namespace TensorFlowLite
     /// Pose Estimation Example
     /// https://www.tensorflow.org/lite/models/pose_estimation/overview
     /// </summary>
+    [System.Obsolete("Use MoveNet instead")]
     public class PoseNet : BaseImagePredictor<float>
     {
         public enum Part

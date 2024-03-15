@@ -1,0 +1,32 @@
+﻿#pragma kernel TextureToTensor
+
+Texture2D<float4> _InputTex;
+RWTexture2D<float4> _OutputTex;
+RWStructuredBuffer<float3> _OutputTensor;
+
+uint2 _OutputSize;
+float4x4 _TransformMatrix;
+
+SamplerState linearClampSampler;
+
+[numthreads(8,8,1)]
+void TextureToTensor (uint2 id : SV_DispatchThreadID)
+{
+    if(any(id >= _OutputSize))
+    {
+        return; 
+    }
+
+    float2 uv = (float2)id / float2(_OutputSize - 1.0);
+    uv = mul(_TransformMatrix, float4(uv, 0, 1)).xy;
+
+    float4 color = any(uv < 0) || any(uv > 1)
+        ? float4(0, 0, 0, 1) // Set to black the outside
+        : _InputTex.SampleLevel(linearClampSampler, uv, 0);
+
+    _OutputTex[id] = color;
+    
+    // Flip Y axis
+    uint tid = (_OutputSize.y - 1 - id.y) * _OutputSize.x + id.x;
+    _OutputTensor[tid] = color.rgb;
+}

@@ -29,7 +29,7 @@ public class StyleTransferSample : MonoBehaviour
         // Predict style bottleneck;
         using (var predict = new StylePredict(predictionFileName))
         {
-            predict.Invoke(styleImage);
+            predict.Run(styleImage);
             styleBottleneck = predict.GetStyleBottleneck();
         }
 
@@ -52,7 +52,7 @@ public class StyleTransferSample : MonoBehaviour
 
     private void OnTextureUpdate(Texture texture)
     {
-        styleTransfer.Invoke(texture);
+        styleTransfer.Run(texture);
         preview.texture = styleTransfer.GetResultTexture();
     }
 }

@@ -51,7 +51,10 @@ namespace TensorFlowLite
                 throw e;
             }
 
+#if UNITY_EDITOR
             interpreter.LogIOInfo();
+#endif
+
             // Initialize inputs
             {
                 var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
@@ -95,36 +98,7 @@ namespace TensorFlowLite
         protected static InterpreterOptions CreateOptions(TfLiteDelegateType delegateType)
         {
             var options = new InterpreterOptions();
-
-            switch (delegateType)
-            {
-                case TfLiteDelegateType.NONE:
-                    options.threads = SystemInfo.processorCount;
-                    break;
-                case TfLiteDelegateType.NNAPI:
-                    if (Application.platform == RuntimePlatform.Android)
-                    {
-#if UNITY_ANDROID && !UNITY_EDITOR
-                        // Create NNAPI delegate with default options
-                        options.AddDelegate(new NNAPIDelegate());
-#endif // UNITY_ANDROID && !UNITY_EDITOR
-                    }
-                    else
-                    {
-                        Debug.LogError("NNAPI is only supported on Android");
-                    }
-                    break;
-                case TfLiteDelegateType.GPU:
-                    options.AddGpuDelegate();
-                    break;
-                case TfLiteDelegateType.XNNPACK:
-                    options.threads = SystemInfo.processorCount;
-                    options.AddDelegate(XNNPackDelegate.DelegateForType(typeof(T)));
-                    break;
-                default:
-                    options.Dispose();
-                    throw new System.NotImplementedException();
-            }
+            options.AutoAddDelegate(delegateType, typeof(T));
             return options;
         }
 
@@ -155,7 +129,7 @@ namespace TensorFlowLite
             tex2tensor.ToTensor(tex, inputs, offset, scale);
         }
 
-        protected void ToTensor(Texture inputTex, sbyte[,,] inputs)
+        protected void ToTensor(Texture inputTex, byte[,,] inputs)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
             tex2tensor.ToTensor(tex, inputs);
@@ -184,7 +158,7 @@ namespace TensorFlowLite
             return true;
         }
 
-        protected async UniTask<bool> ToTensorAsync(Texture inputTex, sbyte[,,] inputs, CancellationToken cancellationToken)
+        protected async UniTask<bool> ToTensorAsync(Texture inputTex, byte[,,] inputs, CancellationToken cancellationToken)
         {
             RenderTexture tex = resizer.Resize(inputTex, resizeOptions);
             await tex2tensor.ToTensorAsync(tex, inputs, cancellationToken);

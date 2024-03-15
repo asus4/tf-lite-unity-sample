@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 
 using UnityEngine;
@@ -44,7 +42,7 @@ namespace TensorFlowLite
 
             if (selectedIndex < 0)
             {
-                selectedIndex = FindSlectedIndex(property.stringValue);
+                selectedIndex = FindSelectedIndex(property.stringValue);
             }
 
             EditorGUI.BeginProperty(position, label, property);
@@ -55,11 +53,11 @@ namespace TensorFlowLite
             EditorGUI.EndProperty();
         }
 
-        void InitDisplayNames(string regex)
+        private void InitDisplayNames(string regex)
         {
-            string[] fullpathes = Directory.GetFiles(Application.streamingAssetsPath, regex, SearchOption.AllDirectories);
+            string[] fullPaths = Directory.GetFiles(Application.streamingAssetsPath, regex, SearchOption.AllDirectories);
 
-            displayNames = fullpathes.Select(f =>
+            displayNames = fullPaths.Select(f =>
             {
                 string path = f.Replace(Application.streamingAssetsPath, "")
                                .Replace('\\', '/');
@@ -71,7 +69,7 @@ namespace TensorFlowLite
             }).ToArray();
         }
 
-        int FindSlectedIndex(string value)
+        private int FindSelectedIndex(string value)
         {
             for (int i = 0; i < displayNames.Length; i++)
             {

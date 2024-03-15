@@ -76,7 +76,7 @@ public class SsdSample : MonoBehaviour
 
     private void Invoke(Texture texture)
     {
-        ssd.Invoke(texture);
+        ssd.Run(texture);
 
         SSD.Result[] results = ssd.GetResults();
         Vector2 size = (frameContainer.transform as RectTransform).rect.size;

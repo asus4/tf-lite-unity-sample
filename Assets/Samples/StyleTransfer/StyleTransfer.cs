@@ -2,27 +2,40 @@
 
 namespace TensorFlowLite
 {
-    public class StyleTransfer : BaseImagePredictor<float>
+    /// <summary>
+    /// TensorFlow Lite Style Transfer Example
+    /// https://www.tensorflow.org/lite/examples/style_transfer/overview
+    /// </summary>
+    public class StyleTransfer : BaseVisionTask
     {
+
         private readonly float[] styleBottleneck;
-        private readonly float[,,] output0;
-        private readonly RenderTexture outputTex;
         private readonly ComputeShader compute;
-        private readonly ComputeBuffer outputBuffer;
+        private RenderTexture outputTex;
+        private float[,,] output0;
+        private ComputeBuffer outputBuffer;
 
         public StyleTransfer(string modelPath, float[] styleBottleneck, ComputeShader compute)
-            : base(modelPath, TfLiteDelegateType.GPU)
         {
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            Load(FileUtil.LoadFile(modelPath), interpreterOptions);
             this.styleBottleneck = styleBottleneck;
             this.compute = compute;
+        }
+
+        protected override void InitializeInputsOutputs(Interpreter.TensorInfo inputTensorInfo)
+        {
+            base.InitializeInputsOutputs(inputTensorInfo);
 
             output0 = new float[height, width, channels];
-
-            outputTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat);
-            outputTex.enableRandomWrite = true;
+            outputTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat)
+            {
+                enableRandomWrite = true
+            };
             outputTex.Create();
-
             outputBuffer = new ComputeBuffer(width * height, sizeof(float) * 3);
+            AspectMode = AspectMode.Fill;
         }
 
         public override void Dispose()
@@ -36,13 +49,14 @@ namespace TensorFlowLite
             outputBuffer?.Dispose();
         }
 
-        public override void Invoke(Texture inputTex)
+        protected override void PreProcess(Texture texture)
         {
-            ToTensor(inputTex, inputTensor);
-
-            interpreter.SetInputTensorData(0, inputTensor);
+            base.PreProcess(texture);
             interpreter.SetInputTensorData(1, styleBottleneck);
-            interpreter.Invoke();
+        }
+
+        protected override void PostProcess()
+        {
             interpreter.GetOutputTensorData(0, output0);
         }
 
@@ -51,10 +65,8 @@ namespace TensorFlowLite
             outputBuffer.SetData(output0);
             compute.SetBuffer(0, "InputTensor", outputBuffer);
             compute.SetTexture(0, "OutputTexture", outputTex);
-
             compute.Dispatch(0, width / 8, height / 8, 1);
             return outputTex;
         }
-
     }
 }

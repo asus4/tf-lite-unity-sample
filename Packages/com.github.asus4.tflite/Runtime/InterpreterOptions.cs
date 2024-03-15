@@ -21,6 +21,9 @@ using TfLiteInterpreterOptions = System.IntPtr;
 
 namespace TensorFlowLite
 {
+    /// <summary>
+    /// Options for creating a <see cref="Interpreter"/>.
+    /// </summary>
     public class InterpreterOptions : IDisposable
     {
         // void (*reporter)(void* user_data, const char* format, va_list args),
