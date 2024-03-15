@@ -6,7 +6,7 @@ namespace TensorFlowLite
     /// Object Detection
     /// See https://www.tensorflow.org/lite/models/object_detection/overview
     /// </summary>
-    public class SSD : BaseImagePredictor<byte>
+    public sealed class SSD : BaseVisionTask
     {
         [System.Serializable]
         public class Options
@@ -38,23 +38,19 @@ namespace TensorFlowLite
         private readonly Result[] results = new Result[MAX_DETECTION];
 
         public SSD(Options options)
-            : base(options.modelPath, options.delegateType)
         {
-            resizeOptions.aspectMode = options.aspectMode;
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AutoAddDelegate(options.delegateType, typeof(byte));
+            Load(FileUtil.LoadFile(options.modelPath), interpreterOptions);
         }
 
         public SSD(Options options, InterpreterOptions interpreterOptions)
-            : base(options.modelPath, interpreterOptions)
         {
-            resizeOptions.aspectMode = options.aspectMode;
+            Load(FileUtil.LoadFile(options.modelPath), interpreterOptions);
         }
 
-        public override void Invoke(Texture inputTex)
+        protected override void PostProcess()
         {
-            ToTensor(inputTex, inputTensor);
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
             interpreter.GetOutputTensorData(1, outputs1);
             interpreter.GetOutputTensorData(2, outputs2);

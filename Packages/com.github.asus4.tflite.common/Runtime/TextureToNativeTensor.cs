@@ -12,7 +12,7 @@ namespace TensorFlowLite
     /// Converts Texture to Tensor with arbitrary matrix transformation
     /// then return it as a NativeArray<byte> (NHWC layout)
     /// </summary>
-    public class TextureToNativeTensor : IDisposable
+    public abstract class TextureToNativeTensor : IDisposable
     {
         [Serializable]
         public class Options
@@ -27,8 +27,6 @@ namespace TensorFlowLite
 
         protected static readonly Lazy<ComputeShader> DefaultComputeShaderFloat32 = new(()
             => Resources.Load<ComputeShader>("com.github.asus4.tflite.common/TextureToNativeTensorFloat32"));
-        protected static readonly Lazy<ComputeShader> DefaultComputeShaderUint32 = new(()
-            => Resources.Load<ComputeShader>("com.github.asus4.tflite.common/TextureToNativeTensorUInt8"));
 
         private static readonly int _InputTex = Shader.PropertyToID("_InputTex");
         private static readonly int _OutputTex = Shader.PropertyToID("_OutputTex");
@@ -90,7 +88,6 @@ namespace TensorFlowLite
         {
             texture.Release();
             UnityEngine.Object.Destroy(texture);
-            // tensorData.Dispose();
             tensorBuffer.Dispose();
         }
 
@@ -165,39 +162,39 @@ namespace TensorFlowLite
 
     /// <summary>
     /// For UInt8
+    /// 
+    /// Note:
+    /// Run compute shader with Float32 then convert to UInt8(byte) in C#
+    /// Because ComputeBuffer doesn't support UInt8 type
     /// </summary>
     public sealed class TextureToNativeTensorUInt8 : TextureToNativeTensor
     {
-        private NativeArray<uint> tensorUintRef;
         private NativeArray<byte> tensorInt8;
 
         public TextureToNativeTensorUInt8(Options options)
             : base(UnsafeUtility.SizeOf<uint>(), options)
         {
-            int stride = UnsafeUtility.SizeOf<uint>();
-            tensorUintRef = tensor.Reinterpret<uint>(stride);
-
-            Assert.AreEqual(tensorUintRef.Length, options.width * options.height * options.channels);
-
-            // Run as UInt32 then cast to UInt8(byte)
-            // Because ComputeBuffer doesn't support UInt8 type
-            tensorInt8 = new NativeArray<byte>(tensorUintRef.Length, Allocator.Persistent);
+            int length = options.width * options.height * options.channels;
+            tensorInt8 = new NativeArray<byte>(length, Allocator.Persistent);
         }
 
         public override void Dispose()
         {
             base.Dispose();
             tensorInt8.Dispose();
-            tensorUintRef.Dispose();
         }
 
         public override NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
         {
-            base.Transform(input, t);
-            // TODO: implement in burst
-            for (int i = 0; i < tensorUintRef.Length; i++)
+            NativeArray<byte> tensor = base.Transform(input, t);
+            // Reinterpret (byte * 4) as float
+            NativeSlice<float> tensorF32 = tensor.Slice().SliceConvert<float>();
+
+            // TODO: implement in Burst
+            for (int i = 0; i < tensorInt8.Length; i++)
             {
-                tensorInt8[i] = (byte)tensorUintRef[i];
+                float n = tensorF32[i] * 255f;
+                tensorInt8[i] = (byte)n;
             }
             return tensorInt8;
         }
