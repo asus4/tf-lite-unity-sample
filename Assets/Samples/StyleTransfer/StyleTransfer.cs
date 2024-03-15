@@ -9,27 +9,29 @@ namespace TensorFlowLite
     public class StyleTransfer : BaseVisionTask<float>
     {
         private readonly float[] styleBottleneck;
-        private readonly float[,,] output0;
-        private readonly RenderTexture outputTex;
         private readonly ComputeShader compute;
-        private readonly ComputeBuffer outputBuffer;
+        private RenderTexture outputTex;
+        private float[,,] output0;
+        private ComputeBuffer outputBuffer;
 
         public StyleTransfer(string modelPath, float[] styleBottleneck, ComputeShader compute)
-            : base(FileUtil.LoadFile(modelPath), CreateOptions(TfLiteDelegateType.GPU))
         {
+            Load(FileUtil.LoadFile(modelPath), CreateOptions(TfLiteDelegateType.GPU));
             this.styleBottleneck = styleBottleneck;
             this.compute = compute;
+        }
+
+        protected override void InitializeInputsOutputs()
+        {
+            base.InitializeInputsOutputs();
 
             output0 = new float[height, width, channels];
-
             outputTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat)
             {
                 enableRandomWrite = true
             };
             outputTex.Create();
-
             outputBuffer = new ComputeBuffer(width * height, sizeof(float) * 3);
-
             AspectMode = AspectMode.Fill;
         }
 

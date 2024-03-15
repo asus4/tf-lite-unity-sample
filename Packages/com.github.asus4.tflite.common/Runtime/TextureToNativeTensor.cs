@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering;
@@ -8,10 +9,10 @@ using UnityEngine.Rendering;
 namespace TensorFlowLite
 {
     /// <summary>
-    /// Converts Texture to Tensor NativeArray (NHWC layout)
+    /// Converts Texture to Tensor with arbitrary matrix transformation
+    /// then return it as a NativeArray (NHWC layout)
     /// </summary>
-    public class TextureToNativeTensor<T> : IDisposable
-        where T : unmanaged
+    public class TextureToNativeTensor : IDisposable
     {
         [Serializable]
         public class Options
@@ -21,9 +22,10 @@ namespace TensorFlowLite
             public int width = 0;
             public int height = 0;
             public int channels = 0;
+            public Type inputType = typeof(float);
         }
 
-        private static readonly Lazy<ComputeShader> DefaultCompute = new(() =>
+        private static readonly Lazy<ComputeShader> DefaultComputeShaderFloat32 = new(() =>
         {
             const string path = "com.github.asus4.tflite.common/TextureToNativeTensorFloat32";
             return Resources.Load<ComputeShader>(path);
@@ -46,17 +48,17 @@ namespace TensorFlowLite
         private readonly int channels;
 
         private readonly RenderTexture texture;
-        private readonly GraphicsBuffer tensor;
-        private NativeArray<T> tensorData;
+        private readonly GraphicsBuffer tensorBuffer;
+        private NativeArray<byte> tensor;
 
         public RenderTexture Texture => texture;
         public Matrix4x4 TransformMatrix { get; private set; } = Matrix4x4.identity;
 
-        public TextureToNativeTensor(in Options options)
+        public TextureToNativeTensor(Options options)
         {
             compute = options.compute != null
                 ? options.compute
-                : DefaultCompute.Value;
+                : DefaultComputeShaderFloat32.Value;
             kernel = options.kernel;
             width = options.width;
             height = options.height;
@@ -66,6 +68,7 @@ namespace TensorFlowLite
             Assert.IsTrue(width > 0, $"Width must be greater than 0");
             Assert.IsTrue(height > 0, $"Height must be greater than 0");
             Assert.IsTrue(channels > 0 && channels <= 4, $"Channels must be 1 to 4");
+            Assert.IsTrue(UnsafeUtility.IsUnmanaged(options.inputType), "Type must be unmanaged");
 
             var desc = new RenderTextureDescriptor(width, height, RenderTextureFormat.ARGB32)
             {
@@ -77,13 +80,13 @@ namespace TensorFlowLite
             texture.Create();
 
             int length = width * height * channels;
-            int stride = Marshal.SizeOf(default(T));
-            tensor = new GraphicsBuffer(GraphicsBuffer.Target.Structured, length, stride);
-            tensorData = new NativeArray<T>(length, Allocator.Persistent);
+            int stride = UnsafeUtility.SizeOf(options.inputType);
+            tensorBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, length, stride);
+            tensor = new NativeArray<byte>(length * stride, Allocator.Persistent);
 
             // Set constant values
             compute.SetInts(_OutputSize, width, height);
-            compute.SetBuffer(kernel, _OutputTensor, tensor);
+            compute.SetBuffer(kernel, _OutputTensor, tensorBuffer);
             compute.SetTexture(kernel, _OutputTex, texture, 0);
         }
 
@@ -92,10 +95,10 @@ namespace TensorFlowLite
             texture.Release();
             UnityEngine.Object.Destroy(texture);
             // tensorData.Dispose();
-            tensor.Dispose();
+            tensorBuffer.Dispose();
         }
 
-        public NativeArray<T> Transform(Texture input, in Matrix4x4 t)
+        public NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
         {
             TransformMatrix = t;
             compute.SetTexture(kernel, _InputTex, input, 0);
@@ -103,7 +106,7 @@ namespace TensorFlowLite
             compute.Dispatch(kernel, Mathf.CeilToInt(width / 8f), Mathf.CeilToInt(height / 8f), 1);
 
             // TODO: Implement async version
-            var request = AsyncGPUReadback.RequestIntoNativeArray(ref tensorData, tensor, (request) =>
+            var request = AsyncGPUReadback.RequestIntoNativeArray(ref tensor, tensorBuffer, (request) =>
             {
                 if (request.hasError)
                 {
@@ -112,11 +115,10 @@ namespace TensorFlowLite
                 }
             });
             request.WaitForCompletion();
-
-            return tensorData;
+            return tensor;
         }
 
-        public NativeArray<T> Transform(Texture input, AspectMode aspectMode)
+        public NativeArray<byte> Transform(Texture input, AspectMode aspectMode)
         {
             return Transform(input, GetAspectScaledMatrix(input, aspectMode));
         }

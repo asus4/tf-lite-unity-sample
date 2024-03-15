@@ -45,7 +45,7 @@ namespace TensorFlowLite
         private const int LABEL_COUNT = 600;
         private readonly Dictionary<string, Array> states = new Dictionary<string, Array>();
         private readonly float[] logitsTensor = new float[LABEL_COUNT];
-        private readonly TextureToNativeTensor<float> textureToTensor;
+        private readonly TextureToNativeTensor textureToTensor;
         private readonly AspectMode aspectMode;
         private readonly Category[] categories = new Category[LABEL_COUNT];
 
@@ -84,13 +84,14 @@ namespace TensorFlowLite
                 states.Add(name, ToArray(info));
             }
 
-            textureToTensor = new TextureToNativeTensor<float>(new TextureToNativeTensor<float>.Options
+            textureToTensor = new TextureToNativeTensor(new TextureToNativeTensor.Options
             {
                 compute = null,
                 kernel = 0,
                 width = width,
                 height = height,
                 channels = channels,
+                inputType = typeof(float),
             });
             aspectMode = options.aspectMode;
 

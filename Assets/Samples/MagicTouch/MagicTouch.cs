@@ -21,17 +21,13 @@ namespace TensorFlowLite
         }
 
         public MagicTouch(string modelFile, Options options)
-            : base(FileUtil.LoadFile(modelFile), CreateOptions(options.delegateType))
         {
-            // resizeOptions.aspectMode = options.aspectMode;
+            Load(FileUtil.LoadFile(modelFile), CreateOptions(options.delegateType));
         }
-
 
         public override void Dispose()
         {
             base.Dispose();
         }
-
-
     }
 }
