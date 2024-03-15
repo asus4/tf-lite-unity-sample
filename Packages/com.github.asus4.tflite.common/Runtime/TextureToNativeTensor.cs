@@ -1,6 +1,8 @@
 using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering;
@@ -169,19 +171,20 @@ namespace TensorFlowLite
     /// </summary>
     public sealed class TextureToNativeTensorUInt8 : TextureToNativeTensor
     {
-        private NativeArray<byte> tensorInt8;
+        private NativeArray<byte> tensorUInt8;
 
         public TextureToNativeTensorUInt8(Options options)
             : base(UnsafeUtility.SizeOf<uint>(), options)
         {
             int length = options.width * options.height * options.channels;
-            tensorInt8 = new NativeArray<byte>(length, Allocator.Persistent);
+            tensorUInt8 = new NativeArray<byte>(length, Allocator.Persistent);
+            Assert.AreEqual(tensor.Length / 4, tensorUInt8.Length, $"Length {tensor.Length} != {tensorUInt8.Length}");
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            tensorInt8.Dispose();
+            tensorUInt8.Dispose();
         }
 
         public override NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
@@ -190,13 +193,33 @@ namespace TensorFlowLite
             // Reinterpret (byte * 4) as float
             NativeSlice<float> tensorF32 = tensor.Slice().SliceConvert<float>();
 
-            // TODO: implement in Burst
-            for (int i = 0; i < tensorInt8.Length; i++)
+            // Cast Float32 to Uint8 using Burst
+            var job = new CastFloat32toUInt8Job()
             {
-                float n = tensorF32[i] * 255f;
-                tensorInt8[i] = (byte)n;
+                input = tensorF32,
+                output = tensorUInt8,
+            };
+            job.Schedule().Complete();
+            return tensorUInt8;
+        }
+    }
+
+    [BurstCompile]
+    internal struct CastFloat32toUInt8Job : IJob
+    {
+        [ReadOnly]
+        public NativeSlice<float> input;
+
+        [WriteOnly]
+        public NativeArray<byte> output;
+
+        public void Execute()
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                // output[i] = (byte)Math.Clamp(input[i] * 255f, 0f, 255f);
+                output[i] = (byte)(input[i] * 255f);
             }
-            return tensorInt8;
         }
     }
 }
