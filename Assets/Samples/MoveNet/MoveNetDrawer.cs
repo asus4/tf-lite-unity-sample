@@ -35,7 +35,7 @@ namespace TensorFlowLite.MoveNet
             Vector3 min = rtCorners[0];
             Vector3 max = rtCorners[2];
 
-            var connections = PoseNet.Connections;
+            var connections = MoveNetPose.Connections;
             int len = connections.GetLength(0);
             for (int i = 0; i < len; i++)
             {
