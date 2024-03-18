@@ -10,6 +10,7 @@ using Cysharp.Threading.Tasks;
 #endif // TFLITE_UNITASK_ENABLED
 
 using DataType = TensorFlowLite.Interpreter.DataType;
+using Object = UnityEngine.Object;
 
 namespace TensorFlowLite
 {
@@ -35,7 +36,7 @@ namespace TensorFlowLite
 
         public static ComputeShader CloneDefaultComputeShaderFloat32()
         {
-            return UnityEngine.Object.Instantiate(DefaultComputeShaderFloat32.Value);
+            return Object.Instantiate(DefaultComputeShaderFloat32.Value);
         }
 
         private static readonly int _InputTex = Shader.PropertyToID("_InputTex");
@@ -92,7 +93,7 @@ namespace TensorFlowLite
 
         public virtual void Dispose()
         {
-            UnityEngine.Object.Destroy(compute);
+            Object.Destroy(compute);
             tensorBuffer.Dispose();
         }
 

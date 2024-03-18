@@ -6,7 +6,6 @@ namespace TensorFlowLite
     public class SuperResolution : BaseVisionTask
     {
         readonly float[,,] output0;
-        readonly ComputeShader preProcessCompute;
         readonly ComputeShader compute;
         readonly ComputeBuffer resultBuffer;
         readonly RenderTexture resultTexture;
@@ -15,7 +14,6 @@ namespace TensorFlowLite
 
         public SuperResolution(string modelPath, ComputeShader compute)
         {
-            preProcessCompute = MakePreProcessCompute();
 
             var interpreterOptions = new InterpreterOptions();
             interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
@@ -48,7 +46,6 @@ namespace TensorFlowLite
             resultBuffer.Release();
             resultTexture.Release();
             Object.Destroy(resultTexture);
-            Object.Destroy(preProcessCompute);
 
             base.Dispose();
         }
@@ -58,24 +55,18 @@ namespace TensorFlowLite
             interpreter.GetOutputTensorData(0, output0);
         }
 
-        private ComputeShader MakePreProcessCompute()
+        protected override TextureToNativeTensor CreateTextureToTensor(Interpreter.TensorInfo inputTensorInfo)
         {
             // ESR-GAN model accepts float but value range must be 0 ~ 255
             var compute = TextureToNativeTensor.CloneDefaultComputeShaderFloat32();
             var keyword = new LocalKeyword(compute, "USE_OFFSET");
             compute.SetKeyword(keyword, true);
-
             compute.SetFloats("_Mean", new float[] { 0.0f, 0.0f, 0.0f });
             compute.SetFloats("_StdDev", new float[] { 1 / 255f, 1 / 255f, 1 / 255f });
 
-            return compute;
-        }
-
-        protected override TextureToNativeTensor CreateTextureToTensor(Interpreter.TensorInfo inputTensorInfo)
-        {
             return TextureToNativeTensor.Create(new()
             {
-                compute = preProcessCompute,
+                compute = compute,
                 kernel = 0,
                 width = width,
                 height = height,
