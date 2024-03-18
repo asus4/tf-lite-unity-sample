@@ -53,6 +53,6 @@ public class StyleTransferSample : MonoBehaviour
     private void OnTextureUpdate(Texture texture)
     {
         styleTransfer.Run(texture);
-        preview.texture = styleTransfer.GetResultTexture();
+        preview.texture = styleTransfer.ResultTexture;
     }
 }

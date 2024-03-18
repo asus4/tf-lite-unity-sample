@@ -15,7 +15,7 @@ public class SuperResolutionSample : MonoBehaviour
     {
         superResolution = new SuperResolution(fileName, compute);
         superResolution.Run(inputTex);
-        outputImage.texture = superResolution.GetResult();
+        outputImage.texture = superResolution.ResultTexture;
     }
 
     void OnDestroy()
