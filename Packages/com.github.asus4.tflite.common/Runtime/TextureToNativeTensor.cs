@@ -69,7 +69,7 @@ namespace TensorFlowLite
 
             compute = options.compute != null
                 ? options.compute
-                : DefaultComputeShaderFloat32.Value;
+                : CloneDefaultComputeShaderFloat32();
             kernel = options.kernel;
             width = options.width;
             height = options.height;
@@ -92,6 +92,7 @@ namespace TensorFlowLite
 
         public virtual void Dispose()
         {
+            UnityEngine.Object.Destroy(compute);
             tensorBuffer.Dispose();
         }
 
