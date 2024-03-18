@@ -25,11 +25,11 @@ namespace TensorFlowLite
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rect Lerp(in Vector3 a, in Vector3 b, in Rect t, bool invertY = false)
+        public static Rect Lerp(in Vector2 a, in Vector2 b, in Rect t)
         {
             return new Rect(
                 Mathf.Lerp(a.x, b.x, t.x),
-                Mathf.Lerp(a.y, b.y, invertY ? 1f - t.y - t.height : t.y),
+                Mathf.Lerp(a.y, b.y, t.y),
                 t.width * (b.x - a.x),
                 t.height * (b.y - a.y)
             );

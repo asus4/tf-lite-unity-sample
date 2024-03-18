@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace TensorFlowLite
@@ -6,7 +7,7 @@ namespace TensorFlowLite
 
     public static class RectExtension
     {
-        public static float IntersectionOverUnion(this Rect rect0, Rect rect1)
+        public static float IntersectionOverUnion(this in Rect rect0, in Rect rect1)
         {
             float sx0 = rect0.xMin;
             float sy0 = rect0.yMin;
@@ -78,6 +79,18 @@ namespace TensorFlowLite
             }
 
             return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+        }
+
+        /// <summary>
+        /// Flip Y axis, useful for converting between CV and Unity space
+        /// </summary>
+        /// <param name="rect">A rect</param>
+        /// <param name="height">Height of the space</param>
+        /// <returns>A flipped rect</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rect FlipY(this in Rect rect, float height = 1f)
+        {
+            return new Rect(rect.x, height - rect.yMax, rect.width, rect.height);
         }
     }
 }

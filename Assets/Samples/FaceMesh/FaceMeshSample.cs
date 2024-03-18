@@ -117,7 +117,7 @@ public sealed class FaceMeshSample : MonoBehaviour
         if (detection != null)
         {
             draw.color = Color.blue;
-            Rect rect = MathTF.Lerp(min, max, detection.rect, true);
+            Rect rect = MathTF.Lerp(min, max, detection.rect.FlipY());
             draw.Rect(rect, 0.05f);
             foreach (Vector2 p in detection.keypoints)
             {

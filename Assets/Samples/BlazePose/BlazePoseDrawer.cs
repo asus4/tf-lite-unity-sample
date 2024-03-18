@@ -1,4 +1,5 @@
 using System;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace TensorFlowLite
@@ -37,7 +38,7 @@ namespace TensorFlowLite
             Vector3 max = rtCorners[2];
 
             draw.color = Color.green;
-            draw.Rect(MathTF.Lerp(min, max, pose.rect, true), 0.02f, min.z);
+            draw.Rect(MathTF.Lerp(min, max, pose.rect.FlipY()), 0.02f, min.z);
 
             foreach (var kp in pose.keypoints)
             {

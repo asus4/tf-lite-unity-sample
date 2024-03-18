@@ -126,7 +126,7 @@ public class HandTrackingSample : MonoBehaviour
         draw.color = Color.green;
         foreach (var palm in palms)
         {
-            draw.Rect(MathTF.Lerp(min, max, palm.rect, true), 0.02f, min.z);
+            draw.Rect(MathTF.Lerp(min, max, palm.rect.FlipY()), 0.02f, min.z);
 
             foreach (var kp in palm.keypoints)
             {
