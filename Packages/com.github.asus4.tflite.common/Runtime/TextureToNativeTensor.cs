@@ -33,6 +33,11 @@ namespace TensorFlowLite
         protected static readonly Lazy<ComputeShader> DefaultComputeShaderFloat32 = new(()
             => Resources.Load<ComputeShader>("com.github.asus4.tflite.common/TextureToNativeTensorFloat32"));
 
+        public static ComputeShader CloneDefaultComputeShaderFloat32()
+        {
+            return UnityEngine.Object.Instantiate(DefaultComputeShaderFloat32.Value);
+        }
+
         private static readonly int _InputTex = Shader.PropertyToID("_InputTex");
         private static readonly int _OutputTex = Shader.PropertyToID("_OutputTex");
         private static readonly int _OutputTensor = Shader.PropertyToID("_OutputTensor");

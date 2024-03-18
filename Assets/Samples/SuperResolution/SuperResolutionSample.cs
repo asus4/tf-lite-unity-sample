@@ -14,8 +14,7 @@ public class SuperResolutionSample : MonoBehaviour
     void Start()
     {
         superResolution = new SuperResolution(fileName, compute);
-        superResolution.Invoke(inputTex);
-
+        superResolution.Run(inputTex);
         outputImage.texture = superResolution.GetResult();
     }
 
@@ -23,5 +22,4 @@ public class SuperResolutionSample : MonoBehaviour
     {
         superResolution?.Dispose();
     }
-
 }
