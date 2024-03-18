@@ -55,7 +55,7 @@ namespace TensorFlowLite
         private readonly GraphicsBuffer tensorBuffer;
         protected NativeArray<byte> tensor;
 
-        public Matrix4x4 TransformMatrix { get; private set; } = Matrix4x4.identity;
+        // public Matrix4x4 TransformMatrix { get; private set; } = Matrix4x4.identity;
 
         protected TextureToNativeTensor(int stride, Options options)
         {
@@ -97,7 +97,6 @@ namespace TensorFlowLite
 
         public virtual NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
         {
-            TransformMatrix = t;
             compute.SetTexture(kernel, _InputTex, input, 0);
             compute.SetMatrix(_TransformMatrix, t);
             compute.Dispatch(kernel, Mathf.CeilToInt(width / 8f), Mathf.CeilToInt(height / 8f), 1);
@@ -139,7 +138,6 @@ namespace TensorFlowLite
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public virtual async UniTask<NativeArray<byte>> TransformAsync(Texture input, Matrix4x4 t, CancellationToken cancellationToken)
         {
-            TransformMatrix = t;
             compute.SetTexture(kernel, _InputTex, input, 0);
             compute.SetMatrix(_TransformMatrix, t);
             compute.Dispatch(kernel, Mathf.CeilToInt(width / 8f), Mathf.CeilToInt(height / 8f), 1);
