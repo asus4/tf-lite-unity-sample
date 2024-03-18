@@ -9,7 +9,7 @@ namespace TensorFlowLite.MoveNet
     /// MoveNet Example
     /// https://www.tensorflow.org/hub/tutorials/movenet
     /// </summary>
-    public class MoveNetMultiPose : BaseImagePredictor<int>
+    public class MoveNetMultiPose : BaseVisionTask
     {
         [System.Serializable]
         public class Options
@@ -26,9 +26,14 @@ namespace TensorFlowLite.MoveNet
         private readonly float[,] outputs0;
         public readonly MoveNetPoseWithBoundingBox[] poses;
 
-        public MoveNetMultiPose(Options options) : base(options.modelPath, options.delegateType)
+        public MoveNetMultiPose(Options options)
         {
-            resizeOptions.aspectMode = options.aspectMode;
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AutoAddDelegate(options.delegateType, typeof(byte));
+            Load(FileUtil.LoadFile(options.modelPath), interpreterOptions);
+
+            AspectMode = options.aspectMode;
+
             int[] outputShape = interpreter.GetOutputTensorInfo(0).shape;
 
             Assert.AreEqual(1, outputShape[0]);
@@ -45,27 +50,21 @@ namespace TensorFlowLite.MoveNet
             }
         }
 
-        public override void Invoke(Texture inputTex)
-        {
-            ToTensor(inputTex, inputTensor);
 
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
+        protected override void PostProcess()
+        {
             interpreter.GetOutputTensorData(0, outputs0);
+            GetResults();
         }
 
-        public async UniTask<MoveNetPoseWithBoundingBox[]> InvokeAsync(Texture inputTex, CancellationToken cancellationToken)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        protected override async UniTask PostProcessAsync(CancellationToken cancellationToken)
         {
-            await ToTensorAsync(inputTex, inputTensor, cancellationToken);
-            await UniTask.SwitchToThreadPool();
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
-            await UniTask.SwitchToMainThread(PlayerLoopTiming.Update, cancellationToken);
-
-            return GetResults();
+            GetResults();
         }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+
 
         public MoveNetPoseWithBoundingBox[] GetResults()
         {

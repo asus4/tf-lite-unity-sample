@@ -9,6 +9,7 @@ namespace TensorFlowLite
     /// <summary>
     /// Converts Texture to Tensor (NHWC layout)
     /// </summary>
+    [System.Obsolete("TextureToTensor is obsolete, use TextureToNativeTensor instead")]
     public class TextureToTensor : System.IDisposable
     {
         private Texture2D fetchTexture;

@@ -10,6 +10,7 @@ namespace TensorFlowLite
     /// Base class for predictor that takes a Texture as an input
     /// </summary>
     /// <typeparam name="T">A type of input tensor (float, sbyte etc.)</typeparam>
+    [System.Obsolete("BaseImagePredictor is obsolete, use BaseVisionTask instead")]
     public abstract class BaseImagePredictor<T> : System.IDisposable
         where T : struct
     {

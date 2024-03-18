@@ -70,14 +70,14 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
     private void Invoke(Texture texture)
     {
-        moveNet.Invoke(texture);
-        pose = moveNet.GetResult();
+        moveNet.Run(texture);
+        pose = moveNet.pose;
     }
 
     private async UniTask<bool> InvokeAsync(Texture texture)
     {
-        await moveNet.InvokeAsync(texture, destroyCancellationToken);
-        pose = moveNet.GetResult();
+        await moveNet.RunAsync(texture, destroyCancellationToken);
+        pose = moveNet.pose;
         return true;
     }
 }

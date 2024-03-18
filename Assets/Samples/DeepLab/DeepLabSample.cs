@@ -7,9 +7,6 @@ using UnityEngine.UI;
 public class DeepLabSample : MonoBehaviour
 {
     [SerializeField]
-    private RawImage cameraView = null;
-
-    [SerializeField]
     private RawImage outputView = null;
 
     [SerializeField]
@@ -37,8 +34,7 @@ public class DeepLabSample : MonoBehaviour
 
     private void OnTextureUpdate(Texture texture)
     {
-        deepLab.Invoke(texture);
-        cameraView.material = deepLab.transformMat;
+        deepLab.Run(texture);
         outputView.texture = deepLab.GetResultTexture();
     }
 }

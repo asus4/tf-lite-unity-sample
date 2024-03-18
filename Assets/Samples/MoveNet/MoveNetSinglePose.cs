@@ -9,7 +9,7 @@ namespace TensorFlowLite.MoveNet
     /// MoveNet Example
     /// https://www.tensorflow.org/hub/tutorials/movenet
     /// </summary>
-    public class MoveNetSinglePose : BaseImagePredictor<byte>
+    public class MoveNetSinglePose : BaseVisionTask
     {
         [System.Serializable]
         public class Options
@@ -22,9 +22,21 @@ namespace TensorFlowLite.MoveNet
         private readonly float[,] outputs0;
         public readonly MoveNetPose pose;
 
-        public MoveNetSinglePose(Options options) : base(options.modelPath, TfLiteDelegateType.GPU)
+        public MoveNetSinglePose(Options options)
         {
-            resizeOptions.aspectMode = options.aspectMode;
+            var interpreterOptions = new InterpreterOptions();
+            var delegateType = Application.platform switch
+            {
+                // Android does not support using GPU delegate with the MoveNet model
+                RuntimePlatform.Android => TfLiteDelegateType.NNAPI,
+                _ => TfLiteDelegateType.GPU,
+            };
+            interpreterOptions.AutoAddDelegate(delegateType, typeof(byte));
+
+            Load(FileUtil.LoadFile(options.modelPath), interpreterOptions);
+
+            AspectMode = options.aspectMode;
+
             int[] outputShape = interpreter.GetOutputTensorInfo(0).shape;
 
             Assert.AreEqual(1, outputShape[0]);
@@ -36,28 +48,20 @@ namespace TensorFlowLite.MoveNet
             pose = new MoveNetPose();
         }
 
-
-        public override void Invoke(Texture inputTex)
+        protected override void PostProcess()
         {
-            ToTensor(inputTex, inputTensor);
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
+            GetResult();
         }
 
-        public async UniTask<MoveNetPose> InvokeAsync(Texture inputTex, CancellationToken cancellationToken)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+
+        protected override async UniTask PostProcessAsync(CancellationToken cancellationToken)
         {
-            await ToTensorAsync(inputTex, inputTensor, cancellationToken);
-            await UniTask.SwitchToThreadPool();
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
-            await UniTask.SwitchToMainThread(PlayerLoopTiming.Update, cancellationToken);
-
-            return pose;
+            GetResult();
         }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
         public MoveNetPose GetResult()
         {

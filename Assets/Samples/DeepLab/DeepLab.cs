@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace TensorFlowLite
 {
-    public class DeepLab : BaseImagePredictor<float>
+    public class DeepLab : BaseVisionTask
     {
         [System.Serializable]
         public class Options
@@ -56,8 +56,12 @@ namespace TensorFlowLite
         private readonly Texture2D labelTex2D;
         private readonly int labelToTexKernel;
 
-        public DeepLab(Options options) : base(options.modelFile, options.delegateType)
+        public DeepLab(Options options)
         {
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AutoAddDelegate(options.delegateType, typeof(float));
+            Load(FileUtil.LoadFile(options.modelFile), interpreterOptions);
+
             var oShape0 = interpreter.GetOutputTensorInfo(0).shape;
 
             Debug.Assert(oShape0[1] == height);
@@ -104,12 +108,8 @@ namespace TensorFlowLite
             colorTableBuffer?.Release();
         }
 
-        public override void Invoke(Texture inputTex)
+        protected override void PostProcess()
         {
-            ToTensor(inputTex, inputTensor);
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
             interpreter.GetOutputTensorData(0, outputs0);
         }
 

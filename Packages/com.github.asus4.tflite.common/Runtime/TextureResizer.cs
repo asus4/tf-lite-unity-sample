@@ -5,6 +5,7 @@ namespace TensorFlowLite
     /// <summary>
     /// Utility to resize the texture
     /// </summary>
+    [System.Obsolete("TextureResizer is obsolete, use TextureToNativeTensor instead")]
     public sealed class TextureResizer : System.IDisposable
     {
         public struct ResizeOptions
