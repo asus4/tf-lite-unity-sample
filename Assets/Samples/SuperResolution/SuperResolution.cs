@@ -9,7 +9,7 @@ namespace TensorFlowLite
         readonly ComputeShader compute;
         readonly ComputeBuffer resultBuffer;
         readonly RenderTexture resultTexture;
-        readonly int outputWidth, outputHeight;
+        readonly Vector2Int outputSize;
 
 
         public SuperResolution(string modelPath, ComputeShader compute)
@@ -21,23 +21,23 @@ namespace TensorFlowLite
 
             // Setup output
             var outputShape = interpreter.GetOutputTensorInfo(0).shape;
-            outputHeight = outputShape[1];
-            outputWidth = outputShape[2];
+            outputSize = new Vector2Int(outputShape[2], outputShape[1]);
             int channels = outputShape[3];
-            output0 = new float[outputHeight, outputWidth, channels];
+            output0 = new float[outputSize.y, outputSize.x, channels];
 
-            Debug.Assert(outputHeight % 8 == 0);
-            Debug.Assert(outputWidth % 8 == 0);
+            Debug.Assert(outputSize.y % 8 == 0);
+            Debug.Assert(outputSize.x % 8 == 0);
             Debug.Assert(channels == 3);
 
             // Setup compute
             this.compute = compute;
-            compute.SetInt("Width", outputWidth);
-            compute.SetInt("Height", outputHeight);
+            compute.SetInts("_InputSize", new int[] { outputSize.x, outputSize.y });
 
-            resultBuffer = new ComputeBuffer(outputWidth * outputHeight, sizeof(float) * channels);
-            resultTexture = new RenderTexture(outputWidth, outputHeight, 0, RenderTextureFormat.ARGB32);
-            resultTexture.enableRandomWrite = true;
+            resultBuffer = new ComputeBuffer(outputSize.x * outputSize.y, sizeof(float) * channels);
+            resultTexture = new RenderTexture(outputSize.x, outputSize.y, 0, RenderTextureFormat.ARGB32)
+            {
+                enableRandomWrite = true
+            };
             resultTexture.Create();
         }
 
@@ -78,10 +78,10 @@ namespace TensorFlowLite
         public RenderTexture GetResult()
         {
             resultBuffer.SetData(output0);
-            compute.SetBuffer(0, "InputBuffer", resultBuffer);
-            compute.SetTexture(0, "OutputImage", resultTexture);
+            compute.SetBuffer(0, "_InputTensor", resultBuffer);
+            compute.SetTexture(0, "_OutputTex", resultTexture);
 
-            compute.Dispatch(0, outputWidth / 8, outputHeight / 8, 1);
+            compute.Dispatch(0, outputSize.x / 8, outputSize.y / 8, 1);
 
             return resultTexture;
         }

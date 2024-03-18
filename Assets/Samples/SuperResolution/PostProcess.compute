@@ -1,15 +1,14 @@
-﻿// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+﻿#pragma kernel TensorToTexture
 
-uint Width;
-uint Height;
-StructuredBuffer<float3> InputBuffer;
-RWTexture2D<float4> OutputImage;
+StructuredBuffer<float3> _InputTensor;
+RWTexture2D<float4> _OutputTex;
+
+uint2 _InputSize;
 
 [numthreads(8,8,1)]
-void CSMain (uint2 tid : SV_DispatchThreadID)
+void TensorToTexture (uint2 tid : SV_DispatchThreadID)
 {
-    uint gid = (Height - 1 - tid.y) * Width + tid.x;
-    float3 rgb = InputBuffer[gid] / 255.0;
-    OutputImage[tid.xy] = saturate(float4(rgb.r, rgb.g, rgb.b, 1.0));
+    uint gid = (_InputSize.y - 1 - tid.y) * _InputSize.x + tid.x;
+    float3 rgb = _InputTensor[gid] / 255.0;
+    _OutputTex[tid] = saturate(float4(rgb.rgb, 1.0));
 }
