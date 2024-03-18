@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace TensorFlowLite
 {
-
-
-    public class FaceDetect : BaseImagePredictor<float>
+    public class FaceDetect : BaseVisionTask
     {
         public enum KeyPoint
         {
@@ -25,29 +23,35 @@ namespace TensorFlowLite
             public Rect rect;
             public Vector2[] keypoints;
 
-            public Vector2 rightEye => keypoints[(int)KeyPoint.RightEye];
-            public Vector2 leftEye => keypoints[(int)KeyPoint.LeftEye];
+            public Vector2 RightEye => keypoints[(int)KeyPoint.RightEye];
+            public Vector2 LeftEye => keypoints[(int)KeyPoint.LeftEye];
         }
 
-        private const int KEY_POINT_SIZE = 6;
-
+        private const int KEY_POINT_COUNT = 6;
         private const int MAX_FACE_NUM = 100;
 
         // regressors / points
         // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
         // 4 - 15 are 6 keypoint x and y coordinates: x0,y0,x1,y1,x2,y2,x3,y3
-        private float[,] output0 = new float[896, 16];
+        private readonly float[,] output0 = new float[896, 16];
 
         // classificators / scores
-        private float[] output1 = new float[896];
+        private readonly float[] output1 = new float[896];
 
-        private SsdAnchor[] anchors;
-        private List<Result> results = new List<Result>();
-        private List<Result> filterdResults = new List<Result>();
+        private readonly SsdAnchor[] anchors;
+        private readonly List<Result> results = new();
+        private readonly List<Result> filteredResults = new();
 
-        public FaceDetect(string modelPath) : base(modelPath, TfLiteDelegateType.GPU)
+        public Matrix4x4 InputTransformMatrix { get; private set; } = Matrix4x4.identity;
+
+        public FaceDetect(string modelPath)
         {
-            var options = new SsdAnchorsCalculator.Options()
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            Load(FileUtil.LoadFile(modelPath), interpreterOptions);
+            AspectMode = AspectMode.Fill;
+
+            anchors = SsdAnchorsCalculator.Generate(new()
             {
                 inputSizeWidth = 128,
                 inputSizeHeight = 128,
@@ -68,19 +72,19 @@ namespace TensorFlowLite
                 reduceBoxesInLowestLayer = false,
                 interpolatedScaleAspectRatio = 1.0f,
                 fixedAnchorSize = true,
-            };
-
-            anchors = SsdAnchorsCalculator.Generate(options);
-            UnityEngine.Debug.AssertFormat(anchors.Length == 896, $"Anchors count must be 896, but was {anchors.Length}");
+            });
+            Assert.AreEqual(896, anchors.Length, $"Anchors count must be 896, but was {anchors.Length}");
         }
 
-        public override void Invoke(Texture inputTex)
+        protected override void PreProcess(Texture texture)
         {
-            ToTensor(inputTex, inputTensor);
+            InputTransformMatrix = textureToTensor.GetAspectScaledMatrix(texture, AspectMode);
+            var input = textureToTensor.Transform(texture, InputTransformMatrix);
+            interpreter.SetInputTensorData(inputTensorIndex, input);
+        }
 
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
-
+        protected override void PostProcess()
+        {
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
         }
@@ -111,8 +115,8 @@ namespace TensorFlowLite
                 w /= (float)width;
                 h /= (float)height;
 
-                var keypoints = new Vector2[KEY_POINT_SIZE];
-                for (int j = 0; j < KEY_POINT_SIZE; j++)
+                var keypoints = new Vector2[KEY_POINT_COUNT];
+                for (int j = 0; j < KEY_POINT_COUNT; j++)
                 {
                     float lx = output0[i, 4 + (2 * j) + 0];
                     float ly = output0[i, 4 + (2 * j) + 1];
@@ -135,13 +139,13 @@ namespace TensorFlowLite
 
         private List<Result> NonMaxSuppression(List<Result> results, float iouThreshold)
         {
-            filterdResults.Clear();
-            // FIXME LinQ allocs GC each frame
+            filteredResults.Clear();
+            // FIXME: Suppress LinQ sort allocation
             // Use sorted list
             foreach (Result original in results.OrderByDescending(o => o.score))
             {
                 bool ignoreCandidate = false;
-                foreach (Result newResult in filterdResults)
+                foreach (Result newResult in filteredResults)
                 {
                     float iou = original.rect.IntersectionOverUnion(newResult.rect);
                     if (iou >= iouThreshold)
@@ -153,14 +157,14 @@ namespace TensorFlowLite
 
                 if (!ignoreCandidate)
                 {
-                    filterdResults.Add(original);
-                    if (filterdResults.Count >= MAX_FACE_NUM)
+                    filteredResults.Add(original);
+                    if (filteredResults.Count >= MAX_FACE_NUM)
                     {
                         break;
                     }
                 }
             }
-            return filterdResults;
+            return filteredResults;
         }
     }
 }

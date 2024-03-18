@@ -80,8 +80,9 @@ public sealed class FaceMeshSample : MonoBehaviour
     {
         if (detectionResult == null || !useLandmarkToDetection)
         {
-            faceDetect.Invoke(texture);
-            cameraView.material = faceDetect.transformMat;
+            faceDetect.Run(texture);
+            // TODO set;
+            // cameraView.material = faceDetect.transformMat;
             detectionResult = faceDetect.GetResults().FirstOrDefault();
 
             if (detectionResult == null)

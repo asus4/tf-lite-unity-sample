@@ -16,17 +16,21 @@ public class FaceDetectionSample : MonoBehaviour
     private string faceModelFile = "coco_ssd_mobilenet_quant.tflite";
 
     [SerializeField]
-    private RawImage cameraView = null;
+    private RawImage inputPreview = null;
 
     private FaceDetect faceDetect;
     private List<FaceDetect.Result> results;
     private PrimitiveDraw draw;
     private readonly Vector3[] rtCorners = new Vector3[4];
+    private Material previewMaterial;
 
     private void Start()
     {
         faceDetect = new FaceDetect(faceModelFile);
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
+
+        previewMaterial = new Material(Shader.Find("Hidden/TFLite/InputMatrixPreview"));
+        inputPreview.material = previewMaterial;
 
         if (TryGetComponent(out VirtualTextureSource source))
         {
@@ -42,6 +46,7 @@ public class FaceDetectionSample : MonoBehaviour
         }
         faceDetect?.Dispose();
         draw?.Dispose();
+        Object.Destroy(previewMaterial);
     }
 
     private void Update()
@@ -51,9 +56,12 @@ public class FaceDetectionSample : MonoBehaviour
 
     private void OnTextureUpdate(Texture texture)
     {
-        faceDetect.Invoke(texture);
-        cameraView.material = faceDetect.transformMat;
-        cameraView.rectTransform.GetWorldCorners(rtCorners);
+        faceDetect.Run(texture);
+
+        inputPreview.texture = texture;
+        previewMaterial.SetMatrix("_TransformMatrix", faceDetect.InputTransformMatrix);
+
+        inputPreview.rectTransform.GetWorldCorners(rtCorners);
         results = faceDetect.GetResults();
     }
 
@@ -72,10 +80,10 @@ public class FaceDetectionSample : MonoBehaviour
         foreach (var result in results)
         {
             Rect rect = MathTF.Lerp(min, max, result.rect, true);
-            draw.Rect(rect, 0.05f);
+            draw.Rect(rect, 0.05f, -0.1f);
             foreach (Vector2 p in result.keypoints)
             {
-                draw.Point(MathTF.Lerp(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
+                draw.Point(MathTF.Lerp(min, max, new Vector3(p.x, 1f - p.y, 0)), -0.1f);
             }
         }
         draw.Apply();

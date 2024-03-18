@@ -114,7 +114,7 @@ namespace TensorFlowLite
 
         private static float CalcFaceRotation(ref FaceDetect.Result detection)
         {
-            var vec = detection.rightEye - detection.leftEye;
+            var vec = detection.RightEye - detection.LeftEye;
             return -Mathf.Atan2(vec.y, vec.x);
         }
     }
