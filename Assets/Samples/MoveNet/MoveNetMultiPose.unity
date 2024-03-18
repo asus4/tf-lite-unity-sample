@@ -174,7 +174,7 @@ MonoBehaviour:
     aspectMode: 1
     delegateType: 4
   cameraView: {fileID: 237587964}
-  runBackground: 0
+  runBackground: 1
   threshold: 0.2
 --- !u!114 &86521806
 MonoBehaviour:

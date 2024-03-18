@@ -73,13 +73,13 @@ public class MoveNetMultiPoseSample : MonoBehaviour
 
     private void Invoke(Texture texture)
     {
-        moveNet.Invoke(texture);
+        moveNet.Run(texture);
         poses = moveNet.GetResults();
     }
 
     private async UniTask<bool> InvokeAsync(Texture texture)
     {
-        await moveNet.InvokeAsync(texture, destroyCancellationToken);
+        await moveNet.RunAsync(texture, destroyCancellationToken);
         poses = moveNet.GetResults();
         return true;
     }
