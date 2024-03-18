@@ -3,7 +3,6 @@
 #pragma multi_compile_local __ USE_OFFSET
 
 Texture2D<float4> _InputTex;
-RWTexture2D<float4> _OutputTex;
 RWStructuredBuffer<float3> _OutputTensor;
 
 uint2 _OutputSize;
@@ -30,8 +29,6 @@ void TextureToTensor (uint2 id : SV_DispatchThreadID)
     float4 color = any(uv < 0) || any(uv > 1)
         ? float4(0, 0, 0, 1) // Set to black the outside
         : _InputTex.SampleLevel(linearClampSampler, uv, 0);
-
-    _OutputTex[id] = color;
 
     #if USE_OFFSET
     color.rgb = (color.rgb - _Mean) / _StdDev;

@@ -25,7 +25,7 @@ namespace TensorFlowLite
         protected int channels;
         protected TextureToNativeTensor textureToTensor;
 
-        public Texture InputTexture => textureToTensor.Texture;
+
         public AspectMode AspectMode { get; set; } = AspectMode.None;
 
         // Profilers
