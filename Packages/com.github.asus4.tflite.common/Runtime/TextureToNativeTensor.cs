@@ -1,9 +1,6 @@
 using System;
 using System.Threading;
-using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering;
@@ -145,22 +142,6 @@ namespace TensorFlowLite
             };
         }
 
-        /// <summary>
-        /// Find the appropriate TextureToNativeTensor class for the given input type
-        /// </summary>
-        /// <param name="options">An options</param>
-        /// <returns>An instance</returns>
-        public static TextureToNativeTensor Create(Options options)
-        {
-            return options.inputType switch
-            {
-                DataType.Float32 => new TextureToNativeTensorFloat32(options),
-                DataType.UInt8 => new TextureToNativeTensorUInt8(options),
-                _ => throw new NotImplementedException(
-                    $"input type {options.inputType} is not implemented yet. Create our own TextureToNativeTensor class and override it."),
-            };
-        }
-
         // Available when UniTask is installed
 #if TFLITE_UNITASK_ENABLED
 
@@ -172,8 +153,7 @@ namespace TensorFlowLite
             compute.SetMatrix(_TransformMatrix, t);
             compute.Dispatch(kernel, Mathf.CeilToInt(width / 8f), Mathf.CeilToInt(height / 8f), 1);
             var request = AsyncGPUReadback.RequestIntoNativeArray(ref tensor, tensorBuffer);
-            // Get this error 
-            // AsyncGPUReadback - NativeArray does not have read/write access
+            // Didn't work due to error: AsyncGPUReadback - NativeArray does not have read/write access
             // https://forum.unity.com/threads/asyncgpureadback-requestintonativearray-causes-invalidoperationexception-on-nativearray.1011955/
             // await request.ToUniTask(cancellationToken: cancellationToken);
             request.WaitForCompletion();
@@ -187,98 +167,22 @@ namespace TensorFlowLite
         }
 #endif // TFLITE_UNITASK_ENABLED
 
-    }
 
-    /// <summary>
-    /// TextureToNativeTensor for float32 (float) input type
-    /// </summary>
-    public sealed class TextureToNativeTensorFloat32 : TextureToNativeTensor
-    {
-        public TextureToNativeTensorFloat32(Options options)
-            : base(UnsafeUtility.SizeOf<float>(), options)
-        { }
-    }
-
-    /// <summary>
-    /// TextureToNativeTensor for uint8 (byte) input type
-    /// 
-    /// Note:
-    /// Run compute shader with Float32 then convert to UInt8(byte) in C#
-    /// Because ComputeBuffer doesn't support UInt8 type
-    /// </summary>
-    public sealed class TextureToNativeTensorUInt8 : TextureToNativeTensor
-    {
-        private NativeArray<byte> tensorUInt8;
-
-        public TextureToNativeTensorUInt8(Options options)
-            : base(UnsafeUtility.SizeOf<uint>(), options)
+        /// <summary>
+        /// Find the appropriate TextureToNativeTensor class for the given input type
+        /// </summary>
+        /// <param name="options">An options</param>
+        /// <returns>An instance</returns>
+        public static TextureToNativeTensor Create(Options options)
         {
-            int length = options.width * options.height * options.channels;
-            tensorUInt8 = new NativeArray<byte>(length, Allocator.Persistent);
-            Assert.AreEqual(tensor.Length / 4, tensorUInt8.Length, $"Length {tensor.Length} != {tensorUInt8.Length}");
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-            tensorUInt8.Dispose();
-        }
-
-        public override NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
-        {
-            NativeArray<byte> tensor = base.Transform(input, t);
-            // Reinterpret (byte * 4) as float
-            NativeSlice<float> tensorF32 = tensor.Slice().SliceConvert<float>();
-
-            // Cast Float32 to Uint8 using Burst
-            var job = new CastFloat32toUInt8Job()
+            return options.inputType switch
             {
-                input = tensorF32,
-                output = tensorUInt8,
+                DataType.Float32 => new TextureToNativeTensorFloat32(options),
+                DataType.UInt8 => new TextureToNativeTensorUInt8(options),
+                DataType.Int32 => new TextureToNativeTensorInt32(options),
+                _ => throw new NotImplementedException(
+                    $"input type {options.inputType} is not implemented yet. Create our own TextureToNativeTensor class and override it."),
             };
-            job.Schedule().Complete();
-            return tensorUInt8;
-        }
-
-#if TFLITE_UNITASK_ENABLED
-        public override async UniTask<NativeArray<byte>> TransformAsync(Texture input, Matrix4x4 t, CancellationToken cancellationToken)
-        {
-            NativeArray<byte> tensor = await base.TransformAsync(input, t, cancellationToken);
-            // Reinterpret (byte * 4) as float
-            NativeSlice<float> tensorF32 = tensor.Slice().SliceConvert<float>();
-
-            // Cast Float32 to Uint8 using Burst
-            var job = new CastFloat32toUInt8Job()
-            {
-                input = tensorF32,
-                output = tensorUInt8,
-            };
-            // wait for the job to complete async
-            await job.Schedule();
-            return tensorUInt8;
-        }
-#endif // TFLITE_UNITASK_ENABLED
-    }
-
-    /// <summary>
-    /// Cast f32 to uint8 using Burst Job 
-    /// </summary>
-    [BurstCompile]
-    internal struct CastFloat32toUInt8Job : IJob
-    {
-        [ReadOnly]
-        public NativeSlice<float> input;
-
-        [WriteOnly]
-        public NativeArray<byte> output;
-
-        public void Execute()
-        {
-            for (int i = 0; i < input.Length; i++)
-            {
-                // output[i] = (byte)Math.Clamp(input[i] * 255f, 0f, 255f);
-                output[i] = (byte)(input[i] * 255f);
-            }
         }
     }
 }
