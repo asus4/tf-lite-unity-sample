@@ -695,7 +695,7 @@ MonoBehaviour:
   outputView: {fileID: 1931683985}
   options:
     modelFile: deeplabv3_257_mv_gpu.tflite
-    accelerator: 2
+    delegateType: 2
     compute: {fileID: 7200000, guid: 28738c161f6164ecd877b935ec023169, type: 3}
 --- !u!4 &1453601107
 Transform:
@@ -744,7 +744,19 @@ MonoBehaviour:
         m_CallState: 2
   OnAspectChange:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2074584280}
+        m_TargetAssemblyTypeName: UnityEngine.UI.AspectRatioFitter, UnityEngine.UI
+        m_MethodName: set_aspectRatio
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1931683983
 GameObject:
   m_ObjectHideFlags: 0
