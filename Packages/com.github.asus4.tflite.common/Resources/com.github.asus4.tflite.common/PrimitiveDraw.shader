@@ -9,17 +9,22 @@ Shader "Hidden/PrimitiveDraw"
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
-        _SrcBlend ("SrcBlend", Int) = 5.0 // SrcAlpha
-        _DstBlend ("DstBlend", Int) = 10.0 // OneMinusSrcAlpha
-        _ZWrite ("ZWrite", Int) = 1.0 // On
-        _ZTest ("ZTest", Int) = 4.0 // LEqual
-        _Cull ("Cull", Int) = 0.0 // Off
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("SrcBlend", Int) = 5.0 // SrcAlpha
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("DstBlend", Int) = 10.0 // OneMinusSrcAlpha
+        [Enum(Off,0,On,1)] _ZWrite ("ZWrite", Int) = 1.0 // On
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTest", Int) = 4.0 // LEqual
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 0.0 // Off
         _ZBias ("ZBias", Float) = 0.0
     }
 
     SubShader
     {
-        Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
+        Tags {
+            "Queue"="Transparent+1"
+            "IgnoreProjector"="True" 
+            "RenderType"="Transparent"
+        }
+
         Pass
         {
             Blend [_SrcBlend] [_DstBlend]

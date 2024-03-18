@@ -80,6 +80,7 @@ namespace TensorFlowLite
             material.SetInt("_Cull", (int)CullMode.Off);
             material.SetInt("_ZWrite", 0);
             material.SetInt("_ZTest", 6); //always
+            material.renderQueue = (int)RenderQueue.Transparent + 1000;
             material.enableInstancing = true;
 
             mpb = new MaterialPropertyBlock();

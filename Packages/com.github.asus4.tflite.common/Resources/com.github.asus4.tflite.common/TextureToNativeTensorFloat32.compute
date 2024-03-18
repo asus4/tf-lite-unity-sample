@@ -1,13 +1,19 @@
 ﻿#pragma kernel TextureToTensor
 
+#pragma multi_compile_local __ USE_OFFSET
+
 Texture2D<float4> _InputTex;
-RWTexture2D<float4> _OutputTex;
 RWStructuredBuffer<float3> _OutputTensor;
 
 uint2 _OutputSize;
 float4x4 _TransformMatrix;
 
 SamplerState linearClampSampler;
+
+#if USE_OFFSET
+float3 _Mean = float3(0.485, 0.456, 0.406);
+float3 _StdDev = float3(0.229, 0.224, 0.225);
+#endif // USE_OFFSET
 
 [numthreads(8,8,1)]
 void TextureToTensor (uint2 id : SV_DispatchThreadID)
@@ -24,7 +30,9 @@ void TextureToTensor (uint2 id : SV_DispatchThreadID)
         ? float4(0, 0, 0, 1) // Set to black the outside
         : _InputTex.SampleLevel(linearClampSampler, uv, 0);
 
-    _OutputTex[id] = color;
+    #if USE_OFFSET
+    color.rgb = (color.rgb - _Mean) / _StdDev;
+    #endif // USE_OFFSET
     
     // Flip Y axis
     uint tid = (_OutputSize.y - 1 - id.y) * _OutputSize.x + id.x;

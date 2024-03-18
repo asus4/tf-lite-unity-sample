@@ -1,105 +1,87 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace TensorFlowLite
 {
-    public class SuperResolution : BaseImagePredictor<float>
+    public class SuperResolution : BaseVisionTask
     {
-        float[,,] output0;
-        ComputeShader compute;
-        ComputeBuffer resultBuffer;
-        RenderTexture resultTexture;
+        readonly float[,,] output0;
+        readonly ComputeShader compute;
+        readonly ComputeBuffer resultBuffer;
+        readonly RenderTexture resultTexture;
+        readonly Vector2Int outputSize;
 
-        int outputWidth, outputHeight;
 
-        public SuperResolution(string modelPath, ComputeShader compute) : base(modelPath, TfLiteDelegateType.GPU)
+        public SuperResolution(string modelPath, ComputeShader compute)
         {
-            // Setup output
-            var odim0 = interpreter.GetOutputTensorInfo(0).shape;
-            outputHeight = odim0[1];
-            outputWidth = odim0[2];
-            int channels = odim0[3];
-            output0 = new float[outputHeight, outputWidth, channels];
 
-            Debug.Assert(outputHeight % 8 == 0);
-            Debug.Assert(outputWidth % 8 == 0);
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            Load(FileUtil.LoadFile(modelPath), interpreterOptions);
+
+            // Setup output
+            var outputShape = interpreter.GetOutputTensorInfo(0).shape;
+            outputSize = new Vector2Int(outputShape[2], outputShape[1]);
+            int channels = outputShape[3];
+            output0 = new float[outputSize.y, outputSize.x, channels];
+
+            Debug.Assert(outputSize.y % 8 == 0);
+            Debug.Assert(outputSize.x % 8 == 0);
             Debug.Assert(channels == 3);
 
             // Setup compute
             this.compute = compute;
-            compute.SetInt("Width", outputWidth);
-            compute.SetInt("Height", outputHeight);
+            compute.SetInts("_InputSize", new int[] { outputSize.x, outputSize.y });
 
-            resultBuffer = new ComputeBuffer(outputWidth * outputHeight, sizeof(float) * channels);
-            resultTexture = new RenderTexture(outputWidth, outputHeight, 0, RenderTextureFormat.ARGB32);
-            resultTexture.enableRandomWrite = true;
+            resultBuffer = new ComputeBuffer(outputSize.x * outputSize.y, sizeof(float) * channels);
+            resultTexture = new RenderTexture(outputSize.x, outputSize.y, 0, RenderTextureFormat.ARGB32)
+            {
+                enableRandomWrite = true
+            };
             resultTexture.Create();
         }
 
         public override void Dispose()
         {
             resultBuffer.Release();
-
             resultTexture.Release();
             Object.Destroy(resultTexture);
 
             base.Dispose();
         }
 
-        public override void Invoke(Texture inputTex)
+        protected override void PostProcess()
         {
-            if (IsConvertSkippable(inputTex))
-            {
-                ToTensorDirect(inputTex as Texture2D, inputTensor);
-            }
-            else
-            {
-                // ToTensor(inputTex, input0, 0f, 255f);
-                ToTensor(inputTex, inputTensor);
-            }
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
         }
 
-        private void ToTensorDirect(Texture2D tex, float[,,] input)
+        protected override TextureToNativeTensor CreateTextureToTensor(Interpreter.TensorInfo inputTensorInfo)
         {
-            var pixels = tex.GetPixels32();
-            Debug.Assert(
-                pixels.Length == tex.width * tex.height,
-                $"length should be {tex.width * tex.height * 3} but was {pixels.Length}");
+            // ESR-GAN model accepts float but value range must be 0 ~ 255
+            var compute = TextureToNativeTensor.CloneDefaultComputeShaderFloat32();
+            var keyword = new LocalKeyword(compute, "USE_OFFSET");
+            compute.SetKeyword(keyword, true);
+            compute.SetFloats("_Mean", new float[] { 0.0f, 0.0f, 0.0f });
+            compute.SetFloats("_StdDev", new float[] { 1 / 255f, 1 / 255f, 1 / 255f });
 
-            // 0 ~ 255
-            int w = tex.width;
-            int h = tex.height - 1;
-            for (int i = 0; i < pixels.Length; i++)
+            return TextureToNativeTensor.Create(new()
             {
-                int y = h - i / w;
-                int x = i % w;
-                input[y, x, 0] = (float)pixels[i].r;
-                input[y, x, 1] = (float)pixels[i].g;
-                input[y, x, 2] = (float)pixels[i].b;
-            }
-        }
-
-        private bool IsConvertSkippable(Texture tex)
-        {
-            if (!(tex is Texture2D)
-            || tex.width != width
-            || tex.height != height)
-            {
-                return false;
-            }
-            return true;
+                compute = compute,
+                kernel = 0,
+                width = width,
+                height = height,
+                channels = channels,
+                inputType = inputTensorInfo.type,
+            });
         }
 
         public RenderTexture GetResult()
         {
             resultBuffer.SetData(output0);
-            compute.SetBuffer(0, "InputBuffer", resultBuffer);
-            compute.SetTexture(0, "OutputImage", resultTexture);
+            compute.SetBuffer(0, "_InputTensor", resultBuffer);
+            compute.SetTexture(0, "_OutputTex", resultTexture);
 
-            compute.Dispatch(0, outputWidth / 8, outputHeight / 8, 1);
+            compute.Dispatch(0, outputSize.x / 8, outputSize.y / 8, 1);
 
             return resultTexture;
         }

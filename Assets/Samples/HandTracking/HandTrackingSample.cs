@@ -3,6 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using TensorFlowLite;
 using TextureSource;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -120,17 +121,17 @@ public class HandTrackingSample : MonoBehaviour
 
     private void DrawFrames(List<PalmDetect.Result> palms)
     {
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
+        float3 min = rtCorners[0];
+        float3 max = rtCorners[2];
 
         draw.color = Color.green;
         foreach (var palm in palms)
         {
-            draw.Rect(MathTF.Lerp(min, max, palm.rect, true), 0.02f, min.z);
+            draw.Rect(MathTF.Lerp((Vector3)min, (Vector3)max, palm.rect.FlipY()), 0.02f, min.z);
 
-            foreach (var kp in palm.keypoints)
+            foreach (Vector2 kp in palm.keypoints)
             {
-                draw.Point(MathTF.Lerp(min, max, (Vector3)kp, true), 0.05f);
+                draw.Point(math.lerp(min, max, new float3(kp.x, 1 - kp.y, 0)), 0.05f);
             }
         }
         draw.Apply();
@@ -158,8 +159,8 @@ public class HandTrackingSample : MonoBehaviour
         draw.color = Color.blue;
 
         // Get World Corners
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
+        float3 min = rtCorners[0];
+        float3 max = rtCorners[2];
 
         Matrix4x4 mtx = Matrix4x4.identity;
 
@@ -168,7 +169,7 @@ public class HandTrackingSample : MonoBehaviour
         for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
         {
             Vector3 p0 = mtx.MultiplyPoint3x4(joints[i]);
-            Vector3 p1 = MathTF.Lerp(min, max, p0);
+            Vector3 p1 = math.lerp(min, max, p0);
             p1.z += (p0.z - 0.5f) * zScale;
             worldJoints[i] = p1;
         }

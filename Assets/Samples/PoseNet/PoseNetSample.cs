@@ -1,8 +1,9 @@
 ﻿using System.Threading;
+using Cysharp.Threading.Tasks;
+using TensorFlowLite;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
-using TensorFlowLite;
-using Cysharp.Threading.Tasks;
 
 [RequireComponent(typeof(WebCamInput))]
 [System.Obsolete("Use MoveNet instead")]
@@ -83,8 +84,8 @@ public class PoseNetSample : MonoBehaviour
 
         var rect = cameraView.GetComponent<RectTransform>();
         rect.GetWorldCorners(rtCorners);
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
+        float3 min = rtCorners[0];
+        float3 max = rtCorners[2];
 
         var connections = PoseNet.Connections;
         int len = connections.GetLength(0);
@@ -95,8 +96,8 @@ public class PoseNetSample : MonoBehaviour
             if (a.confidence >= threshold && b.confidence >= threshold)
             {
                 draw.Line3D(
-                    MathTF.Lerp(min, max, new Vector3(a.x, 1f - a.y, 0)),
-                    MathTF.Lerp(min, max, new Vector3(b.x, 1f - b.y, 0)),
+                    math.lerp(min, max, new float3(a.x, 1f - a.y, 0)),
+                    math.lerp(min, max, new float3(b.x, 1f - b.y, 0)),
                     lineThickness
                 );
             }
