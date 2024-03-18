@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using TensorFlowLite;
 using TextureSource;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,7 +18,7 @@ public sealed class FaceMeshSample : MonoBehaviour
     private bool useLandmarkToDetection = true;
 
     [SerializeField]
-    private RawImage cameraView = null;
+    private RawImage inputPreview = null;
 
     [SerializeField]
     private RawImage croppedView = null;
@@ -33,12 +34,17 @@ public sealed class FaceMeshSample : MonoBehaviour
     private FaceDetect.Result detectionResult;
     private FaceMesh.Result meshResult;
     private readonly Vector3[] rtCorners = new Vector3[4];
+    private Material previewMaterial;
+
 
     private void Start()
     {
         faceDetect = new FaceDetect(faceModelFile);
         faceMesh = new FaceMesh(faceMeshModelFile);
         draw = new PrimitiveDraw(Camera.main, gameObject.layer);
+
+        previewMaterial = new Material(Shader.Find("Hidden/TFLite/InputMatrixPreview"));
+        inputPreview.material = previewMaterial;
 
         // Create Face Mesh Renderer
         {
@@ -69,6 +75,7 @@ public sealed class FaceMeshSample : MonoBehaviour
         faceDetect?.Dispose();
         faceMesh?.Dispose();
         draw?.Dispose();
+        Destroy(previewMaterial);
     }
 
     private void Update()
@@ -81,8 +88,10 @@ public sealed class FaceMeshSample : MonoBehaviour
         if (detectionResult == null || !useLandmarkToDetection)
         {
             faceDetect.Run(texture);
-            // TODO set;
-            // cameraView.material = faceDetect.transformMat;
+
+            inputPreview.texture = texture;
+            previewMaterial.SetMatrix("_TransformMatrix", faceDetect.InputTransformMatrix);
+
             detectionResult = faceDetect.GetResults().FirstOrDefault();
 
             if (detectionResult == null)
@@ -109,7 +118,7 @@ public sealed class FaceMeshSample : MonoBehaviour
 
     private void DrawResults(FaceDetect.Result detection, FaceMesh.Result face)
     {
-        cameraView.rectTransform.GetWorldCorners(rtCorners);
+        inputPreview.rectTransform.GetWorldCorners(rtCorners);
         Vector3 min = rtCorners[0];
         Vector3 max = rtCorners[2];
 
@@ -121,7 +130,7 @@ public sealed class FaceMeshSample : MonoBehaviour
             draw.Rect(rect, 0.05f);
             foreach (Vector2 p in detection.keypoints)
             {
-                draw.Point(MathTF.Lerp(min, max, new Vector3(p.x, 1f - p.y, 0)), 0.1f);
+                draw.Point(math.lerp(min, max, new float3(p.x, 1f - p.y, 0)), 0.1f);
             }
             draw.Apply();
         }
@@ -133,10 +142,9 @@ public sealed class FaceMeshSample : MonoBehaviour
             float zScale = (max.x - min.x) / 2;
             for (int i = 0; i < face.keypoints.Length; i++)
             {
-                Vector3 kp = face.keypoints[i];
-                kp.y = 1f - kp.y;
-
-                Vector3 p = MathTF.Lerp(min, max, kp);
+                float3 kp = face.keypoints[i];
+                float3 p = math.lerp(min, max, kp);
+                // TODO: projection is not correct
                 p.z = face.keypoints[i].z * zScale;
 
                 faceKeypoints[i] = p;

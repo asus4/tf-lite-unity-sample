@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using TensorFlowLite;
 using TextureSource;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -46,7 +47,7 @@ public class FaceDetectionSample : MonoBehaviour
         }
         faceDetect?.Dispose();
         draw?.Dispose();
-        Object.Destroy(previewMaterial);
+        Destroy(previewMaterial);
     }
 
     private void Update()
@@ -72,18 +73,18 @@ public class FaceDetectionSample : MonoBehaviour
             return;
         }
 
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
+        float3 min = rtCorners[0];
+        float3 max = rtCorners[2];
 
         draw.color = Color.blue;
 
         foreach (var result in results)
         {
-            Rect rect = MathTF.Lerp(min, max, result.rect.FlipY());
+            Rect rect = MathTF.Lerp((Vector3)min, (Vector3)max, result.rect.FlipY());
             draw.Rect(rect, 0.05f, -0.1f);
             foreach (Vector2 p in result.keypoints)
             {
-                draw.Point(MathTF.Lerp(min, max, new Vector3(p.x, 1f - p.y, 0)), -0.1f);
+                draw.Point(math.lerp(min, max, new float3(p.x, 1f - p.y, 0)), -0.1f);
             }
         }
         draw.Apply();

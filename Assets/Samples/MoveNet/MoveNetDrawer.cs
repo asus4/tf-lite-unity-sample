@@ -1,5 +1,6 @@
 namespace TensorFlowLite.MoveNet
 {
+    using Unity.Mathematics;
     using UnityEngine;
 
     public class MoveNetDrawer : System.IDisposable
@@ -32,8 +33,8 @@ namespace TensorFlowLite.MoveNet
             draw.color = PoseColor;
 
             view.GetWorldCorners(rtCorners);
-            Vector3 min = rtCorners[0];
-            Vector3 max = rtCorners[2];
+            float3 min = rtCorners[0];
+            float3 max = rtCorners[2];
 
             var connections = MoveNetPose.Connections;
             int len = connections.GetLength(0);
@@ -44,8 +45,8 @@ namespace TensorFlowLite.MoveNet
                 if (a.score >= threshold && b.score >= threshold)
                 {
                     draw.Line3D(
-                        MathTF.Lerp(min, max, new Vector3(a.x, 1f - a.y, 0)),
-                        MathTF.Lerp(min, max, new Vector3(b.x, 1f - b.y, 0)),
+                        math.lerp(min, max, new float3(a.x, 1f - a.y, 0)),
+                        math.lerp(min, max, new float3(b.x, 1f - b.y, 0)),
                         1
                     );
                 }
@@ -70,15 +71,15 @@ namespace TensorFlowLite.MoveNet
 
         private void DrawBoundingBox(Rect rect)
         {
-            Vector3 min = rtCorners[0];
-            Vector3 max = rtCorners[2];
+            float3 min = rtCorners[0];
+            float3 max = rtCorners[2];
 
             draw.color = BoundingBoxColor;
 
-            Vector3 p0 = MathTF.Lerp(min, max, new Vector3(rect.xMin, 1f - rect.yMin, 0));
-            Vector3 p1 = MathTF.Lerp(min, max, new Vector3(rect.xMin, 1f - rect.yMax, 0));
-            Vector3 p2 = MathTF.Lerp(min, max, new Vector3(rect.xMax, 1f - rect.yMax, 0));
-            Vector3 p3 = MathTF.Lerp(min, max, new Vector3(rect.xMax, 1f - rect.yMin, 0));
+            Vector3 p0 = math.lerp(min, max, new float3(rect.xMin, 1f - rect.yMin, 0));
+            Vector3 p1 = math.lerp(min, max, new float3(rect.xMin, 1f - rect.yMax, 0));
+            Vector3 p2 = math.lerp(min, max, new float3(rect.xMax, 1f - rect.yMax, 0));
+            Vector3 p3 = math.lerp(min, max, new float3(rect.xMax, 1f - rect.yMin, 0));
 
             const float thickness = 0.5f;
             draw.Line3D(p0, p1, thickness);

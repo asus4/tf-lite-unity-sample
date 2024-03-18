@@ -20,6 +20,9 @@ namespace TensorFlowLite
         public class Result
         {
             public float score;
+            /// <summary>
+            /// Model space bounding box top-left:[0,0], Normalized to [0, 1] 
+            /// </summary>
             public Rect rect;
             public Vector2[] keypoints;
 

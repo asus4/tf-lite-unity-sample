@@ -34,15 +34,15 @@ namespace TensorFlowLite
             }
             container.GetWorldCorners(rtCorners);
 
-            Vector3 min = rtCorners[0];
-            Vector3 max = rtCorners[2];
+            float3 min = rtCorners[0];
+            float3 max = rtCorners[2];
 
             draw.color = Color.green;
-            draw.Rect(MathTF.Lerp(min, max, pose.rect.FlipY()), 0.02f, min.z);
+            draw.Rect(MathTF.Lerp((Vector3)min, (Vector3)max, pose.rect.FlipY()), 0.02f, min.z);
 
-            foreach (var kp in pose.keypoints)
+            foreach (Vector2 kp in pose.keypoints)
             {
-                draw.Point(MathTF.Lerp(min, max, (Vector3)kp, true), 0.05f);
+                draw.Point(math.lerp(min, max, new float3(kp.x, 1 - kp.y, 0)), 0.05f);
             }
             draw.Apply();
         }

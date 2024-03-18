@@ -11,17 +11,7 @@ namespace TensorFlowLite
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Sigmoid(float x)
         {
-            return (1.0f / (1.0f + Mathf.Exp(-x)));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 Lerp(in Vector3 a, in Vector3 b, in Vector3 t, bool invertY = false)
-        {
-            return new Vector3(
-                Mathf.Lerp(a.x, b.x, t.x),
-                Mathf.Lerp(a.y, b.y, invertY ? 1f - t.y : t.y),
-                Mathf.Lerp(a.z, b.z, t.z)
-            );
+            return 1.0f / (1.0f + Mathf.Exp(-x));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
