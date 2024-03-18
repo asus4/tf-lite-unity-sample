@@ -34,7 +34,7 @@ public class SelfieSegmentationSample : MonoBehaviour
 
     private void OnTextureUpdate(Texture texture)
     {
-        segmentation.Invoke(texture);
+        segmentation.Run(texture);
         outputView.texture = segmentation.GetResultTexture();
     }
 }

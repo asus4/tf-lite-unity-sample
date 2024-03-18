@@ -4,7 +4,7 @@ using UnityEngine;
 namespace TensorFlowLite
 {
 
-    public sealed class SelfieSegmentation : BaseImagePredictor<float>
+    public sealed class SelfieSegmentation : BaseVisionTask
     {
         [System.Serializable]
         public class Options
@@ -39,10 +39,14 @@ namespace TensorFlowLite
         private static readonly int kInputTexture = Shader.PropertyToID("InputTexture");
         private static readonly int kOutputTexture = Shader.PropertyToID("OutputTexture");
 
-        public SelfieSegmentation(Options options) : base(options.modelFile, options.delegateType)
+        public SelfieSegmentation(Options options)
         {
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AutoAddDelegate(options.delegateType, typeof(float));
+            Load(FileUtil.LoadFile(options.modelFile), interpreterOptions);
+
             this.options = options;
-            resizeOptions.aspectMode = options.aspectMode;
+            AspectMode = options.aspectMode;
 
             int[] odim0 = interpreter.GetOutputTensorInfo(0).shape;
 
@@ -96,12 +100,8 @@ namespace TensorFlowLite
             base.Dispose();
         }
 
-        public override void Invoke(Texture inputTex)
+        protected override void PostProcess()
         {
-            ToTensor(inputTex, inputTensor);
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
         }
 
