@@ -1,13 +1,19 @@
 using System;
+using System.Threading;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Assertions;
+
+#if TFLITE_UNITASK_ENABLED
+using Cysharp.Threading.Tasks;
+#endif // TFLITE_UNITASK_ENABLED
+
 using TensorInfo = TensorFlowLite.Interpreter.TensorInfo;
 
 namespace TensorFlowLite
 {
     /// <summary>
-    /// Base class for task that takes a Texture as an input
+    /// Base class for vision task that takes a Texture as an input
     /// </summary>
     /// <typeparam name="T">A type of input tensor (float, sbyte etc.)</typeparam>
     public abstract class BaseVisionTask : IDisposable
@@ -23,9 +29,9 @@ namespace TensorFlowLite
         public AspectMode AspectMode { get; set; } = AspectMode.None;
 
         // Profilers
-        static readonly ProfilerMarker preprocessPerfMarker = new($"{typeof(BaseVisionTask).Name}.Preprocess");
-        static readonly ProfilerMarker runPerfMarker = new($"{typeof(BaseVisionTask).Name}.Session.Run");
-        static readonly ProfilerMarker postprocessPerfMarker = new($"{typeof(BaseVisionTask).Name}.Postprocess");
+        protected static readonly ProfilerMarker preprocessPerfMarker = new($"{typeof(BaseVisionTask).Name}.Preprocess");
+        protected static readonly ProfilerMarker runPerfMarker = new($"{typeof(BaseVisionTask).Name}.Session.Run");
+        protected static readonly ProfilerMarker postprocessPerfMarker = new($"{typeof(BaseVisionTask).Name}.Postprocess");
 
         /// <summary>
         /// Load model from byte array
@@ -58,6 +64,10 @@ namespace TensorFlowLite
             textureToTensor?.Dispose();
         }
 
+        /// <summary>
+        /// Run the model with the input texture
+        /// </summary>
+        /// <param name="texture">A texture for model input</param>
         public virtual void Run(Texture texture)
         {
             // Pre process
@@ -83,7 +93,6 @@ namespace TensorFlowLite
         /// <param name="texture">An input texture</param>
         protected virtual void PreProcess(Texture texture)
         {
-            // TODO: Support GPU binding
             var input = textureToTensor.Transform(texture, AspectMode);
             interpreter.SetInputTensorData(inputTensorIndex, input);
         }
@@ -92,6 +101,42 @@ namespace TensorFlowLite
         /// Get the output tensors and do post process in subclass
         /// </summary>
         protected abstract void PostProcess();
+
+        // Only available when UniTask is installed
+#if TFLITE_UNITASK_ENABLED
+        public virtual async UniTask RunAsync(Texture texture, CancellationToken cancellationToken)
+        {
+            // Pre process
+            preprocessPerfMarker.Begin();
+            await PreProcessAsync(texture, cancellationToken);
+            preprocessPerfMarker.End();
+
+            // Run inference in BG thread
+            await UniTask.SwitchToThreadPool();
+            runPerfMarker.Begin();
+            interpreter.Invoke();
+            runPerfMarker.End();
+
+            // Post process
+            postprocessPerfMarker.Begin();
+            await PostProcessAsync(cancellationToken);
+            postprocessPerfMarker.End();
+
+            // Back to main thread
+            await UniTask.SwitchToMainThread();
+        }
+
+        protected virtual async UniTask PreProcessAsync(Texture texture, CancellationToken cancellationToken)
+        {
+            var input = await textureToTensor.TransformAsync(texture, AspectMode, cancellationToken);
+            interpreter.SetInputTensorData(inputTensorIndex, input);
+        }
+
+        protected virtual async UniTask PostProcessAsync(CancellationToken cancellationToken)
+        {
+            await UniTask.Yield();
+        }
+#endif // TFLITE_UNITASK_ENABLED
 
         /// <summary>
         /// Default implementation of InitializeInputsOutputs
