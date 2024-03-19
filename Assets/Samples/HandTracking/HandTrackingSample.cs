@@ -20,7 +20,7 @@ public class HandTrackingSample : MonoBehaviour
     [SerializeField]
     private RawImage inputView = null;
     [SerializeField]
-    private RawImage debugPalmView = null;
+    private RawImage croppedView = null;
 
     private PalmDetect palmDetect;
     private HandLandmarkDetect landmarkDetect;
@@ -93,8 +93,9 @@ public class HandTrackingSample : MonoBehaviour
         if (palmResults.Count <= 0) return;
 
         // Detect only first palm
-        landmarkDetect.Invoke(texture, palmResults[0]);
-        debugPalmView.texture = landmarkDetect.inputTex;
+        landmarkDetect.Palm = palmResults[0];
+        landmarkDetect.Run(texture);
+        croppedView.texture = landmarkDetect.InputTexture;
 
         landmarkResult = landmarkDetect.GetResult();
     }

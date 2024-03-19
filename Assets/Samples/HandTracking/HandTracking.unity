@@ -827,7 +827,7 @@ MonoBehaviour:
   palmModelFile: mediapipe/palm_detection_builtin_256_float16_quant.tflite
   landmarkModelFile: mediapipe/hand_landmark.tflite
   inputView: {fileID: 2074584278}
-  debugPalmView: {fileID: 1302103928}
+  croppedView: {fileID: 1302103928}
 --- !u!114 &1453601109
 MonoBehaviour:
   m_ObjectHideFlags: 0

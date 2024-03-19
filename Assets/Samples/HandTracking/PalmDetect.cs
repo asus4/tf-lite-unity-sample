@@ -13,7 +13,7 @@ namespace TensorFlowLite
             public Rect rect;
             public Vector2[] keypoints;
 
-            public readonly float GetHandRotation()
+            public readonly float GetRotation()
             {
                 // Rotation based on Center of wrist - Middle finger
                 const float RAD_90 = 90f * Mathf.Deg2Rad;
