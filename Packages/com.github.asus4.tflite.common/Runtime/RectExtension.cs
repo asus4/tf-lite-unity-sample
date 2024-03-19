@@ -45,7 +45,7 @@ namespace TensorFlowLite
             return intersect_area / (area0 + area1 - intersect_area);
         }
 
-        public static Rect GetBoundingBox(Vector2[] arr)
+        public static Rect GetBoundingBox(ReadOnlySpan<Vector2> arr)
         {
             float xMin = float.MaxValue;
             float yMin = float.MaxValue;
@@ -63,7 +63,7 @@ namespace TensorFlowLite
             return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
         }
 
-        public static Rect GetBoundingBox(Vector3[] arr)
+        public static Rect GetBoundingBox(ReadOnlySpan<Vector3> arr)
         {
             float xMin = float.MaxValue;
             float yMin = float.MaxValue;

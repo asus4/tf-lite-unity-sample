@@ -637,7 +637,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   faceModelFile: mediapipe/face_detection_front.tflite
   faceMeshModelFile: mediapipe/face_landmark.tflite
-  useLandmarkToDetection: 0
+  useLandmarkToDetection: 1
   inputPreview: {fileID: 2074584278}
   croppedView: {fileID: 1080443240}
   faceMaterial: {fileID: 2100000, guid: 3ab560a1da27c4e77b5495223c8c6104, type: 2}

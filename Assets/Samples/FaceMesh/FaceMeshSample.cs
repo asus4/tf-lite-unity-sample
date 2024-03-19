@@ -112,21 +112,21 @@ public sealed class FaceMeshSample : MonoBehaviour
 
         if (useLandmarkToDetection)
         {
-            detectionResult = faceMesh.LandmarkToDetection(meshResult);
+            detectionResult = FaceMesh.LandmarkToDetection(meshResult);
         }
     }
 
     private void DrawResults(FaceDetect.Result detection, FaceMesh.Result face)
     {
         inputPreview.rectTransform.GetWorldCorners(rtCorners);
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
+        float3 min = rtCorners[0];
+        float3 max = rtCorners[2];
 
         // Draw Face Detection
         if (detection != null)
         {
             draw.color = Color.blue;
-            Rect rect = MathTF.Lerp(min, max, detection.rect.FlipY());
+            Rect rect = MathTF.Lerp((Vector3)min, (Vector3)max, detection.rect.FlipY());
             draw.Rect(rect, 0.05f);
             foreach (Vector2 p in detection.keypoints)
             {

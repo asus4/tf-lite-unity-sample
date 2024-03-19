@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using System.Buffers;
 using UnityEngine;
 using DataType = TensorFlowLite.Interpreter.DataType;
 
@@ -11,6 +11,9 @@ namespace TensorFlowLite
         public class Result
         {
             public float score;
+            /// <summary>
+            /// 468 points in 3D space normalized 0-1
+            /// </summary>
             public Vector3[] keypoints;
         }
         public const int KEYPOINT_COUNT = 468;
@@ -50,7 +53,7 @@ namespace TensorFlowLite
 
         public override void Invoke(Texture inputTex)
         {
-            throw new System.NotImplementedException("Use Invoke(Texture inputTex, FaceDetect.Result palm)");
+            throw new NotImplementedException("Use Invoke(Texture inputTex, FaceDetect.Result palm)");
         }
 
         public void Invoke(Texture inputTex, FaceDetect.Result face)
@@ -97,19 +100,24 @@ namespace TensorFlowLite
             return result;
         }
 
-        public FaceDetect.Result LandmarkToDetection(Result landmark)
+        /// <summary>
+        /// Estimate face detection from face mesh
+        /// </summary>
+        /// <param name="faceMeshResult">a result from face mesh</param>
+        /// <returns></returns>
+        public static FaceDetect.Result LandmarkToDetection(Result faceMeshResult)
         {
             // Original index looks like a bug
             // rotation_vector_start_keypoint_index: 33  # Left side of left eye.
             // rotation_vector_end_keypoint_index: 133  # Right side of right eye.
+            const int ID_RIGHT_EYE = 263;
+            const int ID_LEFT_EYE = 33;
 
-            const int start = 33; // Left side of left eye.
-            const int end = 263; // Right side of right eye.
-
-            var keypoints = landmark.keypoints;
-            for (int i = 0; i < keypoints.Length; i++)
+            Vector3[] buffer = ArrayPool<Vector3>.Shared.Rent(KEYPOINT_COUNT);
+            Span<Vector3> keypoints = buffer.AsSpan(0, KEYPOINT_COUNT);
+            for (int i = 0; i < KEYPOINT_COUNT; i++)
             {
-                Vector3 v = keypoints[i];
+                Vector3 v = faceMeshResult.keypoints[i];
                 v.y = 1f - v.y;
                 keypoints[i] = v;
             }
@@ -117,17 +125,20 @@ namespace TensorFlowLite
             Rect rect = RectExtension.GetBoundingBox(keypoints);
             Vector2 center = rect.center;
             float size = Mathf.Min(rect.width, rect.height);
-            rect = new Rect(center.x - size * 0.5f, center.y - size * 0.5f, size, size);
+            rect.Set(center.x - size * 0.5f, center.y - size * 0.5f, size, size);
 
-            return new FaceDetect.Result()
+            FaceDetect.Result detection = new()
             {
-                score = landmark.score,
+                score = faceMeshResult.score,
                 rect = rect,
                 keypoints = new Vector2[]
                 {
-                    keypoints[end], keypoints[start]
+                    keypoints[ID_RIGHT_EYE],
+                    keypoints[ID_LEFT_EYE]
                 },
             };
+            ArrayPool<Vector3>.Shared.Return(buffer);
+            return detection;
         }
 
         private static float CalcFaceRotation(ref FaceDetect.Result detection)
