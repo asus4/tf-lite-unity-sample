@@ -826,6 +826,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   palmModelFile: mediapipe/palm_detection_builtin_256_float16_quant.tflite
   landmarkModelFile: mediapipe/hand_landmark.tflite
+  useLandmarkToDetection: 1
   inputView: {fileID: 2074584278}
   croppedView: {fileID: 1302103928}
 --- !u!114 &1453601109

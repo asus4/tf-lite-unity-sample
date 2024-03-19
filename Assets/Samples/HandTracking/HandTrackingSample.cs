@@ -12,11 +12,17 @@ using UnityEngine.UI;
 [RequireComponent(typeof(VirtualTextureSource))]
 public class HandTrackingSample : MonoBehaviour
 {
+    [Header("Model Settings")]
     [SerializeField, FilePopup("*.tflite")]
     private string palmModelFile = "coco_ssd_mobilenet_quant.tflite";
+
     [SerializeField, FilePopup("*.tflite")]
     private string landmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
 
+    [SerializeField]
+    private bool useLandmarkToDetection = true;
+
+    [Header("UI")]
     [SerializeField]
     private RawImage inputView = null;
     [SerializeField]
@@ -63,49 +69,86 @@ public class HandTrackingSample : MonoBehaviour
 
     private void Update()
     {
-        if (palmResults != null && palmResults.Count > 0)
-        {
-            DrawFrames(palmResults);
-        }
+        DrawPalms(palmResults, Color.green);
 
         if (landmarkResult != null && landmarkResult.score > 0.2f)
         {
-            DrawCropMatrix(landmarkDetect.CropMatrix);
-            DrawJoints(landmarkResult.joints);
+            DrawJoints(landmarkResult.keypoints);
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (palmResults == null || palmResults.Count == 0)
+        {
+            return;
+        }
+        float3 min = rtCorners[0];
+        float3 max = rtCorners[2];
+
+        Color startColor = Color.green;
+        Color endColor = Color.red;
+
+        foreach (var palm in palmResults)
+        {
+            int landmarkCount = palm.keypoints.Length;
+            for (int i = 0; i < landmarkCount; i++)
+            {
+                Vector2 kp = palm.keypoints[i];
+                Gizmos.color = Color.Lerp(startColor, endColor, i / (float)landmarkCount);
+                Gizmos.DrawSphere(math.lerp(min, max, new float3(kp.x, 1 - kp.y, 0)), 0.05f);
+            }
         }
     }
 
     private void OnTextureUpdate(Texture texture)
     {
-        Invoke(texture);
-    }
+        bool needPalmDetect = palmResults == null || palmResults.Count == 0 || !useLandmarkToDetection;
+        if (needPalmDetect)
+        {
+            palmDetect.Run(texture);
 
-    private void Invoke(Texture texture)
-    {
-        palmDetect.Run(texture);
+            inputView.texture = texture;
+            previewMaterial.SetMatrix("_TransformMatrix", palmDetect.InputTransformMatrix);
+            inputView.rectTransform.GetWorldCorners(rtCorners);
 
-        inputView.texture = texture;
-        previewMaterial.SetMatrix("_TransformMatrix", palmDetect.InputTransformMatrix);
-        inputView.rectTransform.GetWorldCorners(rtCorners);
+            palmResults = palmDetect.GetResults(0.7f, 0.3f);
 
-        palmResults = palmDetect.GetResults(0.7f, 0.3f);
-
-        if (palmResults.Count <= 0) return;
+            if (palmResults.Count <= 0)
+            {
+                return;
+            };
+        }
 
         // Detect only first palm
         landmarkDetect.Palm = palmResults[0];
         landmarkDetect.Run(texture);
         croppedView.texture = landmarkDetect.InputTexture;
-
         landmarkResult = landmarkDetect.GetResult();
+
+        if (landmarkResult.score < 0.5f)
+        {
+            palmResults.Clear();
+            return;
+        }
+
+        if (useLandmarkToDetection)
+        {
+            palmResults.Clear();
+            palmResults.Add(landmarkResult.ToDetection());
+        }
     }
 
-    private void DrawFrames(List<PalmDetect.Result> palms)
+    private void DrawPalms(List<PalmDetect.Result> palms, Color color)
     {
+        if (palms == null || palms.Count == 0)
+        {
+            return;
+        }
         float3 min = rtCorners[0];
         float3 max = rtCorners[2];
 
-        draw.color = Color.green;
+        draw.color = color;
         foreach (var palm in palms)
         {
             draw.Rect(MathTF.Lerp((Vector3)min, (Vector3)max, palm.rect.FlipY()), 0.02f, min.z);
@@ -115,23 +158,6 @@ public class HandTrackingSample : MonoBehaviour
                 draw.Point(math.lerp(min, max, new float3(kp.x, 1 - kp.y, 0)), 0.05f);
             }
         }
-        draw.Apply();
-    }
-
-    void DrawCropMatrix(in Matrix4x4 matrix)
-    {
-        draw.color = Color.red;
-
-        float3 min = rtCorners[0];
-        float3 max = rtCorners[2];
-
-        var mtx = matrix.inverse;
-        float3 a = math.lerp(min, max, mtx.MultiplyPoint3x4(new(0, 0, 0)));
-        float3 b = math.lerp(min, max, mtx.MultiplyPoint3x4(new(1, 0, 0)));
-        float3 c = math.lerp(min, max, mtx.MultiplyPoint3x4(new(1, 1, 0)));
-        float3 d = math.lerp(min, max, mtx.MultiplyPoint3x4(new(0, 1, 0)));
-
-        draw.Quad(a, b, c, d, 0.02f);
         draw.Apply();
     }
 

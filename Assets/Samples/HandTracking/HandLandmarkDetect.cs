@@ -8,7 +8,34 @@ namespace TensorFlowLite
         public class Result
         {
             public float score;
-            public Vector3[] joints;
+            public Vector3[] keypoints;
+
+
+            private static readonly int[] toDetectionIndices = new int[] { 0, 5, 9, 13, 17, 1, 2, };
+            public PalmDetect.Result ToDetection()
+            {
+                int length = toDetectionIndices.Length;
+                Vector2[] keypoints = new Vector2[length];
+                for (int i = 0; i < length; i++)
+                {
+                    Vector2 v = this.keypoints[toDetectionIndices[i]];
+                    v.y = 1f - v.y;
+                    keypoints[i] = v;
+                }
+
+                Rect rect = RectExtension.GetBoundingBox(keypoints);
+                Vector2 center = rect.center;
+                float size = Mathf.Max(rect.width, rect.height);
+                rect.Set(center.x - size * 0.5f, center.y - size * 0.5f, size, size);
+
+                PalmDetect.Result detection = new()
+                {
+                    score = score,
+                    rect = rect,
+                    keypoints = keypoints,
+                };
+                return detection;
+            }
         }
 
         public enum Dimension
@@ -27,8 +54,8 @@ namespace TensorFlowLite
         private readonly TensorToTexture debugInputTensorToTexture;
 
         public Dimension Dim { get; private set; }
-        public Vector2 PalmShift { get; set; } = new Vector2(0, 0.2f);
-        public Vector2 PalmScale { get; set; } = new Vector2(2.8f, 2.8f);
+        public Vector2 PalmShift { get; set; } = new Vector2(0, 0.15f);
+        public Vector2 PalmScale { get; set; } = new Vector2(2.9f, 2.9f);
         public Matrix4x4 CropMatrix => cropMatrix;
 
         public PalmDetect.Result Palm { get; set; }
@@ -53,7 +80,7 @@ namespace TensorFlowLite
             result = new Result()
             {
                 score = 0,
-                joints = new Vector3[JOINT_COUNT],
+                keypoints = new Vector3[JOINT_COUNT],
             };
 
             debugInputTensorToTexture = new TensorToTexture(new()
@@ -111,7 +138,7 @@ namespace TensorFlowLite
             {
                 for (int i = 0; i < JOINT_COUNT; i++)
                 {
-                    result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
+                    result.keypoints[i] = mtx.MultiplyPoint3x4(new Vector3(
                         output0[i * 2] * SCALE,
                         1f - output0[i * 2 + 1] * SCALE,
                         0
@@ -122,7 +149,7 @@ namespace TensorFlowLite
             {
                 for (int i = 0; i < JOINT_COUNT; i++)
                 {
-                    result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
+                    result.keypoints[i] = mtx.MultiplyPoint3x4(new Vector3(
                         output0[i * 3] * SCALE,
                         1f - output0[i * 3 + 1] * SCALE,
                         output0[i * 3 + 2] * SCALE
@@ -131,5 +158,7 @@ namespace TensorFlowLite
             }
             return result;
         }
+
+
     }
 }
