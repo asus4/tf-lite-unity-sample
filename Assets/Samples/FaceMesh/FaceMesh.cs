@@ -20,10 +20,10 @@ namespace TensorFlowLite
         private readonly float[,] output0 = new float[KEYPOINT_COUNT, 3]; // keypoint
         private readonly float[] output1 = new float[1]; // flag
 
-        private Result result;
+        private readonly Result result;
         private Matrix4x4 cropMatrix;
 
-        private TensorToTexture debugInputTensorToTexture;
+        private readonly TensorToTexture debugInputTensorToTexture;
 
         public Vector2 FaceShift { get; set; } = new Vector2(0f, 0f);
         public Vector2 FaceScale { get; set; } = new Vector2(1.6f, 1.6f);
@@ -35,7 +35,7 @@ namespace TensorFlowLite
         public FaceMesh(string modelPath)
         {
             var interpreterOptions = new InterpreterOptions();
-            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            interpreterOptions.AddGpuDelegate();
             Load(FileUtil.LoadFile(modelPath), interpreterOptions);
             AspectMode = AspectMode.Fill;
 

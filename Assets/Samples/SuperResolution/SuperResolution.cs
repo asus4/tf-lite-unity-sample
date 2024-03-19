@@ -16,7 +16,7 @@ namespace TensorFlowLite
         {
 
             var interpreterOptions = new InterpreterOptions();
-            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            interpreterOptions.AddGpuDelegate();
             Load(FileUtil.LoadFile(modelPath), interpreterOptions);
 
             // Setup output

@@ -22,7 +22,7 @@ namespace TensorFlowLite
             this.compute = compute;
 
             var interpreterOptions = new InterpreterOptions();
-            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            interpreterOptions.AddGpuDelegate();
             Load(FileUtil.LoadFile(modelPath), interpreterOptions);
             AspectMode = AspectMode.Fill;
 

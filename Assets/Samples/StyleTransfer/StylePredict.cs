@@ -7,7 +7,7 @@
         public StylePredict(string modelPath)
         {
             var interpreterOptions = new InterpreterOptions();
-            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            interpreterOptions.AddGpuDelegate();
             Load(FileUtil.LoadFile(modelPath), interpreterOptions);
 
             var outDim0 = interpreter.GetOutputTensorInfo(0).shape;
