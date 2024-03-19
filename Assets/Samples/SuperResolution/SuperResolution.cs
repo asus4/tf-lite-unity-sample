@@ -1,58 +1,60 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
 
+using DataType = TensorFlowLite.Interpreter.DataType;
+
 namespace TensorFlowLite
 {
-    public class SuperResolution : BaseVisionTask
+    public sealed class SuperResolution : BaseVisionTask
     {
-        readonly float[,,] output0;
-        readonly ComputeShader compute;
-        readonly ComputeBuffer resultBuffer;
-        readonly RenderTexture resultTexture;
-        readonly Vector2Int outputSize;
+        private readonly float[,,] output0;
+        private readonly TensorToTexture tensorToTexture;
 
+        public RenderTexture ResultTexture => tensorToTexture.OutputTexture;
 
         public SuperResolution(string modelPath, ComputeShader compute)
         {
 
             var interpreterOptions = new InterpreterOptions();
-            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            interpreterOptions.AddGpuDelegate();
             Load(FileUtil.LoadFile(modelPath), interpreterOptions);
 
             // Setup output
-            var outputShape = interpreter.GetOutputTensorInfo(0).shape;
-            outputSize = new Vector2Int(outputShape[2], outputShape[1]);
+            var outputInfo = interpreter.GetOutputTensorInfo(0);
+            var outputShape = outputInfo.shape;
+            int height = outputShape[1];
+            int width = outputShape[2];
             int channels = outputShape[3];
-            output0 = new float[outputSize.y, outputSize.x, channels];
+            output0 = new float[height, width, channels];
 
-            Debug.Assert(outputSize.y % 8 == 0);
-            Debug.Assert(outputSize.x % 8 == 0);
+            Debug.Assert(height % 8 == 0);
+            Debug.Assert(width % 8 == 0);
             Debug.Assert(channels == 3);
 
             // Setup compute
-            this.compute = compute;
-            compute.SetInts("_InputSize", new int[] { outputSize.x, outputSize.y });
-
-            resultBuffer = new ComputeBuffer(outputSize.x * outputSize.y, sizeof(float) * channels);
-            resultTexture = new RenderTexture(outputSize.x, outputSize.y, 0, RenderTextureFormat.ARGB32)
+            tensorToTexture = new TensorToTexture(new TensorToTexture.Options()
             {
-                enableRandomWrite = true
-            };
-            resultTexture.Create();
+                compute = compute,
+                kernel = 0,
+                width = width,
+                height = height,
+                channels = channels,
+                inputType = outputInfo.type,
+            });
+
+            compute.SetInts("_InputSize", new int[] { width, height });
         }
 
         public override void Dispose()
         {
-            resultBuffer.Release();
-            resultTexture.Release();
-            Object.Destroy(resultTexture);
-
+            tensorToTexture?.Dispose();
             base.Dispose();
         }
 
         protected override void PostProcess()
         {
             interpreter.GetOutputTensorData(0, output0);
+            tensorToTexture.Convert(output0);
         }
 
         protected override TextureToNativeTensor CreateTextureToTensor(Interpreter.TensorInfo inputTensorInfo)
@@ -73,17 +75,6 @@ namespace TensorFlowLite
                 channels = channels,
                 inputType = inputTensorInfo.type,
             });
-        }
-
-        public RenderTexture GetResult()
-        {
-            resultBuffer.SetData(output0);
-            compute.SetBuffer(0, "_InputTensor", resultBuffer);
-            compute.SetTexture(0, "_OutputTex", resultTexture);
-
-            compute.Dispatch(0, outputSize.x / 8, outputSize.y / 8, 1);
-
-            return resultTexture;
         }
     }
 }

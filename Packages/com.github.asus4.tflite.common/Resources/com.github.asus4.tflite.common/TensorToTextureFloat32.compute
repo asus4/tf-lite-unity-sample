@@ -14,6 +14,6 @@ void TensorToTexture (uint2 id : SV_DispatchThreadID)
     }
 
     uint gid = (_InputSize.y - 1 - id.y) * _InputSize.x + id.x;
-    float3 rgb = _InputTensor[gid] / 255.0;
-    _OutputTexture[id] = saturate(float4(rgb.rgb, 1.0));
+    float3 rgb = _InputTensor[gid].rgb;
+    _OutputTexture[id] = float4(rgb, 1.0);
 }

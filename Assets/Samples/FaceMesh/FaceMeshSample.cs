@@ -8,6 +8,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(VirtualTextureSource))]
 public sealed class FaceMeshSample : MonoBehaviour
 {
+    [Header("Model Settings")]
     [SerializeField, FilePopup("*.tflite")]
     private string faceModelFile = "coco_ssd_mobilenet_quant.tflite";
 
@@ -17,6 +18,7 @@ public sealed class FaceMeshSample : MonoBehaviour
     [SerializeField]
     private bool useLandmarkToDetection = true;
 
+    [Header("UI")]
     [SerializeField]
     private RawImage inputPreview = null;
 
@@ -30,7 +32,7 @@ public sealed class FaceMeshSample : MonoBehaviour
     private FaceMesh faceMesh;
     private PrimitiveDraw draw;
     private MeshFilter faceMeshFilter;
-    private Vector3[] faceKeypoints;
+    private Vector3[] faceVertices;
     private FaceDetect.Result detectionResult;
     private FaceMesh.Result meshResult;
     private readonly Vector3[] rtCorners = new Vector3[4];
@@ -56,7 +58,7 @@ public sealed class FaceMeshSample : MonoBehaviour
             faceMeshFilter = go.AddComponent<MeshFilter>();
             faceMeshFilter.sharedMesh = FaceMeshBuilder.CreateMesh();
 
-            faceKeypoints = new Vector3[FaceMesh.KEYPOINT_COUNT];
+            faceVertices = new Vector3[FaceMesh.KEYPOINT_COUNT];
         }
 
         if (TryGetComponent(out VirtualTextureSource source))
@@ -100,8 +102,9 @@ public sealed class FaceMeshSample : MonoBehaviour
             }
         }
 
-        faceMesh.Invoke(texture, detectionResult);
-        croppedView.texture = faceMesh.inputTex;
+        faceMesh.Face = detectionResult;
+        faceMesh.Run(texture);
+        croppedView.texture = faceMesh.InputTexture;
         meshResult = faceMesh.GetResult();
 
         if (meshResult.score < 0.5f)
@@ -112,21 +115,21 @@ public sealed class FaceMeshSample : MonoBehaviour
 
         if (useLandmarkToDetection)
         {
-            detectionResult = faceMesh.LandmarkToDetection(meshResult);
+            detectionResult = meshResult.ToDetection();
         }
     }
 
     private void DrawResults(FaceDetect.Result detection, FaceMesh.Result face)
     {
         inputPreview.rectTransform.GetWorldCorners(rtCorners);
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
+        float3 min = rtCorners[0];
+        float3 max = rtCorners[2];
 
         // Draw Face Detection
         if (detection != null)
         {
             draw.color = Color.blue;
-            Rect rect = MathTF.Lerp(min, max, detection.rect.FlipY());
+            Rect rect = MathTF.Lerp((Vector3)min, (Vector3)max, detection.rect.FlipY());
             draw.Rect(rect, 0.05f);
             foreach (Vector2 p in detection.keypoints)
             {
@@ -145,15 +148,15 @@ public sealed class FaceMeshSample : MonoBehaviour
                 float3 kp = face.keypoints[i];
                 float3 p = math.lerp(min, max, kp);
                 // TODO: projection is not correct
-                p.z = face.keypoints[i].z * zScale;
+                p.z = kp.z * zScale;
 
-                faceKeypoints[i] = p;
+                faceVertices[i] = p;
                 draw.Point(p, 0.05f);
             }
             draw.Apply();
 
             // Update Mesh
-            FaceMeshBuilder.UpdateMesh(faceMeshFilter.sharedMesh, faceKeypoints);
+            FaceMeshBuilder.UpdateMesh(faceMeshFilter.sharedMesh, faceVertices);
         }
     }
 }

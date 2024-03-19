@@ -28,6 +28,12 @@ namespace TensorFlowLite
 
             public Vector2 RightEye => keypoints[(int)KeyPoint.RightEye];
             public Vector2 LeftEye => keypoints[(int)KeyPoint.LeftEye];
+
+            public float GetRotation()
+            {
+                var vec = RightEye - LeftEye;
+                return -Mathf.Atan2(vec.y, vec.x);
+            }
         }
 
         private const int KEY_POINT_COUNT = 6;
@@ -50,7 +56,7 @@ namespace TensorFlowLite
         public FaceDetect(string modelPath)
         {
             var interpreterOptions = new InterpreterOptions();
-            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            interpreterOptions.AddGpuDelegate();
             Load(FileUtil.LoadFile(modelPath), interpreterOptions);
             AspectMode = AspectMode.Fill;
 

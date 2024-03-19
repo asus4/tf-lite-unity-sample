@@ -697,6 +697,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2074584277}
+  - {fileID: 1302103927}
   - {fileID: 28775365}
   - {fileID: 112707792}
   m_Father: {fileID: 0}
@@ -736,13 +737,13 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2074584277}
+  m_Father: {fileID: 1051232098}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 256, y: 256}
-  m_Pivot: {x: 0, y: 0}
+  m_Pivot: {x: 1, y: 0}
 --- !u!114 &1302103928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -825,9 +826,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   palmModelFile: mediapipe/palm_detection_builtin_256_float16_quant.tflite
   landmarkModelFile: mediapipe/hand_landmark.tflite
-  cameraView: {fileID: 2074584278}
-  debugPalmView: {fileID: 1302103928}
-  runBackground: 0
+  useLandmarkToDetection: 1
+  inputView: {fileID: 2074584278}
+  croppedView: {fileID: 1302103928}
 --- !u!114 &1453601109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -891,8 +892,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1302103927}
+  m_Children: []
   m_Father: {fileID: 1051232098}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

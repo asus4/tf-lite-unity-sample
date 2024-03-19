@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace TensorFlowLite
@@ -26,7 +27,7 @@ namespace TensorFlowLite
 
         public PoseDetect.Result PoseResult => poseResult;
         public PoseLandmarkDetect.Result LandmarkResult => landmarkResult;
-        public Texture LandmarkInputTexture => poseLandmark.inputTex;
+        public Texture LandmarkInputTexture => poseLandmark.InputTexture;
 
         private readonly Options options;
 
@@ -50,7 +51,7 @@ namespace TensorFlowLite
         {
             if (NeedsDetectionUpdate)
             {
-                poseDetect.Invoke(texture);
+                poseDetect.Run(texture);
                 poseResult = poseDetect.GetResults();
             }
             if (poseResult.score < 0)
@@ -59,7 +60,11 @@ namespace TensorFlowLite
                 landmarkResult = null;
                 return null;
             }
-            landmarkResult = poseLandmark.Invoke(texture, poseResult);
+
+            poseLandmark.Pose = poseResult;
+            poseLandmark.Run(texture);
+            landmarkResult = poseLandmark.GetResult();
+
             if (landmarkResult.score < 0.3f)
             {
                 poseResult.score = landmarkResult.score;
@@ -80,8 +85,8 @@ namespace TensorFlowLite
         {
             if (NeedsDetectionUpdate)
             {
-                // Note: `await` changes PlayerLoopTiming from Update to FixedUpdate.
-                poseResult = await poseDetect.InvokeAsync(texture, cancellationToken, PlayerLoopTiming.FixedUpdate);
+                await poseDetect.RunAsync(texture, cancellationToken);
+                poseResult = poseDetect.GetResults();
             }
             if (poseResult.score < 0)
             {
@@ -90,7 +95,9 @@ namespace TensorFlowLite
                 return null;
             }
 
-            landmarkResult = await poseLandmark.InvokeAsync(texture, poseResult, cancellationToken, PlayerLoopTiming.Update);
+            poseLandmark.Pose = poseResult;
+            await poseLandmark.RunAsync(texture, cancellationToken);
+            landmarkResult = poseLandmark.GetResult();
 
             // Generate poseResult from landmarkResult
             if (landmarkResult.score < 0.3f)
@@ -119,12 +126,12 @@ namespace TensorFlowLite
                 return;
             }
 
-            (Vector2 min, Vector2 max) = GetViewportSize(aspectMode);
+            (float2 min, float2 max) = GetViewportSize(aspectMode);
 
             // Update world joints
             for (int i = 0; i < landmarks.Length; i++)
             {
-                Vector2 p = MathTF.LerpUnclamped(min, max, (Vector2)landmarks[i]);
+                float2 p = math.lerp(min, max, (Vector2)landmarks[i]);
                 // w is visibility
                 landmarks[i] = new Vector4(p.x, p.y, landmarks[i].z, landmarks[i].w);
             }
@@ -172,7 +179,7 @@ namespace TensorFlowLite
                     throw new ArgumentOutOfRangeException(nameof(aspectMode));
             };
 
-            Vector2 scale = new Vector2(1 / w, 1 / h);
+            Vector2 scale = new(1 / w, 1 / h);
             min = Vector2.Scale(min, scale);
             max = Vector2.Scale(max, scale);
 

@@ -1,26 +1,32 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using TensorFlowLite;
 using TextureSource;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// MediaPipe Hand Tracking Example
+/// https://developers.google.com/mediapipe/solutions/vision/hand_landmarker
+/// </summary>
 [RequireComponent(typeof(VirtualTextureSource))]
 public class HandTrackingSample : MonoBehaviour
 {
+    [Header("Model Settings")]
     [SerializeField, FilePopup("*.tflite")]
     private string palmModelFile = "coco_ssd_mobilenet_quant.tflite";
+
     [SerializeField, FilePopup("*.tflite")]
     private string landmarkModelFile = "coco_ssd_mobilenet_quant.tflite";
 
     [SerializeField]
-    private RawImage cameraView = null;
+    private bool useLandmarkToDetection = true;
+
+    [Header("UI")]
     [SerializeField]
-    private RawImage debugPalmView = null;
+    private RawImage inputView = null;
     [SerializeField]
-    private bool runBackground;
+    private RawImage croppedView = null;
 
     private PalmDetect palmDetect;
     private HandLandmarkDetect landmarkDetect;
@@ -31,8 +37,8 @@ public class HandTrackingSample : MonoBehaviour
     private PrimitiveDraw draw;
     private List<PalmDetect.Result> palmResults;
     private HandLandmarkDetect.Result landmarkResult;
-    private UniTask<bool> task;
-    private CancellationToken cancellationToken;
+
+    private Material previewMaterial;
 
     private void Start()
     {
@@ -41,6 +47,9 @@ public class HandTrackingSample : MonoBehaviour
         Debug.Log($"landmark dimension: {landmarkDetect.Dim}");
 
         draw = new PrimitiveDraw();
+
+        previewMaterial = new Material(Shader.Find("Hidden/TFLite/InputMatrixPreview"));
+        inputView.material = previewMaterial;
 
         if (TryGetComponent(out VirtualTextureSource source))
         {
@@ -60,71 +69,62 @@ public class HandTrackingSample : MonoBehaviour
 
     private void Update()
     {
-        if (palmResults != null && palmResults.Count > 0)
-        {
-            DrawFrames(palmResults);
-        }
+        DrawPalms(palmResults, Color.green);
 
         if (landmarkResult != null && landmarkResult.score > 0.2f)
         {
-            DrawCropMatrix(landmarkDetect.CropMatrix);
-            DrawJoints(landmarkResult.joints);
+            DrawJoints(landmarkResult.keypoints);
         }
     }
 
     private void OnTextureUpdate(Texture texture)
     {
-        if (runBackground)
+        bool needPalmDetect = palmResults == null || palmResults.Count == 0 || !useLandmarkToDetection;
+        if (needPalmDetect)
         {
-            if (task.Status.IsCompleted())
+            palmDetect.Run(texture);
+
+            inputView.texture = texture;
+            previewMaterial.SetMatrix("_TransformMatrix", palmDetect.InputTransformMatrix);
+            inputView.rectTransform.GetWorldCorners(rtCorners);
+
+            palmResults = palmDetect.GetResults(0.7f, 0.3f);
+
+            if (palmResults.Count <= 0)
             {
-                task = InvokeAsync(texture);
-            }
+                return;
+            };
         }
-        else
-        {
-            Invoke(texture);
-        }
-    }
-
-    private void Invoke(Texture texture)
-    {
-        palmDetect.Invoke(texture);
-        cameraView.material = palmDetect.transformMat;
-        cameraView.rectTransform.GetWorldCorners(rtCorners);
-
-        palmResults = palmDetect.GetResults(0.7f, 0.3f);
-
-
-        if (palmResults.Count <= 0) return;
 
         // Detect only first palm
-        landmarkDetect.Invoke(texture, palmResults[0]);
-        debugPalmView.texture = landmarkDetect.inputTex;
-
+        landmarkDetect.Palm = palmResults[0];
+        landmarkDetect.Run(texture);
+        croppedView.texture = landmarkDetect.InputTexture;
         landmarkResult = landmarkDetect.GetResult();
+
+        if (landmarkResult.score < 0.5f)
+        {
+            palmResults.Clear();
+            return;
+        }
+
+        if (useLandmarkToDetection)
+        {
+            palmResults.Clear();
+            palmResults.Add(landmarkResult.ToDetection());
+        }
     }
 
-    private async UniTask<bool> InvokeAsync(Texture texture)
+    private void DrawPalms(List<PalmDetect.Result> palms, Color color)
     {
-        palmResults = await palmDetect.InvokeAsync(texture, cancellationToken);
-        cameraView.material = palmDetect.transformMat;
-        cameraView.rectTransform.GetWorldCorners(rtCorners);
-
-        if (palmResults.Count <= 0) return false;
-
-        landmarkResult = await landmarkDetect.InvokeAsync(texture, palmResults[0], cancellationToken);
-        debugPalmView.texture = landmarkDetect.inputTex;
-
-        return true;
-    }
-
-    private void DrawFrames(List<PalmDetect.Result> palms)
-    {
+        if (palms == null || palms.Count == 0)
+        {
+            return;
+        }
         float3 min = rtCorners[0];
         float3 max = rtCorners[2];
 
-        draw.color = Color.green;
+        draw.color = color;
         foreach (var palm in palms)
         {
             draw.Rect(MathTF.Lerp((Vector3)min, (Vector3)max, palm.rect.FlipY()), 0.02f, min.z);
@@ -137,23 +137,6 @@ public class HandTrackingSample : MonoBehaviour
         draw.Apply();
     }
 
-    void DrawCropMatrix(in Matrix4x4 matrix)
-    {
-        draw.color = Color.red;
-
-        Vector3 min = rtCorners[0];
-        Vector3 max = rtCorners[2];
-
-        var mtx = matrix.inverse;
-        Vector3 a = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(0, 0, 0)));
-        Vector3 b = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(1, 0, 0)));
-        Vector3 c = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(1, 1, 0)));
-        Vector3 d = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(0, 1, 0)));
-
-        draw.Quad(a, b, c, d, 0.02f);
-        draw.Apply();
-    }
-
     private void DrawJoints(Vector3[] joints)
     {
         draw.color = Color.blue;
@@ -162,14 +145,12 @@ public class HandTrackingSample : MonoBehaviour
         float3 min = rtCorners[0];
         float3 max = rtCorners[2];
 
-        Matrix4x4 mtx = Matrix4x4.identity;
-
         // Get joint locations in the world space
         float zScale = max.x - min.x;
         for (int i = 0; i < HandLandmarkDetect.JOINT_COUNT; i++)
         {
-            Vector3 p0 = mtx.MultiplyPoint3x4(joints[i]);
-            Vector3 p1 = math.lerp(min, max, p0);
+            float3 p0 = joints[i];
+            float3 p1 = math.lerp(min, max, p0);
             p1.z += (p0.z - 0.5f) * zScale;
             worldJoints[i] = p1;
         }

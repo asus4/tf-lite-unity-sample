@@ -1,19 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
 
 namespace TensorFlowLite
 {
 
-    public class PalmDetect : BaseImagePredictor<float>
+    public class PalmDetect : BaseVisionTask
     {
         public struct Result
         {
             public float score;
             public Rect rect;
             public Vector2[] keypoints;
+
+            public readonly float GetRotation()
+            {
+                // Rotation based on Center of wrist - Middle finger
+                const float RAD_90 = 90f * Mathf.Deg2Rad;
+                var vec = keypoints[0] - keypoints[2];
+                return -(RAD_90 + Mathf.Atan2(vec.y, vec.x));
+            }
         }
 
         public const int MAX_PALM_NUM = 4;
@@ -25,11 +31,18 @@ namespace TensorFlowLite
         // 0 - 3 are bounding box offset, width and height: dx, dy, w ,h
         // 4 - 17 are 7 hand keypoint x and y coordinates: x1,y1,x2,y2,...x7,y7
         private readonly float[,] output1 = new float[2944, 18];
-        private readonly List<Result> results = new List<Result>();
+        private readonly List<Result> results = new();
         private readonly SsdAnchor[] anchors;
 
-        public PalmDetect(string modelPath) : base(modelPath, TfLiteDelegateType.GPU)
+        public Matrix4x4 InputTransformMatrix { get; private set; } = Matrix4x4.identity;
+
+        public PalmDetect(string modelPath)
         {
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AddGpuDelegate();
+            Load(FileUtil.LoadFile(modelPath), interpreterOptions);
+            AspectMode = AspectMode.Fill;
+
             var options = new SsdAnchorsCalculator.Options()
             {
                 inputSizeWidth = 256,
@@ -57,36 +70,17 @@ namespace TensorFlowLite
             Debug.AssertFormat(anchors.Length == 2944, "Anchors count must be 2944");
         }
 
-        public override void Invoke(Texture inputTex)
+        protected override void PreProcess(Texture texture)
         {
-            // const float OFFSET = 128f;
-            // const float SCALE = 1f / 128f;
-            // ToTensor(inputTex, input0, OFFSET, SCALE);
-            ToTensor(inputTex, inputTensor);
-
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
-
-            interpreter.GetOutputTensorData(0, output0);
-            interpreter.GetOutputTensorData(1, output1);
+            InputTransformMatrix = textureToTensor.GetAspectScaledMatrix(texture, AspectMode);
+            var input = textureToTensor.Transform(texture, InputTransformMatrix);
+            interpreter.SetInputTensorData(inputTensorIndex, input);
         }
 
-        public async UniTask<List<Result>> InvokeAsync(Texture inputTex, CancellationToken cancellationToken)
+        protected override void PostProcess()
         {
-            await ToTensorAsync(inputTex, inputTensor, cancellationToken);
-            await UniTask.SwitchToThreadPool();
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
-
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
-
-            var results = GetResults();
-
-            await UniTask.SwitchToMainThread(cancellationToken);
-            return results;
         }
 
         public List<Result> GetResults(float scoreThreshold = 0.7f, float iouThreshold = 0.3f)

@@ -1,16 +1,41 @@
-﻿using System.Threading;
-using UnityEngine;
-using Cysharp.Threading.Tasks;
-
+﻿using UnityEngine;
+using DataType = TensorFlowLite.Interpreter.DataType;
 
 namespace TensorFlowLite
 {
-    public class HandLandmarkDetect : BaseImagePredictor<float>
+    public class HandLandmarkDetect : BaseVisionTask
     {
         public class Result
         {
             public float score;
-            public Vector3[] joints;
+            public Vector3[] keypoints;
+
+
+            private static readonly int[] toDetectionIndices = new int[] { 0, 5, 9, 13, 17, 1, 2, };
+            public PalmDetect.Result ToDetection()
+            {
+                int length = toDetectionIndices.Length;
+                Vector2[] keypoints = new Vector2[length];
+                for (int i = 0; i < length; i++)
+                {
+                    Vector2 v = this.keypoints[toDetectionIndices[i]];
+                    v.y = 1f - v.y;
+                    keypoints[i] = v;
+                }
+
+                Rect rect = RectExtension.GetBoundingBox(keypoints);
+                Vector2 center = rect.center;
+                float size = Mathf.Max(rect.width, rect.height);
+                rect.Set(center.x - size * 0.5f, center.y - size * 0.5f, size, size);
+
+                PalmDetect.Result detection = new()
+                {
+                    score = score,
+                    rect = rect,
+                    keypoints = keypoints,
+                };
+                return detection;
+            }
         }
 
         public enum Dimension
@@ -26,92 +51,80 @@ namespace TensorFlowLite
         private readonly float[] output1 = new float[1]; // hand flag
         private readonly Result result;
         private Matrix4x4 cropMatrix;
+        private readonly TensorToTexture debugInputTensorToTexture;
 
         public Dimension Dim { get; private set; }
-        public Vector2 PalmShift { get; set; } = new Vector2(0, 0.2f);
-        public Vector2 PalmScale { get; set; } = new Vector2(2.8f, 2.8f);
+        public Vector2 PalmShift { get; set; } = new Vector2(0, 0.15f);
+        public Vector2 PalmScale { get; set; } = new Vector2(2.9f, 2.9f);
         public Matrix4x4 CropMatrix => cropMatrix;
 
-        public HandLandmarkDetect(string modelPath) : base(modelPath, TfLiteDelegateType.GPU)
+        public PalmDetect.Result Palm { get; set; }
+        public RenderTexture InputTexture => debugInputTensorToTexture.OutputTexture;
+
+        public HandLandmarkDetect(string modelPath)
         {
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AddGpuDelegate();
+            Load(FileUtil.LoadFile(modelPath), interpreterOptions);
+            AspectMode = AspectMode.Fill;
+
             var out0info = interpreter.GetOutputTensorInfo(0);
-            switch (out0info.shape[1])
+            Dim = out0info.shape[1] switch
             {
-                case JOINT_COUNT * 2:
-                    Dim = Dimension.TWO;
-                    break;
-                case JOINT_COUNT * 3:
-                    Dim = Dimension.THREE;
-                    break;
-                default:
-                    throw new System.NotSupportedException();
-            }
+                JOINT_COUNT * 2 => Dimension.TWO,
+                JOINT_COUNT * 3 => Dimension.THREE,
+                _ => throw new System.NotSupportedException(),
+            };
             output0 = new float[out0info.shape[1]];
 
             result = new Result()
             {
                 score = 0,
-                joints = new Vector3[JOINT_COUNT],
+                keypoints = new Vector3[JOINT_COUNT],
             };
+
+            debugInputTensorToTexture = new TensorToTexture(new()
+            {
+                compute = null,
+                kernel = 0,
+                width = width,
+                height = height,
+                channels = channels,
+                inputType = DataType.Float32,
+            });
         }
 
-        public override void Invoke(Texture inputTex)
+        public override void Dispose()
         {
-            throw new System.NotImplementedException("Use Invoke(Texture inputTex, PalmDetect.Palm palm)");
+            debugInputTensorToTexture.Dispose();
+            base.Dispose();
         }
 
-        public void Invoke(Texture inputTex, PalmDetect.Result palm)
+        protected override void PreProcess(Texture texture)
         {
-            cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
+            var palm = Palm;
+            cropMatrix = RectTransformationCalculator.CalcMatrix(new()
             {
                 rect = palm.rect,
-                rotationDegree = CalcHandRotation(ref palm) * Mathf.Rad2Deg,
+                rotationDegree = palm.GetRotation() * Mathf.Rad2Deg,
                 shift = PalmShift,
                 scale = PalmScale,
-                mirrorHorizontal = resizeOptions.mirrorHorizontal,
-                mirrorVertical = resizeOptions.mirrorVertical,
+                mirrorHorizontal = false,
+                mirrorVertical = false,
             });
 
-            RenderTexture rt = resizer.Resize(
-                inputTex, resizeOptions.width, resizeOptions.height, true,
-                cropMatrix,
-                TextureResizer.GetTextureST(inputTex, resizeOptions));
-            ToTensor(rt, inputTensor, false);
+            var mtx = textureToTensor.GetAspectScaledMatrix(texture, AspectMode) * cropMatrix.inverse;
 
-            //
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
-            interpreter.GetOutputTensorData(0, output0);
-            interpreter.GetOutputTensorData(1, output1);
+            var input = textureToTensor.Transform(texture, mtx);
+            interpreter.SetInputTensorData(inputTensorIndex, input);
+
+            debugInputTensorToTexture.Convert(input);
         }
 
-        public async UniTask<Result> InvokeAsync(Texture inputTex, PalmDetect.Result palm, CancellationToken cancellationToken)
+        protected override void PostProcess()
         {
-            cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
-            {
-                rect = palm.rect,
-                rotationDegree = CalcHandRotation(ref palm) * Mathf.Rad2Deg,
-                shift = PalmShift,
-                scale = PalmScale,
-                mirrorHorizontal = resizeOptions.mirrorHorizontal,
-                mirrorVertical = resizeOptions.mirrorVertical,
-            });
-
-            RenderTexture rt = resizer.Resize(
-                inputTex, resizeOptions.width, resizeOptions.height, true,
-                cropMatrix,
-                TextureResizer.GetTextureST(inputTex, resizeOptions));
-            await ToTensorAsync(rt, inputTensor, false, cancellationToken);
-            await UniTask.SwitchToThreadPool();
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
-
-            var result = GetResult();
-            await UniTask.SwitchToMainThread(cancellationToken);
-            return result;
         }
 
         public Result GetResult()
@@ -125,7 +138,7 @@ namespace TensorFlowLite
             {
                 for (int i = 0; i < JOINT_COUNT; i++)
                 {
-                    result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
+                    result.keypoints[i] = mtx.MultiplyPoint3x4(new Vector3(
                         output0[i * 2] * SCALE,
                         1f - output0[i * 2 + 1] * SCALE,
                         0
@@ -136,7 +149,7 @@ namespace TensorFlowLite
             {
                 for (int i = 0; i < JOINT_COUNT; i++)
                 {
-                    result.joints[i] = mtx.MultiplyPoint3x4(new Vector3(
+                    result.keypoints[i] = mtx.MultiplyPoint3x4(new Vector3(
                         output0[i * 3] * SCALE,
                         1f - output0[i * 3 + 1] * SCALE,
                         output0[i * 3 + 2] * SCALE
@@ -146,12 +159,6 @@ namespace TensorFlowLite
             return result;
         }
 
-        private static float CalcHandRotation(ref PalmDetect.Result detection)
-        {
-            // Rotation based on Center of wrist - Middle finger
-            const float RAD_90 = 90f * Mathf.Deg2Rad;
-            var vec = detection.keypoints[0] - detection.keypoints[2];
-            return -(RAD_90 + Mathf.Atan2(vec.y, vec.x));
-        }
+
     }
 }

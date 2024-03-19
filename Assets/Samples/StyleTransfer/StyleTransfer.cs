@@ -6,47 +6,57 @@ namespace TensorFlowLite
     /// TensorFlow Lite Style Transfer Example
     /// https://www.tensorflow.org/lite/examples/style_transfer/overview
     /// </summary>
-    public class StyleTransfer : BaseVisionTask
+    public sealed class StyleTransfer : BaseVisionTask
     {
 
         private readonly float[] styleBottleneck;
-        private readonly ComputeShader compute;
-        private RenderTexture outputTex;
         private float[,,] output0;
-        private ComputeBuffer outputBuffer;
+
+        private readonly ComputeShader compute;
+        private TensorToTexture tensorToTexture;
+
+        public RenderTexture ResultTexture => tensorToTexture.OutputTexture;
 
         public StyleTransfer(string modelPath, float[] styleBottleneck, ComputeShader compute)
         {
-            var interpreterOptions = new InterpreterOptions();
-            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
-            Load(FileUtil.LoadFile(modelPath), interpreterOptions);
-            this.styleBottleneck = styleBottleneck;
             this.compute = compute;
+
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AddGpuDelegate();
+            Load(FileUtil.LoadFile(modelPath), interpreterOptions);
+            AspectMode = AspectMode.Fill;
+
+            this.styleBottleneck = styleBottleneck;
         }
 
         protected override void InitializeInputsOutputs(Interpreter.TensorInfo inputTensorInfo)
         {
             base.InitializeInputsOutputs(inputTensorInfo);
 
+            var outputInfo = interpreter.GetOutputTensorInfo(0);
+            var outputShape = outputInfo.shape;
+            int height = outputShape[1];
+            int width = outputShape[2];
+            int channels = outputShape[3];
+
             output0 = new float[height, width, channels];
-            outputTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat)
+            // Setup compute
+            tensorToTexture = new TensorToTexture(new TensorToTexture.Options()
             {
-                enableRandomWrite = true
-            };
-            outputTex.Create();
-            outputBuffer = new ComputeBuffer(width * height, sizeof(float) * 3);
-            AspectMode = AspectMode.Fill;
+                compute = compute,
+                kernel = 0,
+                width = width,
+                height = height,
+                channels = channels,
+                inputType = outputInfo.type,
+            });
+
         }
 
         public override void Dispose()
         {
+            tensorToTexture?.Dispose();
             base.Dispose();
-            if (outputTex != null)
-            {
-                outputTex.Release();
-                Object.Destroy(outputTex);
-            }
-            outputBuffer?.Dispose();
         }
 
         protected override void PreProcess(Texture texture)
@@ -58,15 +68,7 @@ namespace TensorFlowLite
         protected override void PostProcess()
         {
             interpreter.GetOutputTensorData(0, output0);
-        }
-
-        public RenderTexture GetResultTexture()
-        {
-            outputBuffer.SetData(output0);
-            compute.SetBuffer(0, "InputTensor", outputBuffer);
-            compute.SetTexture(0, "OutputTexture", outputTex);
-            compute.Dispatch(0, width / 8, height / 8, 1);
-            return outputTex;
+            tensorToTexture.Convert(output0);
         }
     }
 }
