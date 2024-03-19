@@ -7,7 +7,7 @@ using UnityEngine.Assertions;
 
 namespace TensorFlowLite
 {
-    public sealed class PoseDetect : BaseImagePredictor<float>
+    public sealed class PoseDetect : BaseVisionTask
     {
         [System.Serializable]
         public class Options
@@ -54,10 +54,16 @@ namespace TensorFlowLite
 
         private readonly Options options;
 
-        public PoseDetect(Options options) : base(options.modelPath, TfLiteDelegateType.GPU)
+        public Matrix4x4 InputTransformMatrix { get; private set; } = Matrix4x4.identity;
+
+        public PoseDetect(Options options)
         {
             this.options = options;
-            resizeOptions.aspectMode = options.aspectMode;
+
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AddGpuDelegate();
+            Load(FileUtil.LoadFile(options.modelPath), interpreterOptions);
+            AspectMode = options.aspectMode;
 
             var anchorOptions = new SsdAnchorsCalculator.Options()
             {
@@ -91,32 +97,31 @@ namespace TensorFlowLite
             keypointsCount = (odim0[2] - 4) / 2;
         }
 
-        public override void Invoke(Texture inputTex)
+        protected override void PreProcess(Texture texture)
         {
-            ToTensor(inputTex, inputTensor);
+            InputTransformMatrix = textureToTensor.GetAspectScaledMatrix(texture, AspectMode);
+            var input = textureToTensor.Transform(texture, InputTransformMatrix);
+            interpreter.SetInputTensorData(inputTensorIndex, input);
+        }
 
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
+        protected override async UniTask PreProcessAsync(Texture texture, CancellationToken cancellationToken)
+        {
+            InputTransformMatrix = textureToTensor.GetAspectScaledMatrix(texture, AspectMode);
+            var input = await textureToTensor.TransformAsync(texture, InputTransformMatrix, cancellationToken);
+            interpreter.SetInputTensorData(inputTensorIndex, input);
+        }
 
+        protected override void PostProcess()
+        {
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
         }
 
-        public async UniTask<Result> InvokeAsync(Texture inputTex, CancellationToken cancellationToken, PlayerLoopTiming timing = PlayerLoopTiming.Update)
+        protected override async UniTask PostProcessAsync(CancellationToken cancellationToken)
         {
-            await ToTensorAsync(inputTex, inputTensor, cancellationToken);
-            await UniTask.SwitchToThreadPool();
-
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
-
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
-
-            var results = GetResults();
-
-            await UniTask.SwitchToMainThread(timing, cancellationToken);
-            return results;
+            await UniTask.SwitchToMainThread(cancellationToken);
         }
 
         public Result GetResults()

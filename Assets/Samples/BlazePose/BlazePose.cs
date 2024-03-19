@@ -50,7 +50,7 @@ namespace TensorFlowLite
         {
             if (NeedsDetectionUpdate)
             {
-                poseDetect.Invoke(texture);
+                poseDetect.Run(texture);
                 poseResult = poseDetect.GetResults();
             }
             if (poseResult.score < 0)
@@ -80,8 +80,8 @@ namespace TensorFlowLite
         {
             if (NeedsDetectionUpdate)
             {
-                // Note: `await` changes PlayerLoopTiming from Update to FixedUpdate.
-                poseResult = await poseDetect.InvokeAsync(texture, cancellationToken, PlayerLoopTiming.FixedUpdate);
+                await poseDetect.RunAsync(texture, cancellationToken);
+                poseResult = poseDetect.GetResults();
             }
             if (poseResult.score < 0)
             {
@@ -172,7 +172,7 @@ namespace TensorFlowLite
                     throw new ArgumentOutOfRangeException(nameof(aspectMode));
             };
 
-            Vector2 scale = new Vector2(1 / w, 1 / h);
+            Vector2 scale = new(1 / w, 1 / h);
             min = Vector2.Scale(min, scale);
             max = Vector2.Scale(max, scale);
 
