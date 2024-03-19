@@ -8,6 +8,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(VirtualTextureSource))]
 public sealed class FaceMeshSample : MonoBehaviour
 {
+    [Header("Model Settings")]
     [SerializeField, FilePopup("*.tflite")]
     private string faceModelFile = "coco_ssd_mobilenet_quant.tflite";
 
@@ -17,6 +18,7 @@ public sealed class FaceMeshSample : MonoBehaviour
     [SerializeField]
     private bool useLandmarkToDetection = true;
 
+    [Header("UI")]
     [SerializeField]
     private RawImage inputPreview = null;
 
@@ -113,7 +115,7 @@ public sealed class FaceMeshSample : MonoBehaviour
 
         if (useLandmarkToDetection)
         {
-            detectionResult = FaceMesh.LandmarkToDetection(meshResult);
+            detectionResult = meshResult.ToDetection();
         }
     }
 

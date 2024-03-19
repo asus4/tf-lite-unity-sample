@@ -77,30 +77,6 @@ public class HandTrackingSample : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        if (palmResults == null || palmResults.Count == 0)
-        {
-            return;
-        }
-        float3 min = rtCorners[0];
-        float3 max = rtCorners[2];
-
-        Color startColor = Color.green;
-        Color endColor = Color.red;
-
-        foreach (var palm in palmResults)
-        {
-            int landmarkCount = palm.keypoints.Length;
-            for (int i = 0; i < landmarkCount; i++)
-            {
-                Vector2 kp = palm.keypoints[i];
-                Gizmos.color = Color.Lerp(startColor, endColor, i / (float)landmarkCount);
-                Gizmos.DrawSphere(math.lerp(min, max, new float3(kp.x, 1 - kp.y, 0)), 0.05f);
-            }
-        }
-    }
-
     private void OnTextureUpdate(Texture texture)
     {
         bool needPalmDetect = palmResults == null || palmResults.Count == 0 || !useLandmarkToDetection;
