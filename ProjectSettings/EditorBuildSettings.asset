@@ -53,4 +53,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Samples/VideoClassification/VideoClassification.unity
     guid: cf8b4560df54442d79c8d8110b741603
+  - enabled: 1
+    path: Assets/Samples/AudioClassification/AudioClassification.unity
+    guid: 88c31d26f3ca84d6f89a15071af4c5b5
   m_configObjects: {}
