@@ -2,6 +2,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using DataType = TensorFlowLite.Interpreter.DataType;
 
 namespace TensorFlowLite
 {
@@ -11,7 +12,7 @@ namespace TensorFlowLite
     /// pose_landmark_upper_body_topology
     /// https://github.com/google/mediapipe/blob/master/mediapipe/modules/pose_landmark/pose_landmark_upper_body_topology.svg
     /// </summary>
-    public sealed class PoseLandmarkDetect : BaseImagePredictor<float>
+    public sealed class PoseLandmarkDetect : BaseVisionTask
     {
         public class Result
         {
@@ -78,13 +79,25 @@ namespace TensorFlowLite
         private readonly Options options;
         private readonly PoseSegmentation segmentation;
         private Matrix4x4 cropMatrix;
+        private Matrix4x4 cameraTrimMatrix;
+        private Vector2Int inputTextureSize;
 
+        public PoseDetect.Result Pose { get; set; }
         public Matrix4x4 CropMatrix => cropMatrix;
+        private readonly TensorToTexture debugInputTensorToTexture;
 
-        public PoseLandmarkDetect(Options options) : base(options.modelPath, TfLiteDelegateType.GPU)
+        public RenderTexture InputTexture => debugInputTensorToTexture.OutputTexture;
+
+        public Result GetResult() => result;
+
+        public PoseLandmarkDetect(Options options)
         {
             this.options = options;
-            resizeOptions.aspectMode = options.AspectMode;
+
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AddGpuDelegate();
+            Load(FileUtil.LoadFile(options.modelPath), interpreterOptions);
+            AspectMode = options.AspectMode;
 
             result = new Result()
             {
@@ -112,54 +125,57 @@ namespace TensorFlowLite
             }
             UpdateFilterScale(options.filterVelocityScale);
             stopwatch = Stopwatch.StartNew();
+
+            debugInputTensorToTexture = new TensorToTexture(new()
+            {
+                compute = null,
+                kernel = 0,
+                width = width,
+                height = height,
+                channels = channels,
+                inputType = DataType.Float32,
+            });
         }
 
         public override void Dispose()
         {
             segmentation?.Dispose();
+            debugInputTensorToTexture.Dispose();
             base.Dispose();
         }
 
-        public override void Invoke(Texture inputTex)
+        protected override void PreProcess(Texture texture)
         {
-            throw new System.NotImplementedException("Use Invoke(Texture, PalmDetect.Result)");
+            inputTextureSize = new Vector2Int(texture.width, texture.height);
+
+            var pose = Pose;
+            cropMatrix = CalcCropMatrix(pose, options);
+
+            cameraTrimMatrix = textureToTensor.GetAspectScaledMatrix(texture, AspectMode);
+            var mtx = cameraTrimMatrix * cropMatrix.inverse;
+            var input = textureToTensor.Transform(texture, mtx);
+            interpreter.SetInputTensorData(inputTensorIndex, input);
+
+            debugInputTensorToTexture.Convert(input);
         }
 
-        public Result Invoke(Texture inputTex, PoseDetect.Result pose)
+        protected override async UniTask PreProcessAsync(Texture texture, CancellationToken cancellationToken)
         {
-            cropMatrix = CalcCropMatrix(ref pose, ref resizeOptions);
+            inputTextureSize = new Vector2Int(texture.width, texture.height);
 
-            RenderTexture rt = resizer.Resize(
-               inputTex, resizeOptions.width, resizeOptions.height, true,
-               cropMatrix,
-               TextureResizer.GetTextureST(inputTex, resizeOptions));
-            ToTensor(rt, inputTensor, false);
+            var pose = Pose;
+            cropMatrix = CalcCropMatrix(pose, options);
 
-            InvokeInternal();
+            cameraTrimMatrix = textureToTensor.GetAspectScaledMatrix(texture, AspectMode);
+            var mtx = cameraTrimMatrix * cropMatrix.inverse;
+            var input = await textureToTensor.TransformAsync(texture, mtx, cancellationToken);
+            interpreter.SetInputTensorData(inputTensorIndex, input);
 
-            return GetResult(inputTex);
+            debugInputTensorToTexture.Convert(input);
         }
 
-        public async UniTask<Result> InvokeAsync(Texture inputTex, PoseDetect.Result pose, CancellationToken cancellationToken, PlayerLoopTiming timing)
+        protected override void PostProcess()
         {
-            cropMatrix = CalcCropMatrix(ref pose, ref resizeOptions);
-            RenderTexture rt = resizer.Resize(
-              inputTex, resizeOptions.width, resizeOptions.height, true,
-              cropMatrix,
-              TextureResizer.GetTextureST(inputTex, resizeOptions));
-            await ToTensorAsync(rt, inputTensor, false, cancellationToken);
-            await UniTask.SwitchToThreadPool();
-
-            InvokeInternal();
-
-            await UniTask.SwitchToMainThread(timing, cancellationToken);
-            return GetResult(inputTex);
-        }
-
-        private void InvokeInternal()
-        {
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
             if (options.enableSegmentation)
@@ -170,9 +186,26 @@ namespace TensorFlowLite
             {
                 interpreter.GetOutputTensorData(4, output4);
             }
+            UpdateResult();
         }
 
-        private Result GetResult(Texture inputTex)
+        protected override async UniTask PostProcessAsync(CancellationToken cancellationToken)
+        {
+            interpreter.GetOutputTensorData(0, output0);
+            interpreter.GetOutputTensorData(1, output1);
+            if (options.enableSegmentation)
+            {
+                interpreter.GetOutputTensorData(2, output2);
+            }
+            if (options.useWorldLandmarks)
+            {
+                interpreter.GetOutputTensorData(4, output4);
+            }
+            await UniTask.SwitchToMainThread(cancellationToken);
+            UpdateResult();
+        }
+
+        private void UpdateResult()
         {
             // Normalize 0 ~ 255 => 0.0 ~ 1.0
             const float SCALE = 1f / 255f;
@@ -185,8 +218,8 @@ namespace TensorFlowLite
 
             result.score = output1[0];
 
-            Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
-            Vector2 max = new Vector2(float.MinValue, float.MinValue);
+            Vector2 min = new(float.MaxValue, float.MaxValue);
+            Vector2 max = new(float.MinValue, float.MinValue);
 
             int dimensions = output0.Length / LandmarkCount;
 
@@ -233,13 +266,12 @@ namespace TensorFlowLite
 
             if (options.enableSegmentation)
             {
+                Matrix4x4 segmentMatrix = cropMatrix * cameraTrimMatrix.inverse;
                 result.SegmentationTexture = segmentation.GetTexture(
-                    inputTex, resizeOptions,
-                    cropMatrix, output2,
+                    inputTextureSize,
+                    segmentMatrix, output2,
                     options.segmentationSigma);
             }
-
-            return result;
         }
 
         private void SetWorldLandmarks(Result result)
@@ -284,7 +316,7 @@ namespace TensorFlowLite
             }
         }
 
-        private Matrix4x4 CalcCropMatrix(ref PoseDetect.Result pose, ref TextureResizer.ResizeOptions resizeOptions)
+        private static Matrix4x4 CalcCropMatrix(in PoseDetect.Result pose, in Options options)
         {
             float rotation = CalcRotationDegree(pose.keypoints[0], pose.keypoints[1]);
             var rect = AlignmentPointsToRect(pose.keypoints[0], pose.keypoints[1]);
@@ -294,8 +326,8 @@ namespace TensorFlowLite
                 rotationDegree = rotation,
                 shift = options.poseShift,
                 scale = options.poseScale,
-                mirrorHorizontal = resizeOptions.mirrorHorizontal,
-                mirrorVertical = resizeOptions.mirrorVertical,
+                mirrorHorizontal = false,
+                mirrorVertical = false,
             });
         }
 

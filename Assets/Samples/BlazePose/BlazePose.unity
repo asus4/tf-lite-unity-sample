@@ -843,7 +843,7 @@ MonoBehaviour:
   debugView: {fileID: 1302103928}
   segmentationView: {fileID: 36180906}
   canvas: {fileID: 1051232097}
-  runBackground: 0
+  runBackground: 1
   visibilityThreshold: 0.5
 --- !u!4 &1453601107
 Transform:
