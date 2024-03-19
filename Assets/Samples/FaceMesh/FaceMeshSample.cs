@@ -30,7 +30,7 @@ public sealed class FaceMeshSample : MonoBehaviour
     private FaceMesh faceMesh;
     private PrimitiveDraw draw;
     private MeshFilter faceMeshFilter;
-    private Vector3[] faceKeypoints;
+    private Vector3[] faceVertices;
     private FaceDetect.Result detectionResult;
     private FaceMesh.Result meshResult;
     private readonly Vector3[] rtCorners = new Vector3[4];
@@ -56,7 +56,7 @@ public sealed class FaceMeshSample : MonoBehaviour
             faceMeshFilter = go.AddComponent<MeshFilter>();
             faceMeshFilter.sharedMesh = FaceMeshBuilder.CreateMesh();
 
-            faceKeypoints = new Vector3[FaceMesh.KEYPOINT_COUNT];
+            faceVertices = new Vector3[FaceMesh.KEYPOINT_COUNT];
         }
 
         if (TryGetComponent(out VirtualTextureSource source))
@@ -145,15 +145,15 @@ public sealed class FaceMeshSample : MonoBehaviour
                 float3 kp = face.keypoints[i];
                 float3 p = math.lerp(min, max, kp);
                 // TODO: projection is not correct
-                p.z = face.keypoints[i].z * zScale;
+                p.z = kp.z * zScale;
 
-                faceKeypoints[i] = p;
+                faceVertices[i] = p;
                 draw.Point(p, 0.05f);
             }
             draw.Apply();
 
             // Update Mesh
-            FaceMeshBuilder.UpdateMesh(faceMeshFilter.sharedMesh, faceKeypoints);
+            FaceMeshBuilder.UpdateMesh(faceMeshFilter.sharedMesh, faceVertices);
         }
     }
 }
