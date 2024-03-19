@@ -27,7 +27,7 @@ namespace TensorFlowLite
         public static readonly Matrix4x4 POP_MATRIX = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
         public static readonly Matrix4x4 PUSH_MATRIX = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
 
-        public static Matrix4x4 CalcMatrix(Options options)
+        public static Matrix4x4 CalcMatrix(in Options options)
         {
             Quaternion rotation = Quaternion.Euler(0, 0, options.rotationDegree);
             Vector2 size = Vector2.Scale(options.rect.size, options.scale);

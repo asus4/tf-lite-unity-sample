@@ -100,7 +100,8 @@ public sealed class FaceMeshSample : MonoBehaviour
             }
         }
 
-        faceMesh.Invoke(texture, detectionResult);
+        faceMesh.Face = detectionResult;
+        faceMesh.Run(texture);
         croppedView.texture = faceMesh.InputTexture;
         meshResult = faceMesh.GetResult();
 

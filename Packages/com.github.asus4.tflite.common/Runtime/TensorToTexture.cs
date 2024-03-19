@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -71,6 +72,17 @@ namespace TensorFlowLite
         }
 
         public RenderTexture Convert(Array data)
+        {
+            tensorBuffer.SetData(data);
+            compute.SetInts(_InputSize, width, height);
+            compute.SetBuffer(kernel, _InputTensor, tensorBuffer);
+            compute.SetTexture(kernel, _OutputTexture, outputTexture);
+            compute.Dispatch(kernel, Mathf.CeilToInt(width / 8f), Mathf.CeilToInt(height / 8f), 1);
+            return outputTexture;
+        }
+
+        public RenderTexture Convert<T>(NativeArray<T> data)
+            where T : struct
         {
             tensorBuffer.SetData(data);
             compute.SetInts(_InputSize, width, height);

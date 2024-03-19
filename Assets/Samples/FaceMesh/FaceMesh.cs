@@ -6,7 +6,7 @@ using DataType = TensorFlowLite.Interpreter.DataType;
 
 namespace TensorFlowLite
 {
-    public class FaceMesh : BaseImagePredictor<float>
+    public class FaceMesh : BaseVisionTask
     {
         public class Result
         {
@@ -17,8 +17,8 @@ namespace TensorFlowLite
             public Vector3[] keypoints;
         }
         public const int KEYPOINT_COUNT = 468;
-        private float[,] output0 = new float[KEYPOINT_COUNT, 3]; // keypoint
-        private float[] output1 = new float[1]; // flag
+        private readonly float[,] output0 = new float[KEYPOINT_COUNT, 3]; // keypoint
+        private readonly float[] output1 = new float[1]; // flag
 
         private Result result;
         private Matrix4x4 cropMatrix;
@@ -29,11 +29,16 @@ namespace TensorFlowLite
         public Vector2 FaceScale { get; set; } = new Vector2(1.6f, 1.6f);
         public Matrix4x4 CropMatrix => cropMatrix;
 
-
+        public FaceDetect.Result Face { get; set; }
         public RenderTexture InputTexture => debugInputTensorToTexture.OutputTexture;
 
-        public FaceMesh(string modelPath) : base(modelPath, TfLiteDelegateType.GPU)
+        public FaceMesh(string modelPath)
         {
+            var interpreterOptions = new InterpreterOptions();
+            interpreterOptions.AutoAddDelegate(TfLiteDelegateType.GPU, typeof(float));
+            Load(FileUtil.LoadFile(modelPath), interpreterOptions);
+            AspectMode = AspectMode.Fill;
+
             result = new Result()
             {
                 score = 0,
@@ -51,36 +56,38 @@ namespace TensorFlowLite
             });
         }
 
-        public override void Invoke(Texture inputTex)
+        public override void Dispose()
         {
-            throw new NotImplementedException("Use Invoke(Texture inputTex, FaceDetect.Result palm)");
+            debugInputTensorToTexture.Dispose();
+            base.Dispose();
         }
 
-        public void Invoke(Texture inputTex, FaceDetect.Result face)
+
+        protected override void PreProcess(Texture texture)
         {
+            var face = Face;
             cropMatrix = RectTransformationCalculator.CalcMatrix(new()
             {
                 rect = face.rect,
-                rotationDegree = CalcFaceRotation(ref face) * Mathf.Rad2Deg,
+                rotationDegree = face.GetRotation() * Mathf.Rad2Deg,
                 shift = FaceShift,
                 scale = FaceScale,
-                mirrorHorizontal = resizeOptions.mirrorHorizontal,
-                mirrorVertical = resizeOptions.mirrorVertical,
+                mirrorHorizontal = false,
+                mirrorVertical = false,
             });
 
-            RenderTexture rt = resizer.Resize(
-                inputTex, resizeOptions.width, resizeOptions.height, true,
-                cropMatrix,
-                TextureResizer.GetTextureST(inputTex, resizeOptions));
-            ToTensor(rt, inputTensor, false);
+            var mtx = textureToTensor.GetAspectScaledMatrix(texture, AspectMode) * cropMatrix.inverse;
 
-            //
-            interpreter.SetInputTensorData(0, inputTensor);
-            interpreter.Invoke();
+            var input = textureToTensor.Transform(texture, mtx);
+            interpreter.SetInputTensorData(inputTensorIndex, input);
+
+            debugInputTensorToTexture.Convert(input);
+        }
+
+        protected override void PostProcess()
+        {
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
-
-            debugInputTensorToTexture.Convert(inputTensor);
         }
 
         public Result GetResult()
@@ -141,10 +148,5 @@ namespace TensorFlowLite
             return detection;
         }
 
-        private static float CalcFaceRotation(ref FaceDetect.Result detection)
-        {
-            var vec = detection.RightEye - detection.LeftEye;
-            return -Mathf.Atan2(vec.y, vec.x);
-        }
     }
 }
