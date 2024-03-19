@@ -52,14 +52,14 @@ namespace TensorFlowLite
             draw.color = Color.red;
 
             container.GetWorldCorners(rtCorners);
-            Vector3 min = rtCorners[0];
-            Vector3 max = rtCorners[2];
+            float3 min = rtCorners[0];
+            float3 max = rtCorners[2];
 
             Matrix4x4 mtx = matrix.inverse;
-            Vector3 a = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(0, 0, 0)));
-            Vector3 b = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(1, 0, 0)));
-            Vector3 c = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(1, 1, 0)));
-            Vector3 d = MathTF.LerpUnclamped(min, max, mtx.MultiplyPoint3x4(new Vector3(0, 1, 0)));
+            float3 a = math.lerp(min, max, mtx.MultiplyPoint3x4(new(0, 0, 0)));
+            float3 b = math.lerp(min, max, mtx.MultiplyPoint3x4(new(1, 0, 0)));
+            float3 c = math.lerp(min, max, mtx.MultiplyPoint3x4(new(1, 1, 0)));
+            float3 d = math.lerp(min, max, mtx.MultiplyPoint3x4(new(0, 1, 0)));
 
             draw.Quad(a, b, c, d, 0.02f);
             draw.Apply();
