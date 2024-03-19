@@ -101,7 +101,7 @@ public sealed class FaceMeshSample : MonoBehaviour
         }
 
         faceMesh.Invoke(texture, detectionResult);
-        croppedView.texture = faceMesh.inputTex;
+        croppedView.texture = faceMesh.InputTexture;
         meshResult = faceMesh.GetResult();
 
         if (meshResult.score < 0.5f)

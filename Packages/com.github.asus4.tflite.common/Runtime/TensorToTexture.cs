@@ -27,6 +27,8 @@ namespace TensorFlowLite
         private static readonly int _InputSize = Shader.PropertyToID("_InputSize");
         private static readonly int _OutputTexture = Shader.PropertyToID("_OutputTexture");
 
+        private static readonly Lazy<ComputeShader> DefaultComputeShaderFloat32 = new(()
+            => Resources.Load<ComputeShader>("com.github.asus4.tflite.common/TensorToTextureFloat32"));
 
         private readonly ComputeShader compute;
         private readonly int kernel;
@@ -42,7 +44,9 @@ namespace TensorFlowLite
 
         public TensorToTexture(Options options)
         {
-            compute = options.compute;
+            compute = options.compute != null
+                ? options.compute
+                : DefaultComputeShaderFloat32.Value;
             kernel = options.kernel;
             width = options.width;
             height = options.height;

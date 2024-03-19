@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DataType = TensorFlowLite.Interpreter.DataType;
+
 
 namespace TensorFlowLite
 {
@@ -18,10 +20,14 @@ namespace TensorFlowLite
         private Result result;
         private Matrix4x4 cropMatrix;
 
+        private TensorToTexture debugInputTensorToTexture;
+
         public Vector2 FaceShift { get; set; } = new Vector2(0f, 0f);
         public Vector2 FaceScale { get; set; } = new Vector2(1.6f, 1.6f);
         public Matrix4x4 CropMatrix => cropMatrix;
 
+
+        public RenderTexture InputTexture => debugInputTensorToTexture.OutputTexture;
 
         public FaceMesh(string modelPath) : base(modelPath, TfLiteDelegateType.GPU)
         {
@@ -30,6 +36,16 @@ namespace TensorFlowLite
                 score = 0,
                 keypoints = new Vector3[KEYPOINT_COUNT],
             };
+
+            debugInputTensorToTexture = new TensorToTexture(new()
+            {
+                compute = null,
+                kernel = 0,
+                width = width,
+                height = height,
+                channels = channels,
+                inputType = DataType.Float32,
+            });
         }
 
         public override void Invoke(Texture inputTex)
@@ -39,7 +55,7 @@ namespace TensorFlowLite
 
         public void Invoke(Texture inputTex, FaceDetect.Result face)
         {
-            cropMatrix = RectTransformationCalculator.CalcMatrix(new RectTransformationCalculator.Options()
+            cropMatrix = RectTransformationCalculator.CalcMatrix(new()
             {
                 rect = face.rect,
                 rotationDegree = CalcFaceRotation(ref face) * Mathf.Rad2Deg,
@@ -60,6 +76,8 @@ namespace TensorFlowLite
             interpreter.Invoke();
             interpreter.GetOutputTensorData(0, output0);
             interpreter.GetOutputTensorData(1, output1);
+
+            debugInputTensorToTexture.Convert(inputTensor);
         }
 
         public Result GetResult()
