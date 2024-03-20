@@ -108,11 +108,14 @@ namespace TensorFlowLite
             quad.Clear();
         }
 
-        public void Apply(bool drawEditor = true)
+        public void Apply(bool drawEditor = true, bool clear = true)
         {
             Draw(cube, drawEditor);
             Draw(quad, drawEditor);
-            Clear();
+            if (clear)
+            {
+                Clear();
+            }
         }
 
         public void Line(Vector3 start, Vector3 end, float thickness)
