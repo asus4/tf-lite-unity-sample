@@ -26,6 +26,7 @@ namespace TensorFlowLite
         public class Options
         {
             [Tooltip("Microphone device name; null to use default device")]
+            [MicrophoneName]
             public string deviceName = null;
 
             [Tooltip("Mic Frequency in Hz")]

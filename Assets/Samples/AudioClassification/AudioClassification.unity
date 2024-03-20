@@ -540,7 +540,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   modelFile: yamnet.tflite
+  labels: {fileID: 0}
   resultText: {fileID: 361282989}
+  microphoneOptions:
+    deviceName: HD Pro Webcam C920
+    frequency: 16000
+    maxDurationSec: 5
 --- !u!4 &1015977250
 Transform:
   m_ObjectHideFlags: 0
