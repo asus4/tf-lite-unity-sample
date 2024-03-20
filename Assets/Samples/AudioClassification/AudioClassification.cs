@@ -33,12 +33,11 @@ namespace TensorFlowLite
 
         private readonly Interpreter interpreter;
         private readonly float[] input;
-        private readonly float[] output;
+        private readonly NativeArray<float> output;
         private NativeArray<Label> labels;
 
 
         public float[] Input => input;
-        public float[] Output => output;
 
         public AudioClassification(byte[] modelData)
         {
@@ -48,8 +47,10 @@ namespace TensorFlowLite
             interpreter.LogIOInfo();
 
             // Allocate IO buffers
-            input = new float[interpreter.GetInputTensorInfo(0).shape.Aggregate((x, y) => x * y)];
-            output = new float[interpreter.GetOutputTensorInfo(0).shape.Aggregate((x, y) => x * y)];
+            int inputLength = interpreter.GetInputTensorInfo(0).shape.Aggregate((x, y) => x * y);
+            input = new float[inputLength];
+            int outputLength = interpreter.GetOutputTensorInfo(0).shape.Aggregate((x, y) => x * y);
+            output = new NativeArray<float>(outputLength, Allocator.Persistent);
 
             labels = new NativeArray<Label>(output.Length, Allocator.Persistent);
             interpreter.AllocateTensors();
@@ -65,23 +66,23 @@ namespace TensorFlowLite
         {
             interpreter.SetInputTensorData(0, input);
             interpreter.Invoke();
-            interpreter.GetOutputTensorData(0, output);
+            interpreter.GetOutputTensorData(0, output.AsSpan());
 
-            for (int i = 0; i < output.Length; i++)
+            var job = new OutPutToLabelJob()
             {
-                labels[i] = new Label(i, output[i]);
-            }
-
+                input = output,
+                output = labels,
+            };
+            job.Schedule().Complete();
         }
 
         public NativeSlice<Label> GetTopLabels(int topK)
         {
-            labels.Sort();
             return labels.Slice(0, topK);
         }
 
         [BurstCompile]
-        internal struct OutPutToLabel : IJob
+        internal struct OutPutToLabelJob : IJob
         {
             [ReadOnly]
             public NativeSlice<float> input;
@@ -95,6 +96,7 @@ namespace TensorFlowLite
                 {
                     output[i] = new Label(i, input[i]);
                 }
+                output.Sort();
             }
         }
     }

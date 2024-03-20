@@ -92,6 +92,7 @@ public sealed class AudioClassificationSample : MonoBehaviour
         UpdateWaveform(classification.Input);
     }
 
+    // TODO: optimize this
     private void UpdateWaveform(float[] input)
     {
         waveformView.GetWorldCorners(rtCorners);
@@ -105,11 +106,13 @@ public sealed class AudioClassificationSample : MonoBehaviour
         float delta = 1f / length;
 
         Vector3 prev = math.lerp(min, max, new float3(0, input[0] * 0.5f + 0.5f, 0));
-        for (int i = 1; i < length; i++)
+
+        const int STRIDE = 8;
+        for (int i = 1; i < length; i += STRIDE)
         {
             float3 t = new(i * delta, input[i] * 0.5f + 0.5f, 0);
             Vector3 point = math.lerp(min, max, t);
-            waveFormDrawer.Line3D(prev, point, 0.01f);
+            waveFormDrawer.Line(prev, point, 0.01f);
             prev = point;
         }
     }
