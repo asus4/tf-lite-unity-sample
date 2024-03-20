@@ -72,7 +72,7 @@ namespace TensorFlowLite
                 deviceName = availableDevices[0];
             }
 
-            // Limit frequency
+            // Clamp frequency
             int frequency = (int)options.frequency;
             Microphone.GetDeviceCaps(deviceName, out int minFreq, out int maxFreq);
             frequency = Math.Clamp(frequency, minFreq, maxFreq);
@@ -115,8 +115,7 @@ namespace TensorFlowLite
             int position = Microphone.GetPosition(deviceName);
             if (position < samples.Length)
             {
-                // sample from first and last then concat
-                Debug.Log("TODO");
+                GetLoopedSamples(position, samples);
             }
             else
             {
@@ -124,5 +123,42 @@ namespace TensorFlowLite
                 clip.GetData(samples, offset);
             }
         }
+
+#if UNITY_2023_2_OR_NEWER
+        // GetData(Span<float>) is added since Unity 2023.2
+        private void GetLoopedSamples(int position, float[] samples)
+        {
+            int firstLength = samples.Length - position;
+            Span<float> firstBuffer = samples.AsSpan(0, firstLength);
+            clip.GetData(firstBuffer, clip.samples - firstLength);
+
+            if (position <= 0)
+            {
+                return;
+            }
+            int secondLength = position;
+            Span<float> secondBuffer = samples.AsSpan(firstLength, secondLength);
+            clip.GetData(secondBuffer, 0);
+        }
+#else
+        private void GetLoopedSamples(int position, float[] samples)
+        {
+            int firstLength = samples.Length - position;
+            float[] firstBuffer = pool.Rent(firstLength);
+            clip.GetData(firstBuffer, clip.samples - firstLength);
+            Array.Copy(firstBuffer, 0, samples, 0, firstLength);
+            pool.Return(firstBuffer);
+
+            if (position <= 0)
+            {
+                return;
+            }
+            int secondLength = position;
+            float[] secondBuffer = pool.Rent(secondLength);
+            clip.GetData(secondBuffer, 0);
+            Array.Copy(secondBuffer, 0, samples, firstLength, secondLength);
+            pool.Return(secondBuffer);
+        }
+#endif
     }
 }
