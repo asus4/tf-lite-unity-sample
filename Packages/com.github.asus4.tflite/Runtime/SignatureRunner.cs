@@ -92,6 +92,17 @@ namespace TensorFlowLite
             SetInputTensorData(tensorIndex, inputTensorData);
         }
 
+        public void SetSignatureInputTensorData<T>(string name, in ReadOnlySpan<T> inputTensorData)
+            where T : unmanaged
+        {
+            if (!inputTensors.TryGetValue(name, out int tensorIndex))
+            {
+                throw new ArgumentException($"{name} is not a valid input tensor name");
+            }
+            SetInputTensorData(tensorIndex, inputTensorData);
+        }
+
+        [Obsolete("Use SetSignatureInputTensorData<T>(string, ReadOnlySpan) instead")]
         public void SetSignatureInputTensorData<T>(string name, in NativeArray<T> inputTensorData)
             where T : unmanaged
         {
@@ -139,6 +150,15 @@ namespace TensorFlowLite
         }
 
         public void GetSignatureOutputTensorData(string name, Array outputTensorData)
+        {
+            if (!outputTensors.TryGetValue(name, out int tensorIndex))
+            {
+                throw new ArgumentException($"{name} is not a valid output tensor name");
+            }
+            GetOutputTensorData(tensorIndex, outputTensorData);
+        }
+
+        public void GetSignatureOutputTensorData(string name, in Span<float> outputTensorData)
         {
             if (!outputTensors.TryGetValue(name, out int tensorIndex))
             {
