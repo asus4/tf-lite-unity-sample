@@ -7,8 +7,8 @@ namespace TensorFlowLite
     /// <summary>
     /// A custom attribute that enables to select webcam name from the popup.
     /// </summary>
-    [CustomPropertyDrawer(typeof(WebCamName))]
-    public class WebCamNameDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(DeviceName), true)]
+    public sealed class DeviceNameDrawer : PropertyDrawer
     {
         string[] displayNames = null;
         int selectedIndex = -1;
@@ -25,7 +25,13 @@ namespace TensorFlowLite
             if (displayNames == null)
             {
                 // Init display names
-                displayNames = WebCamTexture.devices.Select(device => device.name).ToArray();
+                var deviceType = (attribute as DeviceName).deviceType;
+                displayNames = deviceType switch
+                {
+                    DeviceName.DeviceType.WebCam => WebCamTexture.devices.Select(device => device.name).ToArray(),
+                    DeviceName.DeviceType.Microphone => Microphone.devices,
+                    _ => throw new System.NotImplementedException(),
+                };
             }
 
             selectedIndex = FindSelectedIndex(displayNames, property.stringValue);
