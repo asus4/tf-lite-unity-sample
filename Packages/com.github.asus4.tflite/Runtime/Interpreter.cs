@@ -122,6 +122,19 @@ namespace TensorFlowLite
             ThrowIfError(TfLiteTensorCopyFromBuffer(tensor, tensorDataPtr, Buffer.ByteLength(inputTensorData)));
         }
 
+        public unsafe void SetInputTensorData<T>(int inputTensorIndex, in ReadOnlySpan<T> inputTensorData)
+            where T : unmanaged
+        {
+            fixed (T* dataPtr = inputTensorData)
+            {
+                IntPtr tensorDataPtr = (IntPtr)dataPtr;
+                TfLiteTensor tensor = TfLiteInterpreterGetInputTensor(interpreter, inputTensorIndex);
+                ThrowIfError(TfLiteTensorCopyFromBuffer(
+                    tensor, tensorDataPtr, inputTensorData.Length * UnsafeUtility.SizeOf<T>()));
+            }
+        }
+
+        [Obsolete("Use SetInputTensorData<T>(int, in ReadOnlySpan<T>) instead.")]
         public unsafe void SetInputTensorData<T>(int inputTensorIndex, in NativeArray<T> inputTensorData)
             where T : unmanaged
         {
@@ -157,6 +170,18 @@ namespace TensorFlowLite
             IntPtr tensorDataPtr = tensorDataHandle.AddrOfPinnedObject();
             TfLiteTensor tensor = TfLiteInterpreterGetOutputTensor(interpreter, outputTensorIndex);
             ThrowIfError(TfLiteTensorCopyToBuffer(tensor, tensorDataPtr, Buffer.ByteLength(outputTensorData)));
+        }
+
+        public unsafe void GetOutputTensorData<T>(int outputTensorIndex, in Span<T> outputTensorData)
+            where T : unmanaged
+        {
+            fixed (T* dataPtr = outputTensorData)
+            {
+                IntPtr tensorDataPtr = (IntPtr)dataPtr;
+                TfLiteTensor tensor = TfLiteInterpreterGetOutputTensor(interpreter, outputTensorIndex);
+                ThrowIfError(TfLiteTensorCopyToBuffer(
+                    tensor, tensorDataPtr, outputTensorData.Length * UnsafeUtility.SizeOf<T>()));
+            }
         }
 
         public TensorInfo GetInputTensorInfo(int index)
