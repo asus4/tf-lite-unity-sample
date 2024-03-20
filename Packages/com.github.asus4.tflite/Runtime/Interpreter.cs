@@ -134,7 +134,6 @@ namespace TensorFlowLite
             }
         }
 
-        [Obsolete("Use SetInputTensorData<T>(int, in ReadOnlySpan<T>) instead.")]
         public unsafe void SetInputTensorData<T>(int inputTensorIndex, in NativeArray<T> inputTensorData)
             where T : unmanaged
         {

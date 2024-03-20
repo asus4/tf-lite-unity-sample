@@ -102,7 +102,6 @@ namespace TensorFlowLite
             SetInputTensorData(tensorIndex, inputTensorData);
         }
 
-        [Obsolete("Use SetSignatureInputTensorData<T>(string, ReadOnlySpan) instead")]
         public void SetSignatureInputTensorData<T>(string name, in NativeArray<T> inputTensorData)
             where T : unmanaged
         {
