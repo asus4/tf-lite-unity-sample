@@ -48,6 +48,7 @@ namespace TensorFlowLite
         private static readonly Matrix4x4 PushMatrix = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
 
         private readonly ComputeShader compute;
+        private readonly bool hasCustomCompute;
         private readonly int kernel;
         private readonly int width;
         private readonly int height;
@@ -68,7 +69,8 @@ namespace TensorFlowLite
                 throw new NotSupportedException("AsyncGPUReadback and ComputeShader are required to use TextureToNativeTensor");
             }
 
-            compute = options.compute != null
+            hasCustomCompute = options.compute != null;
+            compute = hasCustomCompute
                 ? options.compute
                 : CloneDefaultComputeShaderFloat32();
             kernel = options.kernel;
@@ -93,7 +95,10 @@ namespace TensorFlowLite
 
         public virtual void Dispose()
         {
-            Object.Destroy(compute);
+            if (!hasCustomCompute)
+            {
+                Object.Destroy(compute);
+            }
             tensorBuffer.Dispose();
         }
 
