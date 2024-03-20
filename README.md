@@ -21,6 +21,7 @@ Included examples:
   - Text Classification
   - Bert Question and Answer
   - Super Resolution
+  - Audio Classification
 - MediaPipe
   - Hand Tracking
   - Blaze Face

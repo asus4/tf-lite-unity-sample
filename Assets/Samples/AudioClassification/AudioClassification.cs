@@ -7,6 +7,11 @@ using UnityEngine;
 
 namespace TensorFlowLite
 {
+    /// <summary>
+    /// TensorFlow Lite Audio Classification
+    /// https://www.tensorflow.org/lite/examples/audio_classification/overview
+    /// https://www.kaggle.com/models/google/yamnet/frameworks/tensorFlow2/variations/yamnet/versions/1?tfhub-redirect=true
+    /// </summary>
     public sealed class AudioClassification : IDisposable
     {
         public readonly struct Label : IComparable<Label>

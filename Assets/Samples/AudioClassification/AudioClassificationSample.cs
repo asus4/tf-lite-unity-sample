@@ -5,6 +5,11 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// TensorFlow Lite Audio Classification
+/// https://www.tensorflow.org/lite/examples/audio_classification/overview
+/// https://www.kaggle.com/models/google/yamnet/frameworks/tensorFlow2/variations/yamnet/versions/1?tfhub-redirect=true
+/// </summary>
 public sealed class AudioClassificationSample : MonoBehaviour
 {
     [Header("Configs")]
