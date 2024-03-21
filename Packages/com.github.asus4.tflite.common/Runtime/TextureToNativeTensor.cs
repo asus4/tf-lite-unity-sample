@@ -57,8 +57,6 @@ namespace TensorFlowLite
         private readonly GraphicsBuffer tensorBuffer;
         protected NativeArray<byte> tensor;
 
-        // public Matrix4x4 TransformMatrix { get; private set; } = Matrix4x4.identity;
-
         protected TextureToNativeTensor(int stride, Options options)
         {
             bool isSupported = SystemInfo.supportsAsyncGPUReadback && SystemInfo.supportsComputeShaders;
@@ -93,13 +91,28 @@ namespace TensorFlowLite
             compute.SetBuffer(kernel, _OutputTensor, tensorBuffer);
         }
 
+        ~TextureToNativeTensor()
+        {
+            Dispose(false);
+        }
+
         public virtual void Dispose()
         {
-            if (!hasCustomCompute)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                Object.Destroy(compute);
+                if (!hasCustomCompute)
+                {
+                    Object.Destroy(compute);
+                }
+                tensor.Dispose();
+                tensorBuffer.Dispose();
             }
-            tensorBuffer.Dispose();
         }
 
         public virtual NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
