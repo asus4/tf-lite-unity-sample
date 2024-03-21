@@ -47,12 +47,12 @@ namespace TensorFlowLite
         private static readonly Matrix4x4 PopMatrix = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
         private static readonly Matrix4x4 PushMatrix = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
 
-        private readonly ComputeShader compute;
-        private readonly bool hasCustomCompute;
-        private readonly int kernel;
-        private readonly int width;
-        private readonly int height;
-        private readonly int channels;
+        public readonly ComputeShader compute;
+        public readonly bool hasCustomCompute;
+        public readonly int kernel;
+        public readonly int width;
+        public readonly int height;
+        public readonly int channels;
 
         private readonly GraphicsBuffer tensorBuffer;
         protected NativeArray<byte> tensor;
