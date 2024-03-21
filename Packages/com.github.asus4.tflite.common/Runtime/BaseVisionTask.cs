@@ -132,10 +132,13 @@ namespace TensorFlowLite
             interpreter.SetInputTensorData(inputTensorIndex, input);
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         protected virtual async UniTask PostProcessAsync(CancellationToken cancellationToken)
         {
-            await UniTask.Yield();
+            PostProcess();
         }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+
 #endif // TFLITE_UNITASK_ENABLED
 
         /// <summary>
