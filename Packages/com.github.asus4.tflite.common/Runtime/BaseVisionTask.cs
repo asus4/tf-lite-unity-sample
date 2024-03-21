@@ -49,9 +49,7 @@ namespace TensorFlowLite
                 interpreter?.Dispose();
                 throw e;
             }
-#if UNITY_EDITOR
             interpreter.LogIOInfo();
-#endif
 
             var inputTensorInfo = interpreter.GetInputTensorInfo(inputTensorIndex);
             InitializeInputsOutputs(inputTensorInfo);
