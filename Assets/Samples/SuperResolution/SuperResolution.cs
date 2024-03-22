@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Collections;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 using DataType = TensorFlowLite.Interpreter.DataType;
@@ -7,7 +8,7 @@ namespace TensorFlowLite
 {
     public sealed class SuperResolution : BaseVisionTask
     {
-        private readonly float[,,] output0;
+        private readonly NativeArray<float> output0;
         private readonly TensorToTexture tensorToTexture;
 
         public RenderTexture ResultTexture => tensorToTexture.OutputTexture;
@@ -25,7 +26,7 @@ namespace TensorFlowLite
             int height = outputShape[1];
             int width = outputShape[2];
             int channels = outputShape[3];
-            output0 = new float[height, width, channels];
+            output0 = new NativeArray<float>(outputInfo.GetElementCount(), Allocator.Persistent);
 
             Debug.Assert(height % 8 == 0);
             Debug.Assert(width % 8 == 0);
@@ -53,7 +54,7 @@ namespace TensorFlowLite
 
         protected override void PostProcess()
         {
-            interpreter.GetOutputTensorData(0, output0);
+            interpreter.GetOutputTensorData(0, output0.AsSpan());
             tensorToTexture.Convert(output0);
         }
 
