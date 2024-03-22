@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Collections;
+using UnityEngine;
 
 namespace TensorFlowLite
 {
@@ -10,7 +11,7 @@ namespace TensorFlowLite
     {
 
         private readonly float[] styleBottleneck;
-        private float[,,] output0;
+        private NativeArray<float> output0;
 
         private readonly ComputeShader compute;
         private TensorToTexture tensorToTexture;
@@ -39,7 +40,7 @@ namespace TensorFlowLite
             int width = outputShape[2];
             int channels = outputShape[3];
 
-            output0 = new float[height, width, channels];
+            output0 = new NativeArray<float>(outputInfo.GetElementCount(), Allocator.Persistent);
             // Setup compute
             tensorToTexture = new TensorToTexture(new TensorToTexture.Options()
             {
@@ -55,6 +56,7 @@ namespace TensorFlowLite
 
         public override void Dispose()
         {
+            output0.Dispose();
             tensorToTexture?.Dispose();
             base.Dispose();
         }
@@ -67,7 +69,7 @@ namespace TensorFlowLite
 
         protected override void PostProcess()
         {
-            interpreter.GetOutputTensorData(0, output0);
+            interpreter.GetOutputTensorData(0, output0.AsSpan());
             tensorToTexture.Convert(output0);
         }
     }

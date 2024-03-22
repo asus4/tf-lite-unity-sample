@@ -1,0 +1,51 @@
+﻿#pragma kernel TextureToTensor
+
+// Custom pre-processing for MagicTouch model
+// https://storage.googleapis.com/mediapipe-assets/Model%20Card%20MagicTouch.pdf
+// RGB + A(Prior Map)
+
+Texture2D<float4> _InputTex;
+RWStructuredBuffer<float4> _OutputTensor;
+
+uint2 _OutputSize;
+float4x4 _TransformMatrix;
+
+SamplerState linearClampSampler;
+
+StructuredBuffer<float2> _InputPoints;
+uint _InputPointsCount;
+
+#define POINT_SIZE 0.0003
+
+float SamplePriorMap(in float2 uv)
+{
+    for(uint i = 0; i < _InputPointsCount; i++)
+    {
+        float2 uvDiff = uv - _InputPoints[i];
+        if(dot(uvDiff, uvDiff) < POINT_SIZE)
+        {
+            return 1.0;
+        }
+    }
+    return 0.0;
+}
+
+[numthreads(8,8,1)]
+void TextureToTensor (uint2 id : SV_DispatchThreadID)
+{
+    if(any(id >= _OutputSize))
+    {
+        return; 
+    }
+
+    float2 uv = (float2)id / float2(_OutputSize - 1.0);
+    uv = mul(_TransformMatrix, float4(uv, 0, 1)).xy;
+
+    float4 color = any(uv < 0) || any(uv > 1)
+        ? float4(0, 0, 0, 1) // Set to black the outside
+        : float4(_InputTex.SampleLevel(linearClampSampler, uv, 0).xyz, SamplePriorMap(uv));
+    
+    // Flip Y axis
+    uint tid = (_OutputSize.y - 1 - id.y) * _OutputSize.x + id.x;
+    _OutputTensor[tid] = color;
+}

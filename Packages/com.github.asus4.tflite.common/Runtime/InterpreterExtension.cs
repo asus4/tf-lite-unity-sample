@@ -67,5 +67,26 @@ namespace TensorFlowLite
             }
             UnityEngine.Debug.Log(sb.ToString());
         }
+
+        /// <summary>
+        /// Gets total element count in the tensor.
+        /// </summary>
+        /// <param name="info">A tensor info</param>
+        /// <returns>The total count of the element</returns>
+        public static int GetElementCount(this Interpreter.TensorInfo info)
+        {
+            int[] shape = info.shape;
+            int total = 1;
+            for (int i = 0; i < shape.Length; i++)
+            {
+                total *= shape[i];
+            }
+
+            if (total < 1)
+            {
+                throw new System.NotSupportedException("Dynamic shape is not supported");
+            }
+            return total;
+        }
     }
 }

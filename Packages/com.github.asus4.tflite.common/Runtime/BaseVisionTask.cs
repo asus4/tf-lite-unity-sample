@@ -15,7 +15,6 @@ namespace TensorFlowLite
     /// <summary>
     /// Base class for vision task that takes a Texture as an input
     /// </summary>
-    /// <typeparam name="T">A type of input tensor (float, sbyte etc.)</typeparam>
     public abstract class BaseVisionTask : IDisposable
     {
         protected Interpreter interpreter;
@@ -49,9 +48,7 @@ namespace TensorFlowLite
                 interpreter?.Dispose();
                 throw e;
             }
-#if UNITY_EDITOR
             interpreter.LogIOInfo();
-#endif
 
             var inputTensorInfo = interpreter.GetInputTensorInfo(inputTensorIndex);
             InitializeInputsOutputs(inputTensorInfo);
@@ -132,10 +129,13 @@ namespace TensorFlowLite
             interpreter.SetInputTensorData(inputTensorIndex, input);
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         protected virtual async UniTask PostProcessAsync(CancellationToken cancellationToken)
         {
-            await UniTask.Yield();
+            PostProcess();
         }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+
 #endif // TFLITE_UNITASK_ENABLED
 
         /// <summary>

@@ -1,0 +1,24 @@
+﻿#pragma kernel TensorToTexture
+
+// Preview Magic Touch Tensor to Texture
+// https://storage.googleapis.com/mediapipe-assets/Model%20Card%20MagicTouch.pdf
+// RGB + A(Prior Map)
+
+StructuredBuffer<float4> _InputTensor;
+RWTexture2D<float4> _OutputTexture;
+
+uint2 _InputSize;
+
+[numthreads(8,8,1)]
+void TensorToTexture (uint2 id : SV_DispatchThreadID)
+{
+    if(any(id >= _InputSize))
+    {
+        return; 
+    }
+
+    uint gid = (_InputSize.y - 1 - id.y) * _InputSize.x + id.x;
+    float4 c = _InputTensor[gid];
+    float4 marker = float4(1.0, 0.0, 0.0, 1.0);
+    _OutputTexture[id] = lerp(float4(c.rgb, 1.0), marker, c.a);
+}

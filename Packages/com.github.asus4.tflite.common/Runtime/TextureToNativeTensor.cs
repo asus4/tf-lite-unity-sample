@@ -47,16 +47,15 @@ namespace TensorFlowLite
         private static readonly Matrix4x4 PopMatrix = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
         private static readonly Matrix4x4 PushMatrix = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
 
-        private readonly ComputeShader compute;
-        private readonly int kernel;
-        private readonly int width;
-        private readonly int height;
-        private readonly int channels;
+        public readonly ComputeShader compute;
+        public readonly bool hasCustomCompute;
+        public readonly int kernel;
+        public readonly int width;
+        public readonly int height;
+        public readonly int channels;
 
         private readonly GraphicsBuffer tensorBuffer;
         protected NativeArray<byte> tensor;
-
-        // public Matrix4x4 TransformMatrix { get; private set; } = Matrix4x4.identity;
 
         protected TextureToNativeTensor(int stride, Options options)
         {
@@ -68,7 +67,8 @@ namespace TensorFlowLite
                 throw new NotSupportedException("AsyncGPUReadback and ComputeShader are required to use TextureToNativeTensor");
             }
 
-            compute = options.compute != null
+            hasCustomCompute = options.compute != null;
+            compute = hasCustomCompute
                 ? options.compute
                 : CloneDefaultComputeShaderFloat32();
             kernel = options.kernel;
@@ -91,10 +91,28 @@ namespace TensorFlowLite
             compute.SetBuffer(kernel, _OutputTensor, tensorBuffer);
         }
 
+        ~TextureToNativeTensor()
+        {
+            Dispose(false);
+        }
+
         public virtual void Dispose()
         {
-            Object.Destroy(compute);
-            tensorBuffer.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (!hasCustomCompute)
+                {
+                    Object.Destroy(compute);
+                }
+                tensor.Dispose();
+                tensorBuffer.Dispose();
+            }
         }
 
         public virtual NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
