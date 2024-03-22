@@ -166,7 +166,7 @@ namespace TensorFlowLite
 
         private static Array ToArray(in Interpreter.TensorInfo info)
         {
-            int length = info.shape.Aggregate(1, (acc, x) => acc * x);
+            int length = info.GetElementCount();
             return info.type switch
             {
                 Interpreter.DataType.Float32 => new float[length],

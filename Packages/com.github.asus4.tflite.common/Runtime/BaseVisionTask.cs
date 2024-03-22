@@ -15,7 +15,6 @@ namespace TensorFlowLite
     /// <summary>
     /// Base class for vision task that takes a Texture as an input
     /// </summary>
-    /// <typeparam name="T">A type of input tensor (float, sbyte etc.)</typeparam>
     public abstract class BaseVisionTask : IDisposable
     {
         protected Interpreter interpreter;

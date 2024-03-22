@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -47,9 +46,9 @@ namespace TensorFlowLite
             interpreter.LogIOInfo();
 
             // Allocate IO buffers
-            int inputLength = interpreter.GetInputTensorInfo(0).shape.Aggregate((x, y) => x * y);
+            int inputLength = interpreter.GetInputTensorInfo(0).GetElementCount();
             input = new float[inputLength];
-            int outputLength = interpreter.GetOutputTensorInfo(0).shape.Aggregate((x, y) => x * y);
+            int outputLength = interpreter.GetOutputTensorInfo(0).GetElementCount();
             output = new NativeArray<float>(outputLength, Allocator.Persistent);
 
             labels = new NativeArray<Label>(output.Length, Allocator.Persistent);
