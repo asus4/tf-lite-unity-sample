@@ -292,7 +292,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &354346882
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1012,7 +1012,9 @@ MonoBehaviour:
     preProcessCompute: {fileID: 7200000, guid: 1156940603314470b90d74a949ca0185, type: 3}
     debugPreProcessCompute: {fileID: 7200000, guid: 1464eb187310544e89c7d18669b411c5,
       type: 3}
-    postProcessCompute: {fileID: 0}
+    postProcessCompute: {fileID: 7200000, guid: a46979ff774d64bceb264c63f81638e7,
+      type: 3}
+    threshold: 0.85
   outputView: {fileID: 1931683985}
   debugPreview: {fileID: 354346883}
   positivePointPrefab: {fileID: 4593211025361954152, guid: 4296a1a31d43b467a9e419b0c213e76a,

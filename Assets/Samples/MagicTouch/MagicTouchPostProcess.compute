@@ -1,0 +1,23 @@
+﻿#pragma kernel TensorToTexture
+
+StructuredBuffer<float> _InputTensor;
+RWTexture2D<float4> _OutputTexture;
+
+uint2 _InputSize;
+float _Threshold;
+
+[numthreads(8,8,1)]
+void TensorToTexture (uint2 id : SV_DispatchThreadID)
+{
+    if(any(id >= _InputSize))
+    {
+        return; 
+    }
+
+    uint gid = (_InputSize.y - 1 - id.y) * _InputSize.x + id.x;
+    float n = _InputTensor[gid];
+    
+    _OutputTexture[id] = n > _Threshold
+        ? float4(0, 1, 0, 1)
+        : float4(0, 0, 0, 1);
+}

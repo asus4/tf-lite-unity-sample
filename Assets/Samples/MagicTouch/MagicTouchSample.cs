@@ -90,6 +90,7 @@ public sealed class MagicTouchSample : MonoBehaviour
             Destroy(point.gameObject);
         }
         positivePoints.Clear();
+        outputView.texture = Texture2D.blackTexture;
     }
 
     private void Run()
@@ -109,5 +110,6 @@ public sealed class MagicTouchSample : MonoBehaviour
         magicTouch.Run(inputTexture);
 
         debugPreview.texture = magicTouch.DebugInputTexture;
+        outputView.texture = magicTouch.OutputTexture;
     }
 }

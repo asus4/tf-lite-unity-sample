@@ -15,12 +15,14 @@ SamplerState linearClampSampler;
 StructuredBuffer<float2> _InputPoints;
 uint _InputPointsCount;
 
+#define POINT_SIZE 0.0003
+
 float SamplePriorMap(in float2 uv)
 {
     for(uint i = 0; i < _InputPointsCount; i++)
     {
         float2 uvDiff = uv - _InputPoints[i];
-        if(dot(uvDiff, uvDiff) < 0.0005)
+        if(dot(uvDiff, uvDiff) < POINT_SIZE)
         {
             return 1.0;
         }
