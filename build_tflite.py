@@ -104,7 +104,7 @@ def build_ios():
 
 def build_android():
     # Main
-    run_cmd(f'bazel build -c opt --fat_apk_cpu=arm64-v8a,armeabi-v7a,x86_64 //tensorflow/lite/java:tensorflow-lite')
+    run_cmd(f'bazel build -c opt --fat_apk_cpu=x86,x86_64,arm64-v8a,armeabi-v7a --define=android_dexmerger_tool=d8_dexmerger --define=android_incremental_dexing_tool=d8_dexbuilder //tensorflow/lite/java:tensorflow-lite')
     copy('bazel-bin/tensorflow/lite/java/tensorflow-lite.aar', 'Android')
 
     # GPU Delegate
