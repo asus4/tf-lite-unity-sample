@@ -16,7 +16,10 @@ namespace TensorFlowLite
         public static void LogIOInfo(this Interpreter interpreter)
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"Version: {Interpreter.GetVersion()}");
+            sb.Append($"Version: {Interpreter.GetVersion()}, ");
+            sb.Append($"Extensions: {Interpreter.GetExtensionApisVersion()}, ");
+            sb.Append($"Schema: {Interpreter.GetSchemaVersion()}");
+
             sb.AppendLine();
 
             int inputCount = interpreter.GetInputTensorCount();
