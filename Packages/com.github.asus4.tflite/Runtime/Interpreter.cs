@@ -223,6 +223,16 @@ namespace TensorFlowLite
             return Marshal.PtrToStringAnsi(TfLiteVersion());
         }
 
+        public static string GetExtensionApisVersion()
+        {
+            return Marshal.PtrToStringAnsi(TfLiteExtensionApisVersion());
+        }
+
+        public static int GetSchemaVersion()
+        {
+            return TfLiteSchemaVersion();
+        }
+
         private static string GetTensorName(TfLiteTensor tensor)
         {
             return Marshal.PtrToStringAnsi(TfLiteTensorName(tensor));
@@ -339,6 +349,12 @@ namespace TensorFlowLite
 
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe IntPtr TfLiteVersion();
+
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe IntPtr TfLiteExtensionApisVersion();
+
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe int TfLiteSchemaVersion();
 
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe TfLiteInterpreter TfLiteModelCreate(IntPtr model_data, int model_size);
