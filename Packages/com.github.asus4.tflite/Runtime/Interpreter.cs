@@ -154,6 +154,10 @@ namespace TensorFlowLite
             ThrowIfError(TfLiteInterpreterAllocateTensors(interpreter));
         }
 
+        /// <summary>
+        /// Returns the number of output tensors associated with the model.
+        /// </summary>
+        /// <returns>The number of output</returns>
         public int GetOutputTensorCount()
         {
             return TfLiteInterpreterGetOutputTensorCount(interpreter);
@@ -181,6 +185,20 @@ namespace TensorFlowLite
                 ThrowIfError(TfLiteTensorCopyToBuffer(
                     tensor, tensorDataPtr, outputTensorData.Length * UnsafeUtility.SizeOf<T>()));
             }
+        }
+
+        /// <summary>
+        /// Tries to cancel any in-flight invocation.
+        ///
+        /// \note This only cancels `TfLiteInterpreterInvoke` calls that happen before
+        /// calling this and it does not cancel subsequent invocations.
+        /// \note Calling this function will also cancel any in-flight invocations of
+        /// SignatureRunners constructed from this interpreter.
+        /// Non-blocking and thread safe.
+        /// </summary>
+        public void Cancel()
+        {
+            ThrowIfError(TfLiteInterpreterCancel(interpreter));
         }
 
         public TensorInfo GetInputTensorInfo(int index)
@@ -282,6 +300,7 @@ namespace TensorFlowLite
             DelegateDataWriteError = 5,
             DelegateDataReadError = 6,
             UnresolvedOps = 7,
+            Cancelled = 8,
         }
 
         // TfLiteType
@@ -366,6 +385,9 @@ namespace TensorFlowLite
         private static extern unsafe TfLiteTensor TfLiteInterpreterGetOutputTensor(
             TfLiteInterpreter interpreter,
             int output_index);
+
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe Status TfLiteInterpreterCancel(TfLiteInterpreter interpreter);
 
         [DllImport(TensorFlowLibrary)]
         private static extern unsafe DataType TfLiteTensorType(TfLiteTensor tensor);

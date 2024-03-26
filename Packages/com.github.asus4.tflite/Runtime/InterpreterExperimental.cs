@@ -55,15 +55,34 @@ namespace TensorFlowLite
     /// </summary>
     public static class InterpreterExperimental
     {
+        /// <summary>
+        /// Resets all variable tensors to zero.
+        /// </summary>
+        /// <param name="interpreter"></param>
         public static void ResetVariableTensors(this Interpreter interpreter)
         {
             TfLiteInterpreterResetVariableTensors(interpreter.InterpreterPointer);
         }
 
+        /// <summary>
+        /// Returns the number of variable tensors associated with the model.
+        /// </summary>
+        /// <param name="interpreter"></param>
+        /// <returns></returns>
+        public static int GetVariableTensorCount(this Interpreter interpreter)
+        {
+            return TfLiteInterpreterGetVariableTensorCount(interpreter.InterpreterPointer);
+        }
+
+        // TODO: Implement way to add custom ops
+        public static unsafe void AddBuiltinOp(this InterpreterOptions options, BuiltinOperator op, Registration registration, int minVersion, int maxVersion)
+        {
+            throw new NotImplementedException();
+        }
+
         public static void AddCustomOp(this Interpreter interpreter, string name, Registration registration)
         {
             throw new NotImplementedException();
-            // TfLiteInterpreterOptionsAddCustomOp(interpreter, "HOGE");
         }
 
         public static void SetAllowBufferHandleOutput(this Interpreter interpreter, bool allowBufferHandleOutput)
@@ -92,18 +111,21 @@ namespace TensorFlowLite
         private static extern Status TfLiteInterpreterResetVariableTensors(TfLiteInterpreter interpreter);
 
         [DllImport(TensorFlowLibrary)]
+        private static extern int TfLiteInterpreterGetVariableTensorCount(TfLiteInterpreter interpreter);
+
+        [DllImport(TensorFlowLibrary)]
         private static extern void TfLiteInterpreterOptionsAddBuiltinOp(
             TfLiteInterpreterOptions options,
             BuiltinOperator op,
-            TfLiteRegistration registration,
-            UInt32 min_version, UInt32 max_version);
+            ref TfLiteRegistration registration,
+            int min_version, int max_version);
 
         [DllImport(TensorFlowLibrary)]
         private static extern void TfLiteInterpreterOptionsAddCustomOp(
             TfLiteInterpreterOptions options,
             string name,
-            TfLiteRegistration registration,
-            UInt32 min_version, UInt32 max_version);
+            ref TfLiteRegistration registration,
+            int min_version, int max_version);
 
         [DllImport(TensorFlowLibrary)]
         internal static extern void TfLiteInterpreterOptionsSetUseNNAPI(TfLiteInterpreterOptions options, bool enable);

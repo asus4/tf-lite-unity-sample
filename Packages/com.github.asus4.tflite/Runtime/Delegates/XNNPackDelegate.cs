@@ -61,6 +61,8 @@ namespace TensorFlowLite
             // TFLITE_XNNPACK_DELEGATE_FLAG_VARIABLE_OPERATORS mask.
             [Obsolete("Use the flags bitfield with the TFLITE_XNNPACK_DELEGATE_FLAG_VARIABLE_OPERATORS mask.")]
             public bool handleVariableOps;
+            // Enable adaptive optimization for AVX CPUs.
+            public bool experimental_adaptive_avx_optimization;
         }
 
         public TfLiteDelegate Delegate { get; private set; }

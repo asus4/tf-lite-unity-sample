@@ -5,5 +5,6 @@ framework module TensorFlowLiteCMetal {
   link "dl"
   link "m"
   link "pthread"
+  link framework "CoreFoundation"
   link framework "Metal"
 }
