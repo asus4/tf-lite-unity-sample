@@ -7,7 +7,7 @@ Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples
 Tested on  
 
 - iOS / Android / macOS / Windows / Linux
-- Unity 2022.3.19f1
+- Unity 2022.3.22f1
 - TensorFlow 2.16.1
 
 Included examples:
