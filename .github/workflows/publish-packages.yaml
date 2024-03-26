@@ -10,10 +10,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         lfs: true
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         registry-url: 'https://registry.npmjs.org'
     - run: npm publish ${{ env.NPM_OPTS }}
