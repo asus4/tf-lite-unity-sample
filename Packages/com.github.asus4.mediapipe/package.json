@@ -10,11 +10,11 @@
   "license": "Apache License 2.0",
   "unity": "2022.3",
   "unityRelease": "0f1",
-  "version": "2.15.0",
+  "version": "2.16.1",
   "hideInEditor": false,
   "dependencies": {
-    "com.github.asus4.tflite": "2.15.0",
-    "com.github.asus4.tflite.common": "2.15.0"
+    "com.github.asus4.tflite": "2.16.1",
+    "com.github.asus4.tflite.common": "2.16.1"
   },
   "documentationUrl": "https://github.com/asus4/tf-lite-unity-sample",
   "changelogUrl": "https://github.com/asus4/tf-lite-unity-sample/releases",
