@@ -1,4 +1,4 @@
-﻿using TensorFlowLite;
+using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
 using TextureSource;
@@ -77,12 +77,23 @@ public class SsdSample : MonoBehaviour
     private void Invoke(Texture texture)
     {
         ssd.Run(texture);
-
+        
         SSD.Result[] results = ssd.GetResults();
         Vector2 size = (frameContainer.transform as RectTransform).rect.size;
+
+        Vector2 ratio;
+        if (texture.width >= texture.height)
+        {
+            ratio = new Vector2(1.0f, (float)texture.height / (float)texture.width);
+        }
+        else
+        {
+            ratio = new Vector2((float)texture.width / (float)texture.height, 1.0f);
+        }
+
         for (int i = 0; i < 10; i++)
         {
-            SetFrame(frames[i], results[i], size);
+            SetFrame(frames[i], results[i], size * ratio);
         }
     }
 
@@ -114,3 +125,4 @@ public class SsdSample : MonoBehaviour
     }
 
 }
+
