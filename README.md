@@ -68,11 +68,11 @@ Included prebuilt libraries:
   ],
   "dependencies": {
     // Core TensorFlow Lite libraries
-    "com.github.asus4.tflite": "2.16.1",
+    "com.github.asus4.tflite": "2.16.1-p1",
     // Utilities for TFLite
-    "com.github.asus4.tflite.common": "2.16.1",
+    "com.github.asus4.tflite.common": "2.16.1-p1",
     // Utilities for MediaPipe
-    "com.github.asus4.mediapipe": "2.16.1",
+    "com.github.asus4.mediapipe": "2.16.1-p1",
     ...// other dependencies
   }
 }
