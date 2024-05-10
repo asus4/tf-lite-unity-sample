@@ -1,3 +1,5 @@
+#if !UNITY_WEBGL // Microphone API is not supported in WebGL
+
 using System;
 using System.Buffers;
 using System.Collections;
@@ -162,3 +164,4 @@ namespace TensorFlowLite
 #endif
     }
 }
+#endif // !UNITY_WEBGL
