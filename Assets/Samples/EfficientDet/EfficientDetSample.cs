@@ -60,18 +60,13 @@ public class EfficientDetSample : MonoBehaviour
     {
         efficientDet.Run(texture);
 
-        EfficientDet.Result[] results = efficientDet.GetResults();
+        var results = efficientDet.GetResults();
         Vector2 size = (frameContainer.transform as RectTransform).rect.size;
 
-        Vector2 ratio;
-        if (texture.width >= texture.height)
-        {
-            ratio = new Vector2(1.0f, (float)texture.height / (float)texture.width);
-        }
-        else
-        {
-            ratio = new Vector2((float)texture.width / (float)texture.height, 1.0f);
-        }
+        float aspect = (float)texture.width / texture.height;
+        Vector2 ratio = aspect > 1
+            ? new Vector2(1.0f, 1 / aspect)
+            : new Vector2(aspect, 1.0f);
 
         for (int i = 0; i < 10; i++)
         {

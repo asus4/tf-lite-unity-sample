@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace TensorFlowLite
@@ -11,7 +12,7 @@ namespace TensorFlowLite
     /// </summary>
     public sealed class EfficientDet : BaseVisionTask
     {
-        [System.Serializable]
+        [Serializable]
         public class Options
         {
             [FilePopup("*.tflite")]
@@ -35,7 +36,7 @@ namespace TensorFlowLite
         }
 
         const int MAX_DETECTION = 25;
-        private readonly float[,] outputs0 = new float[MAX_DETECTION, 4]; // [top, left, bottom, right] * 10
+        private readonly float[] outputs0 = new float[MAX_DETECTION * 4]; // MAX_DETECTION * [top, left, bottom, right]
         private readonly float[] outputs1 = new float[MAX_DETECTION]; // Classes
         private readonly float[] outputs2 = new float[MAX_DETECTION]; // Scores
         private readonly Result[] results = new Result[MAX_DETECTION];
@@ -54,20 +55,21 @@ namespace TensorFlowLite
 
         protected override void PostProcess()
         {
-            interpreter.GetOutputTensorData(0, outputs0);
-            interpreter.GetOutputTensorData(1, outputs1);
-            interpreter.GetOutputTensorData(2, outputs2);
+            interpreter.GetOutputTensorData(0, outputs0.AsSpan());
+            interpreter.GetOutputTensorData(1, outputs1.AsSpan());
+            interpreter.GetOutputTensorData(2, outputs2.AsSpan());
         }
 
-        public Result[] GetResults()
+        public ReadOnlySpan<Result> GetResults()
         {
             for (int i = 0; i < MAX_DETECTION; i++)
             {
                 // Invert Y to adapt Unity UI space
-                float top = 1f - outputs0[i, 0];
-                float left = outputs0[i, 1];
-                float bottom = 1f - outputs0[i, 2];
-                float right = outputs0[i, 3];
+                int current = i * 4;
+                float top = 1f - outputs0[current];
+                float left = outputs0[current + 1];
+                float bottom = 1f - outputs0[current + 2];
+                float right = outputs0[current + 3];
 
                 results[i] = new Result(
                     classID: (int)outputs1[i],
