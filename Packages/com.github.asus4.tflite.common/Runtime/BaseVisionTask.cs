@@ -24,6 +24,8 @@ namespace TensorFlowLite
         protected int channels;
         protected TextureToNativeTensor textureToTensor;
 
+        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        private bool isDisposed = false;
 
         public AspectMode AspectMode { get; set; } = AspectMode.None;
 
@@ -57,8 +59,20 @@ namespace TensorFlowLite
 
         public virtual void Dispose()
         {
-            interpreter?.Dispose();
-            textureToTensor?.Dispose();
+            semaphore.Wait();
+            try
+            {
+                if (!isDisposed)
+                {
+                    interpreter?.Dispose();
+                    textureToTensor?.Dispose();
+                    isDisposed = true;
+                }
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <summary>
@@ -67,6 +81,11 @@ namespace TensorFlowLite
         /// <param name="texture">A texture for model input</param>
         public virtual void Run(Texture texture)
         {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(BaseVisionTask));
+            }
+
             // Pre process
             preprocessPerfMarker.Begin();
             PreProcess(texture);
@@ -100,24 +119,37 @@ namespace TensorFlowLite
         protected abstract void PostProcess();
 
         // Only available when UniTask is installed
-#if TFLITE_UNITASK_ENABLED
+#if TFLITE_UNITASK_ENABLED || true
         public virtual async UniTask RunAsync(Texture texture, CancellationToken cancellationToken)
         {
-            // Pre process
-            preprocessPerfMarker.Begin();
-            await PreProcessAsync(texture, cancellationToken);
-            preprocessPerfMarker.End();
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(BaseVisionTask));
+            }
 
-            // Run inference in BG thread
-            await UniTask.SwitchToThreadPool();
-            runPerfMarker.Begin();
-            interpreter.Invoke();
-            runPerfMarker.End();
+            await semaphore.WaitAsync(cancellationToken);
+            try
+            {
+                // Pre process
+                preprocessPerfMarker.Begin();
+                await PreProcessAsync(texture, cancellationToken);
+                preprocessPerfMarker.End();
 
-            // Post process
-            postprocessPerfMarker.Begin();
-            await PostProcessAsync(cancellationToken);
-            postprocessPerfMarker.End();
+                // Run inference in BG thread
+                await UniTask.SwitchToThreadPool();
+                runPerfMarker.Begin();
+                interpreter.Invoke();
+                runPerfMarker.End();
+
+                // Post process
+                postprocessPerfMarker.Begin();
+                await PostProcessAsync(cancellationToken);
+                postprocessPerfMarker.End();
+            }
+            finally
+            {
+                semaphore.Release();
+            }
 
             // Back to main thread
             await UniTask.SwitchToMainThread();
