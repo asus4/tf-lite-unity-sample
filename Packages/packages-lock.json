@@ -1,23 +1,23 @@
 {
   "dependencies": {
     "com.cysharp.unitask": {
-      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.3",
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.5",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "64792b672d35e43b3412fc74861f8bdbf41e3a6f"
+      "hash": "cdf88c6a6ac8c9b7e6e5d3c0a360a4af29641c24"
     },
     "com.github.asus4.mediapipe": {
       "version": "file:com.github.asus4.mediapipe",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.github.asus4.tflite": "2.16.1-p1",
-        "com.github.asus4.tflite.common": "2.16.1-p1"
+        "com.github.asus4.tflite": "2.16.1-p2",
+        "com.github.asus4.tflite.common": "2.16.1-p2"
       }
     },
     "com.github.asus4.texture-source": {
-      "version": "0.3.0",
+      "version": "0.3.2",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -37,7 +37,7 @@
       "source": "embedded",
       "dependencies": {
         "com.unity.burst": "1.8.12",
-        "com.github.asus4.tflite": "2.16.1-p1"
+        "com.github.asus4.tflite": "2.16.1-p2"
       }
     },
     "com.unity.2d.sprite": {
