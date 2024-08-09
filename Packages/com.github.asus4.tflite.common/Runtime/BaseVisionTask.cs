@@ -122,6 +122,14 @@ namespace TensorFlowLite
 #if TFLITE_UNITASK_ENABLED
         public virtual async UniTask RunAsync(Texture texture, CancellationToken cancellationToken)
         {
+            await RunAsync(texture, cancellationToken, true);
+        }
+
+        public virtual async UniTask RunAsync(
+            Texture texture,
+            CancellationToken cancellationToken,
+            bool waitForMainThread)
+        {
             if (isDisposed)
             {
                 throw new ObjectDisposedException(nameof(BaseVisionTask));
@@ -151,8 +159,11 @@ namespace TensorFlowLite
                 semaphore.Release();
             }
 
-            // Back to main thread
-            await UniTask.SwitchToMainThread();
+            if (waitForMainThread)
+            {
+                // Back to main thread
+                await UniTask.SwitchToMainThread();
+            }
         }
 
         protected virtual async UniTask PreProcessAsync(Texture texture, CancellationToken cancellationToken)
