@@ -119,7 +119,7 @@ namespace TensorFlowLite
         protected abstract void PostProcess();
 
         // Only available when UniTask is installed
-#if TFLITE_UNITASK_ENABLED || true
+#if TFLITE_UNITASK_ENABLED
         public virtual async UniTask RunAsync(Texture texture, CancellationToken cancellationToken)
         {
             if (isDisposed)
