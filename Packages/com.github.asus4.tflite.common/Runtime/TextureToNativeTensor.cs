@@ -162,10 +162,13 @@ namespace TensorFlowLite
             compute.SetMatrix(_TransformMatrix, t);
             compute.Dispatch(kernel, Mathf.CeilToInt(width / 8f), Mathf.CeilToInt(height / 8f), 1);
             var request = AsyncGPUReadback.RequestIntoNativeArray(ref tensor, tensorBuffer);
-            // Didn't work due to error: AsyncGPUReadback - NativeArray does not have read/write access
+#if !UNITY_EDITOR && UNITY_2022_3_OR_NEWER && (UNITY_IOS || UNITY_ANDROID)
+            await request.ToUniTask(cancellationToken: cancellationToken);
+#else
+            // Didn't work on editor due to error: AsyncGPUReadback - NativeArray does not have read/write access
             // https://forum.unity.com/threads/asyncgpureadback-requestintonativearray-causes-invalidoperationexception-on-nativearray.1011955/
-            // await request.ToUniTask(cancellationToken: cancellationToken);
             request.WaitForCompletion();
+#endif
             return tensor;
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
