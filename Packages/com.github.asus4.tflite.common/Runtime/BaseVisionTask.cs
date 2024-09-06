@@ -24,7 +24,6 @@ namespace TensorFlowLite
         protected int channels;
         protected TextureToNativeTensor textureToTensor;
 
-        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         private bool isDisposed = false;
 
         public AspectMode AspectMode { get; set; } = AspectMode.None;
@@ -59,19 +58,11 @@ namespace TensorFlowLite
 
         public virtual void Dispose()
         {
-            semaphore.Wait();
-            try
+            if (!isDisposed)
             {
-                if (!isDisposed)
-                {
-                    interpreter?.Dispose();
-                    textureToTensor?.Dispose();
-                    isDisposed = true;
-                }
-            }
-            finally
-            {
-                semaphore.Release();
+                interpreter?.Dispose();
+                textureToTensor?.Dispose();
+                isDisposed = true;
             }
         }
 
@@ -135,29 +126,18 @@ namespace TensorFlowLite
                 throw new ObjectDisposedException(nameof(BaseVisionTask));
             }
 
-            await semaphore.WaitAsync(cancellationToken);
-            try
-            {
-                // Pre process
-                preprocessPerfMarker.Begin();
-                await PreProcessAsync(texture, cancellationToken);
-                preprocessPerfMarker.End();
+            // Pre process
+            // Note: Profiler doesn't work with async
+            await PreProcessAsync(texture, cancellationToken);
 
-                // Run inference in BG thread
-                await UniTask.SwitchToThreadPool();
-                runPerfMarker.Begin();
-                interpreter.Invoke();
-                runPerfMarker.End();
+            // Run inference in BG thread
+            await UniTask.SwitchToThreadPool();
+            runPerfMarker.Begin();
+            interpreter.Invoke();
+            runPerfMarker.End();
 
-                // Post process
-                postprocessPerfMarker.Begin();
-                await PostProcessAsync(cancellationToken);
-                postprocessPerfMarker.End();
-            }
-            finally
-            {
-                semaphore.Release();
-            }
+            // Post process
+            await PostProcessAsync(cancellationToken);
 
             if (waitForMainThread)
             {
