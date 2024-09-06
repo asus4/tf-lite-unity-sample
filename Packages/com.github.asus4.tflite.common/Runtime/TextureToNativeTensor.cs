@@ -154,8 +154,6 @@ namespace TensorFlowLite
 
         // Available when UniTask is installed
 #if TFLITE_UNITASK_ENABLED
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public virtual async UniTask<NativeArray<byte>> TransformAsync(Texture input, Matrix4x4 t, CancellationToken cancellationToken)
         {
             compute.SetTexture(kernel, _InputTex, input, 0);
@@ -182,7 +180,6 @@ namespace TensorFlowLite
 
             return tensor;
         }
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
         public async UniTask<NativeArray<byte>> TransformAsync(Texture input, AspectMode aspectMode, CancellationToken cancellationToken)
         {
