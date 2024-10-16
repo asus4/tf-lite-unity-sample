@@ -226,5 +226,6 @@ namespace TensorFlowLite
     Dilate = 203,
     StablehloRngBitGenerator = 204,
     ReduceWindow = 205,
+    StablehloComposite = 206,
   }
 }
