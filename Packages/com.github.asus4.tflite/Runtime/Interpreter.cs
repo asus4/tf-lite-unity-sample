@@ -334,6 +334,8 @@ namespace TensorFlowLite
             Variant = 15,
             UInt32 = 16,
             UInt16 = 17,
+            Int4 = 18,
+            BFloat16 = 19,
         }
 
         public struct QuantizationParams
@@ -341,7 +343,7 @@ namespace TensorFlowLite
             public float scale;
             public int zeroPoint;
 
-            public override string ToString()
+            public override readonly string ToString()
             {
                 return string.Format("scale: {0} zeroPoint: {1}", scale, zeroPoint);
             }

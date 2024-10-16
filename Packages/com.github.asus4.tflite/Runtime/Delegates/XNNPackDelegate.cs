@@ -45,6 +45,9 @@ namespace TensorFlowLite
             // Enable the latest XNNPACK operators and features in the delegate which have
             // not yet been enabled by default.
             ENABLE_LATEST_OPERATORS = 0x00000040,
+            // Enable XNNPack subgraph reshaping. This means that models with dynamic
+            // tensors are supported and that inputs may be efficiently resized.
+            ENABLE_SUBGRAPH_RESHAPING = 0x00000080,
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -61,8 +64,10 @@ namespace TensorFlowLite
             // TFLITE_XNNPACK_DELEGATE_FLAG_VARIABLE_OPERATORS mask.
             [Obsolete("Use the flags bitfield with the TFLITE_XNNPACK_DELEGATE_FLAG_VARIABLE_OPERATORS mask.")]
             public bool handleVariableOps;
-            // Enable adaptive optimization for AVX CPUs.
-            public bool experimental_adaptive_avx_optimization;
+            // Path to the weight cache to load if `weight_cache` is undefined.
+            //
+            // WARNING this is an experimental flag.
+            public IntPtr experimental_weight_cache_file_path; // char*
         }
 
         public TfLiteDelegate Delegate { get; private set; }
