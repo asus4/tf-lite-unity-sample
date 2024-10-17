@@ -45,8 +45,8 @@ Included prebuilt libraries:
 > [!IMPORTANT]  
 > You need to install [Git-LFS](https://git-lfs.github.com/).
 
-- If you want to try all examples, clone this repository with [Git-LFS](https://git-lfs.github.com/).
-- If you just need TensorFlow Lite libraries via UPM, open the file `Packages/manifest.json` and add following lines into `scopedRegistries` and `dependencies` section.
+- To try all examples, clone this repository with [Git-LFS](https://git-lfs.github.com/).
+- If you need TensorFlow Lite libraries via UPM, open the file `Packages/manifest.json` and add the following lines into the `scopedRegistries` and `dependencies` sections.
 
 ```json
 {
@@ -69,10 +69,12 @@ Included prebuilt libraries:
   "dependencies": {
     // Core TensorFlow Lite libraries
     "com.github.asus4.tflite": "2.17.0",
-    // Utilities for TFLite
+    // Optional: Utilities for TFLite
     "com.github.asus4.tflite.common": "2.17.0",
-    // Utilities for MediaPipe
+    // Optional: Utilities for MediaPipe
     "com.github.asus4.mediapipe": "2.17.0",
+    // Optional: Async methods are available only when UniTask is installed
+    "com.cysharp.unitask": "2.5.10",
     ...// other dependencies
   }
 }
