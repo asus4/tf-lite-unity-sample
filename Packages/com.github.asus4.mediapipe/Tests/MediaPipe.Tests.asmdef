@@ -1,5 +1,6 @@
 {
-    "name": "MediaPipe.Editor",
+    "name": "MediaPipe.Tests",
+    "rootNamespace": "",
     "references": [
         "GUID:0acc523941302664db1f4e527237feb3",
         "GUID:98f31ee3d205e4a19aea6d3a179ae522"
@@ -11,8 +12,10 @@
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
     "versionDefines": [],
     "noEngineReferences": false
 }
