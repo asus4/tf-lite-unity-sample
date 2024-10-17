@@ -222,8 +222,6 @@ MonoBehaviour:
     path: Assets/Samples/EfficientDet/EfficientDet.unity
   - displayName: DeepLab
     path: Assets/Samples/DeepLab/DeepLab.unity
-  - displayName: PoseNet
-    path: Assets/Samples/PoseNet/PoseNet.unity
   - displayName: MoveNet
     path: Assets/Samples/MoveNet/MoveNetSinglePose.unity
   - displayName: MoveNet (Multi)
