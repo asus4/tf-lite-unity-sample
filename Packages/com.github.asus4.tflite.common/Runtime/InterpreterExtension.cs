@@ -54,7 +54,7 @@ namespace TensorFlowLite
             }
             sb.AppendLine();
 
-            int signatureInputCount = runner.GetSignatureInputCount();
+            int signatureInputCount = (int)runner.GetSignatureInputCount();
             for (int i = 0; i < signatureInputCount; i++)
             {
                 string name = runner.GetSignatureInputName(i);
@@ -62,7 +62,7 @@ namespace TensorFlowLite
             }
             sb.AppendLine();
 
-            int signatureOutputCount = runner.GetSignatureOutputCount();
+            int signatureOutputCount = (int)runner.GetSignatureOutputCount();
             for (int i = 0; i < signatureOutputCount; i++)
             {
                 string name = runner.GetSignatureOutputName(i);

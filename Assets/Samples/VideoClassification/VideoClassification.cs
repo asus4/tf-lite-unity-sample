@@ -57,6 +57,7 @@ namespace TensorFlowLite
             try
             {
                 runner = new SignatureRunner(SIGNATURE_KEY, FileUtil.LoadFile(options.modelPath), interpreterOptions);
+                runner.AllocateSignatureTensors();
             }
             catch (Exception e)
             {

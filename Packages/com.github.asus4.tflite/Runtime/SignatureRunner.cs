@@ -73,7 +73,7 @@ namespace TensorFlowLite
             return ToString(TfLiteInterpreterGetSignatureKey(InterpreterPointer, index));
         }
 
-        public int GetSignatureInputCount()
+        public ulong GetSignatureInputCount()
         {
             return TfLiteSignatureRunnerGetInputCount(runner);
         }
@@ -138,7 +138,7 @@ namespace TensorFlowLite
             ThrowIfError(TfLiteSignatureRunnerInvoke(runner));
         }
 
-        public int GetSignatureOutputCount()
+        public ulong GetSignatureOutputCount()
         {
             return TfLiteSignatureRunnerGetOutputCount(runner);
         }
@@ -199,7 +199,7 @@ namespace TensorFlowLite
 
         private Dictionary<string, int> CreateMap(bool isInput)
         {
-            int signatureCount = isInput ? GetSignatureInputCount() : GetSignatureOutputCount();
+            int signatureCount = (int)(isInput ? GetSignatureInputCount() : GetSignatureOutputCount());
             int tensorCount = isInput ? GetInputTensorCount() : GetOutputTensorCount();
             Assert.AreEqual(signatureCount, tensorCount);
 
@@ -270,7 +270,7 @@ namespace TensorFlowLite
         private static extern TfLiteSignatureRunner TfLiteInterpreterGetSignatureRunner(TfLiteInterpreter interpreter, string signature_name);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern int TfLiteSignatureRunnerGetInputCount(TfLiteSignatureRunner signature_runner);
+        private static extern ulong TfLiteSignatureRunnerGetInputCount(TfLiteSignatureRunner signature_runner);
 
         [DllImport(TensorFlowLibrary)]
         private static extern IntPtr TfLiteSignatureRunnerGetInputName(TfLiteSignatureRunner signature_runner, int input_index);
@@ -290,7 +290,7 @@ namespace TensorFlowLite
         private static extern Status TfLiteSignatureRunnerInvoke(TfLiteSignatureRunner signature_runner);
 
         [DllImport(TensorFlowLibrary)]
-        private static extern int TfLiteSignatureRunnerGetOutputCount(TfLiteSignatureRunner signature_runner);
+        private static extern ulong TfLiteSignatureRunnerGetOutputCount(TfLiteSignatureRunner signature_runner);
 
         [DllImport(TensorFlowLibrary)]
         private static extern IntPtr TfLiteSignatureRunnerGetOutputName(TfLiteSignatureRunner signature_runner, int output_index);
