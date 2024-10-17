@@ -14,9 +14,9 @@ Included examples:
 
 - TensorFlow
   - MNIST
-  - SSD Object Detection
+  - EfficientDet Object Detection
   - DeepLab
-  - PoseNet
+  - MoveNet
   - Style Transfer
   - Text Classification
   - Bert Question and Answer

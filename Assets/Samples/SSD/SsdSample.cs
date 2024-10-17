@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TextureSource;
 
+[System.Obsolete("This SSD is deprecated. Try EfficientDet instead.")]
 [RequireComponent(typeof(VirtualTextureSource))]
 public class SsdSample : MonoBehaviour
 {

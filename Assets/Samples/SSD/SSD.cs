@@ -6,6 +6,7 @@ namespace TensorFlowLite
     /// Object Detection
     /// See https://www.tensorflow.org/lite/models/object_detection/overview
     /// </summary>
+    [System.Obsolete("This SSD is deprecated. Try EfficientDet instead.")]
     public sealed class SSD : BaseVisionTask
     {
         [System.Serializable]
