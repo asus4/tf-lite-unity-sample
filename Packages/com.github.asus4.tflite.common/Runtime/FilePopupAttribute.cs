@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
-
 using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif // UNITY_EDITOR
@@ -39,6 +39,11 @@ namespace TensorFlowLite
                 string regex = (attribute as FilePopupAttribute).regex;
                 InitDisplayNames(regex);
             }
+            if (displayNames.Length == 0)
+            {
+                EditorGUI.LabelField(position, label.text, "No files found.");
+                return;
+            }
 
             if (selectedIndex < 0)
             {
@@ -55,6 +60,12 @@ namespace TensorFlowLite
 
         private void InitDisplayNames(string regex)
         {
+            // Create the directory if it doesn't exist
+            if (!Directory.Exists(Application.streamingAssetsPath))
+            {
+                Directory.CreateDirectory(Application.streamingAssetsPath);
+            }
+
             string[] fullPaths = Directory.GetFiles(Application.streamingAssetsPath, regex, SearchOption.AllDirectories);
 
             displayNames = fullPaths.Select(f =>
