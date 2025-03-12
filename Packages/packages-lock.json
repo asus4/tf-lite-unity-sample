@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.cysharp.unitask": {
-      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.5",
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.10",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "cdf88c6a6ac8c9b7e6e5d3c0a360a4af29641c24"
+      "hash": "7c0f199fe0d3fc528024488ccd671e6c7b27745b"
     },
     "com.github.asus4.mediapipe": {
       "version": "file:com.github.asus4.mediapipe",
@@ -172,7 +172,7 @@
     },
     "com.unity.modules.audio": {
       "version": "1.0.0",
-      "depth": 2,
+      "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
