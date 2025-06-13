@@ -48,6 +48,9 @@ namespace TensorFlowLite
             // Enable XNNPack subgraph reshaping. This means that models with dynamic
             // tensors are supported and that inputs may be efficiently resized.
             ENABLE_SUBGRAPH_RESHAPING = 0x00000080,
+            // If XNNPACK has been built with Slinky, enable Slinky usage.
+            // (Ignored if XNNPACK is built without Slinky.)
+            ENABLE_SLINKY = 0x00000100,
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -64,17 +67,19 @@ namespace TensorFlowLite
             // TFLITE_XNNPACK_DELEGATE_FLAG_VARIABLE_OPERATORS mask.
             [Obsolete("Use the flags bitfield with the TFLITE_XNNPACK_DELEGATE_FLAG_VARIABLE_OPERATORS mask.")]
             public bool handleVariableOps;
-            // Path to the weight cache to load if `weight_cache` is undefined.
-            //
-            // WARNING this is an experimental flag.
-            public IntPtr experimental_weight_cache_file_path; // char*
+            // Path to the weight cache to load.
+            public IntPtr weight_cache_file_path; // const char*
         }
 
         public TfLiteDelegate Delegate { get; private set; }
 
         public static Options DefaultOptions => TfLiteXNNPackDelegateOptionsDefault();
 
-        public XNNPackDelegate(): this(DefaultOptions)
+        public static bool CanUseInMemoryWeightCacheProvider => TfLiteXNNPackDelegateCanUseInMemoryWeightCacheProvider();
+
+        public static string InMemoryFilePath => Marshal.PtrToStringAnsi(TfLiteXNNPackDelegateInMemoryFilePath());
+
+        public XNNPackDelegate() : this(DefaultOptions)
         {
         }
 
@@ -112,6 +117,16 @@ namespace TensorFlowLite
         #region Externs
         // APIs for XNNPack are included in the core library 
         internal const string TensorFlowLibrary = Interpreter.TensorFlowLibrary;
+
+        // Returns true on systems that support running the in-memory weight cache
+        // provider.
+        [DllImport(TensorFlowLibrary)]
+        private static extern bool TfLiteXNNPackDelegateCanUseInMemoryWeightCacheProvider();
+
+        // Returns a file path that will activate the in-memory weight cache that
+        // enables weight deduplication.
+        [DllImport(TensorFlowLibrary)]
+        private static extern unsafe IntPtr /* char* */ TfLiteXNNPackDelegateInMemoryFilePath();
 
         // Returns a structure with the default XNNPack delegate options.
         [DllImport(TensorFlowLibrary)]
