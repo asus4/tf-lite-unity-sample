@@ -7,8 +7,8 @@ Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples
 Tested on  
 
 - iOS / Android / macOS / Windows / Linux
-- Unity 2022.3.22f1
-- TensorFlow 2.16.1
+- Unity 2022.3.58f1
+- TensorFlow 2.19.0
 
 Included examples:
 
@@ -68,11 +68,11 @@ Included prebuilt libraries:
   ],
   "dependencies": {
     // Core TensorFlow Lite libraries
-    "com.github.asus4.tflite": "2.17.0",
+    "com.github.asus4.tflite": "2.19.0",
     // Optional: Utilities for TFLite
-    "com.github.asus4.tflite.common": "2.17.0",
+    "com.github.asus4.tflite.common": "2.19.0",
     // Optional: Utilities for MediaPipe
-    "com.github.asus4.mediapipe": "2.17.0",
+    "com.github.asus4.mediapipe": "2.19.0",
     // Optional: Async methods are available only when UniTask is installed
     "com.cysharp.unitask": "2.5.10",
     ...// other dependencies
