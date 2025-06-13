@@ -1,6 +1,6 @@
 # TensorFlow Lite for Unity Samples
 
-[![npm](https://img.shields.io/npm/v/com.github.asus4.tflite?label=npm)](https://www.npmjs.com/package/com.github.asus4.tflite)
+[![npm](https://img.shields.io/npm/v/com.github.asus4.tflite?label=npm)](https://www.npmjs.com/package/com.github.asus4.tflite) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/asus4/tf-lite-unity-sample)
 
 Porting of ["TensorFlow Lite Examples"](https://www.tensorflow.org/lite/examples) and some utilities for Unity.
 
