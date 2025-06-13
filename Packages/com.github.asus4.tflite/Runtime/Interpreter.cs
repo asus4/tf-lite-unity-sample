@@ -311,6 +311,7 @@ namespace TensorFlowLite
             DelegateDataReadError = 6,
             UnresolvedOps = 7,
             Cancelled = 8,
+            ShapeNotKnown = 9,
         }
 
         // TfLiteType

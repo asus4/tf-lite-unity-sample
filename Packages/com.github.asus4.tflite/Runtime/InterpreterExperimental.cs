@@ -90,6 +90,11 @@ namespace TensorFlowLite
             TfLiteSetAllowBufferHandleOutput(interpreter.InterpreterPointer, allowBufferHandleOutput);
         }
 
+        public static void SetEnableDelegateFallback(this InterpreterOptions options, bool enable)
+        {
+            TfLiteInterpreterOptionsSetEnableDelegateFallback(options.nativePtr, enable);
+        }
+
         public static Status ModifyGraphWithDelegate(this Interpreter interpreter, IDelegate gpuDelegate)
         {
             return TfLiteInterpreterModifyGraphWithDelegate(interpreter.InterpreterPointer, gpuDelegate.Delegate);
@@ -129,6 +134,10 @@ namespace TensorFlowLite
 
         [DllImport(TensorFlowLibrary)]
         internal static extern void TfLiteInterpreterOptionsSetUseNNAPI(TfLiteInterpreterOptions options, bool enable);
+
+        [DllImport(TensorFlowLibrary)]
+        internal static extern void TfLiteInterpreterOptionsSetEnableDelegateFallback(
+            TfLiteInterpreterOptions options, bool enable);
 
         [DllImport(TensorFlowLibrary)]
         internal static extern void TfLiteSetAllowBufferHandleOutput(
