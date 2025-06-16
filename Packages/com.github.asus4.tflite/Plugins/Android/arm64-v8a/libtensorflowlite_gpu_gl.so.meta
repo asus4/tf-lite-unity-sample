@@ -6,7 +6,7 @@ PluginImporter:
   iconMap: {}
   executionOrder: {}
   defineConstraints: []
-  isPreloaded: 1
+  isPreloaded: 0
   isOverridable: 1
   isExplicitlyReferenced: 0
   validateReferences: 1
@@ -30,6 +30,7 @@ PluginImporter:
       settings:
         AndroidSharedLibraryType: Executable
         CPU: ARM64
+        Is16KbAligned: false
   - first:
       Any: 
     second:
