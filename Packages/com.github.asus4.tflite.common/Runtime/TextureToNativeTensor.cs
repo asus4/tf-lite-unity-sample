@@ -118,10 +118,7 @@ namespace TensorFlowLite
                 // Complete running jobs if exists
                 foreach (var job in runningJobs)
                 {
-                    // if (!job.IsCompleted)
-                    {
-                        job.Complete();
-                    }
+                    job.Complete();
                 }
                 runningJobs.Clear();
 
