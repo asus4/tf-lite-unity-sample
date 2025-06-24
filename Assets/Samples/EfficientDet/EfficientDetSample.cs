@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using TensorFlowLite;
 using UnityEngine;
@@ -68,7 +69,7 @@ public class EfficientDetSample : MonoBehaviour
         {
             if (task.Status.IsCompleted())
             {
-                task = InvokeAsync(texture);
+                task = InvokeAsync(texture, destroyCancellationToken);
             }
         }
         else
@@ -83,9 +84,10 @@ public class EfficientDetSample : MonoBehaviour
         UpdateResults(texture);
     }
 
-    private async UniTask<bool> InvokeAsync(Texture texture)
+    private async UniTask<bool> InvokeAsync(Texture texture, CancellationToken cancellationToken)
     {
-        await efficientDet.RunAsync(texture, destroyCancellationToken);
+        await efficientDet.RunAsync(texture, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
         UpdateResults(texture);
         return true;
     }
