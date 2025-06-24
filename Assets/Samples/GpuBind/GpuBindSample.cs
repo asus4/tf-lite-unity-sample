@@ -6,7 +6,13 @@ using UnityEngine.Rendering;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 
-public class GpuBindSample : MonoBehaviour
+/// <summary>
+/// A demo for GPU binding to accelerate CPU <-> GPU data transfer.
+/// 
+/// See issue for more details:
+/// https://github.com/asus4/tf-lite-unity-sample/issues/23
+/// </summary>
+public sealed class GpuBindSample : MonoBehaviour
 {
     [SerializeField, FilePopup("*.tflite")] string fileName = "meet/segm_lite_v509_128x128_float16_quant.tflite";
     [SerializeField] Texture2D inputTex = null;
@@ -70,7 +76,7 @@ public class GpuBindSample : MonoBehaviour
         StopAllCoroutines();
 
         interpreter?.Dispose();
-        if(!IsMetal)
+        if (!IsMetal)
         {
             gpuDelegate?.Dispose();
         }
@@ -100,7 +106,7 @@ public class GpuBindSample : MonoBehaviour
         }
         interpreter = new Interpreter(FileUtil.LoadFile(fileName), options);
 
-        
+
 
         var inputShape0 = interpreter.GetInputTensorInfo(0).shape;
         int height = inputShape0[1];
