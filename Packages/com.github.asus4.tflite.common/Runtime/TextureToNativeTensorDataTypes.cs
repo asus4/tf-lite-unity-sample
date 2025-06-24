@@ -78,9 +78,12 @@ namespace TensorFlowLite
                 input = tensorF32,
                 output = tensorUInt8,
             };
-            // wait for the job to complete async
-            await job.Schedule().WaitAsync(PlayerLoopTiming.Update, cancellationToken);
+            // Wait for the job to complete async
+            var handle = job.Schedule();
+            runningJobs.Add(handle);
+            await handle;
             cancellationToken.ThrowIfCancellationRequested();
+            runningJobs.Remove(handle);
             return tensorUInt8;
         }
 #endif // TFLITE_UNITASK_ENABLED
@@ -161,9 +164,12 @@ namespace TensorFlowLite
                 input = sliceF32,
                 output = sliceI32,
             };
-            // wait for the job to complete async
-            await job.Schedule().WaitAsync(PlayerLoopTiming.Update, cancellationToken);
+            // Wait for the job to complete async
+            var handle = job.Schedule();
+            runningJobs.Add(handle);
+            await handle;
             cancellationToken.ThrowIfCancellationRequested();
+            runningJobs.Remove(handle);
             return tensorInt32;
         }
 #endif // TFLITE_UNITASK_ENABLED
