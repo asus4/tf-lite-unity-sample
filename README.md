@@ -158,11 +158,11 @@ Model Licenses
 
 - [Official TFlite Models](https://www.tensorflow.org/lite/examples)
   - Bert
-  - SSD
+  - EfficientDet
   - DeepLab Lab
   - MNIST
   - Style Transfer
-  - PoseNet
+  - MoveNet
   - Text classification
   - Smart Reply
 - [MediaPipe Models](https://github.com/google/mediapipe)
