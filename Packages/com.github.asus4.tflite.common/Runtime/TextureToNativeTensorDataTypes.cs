@@ -31,6 +31,7 @@ namespace TensorFlowLite
     /// </summary>
     public sealed class TextureToNativeTensorUInt8 : TextureToNativeTensor
     {
+        const int kJOB_BATCH_SIZE = 64;
         private NativeArray<byte> tensorUInt8;
 
         public TextureToNativeTensorUInt8(Options options)
@@ -53,13 +54,13 @@ namespace TensorFlowLite
             // Reinterpret (byte * 4) as float
             NativeSlice<float> tensorF32 = tensor.Slice().SliceConvert<float>();
 
-            // Cast Float32 to Uint8 using Burst
+            // Cast Float32 to Uint8 using Burst with parallel execution
             var job = new CastFloat32toUInt8Job()
             {
                 input = tensorF32,
                 output = tensorUInt8,
             };
-            job.Schedule().Complete();
+            job.Schedule(tensorF32.Length, kJOB_BATCH_SIZE).Complete();
             return tensorUInt8;
         }
 
@@ -72,14 +73,14 @@ namespace TensorFlowLite
             // Reinterpret (byte * 4) as float
             NativeSlice<float> tensorF32 = tensor.Slice().SliceConvert<float>();
 
-            // Cast Float32 to Uint8 using Burst
+            // Cast Float32 to Uint8 using Burst with parallel execution
             var job = new CastFloat32toUInt8Job()
             {
                 input = tensorF32,
                 output = tensorUInt8,
             };
             // Wait for the job to complete async
-            var handle = job.Schedule();
+            var handle = job.Schedule(tensorF32.Length, kJOB_BATCH_SIZE);
             runningJobs.Add(handle);
             await handle;
             cancellationToken.ThrowIfCancellationRequested();
@@ -89,7 +90,7 @@ namespace TensorFlowLite
 #endif // TFLITE_UNITASK_ENABLED
 
         [BurstCompile]
-        struct CastFloat32toUInt8Job : IJob
+        struct CastFloat32toUInt8Job : IJobParallelFor
         {
             [ReadOnly]
             public NativeSlice<float> input;
@@ -97,12 +98,9 @@ namespace TensorFlowLite
             [WriteOnly]
             public NativeArray<byte> output;
 
-            public void Execute()
+            public void Execute(int index)
             {
-                for (int i = 0; i < input.Length; i++)
-                {
-                    output[i] = (byte)(input[i] * 255f);
-                }
+                output[index] = (byte)(input[index] * 255f);
             }
         }
     }
@@ -112,6 +110,7 @@ namespace TensorFlowLite
     /// </summary>
     public sealed class TextureToNativeTensorInt32 : TextureToNativeTensor
     {
+        const int kJOB_BATCH_SIZE = 64;
         private NativeArray<byte> tensorInt32;
 
         public TextureToNativeTensorInt32(Options options)
@@ -143,7 +142,7 @@ namespace TensorFlowLite
                 input = sliceF32,
                 output = sliceI32,
             };
-            job.Schedule().Complete();
+            job.Schedule(sliceF32.Length, kJOB_BATCH_SIZE).Complete();
             return tensorInt32;
         }
 
@@ -165,7 +164,7 @@ namespace TensorFlowLite
                 output = sliceI32,
             };
             // Wait for the job to complete async
-            var handle = job.Schedule();
+            var handle = job.Schedule(sliceF32.Length, kJOB_BATCH_SIZE);
             runningJobs.Add(handle);
             await handle;
             cancellationToken.ThrowIfCancellationRequested();
@@ -178,7 +177,7 @@ namespace TensorFlowLite
         /// Cast f32 to uint8 using Burst Job 
         /// </summary>
         [BurstCompile]
-        internal struct CastFloat32toInt32Job : IJob
+        internal struct CastFloat32toInt32Job : IJobParallelFor
         {
             [ReadOnly]
             public NativeSlice<float> input;
@@ -186,12 +185,9 @@ namespace TensorFlowLite
             [WriteOnly]
             public NativeSlice<int> output;
 
-            public void Execute()
+            public void Execute(int index)
             {
-                for (int i = 0; i < input.Length; i++)
-                {
-                    output[i] = (int)(input[i] * 255f);
-                }
+                output[index] = (int)(input[index] * 255f);
             }
         }
     }
