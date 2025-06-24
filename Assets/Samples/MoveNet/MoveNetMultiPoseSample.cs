@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using TensorFlowLite.MoveNet;
@@ -62,7 +63,7 @@ public class MoveNetMultiPoseSample : MonoBehaviour
         {
             if (task.Status.IsCompleted())
             {
-                task = InvokeAsync(texture);
+                task = InvokeAsync(texture, destroyCancellationToken);
             }
         }
         else
@@ -77,9 +78,10 @@ public class MoveNetMultiPoseSample : MonoBehaviour
         poses = moveNet.GetResults();
     }
 
-    private async UniTask<bool> InvokeAsync(Texture texture)
+    private async UniTask<bool> InvokeAsync(Texture texture, CancellationToken cancellationToken)
     {
-        await moveNet.RunAsync(texture, destroyCancellationToken);
+        await moveNet.RunAsync(texture, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
         poses = moveNet.GetResults();
         return true;
     }

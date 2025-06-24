@@ -31,6 +31,7 @@ namespace TensorFlowLite
     /// </summary>
     public sealed class TextureToNativeTensorUInt8 : TextureToNativeTensor
     {
+        const int kJOB_BATCH_SIZE = 64;
         private NativeArray<byte> tensorUInt8;
 
         public TextureToNativeTensorUInt8(Options options)
@@ -59,7 +60,7 @@ namespace TensorFlowLite
                 input = tensorF32,
                 output = tensorUInt8,
             };
-            job.Schedule().Complete();
+            job.Schedule(tensorF32.Length, kJOB_BATCH_SIZE).Complete();
             return tensorUInt8;
         }
 
@@ -67,6 +68,8 @@ namespace TensorFlowLite
         public override async UniTask<NativeArray<byte>> TransformAsync(Texture input, Matrix4x4 t, CancellationToken cancellationToken)
         {
             NativeArray<byte> tensor = await base.TransformAsync(input, t, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Reinterpret (byte * 4) as float
             NativeSlice<float> tensorF32 = tensor.Slice().SliceConvert<float>();
 
@@ -76,14 +79,18 @@ namespace TensorFlowLite
                 input = tensorF32,
                 output = tensorUInt8,
             };
-            // wait for the job to complete async
-            await job.Schedule();
+            // Wait for the job to complete async
+            var handle = job.Schedule(tensorF32.Length, kJOB_BATCH_SIZE);
+            runningJobs.Add(handle);
+            await handle;
+            cancellationToken.ThrowIfCancellationRequested();
+            runningJobs.Remove(handle);
             return tensorUInt8;
         }
 #endif // TFLITE_UNITASK_ENABLED
 
         [BurstCompile]
-        struct CastFloat32toUInt8Job : IJob
+        struct CastFloat32toUInt8Job : IJobParallelFor
         {
             [ReadOnly]
             public NativeSlice<float> input;
@@ -91,12 +98,9 @@ namespace TensorFlowLite
             [WriteOnly]
             public NativeArray<byte> output;
 
-            public void Execute()
+            public void Execute(int index)
             {
-                for (int i = 0; i < input.Length; i++)
-                {
-                    output[i] = (byte)(input[i] * 255f);
-                }
+                output[index] = (byte)(input[index] * 255f);
             }
         }
     }
@@ -106,6 +110,7 @@ namespace TensorFlowLite
     /// </summary>
     public sealed class TextureToNativeTensorInt32 : TextureToNativeTensor
     {
+        const int kJOB_BATCH_SIZE = 64;
         private NativeArray<byte> tensorInt32;
 
         public TextureToNativeTensorInt32(Options options)
@@ -137,7 +142,7 @@ namespace TensorFlowLite
                 input = sliceF32,
                 output = sliceI32,
             };
-            job.Schedule().Complete();
+            job.Schedule(sliceF32.Length, kJOB_BATCH_SIZE).Complete();
             return tensorInt32;
         }
 
@@ -145,6 +150,8 @@ namespace TensorFlowLite
         public override async UniTask<NativeArray<byte>> TransformAsync(Texture input, Matrix4x4 t, CancellationToken cancellationToken)
         {
             NativeArray<byte> tensor = await base.TransformAsync(input, t, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Reinterpret (byte * 4) as float
             NativeSlice<float> sliceF32 = tensor.Slice().SliceConvert<float>();
             // Reinterpret (byte * 4) as int
@@ -156,8 +163,12 @@ namespace TensorFlowLite
                 input = sliceF32,
                 output = sliceI32,
             };
-            // wait for the job to complete async
-            await job.Schedule();
+            // Wait for the job to complete async
+            var handle = job.Schedule(sliceF32.Length, kJOB_BATCH_SIZE);
+            runningJobs.Add(handle);
+            await handle;
+            cancellationToken.ThrowIfCancellationRequested();
+            runningJobs.Remove(handle);
             return tensorInt32;
         }
 #endif // TFLITE_UNITASK_ENABLED
@@ -166,7 +177,7 @@ namespace TensorFlowLite
         /// Cast f32 to uint8 using Burst Job 
         /// </summary>
         [BurstCompile]
-        internal struct CastFloat32toInt32Job : IJob
+        internal struct CastFloat32toInt32Job : IJobParallelFor
         {
             [ReadOnly]
             public NativeSlice<float> input;
@@ -174,12 +185,9 @@ namespace TensorFlowLite
             [WriteOnly]
             public NativeSlice<int> output;
 
-            public void Execute()
+            public void Execute(int index)
             {
-                for (int i = 0; i < input.Length; i++)
-                {
-                    output[i] = (int)(input[i] * 255f);
-                }
+                output[index] = (int)(input[index] * 255f);
             }
         }
     }

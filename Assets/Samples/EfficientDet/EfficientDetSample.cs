@@ -1,3 +1,5 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using TensorFlowLite;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,9 +23,14 @@ public class EfficientDetSample : MonoBehaviour
     [SerializeField]
     private TextAsset labelMap = null;
 
+    [SerializeField]
+    private bool runBackground = false;
+
     private EfficientDet efficientDet;
     private Text[] frames;
     private string[] labels;
+
+    private UniTask<(bool IsCanceled, bool Result)> task;
 
     private void Start()
     {
@@ -43,7 +50,7 @@ public class EfficientDetSample : MonoBehaviour
 
         if (TryGetComponent(out VirtualTextureSource source))
         {
-            source.OnTexture.AddListener(Invoke);
+            source.OnTexture.AddListener(OnTextureUpdate);
         }
     }
 
@@ -51,15 +58,42 @@ public class EfficientDetSample : MonoBehaviour
     {
         if (TryGetComponent(out VirtualTextureSource source))
         {
-            source.OnTexture.RemoveListener(Invoke);
+            source.OnTexture.RemoveListener(OnTextureUpdate);
         }
         efficientDet?.Dispose();
+    }
+
+    private void OnTextureUpdate(Texture texture)
+    {
+        if (runBackground)
+        {
+            if (task.Status.IsCompleted())
+            {
+                task = InvokeAsync(texture, destroyCancellationToken).SuppressCancellationThrow();
+            }
+        }
+        else
+        {
+            Invoke(texture);
+        }
     }
 
     private void Invoke(Texture texture)
     {
         efficientDet.Run(texture);
+        UpdateResults(texture);
+    }
 
+    private async UniTask<bool> InvokeAsync(Texture texture, CancellationToken cancellationToken)
+    {
+        await efficientDet.RunAsync(texture, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        UpdateResults(texture);
+        return true;
+    }
+
+    private void UpdateResults(Texture texture)
+    {
         var results = efficientDet.GetResults();
         Vector2 size = (frameContainer.transform as RectTransform).rect.size;
 

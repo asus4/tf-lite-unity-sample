@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering;
@@ -10,7 +12,6 @@ using Cysharp.Threading.Tasks;
 #endif // TFLITE_UNITASK_ENABLED
 
 using DataType = TensorFlowLite.Interpreter.DataType;
-using Object = UnityEngine.Object;
 
 namespace TensorFlowLite
 {
@@ -36,7 +37,7 @@ namespace TensorFlowLite
 
         public static ComputeShader CloneDefaultComputeShaderFloat32()
         {
-            return Object.Instantiate(DefaultComputeShaderFloat32.Value);
+            return UnityEngine.Object.Instantiate(DefaultComputeShaderFloat32.Value);
         }
 
         private static readonly int _InputTex = Shader.PropertyToID("_InputTex");
@@ -54,8 +55,11 @@ namespace TensorFlowLite
         public readonly int height;
         public readonly int channels;
 
+        private bool disposed = false;
         private readonly GraphicsBuffer tensorBuffer;
         protected NativeArray<byte> tensor;
+        protected readonly List<JobHandle> runningJobs = new List<JobHandle>();
+
 
         protected TextureToNativeTensor(int stride, Options options)
         {
@@ -104,15 +108,32 @@ namespace TensorFlowLite
 
         private void Dispose(bool disposing)
         {
+            if (disposed)
+            {
+                return;
+            }
+
             if (disposing)
             {
+                // Complete running jobs if exists
+                foreach (var job in runningJobs)
+                {
+                    // if (!job.IsCompleted)
+                    {
+                        job.Complete();
+                    }
+                }
+                runningJobs.Clear();
+
+                // Dispose resources
                 if (!hasCustomCompute)
                 {
-                    Object.Destroy(compute);
+                    UnityEngine.Object.Destroy(compute);
                 }
                 tensor.Dispose();
                 tensorBuffer.Dispose();
             }
+            disposed = true;
         }
 
         public virtual NativeArray<byte> Transform(Texture input, in Matrix4x4 t)
@@ -171,7 +192,11 @@ namespace TensorFlowLite
                 {
                     throw new Exception("GPU readback error detected");
                 }
-                cancellationToken.ThrowIfCancellationRequested();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    Debug.LogWarning("TransformAsync task was cancelled");
+                    return;
+                }
                 var tmpBuffer = request.GetData<byte>();
                 Assert.AreEqual(tmpBuffer.Length, tensor.Length);
                 tensor.CopyFrom(tmpBuffer);
@@ -181,9 +206,9 @@ namespace TensorFlowLite
             return tensor;
         }
 
-        public async UniTask<NativeArray<byte>> TransformAsync(Texture input, AspectMode aspectMode, CancellationToken cancellationToken)
+        public UniTask<NativeArray<byte>> TransformAsync(Texture input, AspectMode aspectMode, CancellationToken cancellationToken)
         {
-            return await TransformAsync(input, GetAspectScaledMatrix(input, aspectMode), cancellationToken);
+            return TransformAsync(input, GetAspectScaledMatrix(input, aspectMode), cancellationToken);
         }
 #endif // TFLITE_UNITASK_ENABLED
 
