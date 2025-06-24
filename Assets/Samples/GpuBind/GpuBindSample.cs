@@ -229,7 +229,7 @@ public class GpuBindSample : MonoBehaviour
 
         commandBuffer.Clear();
         commandBuffer.SetExecutionFlags(CommandBufferExecutionFlags.None);
-        var fence = commandBuffer.CreateGraphicsFence(GraphicsFenceType.CPUSynchronisation, SynchronisationStageFlags.AllGPUOperations);
+        var fence = commandBuffer.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation, SynchronisationStageFlags.ComputeProcessing);
 
         commandBuffer.SetComputeIntParam(compute, "Width", texture.width);
         commandBuffer.SetComputeIntParam(compute, "Height", texture.height);
