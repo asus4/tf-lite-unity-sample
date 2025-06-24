@@ -1,9 +1,17 @@
 ﻿#pragma kernel TextureToTensor
 
+// Enables mean and stddev offset
 #pragma multi_compile_local __ USE_OFFSET
+// Enables 4-channel input
+#pragma multi_compile_local __ USE_4CH_TENSOR
 
 Texture2D<float4> _InputTex;
+
+#if USE_4CH_TENSOR
+RWStructuredBuffer<float4> _OutputTensor;
+#else // 3ch by default
 RWStructuredBuffer<float3> _OutputTensor;
+#endif // USE_4CH_TENSOR
 
 uint2 _OutputSize;
 float4x4 _TransformMatrix;
@@ -36,5 +44,11 @@ void TextureToTensor (uint2 id : SV_DispatchThreadID)
     
     // Flip Y axis
     uint tid = (_OutputSize.y - 1 - id.y) * _OutputSize.x + id.x;
+
+    // Write to output tensor
+    #if USE_4CH_TENSOR
+    _OutputTensor[tid] = color;
+    #else // 3ch by default
     _OutputTensor[tid] = color.rgb;
+    #endif // USE_4CH_TENSOR
 }

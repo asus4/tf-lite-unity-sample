@@ -1,5 +1,7 @@
-﻿// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel TextureToFloatTensor
+﻿#pragma kernel TextureToFloatTensor
+
+// OBSOLETE:
+// Use TextureToNativeTensor and TextureToNativeTensorFloat32 instead.
 
 Texture2D<float4> InputTexture;
 int TextureWidth;
