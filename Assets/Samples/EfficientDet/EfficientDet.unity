@@ -747,6 +747,7 @@ MonoBehaviour:
     type: 3}
   scoreThreshold: 0.223
   labelMap: {fileID: 4900000, guid: 7d4d7989dee214710bfc17cebed47e6b, type: 3}
+  runBackground: 1
 --- !u!1 &2074584276
 GameObject:
   m_ObjectHideFlags: 0
