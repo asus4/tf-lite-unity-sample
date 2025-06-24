@@ -67,6 +67,8 @@ namespace TensorFlowLite
         public override async UniTask<NativeArray<byte>> TransformAsync(Texture input, Matrix4x4 t, CancellationToken cancellationToken)
         {
             NativeArray<byte> tensor = await base.TransformAsync(input, t, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Reinterpret (byte * 4) as float
             NativeSlice<float> tensorF32 = tensor.Slice().SliceConvert<float>();
 
@@ -77,7 +79,8 @@ namespace TensorFlowLite
                 output = tensorUInt8,
             };
             // wait for the job to complete async
-            await job.Schedule();
+            await job.Schedule().WaitAsync(PlayerLoopTiming.Update, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             return tensorUInt8;
         }
 #endif // TFLITE_UNITASK_ENABLED
@@ -145,6 +148,8 @@ namespace TensorFlowLite
         public override async UniTask<NativeArray<byte>> TransformAsync(Texture input, Matrix4x4 t, CancellationToken cancellationToken)
         {
             NativeArray<byte> tensor = await base.TransformAsync(input, t, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Reinterpret (byte * 4) as float
             NativeSlice<float> sliceF32 = tensor.Slice().SliceConvert<float>();
             // Reinterpret (byte * 4) as int
@@ -157,7 +162,8 @@ namespace TensorFlowLite
                 output = sliceI32,
             };
             // wait for the job to complete async
-            await job.Schedule();
+            await job.Schedule().WaitAsync(PlayerLoopTiming.Update, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             return tensorInt32;
         }
 #endif // TFLITE_UNITASK_ENABLED
