@@ -192,7 +192,11 @@ namespace TensorFlowLite
                 {
                     throw new Exception("GPU readback error detected");
                 }
-                cancellationToken.ThrowIfCancellationRequested();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    Debug.LogWarning("TransformAsync task was cancelled");
+                    return;
+                }
                 var tmpBuffer = request.GetData<byte>();
                 Assert.AreEqual(tmpBuffer.Length, tensor.Length);
                 tensor.CopyFrom(tmpBuffer);

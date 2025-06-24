@@ -30,7 +30,7 @@ public class EfficientDetSample : MonoBehaviour
     private Text[] frames;
     private string[] labels;
 
-    private UniTask<bool> task;
+    private UniTask<(bool IsCanceled, bool Result)> task;
 
     private void Start()
     {
@@ -69,7 +69,7 @@ public class EfficientDetSample : MonoBehaviour
         {
             if (task.Status.IsCompleted())
             {
-                task = InvokeAsync(texture, destroyCancellationToken);
+                task = InvokeAsync(texture, destroyCancellationToken).SuppressCancellationThrow();
             }
         }
         else

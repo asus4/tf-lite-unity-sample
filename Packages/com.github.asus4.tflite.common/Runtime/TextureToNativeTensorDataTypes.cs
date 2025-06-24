@@ -54,7 +54,7 @@ namespace TensorFlowLite
             // Reinterpret (byte * 4) as float
             NativeSlice<float> tensorF32 = tensor.Slice().SliceConvert<float>();
 
-            // Cast Float32 to Uint8 using Burst with parallel execution
+            // Cast Float32 to Uint8 using Burst
             var job = new CastFloat32toUInt8Job()
             {
                 input = tensorF32,
@@ -73,7 +73,7 @@ namespace TensorFlowLite
             // Reinterpret (byte * 4) as float
             NativeSlice<float> tensorF32 = tensor.Slice().SliceConvert<float>();
 
-            // Cast Float32 to Uint8 using Burst with parallel execution
+            // Cast Float32 to Uint8 using Burst
             var job = new CastFloat32toUInt8Job()
             {
                 input = tensorF32,
