@@ -16,7 +16,8 @@ namespace TensorFlowLite
             if (bert != null) return;
             string path = System.IO.Path.Combine(Application.streamingAssetsPath, "mobilebert_float.tflite");
             var vocabText = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Samples/Bert/vocab.txt");
-            bert = new Bert(path, vocabText.text);
+            var model = FileUtil.LoadFile(path);
+            bert = new Bert(model, vocabText.text);
         }
 
         [TestCase( // 1
