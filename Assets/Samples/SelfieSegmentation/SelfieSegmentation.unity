@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.3708708, g: 0.37838137, b: 0.35725543, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -269,12 +268,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1001 &526509132
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -752,11 +751,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   outputView: {fileID: 1931683985}
   options:
-    modelFile: mediapipe/selfie_segmentation/selfie_segmentation.tflite
-    aspectMode: 1
-    delegateType: 2
+    modelFile: mediapipe/selfie_segmentation/selfie_segmenter_landscape.tflite
+    aspectMode: 0
+    delegateType: 4
     compute: {fileID: 7200000, guid: f251d9385226e4b309b39eae95001ad2, type: 3}
-    sigmaColor: 0.88
+    sigmaColor: 0.49
 --- !u!4 &1453601107
 Transform:
   m_ObjectHideFlags: 0
@@ -804,7 +803,19 @@ MonoBehaviour:
         m_CallState: 2
   OnAspectChange:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1931683987}
+        m_TargetAssemblyTypeName: UnityEngine.UI.AspectRatioFitter, UnityEngine.UI
+        m_MethodName: set_aspectRatio
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!850595691 &1758924755
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -880,6 +891,7 @@ GameObject:
   - component: {fileID: 1931683984}
   - component: {fileID: 1931683986}
   - component: {fileID: 1931683985}
+  - component: {fileID: 1931683987}
   m_Layer: 5
   m_Name: Output View
   m_TagString: Untagged
@@ -902,7 +914,7 @@ RectTransform:
   m_Father: {fileID: 2074584277}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -941,6 +953,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1931683983}
   m_CullTransparentMesh: 0
+--- !u!114 &1931683987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1931683983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 3
+  m_AspectRatio: 1
 --- !u!1 &2074584276
 GameObject:
   m_ObjectHideFlags: 0
