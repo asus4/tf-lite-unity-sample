@@ -77,14 +77,14 @@ namespace TensorFlowLite
 
         Dictionary<string, int> vocabularyTable;
 
-        public Bert(string modelPath, string vocabText)
+        public Bert(byte[] modelData, string vocabText)
         {
             var options = new InterpreterOptions()
             {
                 threads = 2,
             };
 
-            interpreter = new Interpreter(FileUtil.LoadFile(modelPath), options);
+            interpreter = new Interpreter(modelData, options);
             interpreter.LogIOInfo();
 
             inputs0 = new int[MAX_SEQ_LENTH];

@@ -2,10 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TensorFlowLite;
+using Cysharp.Threading.Tasks;
 
+/// <summary>
+/// Mobile BERT Question Answering Sample
+/// 
+/// https://github.com/tensorflow/examples/blob/master/lite/examples/bert_qa/
+/// </summary>
 public class BertSample : MonoBehaviour
 {
     [System.Serializable]
@@ -23,7 +30,9 @@ public class BertSample : MonoBehaviour
     }
 
     [Header("TFLite")]
-    [SerializeField, FilePopup("*.tflite")] string fileName = "mobilebert_float.tflite";
+    [SerializeField]
+    private RemoteFile modelFile = new("https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/bert_qa/ios/models_tflite_bert_qa_mobilebert_float_20191023.tflite");
+
     [SerializeField] TextAsset qaJson = null;
     [SerializeField] TextAsset vocabTable = null;
 
@@ -41,10 +50,13 @@ public class BertSample : MonoBehaviour
 
     QASet CurrentQASet => dataSets[sentenceDropdown.value];
 
-    void Start()
+    async void Start()
     {
-        string path = Path.Combine(Application.streamingAssetsPath, fileName);
-        bert = new Bert(path, vocabTable.text);
+        sentenceLabel.text = "NOW Loading...";
+
+        // Load model file asynchronously
+        var modelData = await modelFile.Load(destroyCancellationToken);
+        bert = new Bert(modelData, vocabTable.text);
 
         dataSets = JsonUtility.FromJson<QASetCollection>(qaJson.text).contents;
 
@@ -58,7 +70,6 @@ public class BertSample : MonoBehaviour
             SelectData(dataSets[value]);
         });
         SelectData(dataSets[0]);
-
 
         templatesDropdown.onValueChanged.AddListener((value) =>
         {
@@ -108,11 +119,11 @@ public class BertSample : MonoBehaviour
     string GenerateHighlightedText(string text, Bert.Answer answer)
     {
         var match = answer.matched;
-        return text.Substring(0, match.Index)
+        return text[..match.Index]
             + "<b><color=#ffa500ff>"
             + match.Value
             + "</color></b>"
-            + text.Substring(match.Index + match.Length);
+            + text[(match.Index + match.Length)..];
     }
 
 }
