@@ -4,7 +4,7 @@
 uint Width;
 uint Height;
 Texture2D<float4> InputTexture;
-StructuredBuffer<float2> LabelBuffer;
+StructuredBuffer<float> LabelBuffer;
 RWTexture2D<float4> OutputTexture;
 
 // The same paramerters as cv::bilateralFilter
@@ -21,8 +21,9 @@ float Gaussian(float x, float sigma) {
 [numthreads(8,8,1)]
 void LabelToTex (uint2 tid : SV_DispatchThreadID)
 {
-    float2 label = LabelBuffer[(Height - 1 - tid.y) * Width + tid.x];
-    OutputTexture[tid] = float4(label.x, label.y, 0, 1);
+    float label = LabelBuffer[(Height - 1 - tid.y) * Width + tid.x];
+    label = smoothstep(0.3, 0.8, label);
+    OutputTexture[tid] = float4(label, 0.0, 0.0, 1.0);
 }
 
 // TODO: Implement jointed-bilateral filter

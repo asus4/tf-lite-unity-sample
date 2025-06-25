@@ -4,6 +4,10 @@ using UnityEngine;
 namespace TensorFlowLite
 {
 
+    /// <summary>
+    /// https://ai.google.dev/edge/mediapipe/solutions/vision/image_segmenter
+    /// https://storage.googleapis.com/mediapipe-assets/Model%20Card%20MediaPipe%20Selfie%20Segmentation.pdf
+    /// </summary>
     public sealed class SelfieSegmentation : BaseVisionTask
     {
         [System.Serializable]
@@ -25,7 +29,7 @@ namespace TensorFlowLite
             }
         }
 
-        private float[,,] output0; // height, width, 2
+        private float[,,] output0; // height, width, 1
 
         private readonly ComputeShader compute;
         private readonly Options options;
@@ -64,7 +68,7 @@ namespace TensorFlowLite
             compute.SetInt("step", 1);
             compute.SetInt("radius", 1);
 
-            labelBuffer = new ComputeBuffer(height * width, sizeof(float) * 2);
+            labelBuffer = new ComputeBuffer(height * width, sizeof(float));
 
             labelTex = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             labelTex.enableRandomWrite = true;
@@ -112,6 +116,7 @@ namespace TensorFlowLite
             compute.SetBuffer(kLabelToTex, kLabelBuffer, labelBuffer);
             compute.SetTexture(kLabelToTex, kOutputTexture, labelTex);
             compute.Dispatch(kLabelToTex, width / 8, height / 8, 1);
+            // return labelTex;
 
             // Bilateral Filter
             options.UpdateParameter();
