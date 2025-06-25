@@ -23,14 +23,14 @@ public class BertSample : MonoBehaviour
     }
 
     [Header("TFLite")]
-    [SerializeField, FilePopup("*.tflite")] string fileName = "deeplabv3_257_mv_gpu.tflite";
+    [SerializeField, FilePopup("*.tflite")] string fileName = "mobilebert_float.tflite";
     [SerializeField] TextAsset qaJson = null;
     [SerializeField] TextAsset vocabTable = null;
 
     [Header("UIs")]
     [SerializeField] Dropdown sentenceDropdown = null;
     [SerializeField] Text sentenceLabel = null;
-    [SerializeField] Dropdown templetesDropdown = null;
+    [SerializeField] Dropdown templatesDropdown = null;
     [SerializeField] InputField questionInput = null;
     [SerializeField] Button askButton = null;
 
@@ -60,9 +60,9 @@ public class BertSample : MonoBehaviour
         SelectData(dataSets[0]);
 
 
-        templetesDropdown.onValueChanged.AddListener((value) =>
+        templatesDropdown.onValueChanged.AddListener((value) =>
         {
-            questionInput.text = templetesDropdown.captionText.text;
+            questionInput.text = templatesDropdown.captionText.text;
         });
         askButton.onClick.AddListener(() =>
         {
@@ -75,7 +75,7 @@ public class BertSample : MonoBehaviour
     void OnDestroy()
     {
         sentenceDropdown.onValueChanged.RemoveAllListeners();
-        templetesDropdown.onValueChanged.RemoveAllListeners();
+        templatesDropdown.onValueChanged.RemoveAllListeners();
         askButton.onClick.RemoveAllListeners();
         bert?.Dispose();
     }
@@ -83,8 +83,8 @@ public class BertSample : MonoBehaviour
     void SelectData(QASet qa)
     {
         sentenceLabel.text = qa.content;
-        templetesDropdown.ClearOptions();
-        templetesDropdown.AddOptions(qa.questions.ToList());
+        templatesDropdown.ClearOptions();
+        templatesDropdown.AddOptions(qa.questions.ToList());
         questionInput.text = "";
     }
 
