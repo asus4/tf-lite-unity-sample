@@ -244,6 +244,8 @@ MonoBehaviour:
     path: Assets/Samples/SelfieSegmentation/SelfieSegmentation.unity
   - displayName: Video Classification
     path: Assets/Samples/VideoClassification/VideoClassification.unity
+  - displayName: GPU Bind
+    path: Assets/Samples/GpuBind/GpuBind.unity
 --- !u!4 &642741204
 Transform:
   m_ObjectHideFlags: 0

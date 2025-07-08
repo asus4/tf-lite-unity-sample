@@ -12,17 +12,11 @@ EditorBuildSettings:
     path: Assets/Samples/MNIST/MNIST.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/Samples/SSD/SSD.unity
-    guid: 97a93d56ec0ff46078e253cebe3c63ee
-  - enabled: 1
     path: Assets/Samples/EfficientDet/EfficientDet.unity
     guid: 660e2ce6e34bb44629f5b9bb71e86ad0
   - enabled: 1
     path: Assets/Samples/DeepLab/DeepLab.unity
     guid: 83d7df9250b9b412fb5713f372009893
-  - enabled: 1
-    path: Assets/Samples/PoseNet/PoseNet.unity
-    guid: 338da8008aa764c05a72b5db18dc0d5c
   - enabled: 1
     path: Assets/Samples/MoveNet/MoveNetSinglePose.unity
     guid: 02dfbc9facbdd471282c8493f3961146
@@ -59,4 +53,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Samples/AudioClassification/AudioClassification.unity
     guid: 88c31d26f3ca84d6f89a15071af4c5b5
+  - enabled: 1
+    path: Assets/Samples/GpuBind/GpuBind.unity
+    guid: 0321594a6108b47ed94feaafa7421584
   m_configObjects: {}
