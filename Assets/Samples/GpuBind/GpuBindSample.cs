@@ -121,14 +121,14 @@ public sealed class GpuBindSample : MonoBehaviour
         inputs = new float[height, width, gpuInputChannels];
         if (!gpuDelegate.BindBufferToInputTensor(interpreter, 0, inputBuffer))
         {
-            Debug.LogError("input is not binded");
+            Debug.LogError("input is not bound");
         }
 
         outputBuffer = new ComputeBuffer(height * width * gpuOutputChannels, sizeof(float));
         interpreter.SetAllowBufferHandleOutput(true);
         if (!gpuDelegate.BindBufferToOutputTensor(interpreter, 0, outputBuffer))
         {
-            Debug.LogError("output is not binded");
+            Debug.LogError("output is not bound");
         }
 
         // [OpenGLGLES] must be called ModifyGraphWithDelegate at last  
