@@ -61,7 +61,7 @@ public sealed class GpuBindSample : MonoBehaviour
 
         if (useBinding)
         {
-            PrepareBindingOn();
+            yield return PrepareBindingOn();
         }
         else
         {
@@ -93,7 +93,7 @@ public sealed class GpuBindSample : MonoBehaviour
     }
 
 
-    void PrepareBindingOn()
+    IEnumerator PrepareBindingOn()
     {
         bool isMetal = IsMetal;
 
@@ -134,10 +134,13 @@ public sealed class GpuBindSample : MonoBehaviour
         // [OpenGLGLES] must be called ModifyGraphWithDelegate at last  
         if (IsOpenGLES3)
         {
-            if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
+            yield return RunOnRenderThreadAsync(() =>
             {
-                Debug.LogError("Failed to modify the graph with delegate");
-            }
+                if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
+                {
+                    Debug.LogError("Failed to modify the graph with delegate");
+                }
+            });
         }
     }
 
@@ -165,17 +168,18 @@ public sealed class GpuBindSample : MonoBehaviour
         {
             if (useBinding)
             {
-                InvokeBindingOn(inputTex);
+                yield return InvokeBindingOn(inputTex);
             }
             else
             {
                 InvokeBindingOff(inputTex);
             }
-            yield return new WaitForEndOfFrame();
+            Debug.Log("Invoke done");
+            yield return new WaitForSeconds(1f);
         }
     }
 
-    void InvokeBindingOn(Texture2D inputTex)
+    IEnumerator InvokeBindingOn(Texture2D inputTex)
     {
         bool usePadded = IsMetal;
 
@@ -183,9 +187,12 @@ public sealed class GpuBindSample : MonoBehaviour
         TextureToTensor(inputTex, computePreProcess, inputBuffer);
 
 
-        Profiler.BeginSample("Invoke");
-        interpreter.Invoke();
-        Profiler.EndSample();
+        // Profiler.BeginSample("Invoke");
+        yield return RunOnRenderThreadAsync(() =>
+        {
+            interpreter.Invoke();
+        });
+        // Profiler.EndSample();
 
         Profiler.BeginSample("Post process");
         var computePostProcess = usePadded ? computePostProcessPadded : computePostProcessNormal;
@@ -345,4 +352,18 @@ public sealed class GpuBindSample : MonoBehaviour
     }
 #pragma warning restore CS0162 // Unreachable code detected    
 
+    static IEnumerator RunOnRenderThreadAsync(System.Action callback)
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            RenderThreadHook.RunOnRenderThread(callback);
+#endif // UNITY_ANDROID && !UNITY_EDITOR
+            yield return new WaitForEndOfFrame();
+        }
+        else
+        {
+            callback.Invoke();
+        }
+    }
 }
