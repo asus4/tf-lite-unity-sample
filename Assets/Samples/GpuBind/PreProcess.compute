@@ -1,0 +1,27 @@
+﻿#pragma kernel TextureToTensor
+
+// Enable 4-channel padding for Metal
+#pragma multi_compile_local __ USE_PADDED
+
+int Width;
+int Height;
+Texture2D<float4> InputTexture;
+
+#if USE_PADDED
+RWStructuredBuffer<float4> OutputTensor;
+#else
+RWStructuredBuffer<float3> OutputTensor;
+#endif
+
+[numthreads(8,8,1)]
+void TextureToTensor(uint2 tid : SV_DispatchThreadID)
+{
+    uint gid = (Height - 1 - tid.y) * Width + tid.x;
+    float4 c = InputTexture[tid];
+    
+    #if USE_PADDED
+    OutputTensor[gid] = float4(c.x, c.y, c.z, 1.0);
+    #else
+    OutputTensor[gid] = float3(c.x, c.y, c.z);
+    #endif
+}

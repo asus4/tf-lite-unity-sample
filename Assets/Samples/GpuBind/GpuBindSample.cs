@@ -21,12 +21,10 @@ public sealed class GpuBindSample : MonoBehaviour
 
     [SerializeField] bool useBinding = false;
 
-    [SerializeField] ComputeShader computePreProcessNormal = null;
-    [SerializeField] ComputeShader computePreProcessPadded = null;
+    [SerializeField] ComputeShader computePreProcess = null;
+    [SerializeField] ComputeShader computePostProcess = null;
 
-    [SerializeField] ComputeShader computePostProcessNormal = null;
-    [SerializeField] ComputeShader computePostProcessPadded = null;
-
+    const string USE_PADDED_KEYWORD = "USE_PADDED";
     static bool IsMetal => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal;
     static bool IsOpenGLES3 => SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3;
 
@@ -97,6 +95,18 @@ public sealed class GpuBindSample : MonoBehaviour
     {
         bool isMetal = IsMetal;
 
+        // Set shader keywords based on platform
+        if (isMetal)
+        {
+            computePreProcess.EnableKeyword(USE_PADDED_KEYWORD);
+            computePostProcess.EnableKeyword(USE_PADDED_KEYWORD);
+        }
+        else
+        {
+            computePreProcess.DisableKeyword(USE_PADDED_KEYWORD);
+            computePostProcess.DisableKeyword(USE_PADDED_KEYWORD);
+        }
+
         gpuDelegate = CreateGpuDelegate(true);
         var options = new InterpreterOptions();
         // [Metal] must be called ModifyGraphWithDelegate at beginning
@@ -134,18 +144,24 @@ public sealed class GpuBindSample : MonoBehaviour
         // [OpenGLGLES] must be called ModifyGraphWithDelegate at last  
         if (IsOpenGLES3)
         {
-            yield return RunOnRenderThreadAsync(() =>
+            // Gpu Delegate must be initialized in the Render thread to use the same egl context.
+            RunOnRenderThread(() =>
             {
                 if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
                 {
                     Debug.LogError("Failed to modify the graph with delegate");
                 }
             });
+            yield return new WaitForEndOfFrame();
         }
     }
 
     void PrepareBindingOff()
     {
+        // Always use non-padded version when binding is off
+        computePreProcess.DisableKeyword(USE_PADDED_KEYWORD);
+        computePostProcess.DisableKeyword(USE_PADDED_KEYWORD);
+
         var options = new InterpreterOptions();
         options.AddGpuDelegate();
         interpreter = new Interpreter(FileUtil.LoadFile(fileName), options);
@@ -158,6 +174,7 @@ public sealed class GpuBindSample : MonoBehaviour
         inputs = new float[height, width, channels];
         outputs = new float[height, width, 2];
 
+        inputBuffer = new ComputeBuffer(height * width * 3, sizeof(float));
         outputBuffer = new ComputeBuffer(height * width * 2, sizeof(float));
     }
 
@@ -174,35 +191,38 @@ public sealed class GpuBindSample : MonoBehaviour
             {
                 InvokeBindingOff(inputTex);
             }
-            Debug.Log("Invoke done");
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForEndOfFrame();
         }
     }
 
     IEnumerator InvokeBindingOn(Texture2D inputTex)
     {
-        bool usePadded = IsMetal;
-
-        var computePreProcess = usePadded ? computePreProcessPadded : computePreProcessNormal;
         TextureToTensor(inputTex, computePreProcess, inputBuffer);
 
-
-        // Profiler.BeginSample("Invoke");
-        yield return RunOnRenderThreadAsync(() =>
+        // On Android, Gpu Delegate must be called in the Render thread to use the same egl context.
+        // On iOS, it can be called in the main thread.
+        Profiler.BeginSample("Invoke");
+        RunOnRenderThread(() =>
         {
             interpreter.Invoke();
         });
-        // Profiler.EndSample();
+        Profiler.EndSample();
+
+        // Wait for the Render thread on Android.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            yield return new WaitForEndOfFrame();
+        }
 
         Profiler.BeginSample("Post process");
-        var computePostProcess = usePadded ? computePostProcessPadded : computePostProcessNormal;
         RenderToOutputTexture(computePostProcess, outputBuffer, outputTex);
         Profiler.EndSample();
     }
 
     void InvokeBindingOff(Texture2D inputTex)
     {
-        TextureToTensor(inputTex, inputs);
+        TextureToTensor(inputTex, computePreProcess, inputBuffer);
+        inputBuffer.GetData(inputs);
         interpreter.SetInputTensorData(0, inputs);
 
         Profiler.BeginSample("Invoke");
@@ -212,7 +232,7 @@ public sealed class GpuBindSample : MonoBehaviour
         Profiler.BeginSample("Post process");
         interpreter.GetOutputTensorData(0, outputs);
         outputBuffer.SetData(outputs);
-        RenderToOutputTexture(computePostProcessNormal, outputBuffer, outputTex);
+        RenderToOutputTexture(computePostProcess, outputBuffer, outputTex);
         Profiler.EndSample();
 
     }
@@ -234,12 +254,6 @@ public sealed class GpuBindSample : MonoBehaviour
         Debug.Assert(texture.width % 8 == 0);
         Debug.Assert(texture.height % 8 == 0);
 
-        // compute.SetInt("Width", texture.width);
-        // compute.SetInt("Height", texture.height);
-        // compute.SetTexture(0, "InputTexture", texture);
-        // compute.SetBuffer(0, "OutputTensor", tensor);
-        // compute.Dispatch(0, texture.width / 8, texture.height / 8, 1);
-
         commandBuffer.Clear();
         commandBuffer.SetExecutionFlags(CommandBufferExecutionFlags.None);
         var fence = commandBuffer.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation, SynchronisationStageFlags.ComputeProcessing);
@@ -250,62 +264,8 @@ public sealed class GpuBindSample : MonoBehaviour
         commandBuffer.SetComputeBufferParam(compute, 0, "OutputTensor", tensor);
         commandBuffer.DispatchCompute(compute, 0, texture.width / 8, texture.height / 8, 1);
 
-        // Graphics.ExecuteCommandBufferAsync(preprocessCommand, ComputeQueueType.Urgent);
         Graphics.ExecuteCommandBuffer(commandBuffer);
         Graphics.WaitOnAsyncGraphicsFence(fence);
-        // Debug.Log($"supportCraphicsFence: {SystemInfo.supportsGraphicsFence}, supportsAsyncCompute: {SystemInfo.supportsAsyncCompute}");
-    }
-
-    static void TextureToTensor(Texture2D texture, float[,,] tensor)
-    {
-        Color32[] pixels = texture.GetPixels32();
-        int width = texture.width;
-        int height = texture.height - 1;
-        const float scale = 255f;
-        int channels = tensor.GetLength(2);
-
-        if (channels == 3)
-        {
-            for (int i = 0; i < pixels.Length; i++)
-            {
-                int y = height - i / width;
-                int x = i % width;
-                tensor[y, x, 0] = (float)(pixels[i].r) / scale;
-                tensor[y, x, 1] = (float)(pixels[i].g) / scale;
-                tensor[y, x, 2] = (float)(pixels[i].b) / scale;
-            }
-        }
-        else if (channels == 4)
-        {
-            for (int i = 0; i < pixels.Length; i++)
-            {
-                int y = height - i / width;
-                int x = i % width;
-                tensor[y, x, 0] = (float)(pixels[i].r) / scale;
-                tensor[y, x, 1] = (float)(pixels[i].g) / scale;
-                tensor[y, x, 2] = (float)(pixels[i].b) / scale;
-                tensor[y, x, 3] = 1f;
-            }
-        }
-        else if (channels > 4)
-        {
-            for (int i = 0; i < pixels.Length; i++)
-            {
-                int y = height - i / width;
-                int x = i % width;
-                tensor[y, x, 0] = (float)(pixels[i].r) / scale;
-                tensor[y, x, 1] = (float)(pixels[i].g) / scale;
-                tensor[y, x, 2] = (float)(pixels[i].b) / scale;
-                for (int c = 3; c < channels; c++)
-                {
-                    tensor[y, x, c] = 1f;
-                }
-            }
-        }
-        else
-        {
-            throw new System.NotSupportedException();
-        }
     }
 
     static bool IsGpuBindingSupported
@@ -322,7 +282,6 @@ public sealed class GpuBindSample : MonoBehaviour
         }
     }
 
-#pragma warning disable CS0162 // Unreachable code detected 
     static IBindableDelegate CreateGpuDelegate(bool useBinding)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -348,22 +307,14 @@ public sealed class GpuBindSample : MonoBehaviour
         });
 #endif
         throw new System.NotSupportedException();
-        return null;
     }
-#pragma warning restore CS0162 // Unreachable code detected    
 
-    static IEnumerator RunOnRenderThreadAsync(System.Action callback)
+    static void RunOnRenderThread(System.Action callback)
     {
-        if (Application.platform == RuntimePlatform.Android)
-        {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            RenderThreadHook.RunOnRenderThread(callback);
+        RenderThreadHook.RunOnRenderThread(callback);
+#else
+        callback.Invoke();
 #endif // UNITY_ANDROID && !UNITY_EDITOR
-            yield return new WaitForEndOfFrame();
-        }
-        else
-        {
-            callback.Invoke();
-        }
     }
 }

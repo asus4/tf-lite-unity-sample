@@ -12,6 +12,9 @@ namespace TensorFlowLite
     /// <summary>
     /// Provides a simple way to execute C# code on Unity's render thread.
     /// Call RunOnRenderThread with an Action to execute it immediately on the render thread.
+    /// 
+    /// See plugin source here:
+    /// https://github.com/asus4/RenderThreadHookPlugin
     /// </summary>
     public static class RenderThreadHook
     {
