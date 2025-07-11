@@ -293,6 +293,7 @@ public sealed class GpuBindSample : MonoBehaviour
             glOptions.inferencePriority1 = (int)GpuDelegateV2.InferencePriority.MinLatency;
             glOptions.inferencePriority2 = (int)GpuDelegateV2.InferencePriority.Auto;
             glOptions.inferencePriority3 = (int)GpuDelegateV2.InferencePriority.Auto;
+            // OpenGL ES mode is required for binding.
             glOptions.experimentalFlags = (long)GpuDelegateV2.ExperimentalFlags.GlOnly;
         }
         return new GpuDelegateV2(glOptions);
@@ -311,10 +312,14 @@ public sealed class GpuBindSample : MonoBehaviour
 
     static void RunOnRenderThread(System.Action callback)
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        RenderThreadHook.RunOnRenderThread(callback);
-#else
-        callback.Invoke();
-#endif // UNITY_ANDROID && !UNITY_EDITOR
+        // Android GPU delegate requires calling on the render thread.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            RenderThreadHook.RunOnRenderThread(callback);
+        }
+        else
+        {
+            callback.Invoke();
+        }
     }
 }
