@@ -293,8 +293,6 @@ public sealed class GpuBindSample : MonoBehaviour
             glOptions.inferencePriority1 = (int)GpuDelegateV2.InferencePriority.MinLatency;
             glOptions.inferencePriority2 = (int)GpuDelegateV2.InferencePriority.Auto;
             glOptions.inferencePriority3 = (int)GpuDelegateV2.InferencePriority.Auto;
-            // OpenGL ES mode is required for binding.
-            glOptions.experimentalFlags = (long)GpuDelegateV2.ExperimentalFlags.GlOnly;
         }
         return new GpuDelegateV2(glOptions);
 #elif UNITY_IOS || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
