@@ -1,0 +1,29 @@
+﻿#pragma kernel LabelToTex
+
+// Enable 4-channel padding for Metal
+#pragma multi_compile_local __ USE_PADDED
+
+uint Width;
+uint Height;
+
+#if USE_PADDED
+StructuredBuffer<float4> LabelBuffer;
+#else
+StructuredBuffer<float2> LabelBuffer;
+#endif
+
+RWTexture2D<float4> Result;
+
+[numthreads(8,8,1)]
+void LabelToTex (uint2 tid : SV_DispatchThreadID)
+{
+    uint gid = (Height - 1 - tid.y) * Width + tid.x;
+    
+    #if USE_PADDED
+    float2 label = LabelBuffer[gid].xy;
+    #else
+    float2 label = LabelBuffer[gid];
+    #endif
+    
+    Result[tid] = float4(label.x, label.y, 0.0, 1.0);
+}
