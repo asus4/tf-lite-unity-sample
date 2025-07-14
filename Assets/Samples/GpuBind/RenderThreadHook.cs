@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using AOT;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace TensorFlowLite
     public static class RenderThreadHook
     {
         static readonly IntPtr s_RenderThreadPtr = Marshal.GetFunctionPointerForDelegate<UnityRenderingEvent>(OnRenderThread);
-        static Action s_ManagedCallback = null;
+        static readonly ConcurrentQueue<Action> s_Callbacks = new ConcurrentQueue<Action>();
 
         /// <summary>
         /// Default event ID called in the native plugin. Change this if conflicts with other systems.
@@ -21,7 +22,6 @@ namespace TensorFlowLite
 
         /// <summary>
         /// Execute an action on the render thread immediately using a specific event ID.
-        /// The callback is registered and executed in a single call.
         /// Use different event IDs to avoid conflicts with other systems.
         /// </summary>
         /// <param name="callback">The action to execute on the render thread</param>
@@ -31,14 +31,9 @@ namespace TensorFlowLite
             {
                 throw new ArgumentNullException(nameof(callback), "RenderThreadHook: Callback cannot be null");
             }
-            if (s_ManagedCallback != null)
-            {
-                // TODO: This doesn't support multiple callbacks in a single frame. But leave it as is for simplicity.
-                throw new InvalidOperationException("RenderThreadHook: Only one callback can be registered per frame.");
-            }
 
-            // Register and execute immediately
-            s_ManagedCallback = callback;
+            // Enqueue callback for execution
+            s_Callbacks.Enqueue(callback);
             GL.IssuePluginEvent(s_RenderThreadPtr, HookEventId);
         }
 
@@ -61,12 +56,16 @@ namespace TensorFlowLite
         [MonoPInvokeCallback(typeof(UnityRenderingEvent))]
         private static void OnRenderThread(int eventID)
         {
-            if (HookEventId != eventID || s_ManagedCallback == null)
+            if (HookEventId != eventID)
             {
                 return;
             }
-            s_ManagedCallback.Invoke();
-            s_ManagedCallback = null;
+
+            // Execute all queued callbacks
+            while (s_Callbacks.TryDequeue(out Action callback))
+            {
+                callback?.Invoke();
+            }
         }
     }
 }
