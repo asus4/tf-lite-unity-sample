@@ -37,6 +37,7 @@ public sealed class GpuBindSample : MonoBehaviour
     ComputeBuffer inputBuffer;
     ComputeBuffer outputBuffer;
     RenderTexture outputTex;
+    bool isReady = false;
 
     IEnumerator Start()
     {
@@ -49,9 +50,6 @@ public sealed class GpuBindSample : MonoBehaviour
         outputTex.Create();
         outputImage.texture = outputTex;
 
-        // Need to wait 1 frame to wait GPU startup
-        yield return new WaitForEndOfFrame();
-
         commandBuffer = new CommandBuffer()
         {
             name = "preprocess",
@@ -59,14 +57,16 @@ public sealed class GpuBindSample : MonoBehaviour
 
         if (useBinding)
         {
-            yield return PrepareBindingOn();
+            PrepareBindingOn();
         }
         else
         {
             PrepareBindingOff();
         }
 
-        StartCoroutine(InvokeLoop());
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        isReady = true;
     }
 
     private void OnDestroy()
@@ -90,8 +90,22 @@ public sealed class GpuBindSample : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (!isReady) return;
 
-    IEnumerator PrepareBindingOn()
+        if (useBinding)
+        {
+            InvokeBindingOn(inputTex);
+        }
+        else
+        {
+            InvokeBindingOff(inputTex);
+        }
+    }
+
+
+    void PrepareBindingOn()
     {
         bool isMetal = IsMetal;
 
@@ -123,7 +137,7 @@ public sealed class GpuBindSample : MonoBehaviour
         int width = inputShape0[2];
         // int channels = inputShape0[3];
 
-        // On iOS GPU, input must be 4 channels, regardless of what model expects.
+        // On MetalDelegate, channels must be 4 padded, regardless of the model I/O.
         int gpuInputChannels = isMetal ? 4 : 3;
         int gpuOutputChannels = isMetal ? 4 : 2;
 
@@ -145,14 +159,13 @@ public sealed class GpuBindSample : MonoBehaviour
         if (IsOpenGLES3)
         {
             // Gpu Delegate must be initialized in the Render thread to use the same egl context.
-            RunOnRenderThread(() =>
+            RenderThreadHook.RunOnRenderThread(() =>
             {
                 if (interpreter.ModifyGraphWithDelegate(gpuDelegate) != Interpreter.Status.Ok)
                 {
                     Debug.LogError("Failed to modify the graph with delegate");
                 }
             });
-            yield return new WaitForEndOfFrame();
         }
     }
 
@@ -179,40 +192,25 @@ public sealed class GpuBindSample : MonoBehaviour
     }
 
 
-    IEnumerator InvokeLoop()
-    {
-        while (Application.isPlaying)
-        {
-            if (useBinding)
-            {
-                yield return InvokeBindingOn(inputTex);
-            }
-            else
-            {
-                InvokeBindingOff(inputTex);
-            }
-            yield return new WaitForEndOfFrame();
-        }
-    }
-
-    IEnumerator InvokeBindingOn(Texture2D inputTex)
+    void InvokeBindingOn(Texture2D inputTex)
     {
         TextureToTensor(inputTex, computePreProcess, inputBuffer);
 
-        // On Android, Gpu Delegate must be called in the Render thread to use the same egl context.
-        // On iOS, it can be called in the main thread.
         Profiler.BeginSample("Invoke");
-        RunOnRenderThread(() =>
-        {
-            interpreter.Invoke();
-        });
-        Profiler.EndSample();
-
-        // Wait for the Render thread on Android.
         if (Application.platform == RuntimePlatform.Android)
         {
-            yield return new WaitForEndOfFrame();
+            // On GpuDelegateV2 (Android), Invoke() must be called in the render thread to use the same egl context.
+            RenderThreadHook.RunOnRenderThread(() =>
+            {
+                interpreter.Invoke();
+            });
         }
+        else
+        {
+            // On MetalDelegate (iOS or macOS), it can be called in the main thread.
+            interpreter.Invoke();
+        }
+        Profiler.EndSample();
 
         Profiler.BeginSample("Post process");
         RenderToOutputTexture(computePostProcess, outputBuffer, outputTex);
@@ -256,7 +254,7 @@ public sealed class GpuBindSample : MonoBehaviour
 
         commandBuffer.Clear();
         commandBuffer.SetExecutionFlags(CommandBufferExecutionFlags.None);
-        var fence = commandBuffer.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation, SynchronisationStageFlags.ComputeProcessing);
+        // var fence = commandBuffer.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation, SynchronisationStageFlags.ComputeProcessing);
 
         commandBuffer.SetComputeIntParam(compute, "Width", texture.width);
         commandBuffer.SetComputeIntParam(compute, "Height", texture.height);
@@ -265,22 +263,14 @@ public sealed class GpuBindSample : MonoBehaviour
         commandBuffer.DispatchCompute(compute, 0, texture.width / 8, texture.height / 8, 1);
 
         Graphics.ExecuteCommandBuffer(commandBuffer);
-        Graphics.WaitOnAsyncGraphicsFence(fence);
+        // Graphics.WaitOnAsyncGraphicsFence(fence);
     }
 
-    static bool IsGpuBindingSupported
+    static bool IsGpuBindingSupported => SystemInfo.graphicsDeviceType switch
     {
-        get
-        {
-            switch (SystemInfo.graphicsDeviceType)
-            {
-                case GraphicsDeviceType.Metal:
-                case GraphicsDeviceType.OpenGLES3:
-                    return true;
-            }
-            return false;
-        }
-    }
+        GraphicsDeviceType.Metal or GraphicsDeviceType.OpenGLES3 => true,
+        _ => false,
+    };
 
     static IBindableDelegate CreateGpuDelegate(bool useBinding)
     {
@@ -306,18 +296,5 @@ public sealed class GpuBindSample : MonoBehaviour
         });
 #endif
         throw new System.NotSupportedException();
-    }
-
-    static void RunOnRenderThread(System.Action callback)
-    {
-        // Android GPU delegate requires calling on the render thread.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            RenderThreadHook.RunOnRenderThread(callback);
-        }
-        else
-        {
-            callback.Invoke();
-        }
     }
 }
