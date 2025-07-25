@@ -87,18 +87,25 @@ namespace TensorFlowLite
         };
 
         public TfLiteDelegate Delegate { get; private set; }
+        public readonly bool IsAsyncMode;
 
         public static Options DefaultOptions => TfLiteGpuDelegateOptionsV2Default();
 
-        public GpuDelegateV2()
+        public GpuDelegateV2(bool useAsync = false)
         {
+            IsAsyncMode = useAsync && (Application.platform == RuntimePlatform.Android);
             Options options = DefaultOptions;
-            Delegate = TfLiteGpuDelegateV2Create(ref options);
+            Delegate = IsAsyncMode
+                ? TfLiteGpuDelegateV2CreateAsync(ref options)
+                : TfLiteGpuDelegateV2Create(ref options);
         }
 
-        public GpuDelegateV2(Options options)
+        public GpuDelegateV2(Options options, bool useAsync = false)
         {
-            Delegate = TfLiteGpuDelegateV2Create(ref options);
+            IsAsyncMode = useAsync && (Application.platform == RuntimePlatform.Android);
+            Delegate = IsAsyncMode
+                ? TfLiteGpuDelegateV2CreateAsync(ref options)
+                : TfLiteGpuDelegateV2Create(ref options);
         }
 
         public void Dispose()
@@ -133,6 +140,12 @@ namespace TensorFlowLite
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe TfLiteDelegate TfLiteGpuDelegateV2Create(ref Options options);
+
+        // Only available on Android.
+#if UNITY_ANDROID
+        [DllImport(TensorFlowLibraryGPU)]
+        private static extern unsafe TfLiteDelegate TfLiteGpuDelegateV2CreateAsync(ref Options options);
+#endif // UNITY_ANDROID
 
         [DllImport(TensorFlowLibraryGPU)]
         private static extern unsafe void TfLiteGpuDelegateV2Delete(TfLiteDelegate gpuDelegate);
