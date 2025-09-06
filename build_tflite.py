@@ -104,10 +104,12 @@ def build_ios():
 
 def build_android():
     # Main
+    # bazel build -c opt --fat_apk_cpu=arm64-v8a,armeabi-v7a,x86_64 --cxxopt=--std=c++17 --define=xnn_enable_arm_i8mm=false --define=xnn_enable_arm_bf16=false --define=xnn_enable_avx512amx=false --define=xnn_enable_avxvnniint8=false --define=xnn_enable_avxvnni=false --define=xnn_enable_avx512fp16=false --host_crosstool_top=@bazel_tools//tools/cpp:toolchain --define=android_dexmerger_tool=d8_dexmerger --define=android_incremental_dexing_tool=d8_dexbuilder tensorflow/lite/java:tensorflow-lite
     run_cmd(f'bazel build -c opt --fat_apk_cpu=x86,x86_64,arm64-v8a,armeabi-v7a --define=android_dexmerger_tool=d8_dexmerger --define=android_incremental_dexing_tool=d8_dexbuilder //tensorflow/lite/java:tensorflow-lite')
     copy('bazel-bin/tensorflow/lite/java/tensorflow-lite.aar', 'Android')
 
     # GPU Delegate
+    # bazel build -c opt --fat_apk_cpu=arm64-v8a,armeabi-v7a,x86_64 --cxxopt=--std=c++17 --define=xnn_enable_arm_i8mm=false --define=xnn_enable_arm_bf16=false --define=xnn_enable_avx512amx=false --define=xnn_enable_avxvnniint8=false --define=xnn_enable_avxvnni=false --define=xnn_enable_avx512fp16=false --host_crosstool_top=@bazel_tools//tools/cpp:toolchain --define=android_dexmerger_tool=d8_dexmerger --define=android_incremental_dexing_tool=d8_dexbuilder tensorflow/lite/java:tensorflow-lite-gpu
     run_cmd('bazel build -c opt --fat_apk_cpu=arm64-v8a,armeabi-v7a,x86_64 //tensorflow/lite/java:tensorflow-lite-gpu')
     copy('bazel-bin/tensorflow/lite/java/tensorflow-lite-gpu.aar', 'Android')
 
