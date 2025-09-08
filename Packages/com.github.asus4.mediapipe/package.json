@@ -16,6 +16,10 @@
     "com.github.asus4.tflite": "2.19.0-p3",
     "com.github.asus4.tflite.common": "2.19.0-p3"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/asus4/tf-lite-unity-sample"
+  },
   "documentationUrl": "https://github.com/asus4/tf-lite-unity-sample",
   "changelogUrl": "https://github.com/asus4/tf-lite-unity-sample/releases",
   "licensesUrl": "https://github.com/asus4/tf-lite-unity-sample/tree/master/Packages/com.github.asus4.mediapipe/LICENSE",
