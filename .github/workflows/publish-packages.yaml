@@ -6,6 +6,9 @@ on:
 env:
   # Dry-run on workflow_dispatch
   NPM_OPTS: ${{ github.event_name == 'workflow_dispatch' && '--dry-run' || '' }}
+permissions:
+  id-token: write
+  contents: read
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -13,18 +16,15 @@ jobs:
     - uses: actions/checkout@v4
       with:
         lfs: true
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v5
       with:
+        node-version: 'latest'
         registry-url: 'https://registry.npmjs.org'
+    # Publish NPM using OIDC token
+    - run: npm install -g npm@latest
     - run: npm publish ${{ env.NPM_OPTS }}
       working-directory: Packages/com.github.asus4.tflite
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
     - run: npm publish ${{ env.NPM_OPTS }}
       working-directory: Packages/com.github.asus4.tflite.common
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
     - run: npm publish ${{ env.NPM_OPTS }}
       working-directory: Packages/com.github.asus4.mediapipe
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
