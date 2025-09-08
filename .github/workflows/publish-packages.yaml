@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 env:
   # Dry-run on workflow_dispatch
-  NPM_OPTS: ${{ github.event_name == 'workflow_dispatch' && '--dry-run --tag canary' || '' }}
+  NPM_OPTS: ${{ github.event_name == 'workflow_dispatch' && '--dry-run --tag canary' || '--tag latest' }}
 permissions:
   id-token: write
   contents: read
