@@ -112,7 +112,14 @@ namespace TensorFlowLite
 
         public void SetInputTensorData(int inputTensorIndex, Array inputTensorData)
         {
-            if (!inputDataHandles.TryGetValue(inputTensorIndex, out GCHandle tensorDataHandle))
+            if (inputDataHandles.TryGetValue(inputTensorIndex, out GCHandle tensorDataHandle))
+            {
+                if (tensorDataHandle.Target != inputTensorData)
+                {
+                    tensorDataHandle.Target = inputTensorData;
+                }
+            }
+            else
             {
                 tensorDataHandle = GCHandle.Alloc(inputTensorData, GCHandleType.Pinned);
                 inputDataHandles.Add(inputTensorIndex, tensorDataHandle);
@@ -165,7 +172,14 @@ namespace TensorFlowLite
 
         public void GetOutputTensorData(int outputTensorIndex, Array outputTensorData)
         {
-            if (!outputDataHandles.TryGetValue(outputTensorIndex, out GCHandle tensorDataHandle))
+            if (outputDataHandles.TryGetValue(outputTensorIndex, out GCHandle tensorDataHandle))
+            {
+                if (tensorDataHandle.Target != outputTensorData)
+                {
+                    tensorDataHandle.Target = outputTensorData;
+                }
+            }
+            else
             {
                 tensorDataHandle = GCHandle.Alloc(outputTensorData, GCHandleType.Pinned);
                 outputDataHandles.Add(outputTensorIndex, tensorDataHandle);
