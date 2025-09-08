@@ -13,7 +13,7 @@
   "hideInEditor": false,
   "repository": {
     "type": "git",
-    "repository": "https://github.com/asus4/tf-lite-unity-sample"
+    "url": "https://github.com/asus4/tf-lite-unity-sample"
   },
   "documentationUrl": "https://github.com/asus4/tf-lite-unity-sample",
   "changelogUrl": "https://github.com/asus4/tf-lite-unity-sample/releases",
