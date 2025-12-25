@@ -77,6 +77,25 @@ namespace TensorFlowLite
                 return;
             }
 
+            _backgroundMesh = new Mesh()
+            {
+                vertices = new Vector3[]
+                {
+                    new Vector3(0f, 0f, 0.1f),
+                    new Vector3(0f, 1f, 0.1f),
+                    new Vector3(1f, 1f, 0.1f),
+                    new Vector3(1f, 0f, 0.1f),
+                },
+                uv = new Vector2[]
+                {
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 1f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 0f),
+                },
+                triangles = new int[] { 0, 1, 2, 0, 2, 3 }
+            };
+
             const string name = "Camera Texture Background Pass (Built-in)";
             var cmd = new CommandBuffer()
             {
@@ -86,8 +105,10 @@ namespace TensorFlowLite
             cmd.BeginSample(name);
 
             cmd.SetInvertCulling(false);
-            cmd.Blit(null, BuiltinRenderTextureType.CameraTarget, Material);
-
+            cmd.SetViewProjectionMatrices(Matrix4x4.identity, _BackgroundOrthoProjection);
+            cmd.DrawMesh(_backgroundMesh, Matrix4x4.identity, Material);
+            cmd.SetViewProjectionMatrices(camera.worldToCameraMatrix, camera.projectionMatrix);
+            
             cmd.EndSample(name);
 
             camera.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, cmd);
