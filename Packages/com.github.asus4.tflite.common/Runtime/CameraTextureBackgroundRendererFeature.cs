@@ -99,23 +99,14 @@ namespace TensorFlowLite
             /// <summary>
             /// The name for the custom render pass which will be display in graphics debugging tools.
             /// </summary>
-            const string k_CustomRenderPassName = "Camera Texture Background Pass (URP)";
+            const string k_CustomRenderPassName = "Camera Texture Background Pass (Render Graph Enabled)";
+
+            const string k_CustomRenderPassNameObsolete = "Camera Texture Background Pass (Render Graph Disabled)";
 
             /// <summary>
             /// The orthogonal projection matrix for the background rendering.
             /// </summary>
             static readonly Matrix4x4 k_BackgroundOrthoProjection = Matrix4x4.Ortho(0f, 1f, 0f, 1f, -0.1f, 9.9f);
-
-            /// <summary>
-            /// The mesh for rendering the background material.
-            /// </summary>
-            Mesh m_BackgroundMesh;
-
-            /// <summary>
-            /// The material used for rendering the device background using the camera video texture and potentially
-            /// other device-specific properties and textures.
-            /// </summary>
-            Material m_BackgroundMaterial;
 
             PassData passData;
 
@@ -137,13 +128,13 @@ namespace TensorFlowLite
             /// <param name="invertCulling">Whether the culling mode should be inverted.</param>
             public void Setup(Mesh backgroundMesh, Material backgroundMaterial)
             {
-                this.passData = new PassData()
+                passData = new PassData()
                 {
+                    worldToCameraMatrix = Matrix4x4.identity,
+                    projectionMatrix = Matrix4x4.identity,
                     mesh = backgroundMesh,
                     material = backgroundMaterial,
                 };
-                m_BackgroundMesh = backgroundMesh;
-                m_BackgroundMaterial = backgroundMaterial;
             }
 
             /// <summary>
@@ -163,25 +154,22 @@ namespace TensorFlowLite
             /// </summary>
             /// <param name="context">The render context for executing the render commands.</param>
             /// <param name="renderingData">Additional rendering data about the current state of rendering.</param>
-            //[Obsolete(CompatibilityScriptingAPIObsolete)]
+            [Obsolete(CompatibilityScriptingAPIObsolete)]
             public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
             {
-                var cmd = CommandBufferPool.Get(k_CustomRenderPassName);
-                cmd.BeginSample(k_CustomRenderPassName);
+                passData.worldToCameraMatrix = renderingData.cameraData.camera.worldToCameraMatrix;
+                passData.projectionMatrix = renderingData.cameraData.camera.projectionMatrix;
 
-                cmd.SetInvertCulling(false);
+                var cmd = CommandBufferPool.Get(k_CustomRenderPassNameObsolete);
+                cmd.BeginSample(k_CustomRenderPassNameObsolete);
 
-                cmd.SetViewProjectionMatrices(Matrix4x4.identity, k_BackgroundOrthoProjection);
-                cmd.DrawMesh(m_BackgroundMesh, Matrix4x4.identity, m_BackgroundMaterial);
-                cmd.SetViewProjectionMatrices(renderingData.cameraData.camera.worldToCameraMatrix,
-                                              renderingData.cameraData.camera.projectionMatrix);
+                ExecutePass(passData, CommandBufferHelpers.GetRasterCommandBuffer(cmd));
 
-                cmd.EndSample(k_CustomRenderPassName);
+                cmd.EndSample(k_CustomRenderPassNameObsolete);
                 context.ExecuteCommandBuffer(cmd);
 
                 CommandBufferPool.Release(cmd);
             }
-
 
             static void ExecutePass(PassData data, RasterCommandBuffer cmd)
             {
@@ -203,6 +191,9 @@ namespace TensorFlowLite
 #if URP_17_OR_NEWER_ENABLED
             public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
             {
+                var mesh = passData.mesh;
+                var material = passData.material;
+
                 using var builder = renderGraph.AddRasterRenderPass(k_CustomRenderPassName, out passData, profilingSampler);
 
                 var cameraData = frameData.Get<UniversalCameraData>();
@@ -210,14 +201,13 @@ namespace TensorFlowLite
 
                 passData.worldToCameraMatrix = cameraData.camera.worldToCameraMatrix;
                 passData.projectionMatrix = cameraData.camera.projectionMatrix;
-                passData.mesh = m_BackgroundMesh;
-                passData.material = m_BackgroundMaterial;
+                passData.mesh = mesh;
+                passData.material = material;
 
                 builder.AllowGlobalStateModification(true);
                 builder.AllowPassCulling(false);
 
                 builder.SetRenderAttachment(resourceData.activeColorTexture, 0);
-                builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.Write);
 
                 builder.SetRenderFunc(static (PassData data, RasterGraphContext context) => ExecutePass(data, context.cmd));
             }
