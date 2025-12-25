@@ -1,10 +1,16 @@
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
-#if MODULE_URP_ENABLED
+#if URP_10_OR_NEWER_ENABLED
 using UnityEngine.Rendering.Universal;
+#if URP_17_OR_NEWER_ENABLED
+using UnityEngine.Rendering.RenderGraphModule;
+#else
+using UnityEngine.Experimental.Rendering;
+#endif // URP_17_OR_NEWER_ENABLED
 #else
 using ScriptableRendererFeature = UnityEngine.ScriptableObject;
-#endif
+#endif // URP_10_OR_NEWER_ENABLED
 
 namespace TensorFlowLite
 {
@@ -14,7 +20,19 @@ namespace TensorFlowLite
     /// </summary>
     public class CameraTextureBackgroundRendererFeature : ScriptableRendererFeature
     {
-#if MODULE_URP_ENABLED
+#if URP_10_OR_NEWER_ENABLED
+
+        class PassData
+        {
+            // To restore original camera matrices after drawing the background
+            internal Matrix4x4 worldToCameraMatrix;
+            internal Matrix4x4 projectionMatrix;
+            // To be rendered
+            internal Mesh mesh;
+            internal Material material;
+
+        }
+
         /// <summary>
         /// The scriptable render pass to be added to the renderer when the camera background is to be rendered.
         /// </summary>
@@ -25,6 +43,8 @@ namespace TensorFlowLite
         /// </summary>
         Mesh m_BackgroundMesh;
 
+
+
         /// <summary>
         /// Create the scriptable render pass.
         /// </summary>
@@ -33,7 +53,7 @@ namespace TensorFlowLite
             m_ScriptablePass = new CustomRenderPass(RenderPassEvent.BeforeRenderingOpaques);
 
             m_BackgroundMesh = new Mesh();
-            m_BackgroundMesh.vertices =  new Vector3[]
+            m_BackgroundMesh.vertices = new Vector3[]
             {
                 new Vector3(0f, 0f, 0.1f),
                 new Vector3(0f, 1f, 0.1f),
@@ -47,7 +67,7 @@ namespace TensorFlowLite
                 new Vector2(1f, 1f),
                 new Vector2(1f, 0f),
             };
-            m_BackgroundMesh.triangles = new int[] {0, 1, 2, 0, 2, 3};
+            m_BackgroundMesh.triangles = new int[] { 0, 1, 2, 0, 2, 3 };
         }
 
         /// <summary>
@@ -74,6 +94,8 @@ namespace TensorFlowLite
         /// </summary>
         class CustomRenderPass : ScriptableRenderPass
         {
+            const string CompatibilityScriptingAPIObsolete = "This rendering path is for compatibility mode only (when Render Graph is disabled). Use Render Graph API instead.";
+
             /// <summary>
             /// The name for the custom render pass which will be display in graphics debugging tools.
             /// </summary>
@@ -95,6 +117,9 @@ namespace TensorFlowLite
             /// </summary>
             Material m_BackgroundMaterial;
 
+            PassData passData;
+
+
             /// <summary>
             /// Constructs the background render pass.
             /// </summary>
@@ -112,6 +137,11 @@ namespace TensorFlowLite
             /// <param name="invertCulling">Whether the culling mode should be inverted.</param>
             public void Setup(Mesh backgroundMesh, Material backgroundMaterial)
             {
+                this.passData = new PassData()
+                {
+                    mesh = backgroundMesh,
+                    material = backgroundMaterial,
+                };
                 m_BackgroundMesh = backgroundMesh;
                 m_BackgroundMaterial = backgroundMaterial;
             }
@@ -121,8 +151,10 @@ namespace TensorFlowLite
             /// </summary>
             /// <param name="commandBuffer">The command buffer for configuration.</param>
             /// <param name="renderTextureDescriptor">The descriptor of the target render texture.</param>
+            [Obsolete(CompatibilityScriptingAPIObsolete)]
             public override void Configure(CommandBuffer commandBuffer, RenderTextureDescriptor renderTextureDescriptor)
             {
+                base.Configure(commandBuffer, renderTextureDescriptor);
                 ConfigureClear(ClearFlag.Depth, Color.clear);
             }
 
@@ -131,6 +163,7 @@ namespace TensorFlowLite
             /// </summary>
             /// <param name="context">The render context for executing the render commands.</param>
             /// <param name="renderingData">Additional rendering data about the current state of rendering.</param>
+            //[Obsolete(CompatibilityScriptingAPIObsolete)]
             public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
             {
                 var cmd = CommandBufferPool.Get(k_CustomRenderPassName);
@@ -149,6 +182,15 @@ namespace TensorFlowLite
                 CommandBufferPool.Release(cmd);
             }
 
+
+            static void ExecutePass(PassData data, RasterCommandBuffer cmd)
+            {
+                cmd.SetInvertCulling(false);
+                cmd.SetViewProjectionMatrices(Matrix4x4.identity, k_BackgroundOrthoProjection);
+                cmd.DrawMesh(data.mesh, Matrix4x4.identity, data.material);
+                cmd.SetViewProjectionMatrices(data.worldToCameraMatrix, data.projectionMatrix);
+            }
+
             /// <summary>
             /// Clean up any resources for the render pass.
             /// </summary>
@@ -156,7 +198,31 @@ namespace TensorFlowLite
             public override void FrameCleanup(CommandBuffer commandBuffer)
             {
             }
+
+
+#if URP_17_OR_NEWER_ENABLED
+            public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
+            {
+                using var builder = renderGraph.AddRasterRenderPass(k_CustomRenderPassName, out passData, profilingSampler);
+
+                var cameraData = frameData.Get<UniversalCameraData>();
+                var resourceData = frameData.Get<UniversalResourceData>();
+
+                passData.worldToCameraMatrix = cameraData.camera.worldToCameraMatrix;
+                passData.projectionMatrix = cameraData.camera.projectionMatrix;
+                passData.mesh = m_BackgroundMesh;
+                passData.material = m_BackgroundMaterial;
+
+                builder.AllowGlobalStateModification(true);
+                builder.AllowPassCulling(false);
+
+                builder.SetRenderAttachment(resourceData.activeColorTexture, 0);
+                builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.Write);
+
+                builder.SetRenderFunc(static (PassData data, RasterGraphContext context) => ExecutePass(data, context.cmd));
+            }
+#endif // URP_17_OR_NEWER_ENABLED
         }
-#endif // MODULE_URP_ENABLED
+#endif // URP_10_OR_NEWER_ENABLED
     }
 }
