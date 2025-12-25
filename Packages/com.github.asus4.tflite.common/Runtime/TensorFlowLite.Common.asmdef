@@ -19,7 +19,12 @@
         {
             "name": "com.unity.render-pipelines.universal",
             "expression": "10.0.0",
-            "define": "MODULE_URP_ENABLED"
+            "define": "URP_10_OR_NEWER_ENABLED"
+        },
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "17.0.0",
+            "define": "URP_17_OR_NEWER_ENABLED"
         },
         {
             "name": "com.cysharp.unitask",
