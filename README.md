@@ -31,12 +31,12 @@ Included examples:
 
 Included prebuilt libraries:
 
-| | iOS | Android | macOS | Ubuntu | Windows |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Core CPU |✅|✅|✅|✅|✅|
-| Metal Delegate |✅| - |✅| - | - |
-| GPU Delegate | - |✅| - | ✅ Experimental | - |
-| NNAPI Delegate | - |✅| - | - | - |
+|                | iOS | Android | macOS | Ubuntu            | Windows |
+|----------------|:---:|:-------:|:-----:|:-----------------:|:-------:|
+| Core CPU       | ✅  | ✅      | ✅    | ✅                | ✅      |
+| Metal Delegate | ✅  | -       | ✅    | -                 | -       |
+| GPU Delegate   | -   | ✅      | -     | ✅ Experimental   | -       |
+| NNAPI Delegate | -   | ✅      | -     | -                 | -       |
 
 - You need to install OpenGL ES and OpenCL to run GPU Delegate on Linux. See [MediaPipe](https://google.github.io/mediapipe/getting_started/gpu_support.html#opengl-es-setup-on-linux-desktop) for details.
 
