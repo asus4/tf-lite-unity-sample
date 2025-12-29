@@ -10,7 +10,7 @@
   ],
   "dependencies": {
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.10",
-    "com.github.asus4.texture-source": "0.3.4",
+    "com.github.asus4.texture-source": "0.3.5",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.collections": "2.6.2",
     "com.unity.ide.visualstudio": "2.0.26",
